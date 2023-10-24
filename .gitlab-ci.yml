@@ -1,0 +1,70 @@
+stages:
+  - test
+  - lint
+  - build
+  - deploy
+
+variables:
+  GOLANG_IMAGE: golang:1.21-alpine
+  NODE_IMAGE: node:lts-alpine
+
+cache:
+  - key:
+      files:
+        - yarn.lock
+    paths:
+      - .yarn/
+    policy: pull-push
+
+
+test-frontend:
+  stage: test
+  image: $NODE_IMAGE
+  before_script:
+    - cd "$CI_PROJECT_DIR/frontend"
+    - yarn
+  script:
+    - cd "$CI_PROJECT_DIR/frontend"
+    - yarn test
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+test-backend:
+  stage: test
+  image: $GOLANG_IMAGE
+  before_script:
+    - go mod download
+  script: 
+    - go test ./...
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+
+lint-frontend:
+  stage: lint
+  image: $NODE_IMAGE
+  before_script:
+    - cd "$CI_PROJECT_DIR/frontend"
+    - yarn
+  script:
+    - cd "$CI_PROJECT_DIR/frontend"
+    - yarn lint
+  rules:
+    - if: $CI_COMMIT_BRANCH
+
+lint-backend:
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
+  stage: lint
+  script:
+    # Use default .golangci.yml file from the image if one is not present in the project root.
+    - '[ -e .golangci.yml ] || cp /golangci/.golangci.yml .'
+    # Write the code coverage report to gl-code-quality-report.json
+    # and print linting issues to stdout in the format: path/to/file:line description
+    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
+    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+    paths:
+      - gl-code-quality-report.json
+
