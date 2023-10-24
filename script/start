@@ -2,9 +2,8 @@
 
 air -c .air.toml &
 
-cd assets
+cd frontend
 
 yarn
-yarn gen
 yarn dev
 
