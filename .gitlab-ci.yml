@@ -25,7 +25,8 @@ test-frontend:
     - yarn
   script:
     - cd "$CI_PROJECT_DIR/frontend"
-    - yarn test
+    - yarn test:ci
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   rules:
     - if: $CI_COMMIT_BRANCH
 
@@ -35,7 +36,8 @@ test-backend:
   before_script:
     - go mod download
   script: 
-    - go test ./...
+    - go test ./... --cover
+  coverage: '/coverage: \d+.\d+% of statements/'
   rules:
     - if: $CI_COMMIT_BRANCH
 
