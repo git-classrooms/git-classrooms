@@ -6,6 +6,6 @@ type Classroom struct {
 	Description string
 	WebUrl      string
 	Visibility  Visibility
-	Member      []ClassroomMember
+	Member      []User
 	Projects    []Project
 }

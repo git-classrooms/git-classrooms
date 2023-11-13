@@ -14,6 +14,6 @@ type Project struct {
 	Visibility  Visibility
 	WebUrl      string
 	Description string
-	Owner       User
+	Owner       *User
 	Member      []User
 }
