@@ -113,6 +113,20 @@ func TestGoGitlabRepo(t *testing.T) {
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(users), 1)
 	})
+
+	t.Run("GetAllUsers", func(t *testing.T) {
+		users, err := repo.GetAllUsers()
+
+		assert.NoError(t, err)
+		assert.GreaterOrEqual(t, len(users), 1)
+	})
+
+	t.Run("GetAllClassrooms", func(t *testing.T) {
+		classrooms, err := repo.GetAllClassrooms()
+
+		assert.NoError(t, err)
+		assert.GreaterOrEqual(t, len(classrooms), 1)
+	})
 }
 
 func assertContainUser(t *testing.T, expectedUser model.User, users []model.User) {

@@ -106,6 +106,30 @@ func (repo *GoGitlabRepo) GetClassroomById(id int) (*model.Classroom, error) {
 	return classroom, nil
 }
 
+func (repo *GoGitlabRepo) GetAllUsers() ([]*model.User, error) {
+	repo.assertIsConnected()
+
+	gitlabUsers, _, err := repo.client.Users.ListUsers(&gitlab.ListUsersOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.convertGitlabUsers(gitlabUsers)
+}
+
+func (repo *GoGitlabRepo) GetAllClassrooms() ([]*model.Classroom, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.Groups.ListGroups(&gitlab.ListGroupsOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO Jannes continue here
+
+	return nil, nil
+}
+
 func (repo *GoGitlabRepo) GetAllProjectsOfClassroom(id int) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -135,7 +159,7 @@ func (repo *GoGitlabRepo) GetAllUsersOfClassroom(id int) ([]*model.User, error) 
 
 func (repo *GoGitlabRepo) assertIsConnected() {
 	if repo.client == nil {
-		panic("No connection to Gitlab")
+		panic("No connection to Gitlab! Make sure you have executed Login()")
 	}
 }
 
@@ -154,6 +178,15 @@ func (repo *GoGitlabRepo) getUserByUsername(username string) (*model.User, error
 	}
 
 	return UserFromGoGitlab(*users[0]), nil
+}
+
+func (repo *GoGitlabRepo) convertGitlabUsers(gitlabUsers []*gitlab.User) ([]*model.User, error) {
+	users := make([]*model.User, len(gitlabUsers))
+	for i, gitlabUser := range gitlabUsers {
+		users[i] = UserFromGoGitlab(*gitlabUser)
+	}
+
+	return users, nil
 }
 
 func (repo *GoGitlabRepo) convertGitlabProjects(gitlabProjects []*gitlab.Project) ([]*model.Project, error) {
