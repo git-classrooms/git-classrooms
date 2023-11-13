@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+
+  classroom:
+    image: registry.hs-flensburg.dev/gitlab/classroom:develop
+    ports:
+      - 3000:3000
+    env_file: .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.classroom.rule=Host(`staging.hs-flensburg.dev`)"
+      - "traefik.http.routers.classroom.entrypoints=websecure"
+      - "traefik.http.routers.classroom.tls.certresolver=myresolver"
+
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER} 
+      POSTGRES_DB: ${DB_DATABASE}
+
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=hauke.ingwersen@stud.hs-flensburg.de"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

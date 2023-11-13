@@ -22,7 +22,7 @@ RUN cd frontend && yarn build
 #############################################
 # Runtime image
 #############################################
-FROM alpine:3.18
+FROM alpine:3.18 as release
 
 RUN mkdir -p /app/public
 WORKDIR /app
