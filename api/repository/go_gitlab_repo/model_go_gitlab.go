@@ -107,8 +107,8 @@ func UserFromGoGitlabGroupMember(input gitlab.GroupMember) *model.User {
 	}
 }
 
-func ClassroomFromGoGitlab(input gitlab.Group) *model.Classroom {
-	return &model.Classroom{
+func GroupFromGoGitlab(input gitlab.Group) *model.Group {
+	return &model.Group{
 		Name:        input.Name,
 		ID:          input.ID,
 		Description: input.Description,
@@ -117,9 +117,9 @@ func ClassroomFromGoGitlab(input gitlab.Group) *model.Classroom {
 	}
 }
 
-func ClassroomFromGoGitlabWithMembersAndProjects(group gitlab.Group, members []model.User, projects []model.Project) *model.Classroom {
+func GroupFromGoGitlabWithMembersAndProjects(group gitlab.Group, members []model.User, projects []model.Project) *model.Group {
 
-	return &model.Classroom{
+	return &model.Group{
 		Name:        group.Name,
 		ID:          group.ID,
 		Description: group.Description,

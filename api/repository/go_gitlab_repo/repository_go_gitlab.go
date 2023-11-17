@@ -16,17 +16,7 @@ func NewGoGitlabRepo() *GoGitlabRepo {
 	return &GoGitlabRepo{client: nil, isConnected: false}
 }
 
-func (repo *GoGitlabRepo) Login(username string, password string) (*model.User, error) {
-	cli, err := gitlab.NewBasicAuthClient(username, password, gitlab.WithBaseURL("https://gitlab.hs-flensburg.de"))
-	if err != nil {
-		return nil, err
-	}
-	repo.client = cli
-
-	return repo.getUserByUsername(username)
-}
-
-func (repo *GoGitlabRepo) LoginByToken(token string, username string) (*model.User, error) {
+func (repo *GoGitlabRepo) Login(token string, username string) (*model.User, error) {
 	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://gitlab.hs-flensburg.de"))
 	if err != nil {
 		return nil, err
@@ -42,7 +32,7 @@ func (repo *GoGitlabRepo) DeleteProject(id int) error {
 	return err
 }
 
-func (repo *GoGitlabRepo) DeleteClassroom(id int) error {
+func (repo *GoGitlabRepo) DeleteGroup(id int) error {
 	repo.assertIsConnected()
 	_, err := repo.client.Groups.DeleteGroup(id)
 	return err
@@ -81,7 +71,7 @@ func (repo *GoGitlabRepo) GetUserById(id int) (*model.User, error) {
 	return UserFromGoGitlab(*gitlabUser), nil
 }
 
-func (repo *GoGitlabRepo) GetClassroomById(id int) (*model.Classroom, error) {
+func (repo *GoGitlabRepo) GetGroupById(id int) (*model.Group, error) {
 	repo.assertIsConnected()
 
 	gitlabGroup, _, err := repo.client.Groups.GetGroup(id, &gitlab.GetGroupOptions{})
@@ -89,21 +79,21 @@ func (repo *GoGitlabRepo) GetClassroomById(id int) (*model.Classroom, error) {
 		return nil, err
 	}
 
-	classroom := ClassroomFromGoGitlab(*gitlabGroup)
+	Group := GroupFromGoGitlab(*gitlabGroup)
 
-	projects, err := repo.GetAllProjectsOfClassroom(gitlabGroup.ID)
+	projects, err := repo.GetAllProjectsOfGroup(gitlabGroup.ID)
 	if err != nil {
 		return nil, err
 	}
-	classroom.Projects = ConvertProjectPointerSlice(projects)
+	Group.Projects = ConvertProjectPointerSlice(projects)
 
-	members, err := repo.GetAllUsersOfClassroom(gitlabGroup.ID)
+	members, err := repo.GetAllUsersOfGroup(gitlabGroup.ID)
 	if err != nil {
 		return nil, err
 	}
-	classroom.Member = ConvertUserPointerSlice(members)
+	Group.Member = ConvertUserPointerSlice(members)
 
-	return classroom, nil
+	return Group, nil
 }
 
 func (repo *GoGitlabRepo) GetAllUsers() ([]*model.User, error) {
@@ -117,7 +107,7 @@ func (repo *GoGitlabRepo) GetAllUsers() ([]*model.User, error) {
 	return repo.convertGitlabUsers(gitlabUsers)
 }
 
-func (repo *GoGitlabRepo) GetAllClassrooms() ([]*model.Classroom, error) {
+func (repo *GoGitlabRepo) GetAllGroups() ([]*model.Group, error) {
 	repo.assertIsConnected()
 
 	_, _, err := repo.client.Groups.ListGroups(&gitlab.ListGroupsOptions{})
@@ -130,7 +120,7 @@ func (repo *GoGitlabRepo) GetAllClassrooms() ([]*model.Classroom, error) {
 	return nil, nil
 }
 
-func (repo *GoGitlabRepo) GetAllProjectsOfClassroom(id int) ([]*model.Project, error) {
+func (repo *GoGitlabRepo) GetAllProjectsOfGroup(id int) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
 	gitlabProjects, _, err := repo.client.Groups.ListGroupProjects(id, &gitlab.ListGroupProjectsOptions{})
@@ -141,7 +131,7 @@ func (repo *GoGitlabRepo) GetAllProjectsOfClassroom(id int) ([]*model.Project, e
 	return repo.convertGitlabProjects(gitlabProjects)
 }
 
-func (repo *GoGitlabRepo) GetAllUsersOfClassroom(id int) ([]*model.User, error) {
+func (repo *GoGitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	repo.assertIsConnected()
 
 	gitlabMembers, _, err := repo.client.Groups.ListGroupMembers(id, &gitlab.ListGroupMembersOptions{})

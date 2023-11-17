@@ -1,6 +1,6 @@
 package model
 
-type Classroom struct {
+type Group struct {
 	Name        string
 	ID          int
 	Description string

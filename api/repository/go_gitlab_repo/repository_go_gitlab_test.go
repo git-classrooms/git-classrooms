@@ -45,8 +45,13 @@ func TestGoGitlabRepo(t *testing.T) {
 
 	repo := go_gitlab_repo.NewGoGitlabRepo()
 
+	// hs-flensburg.dev
+	// user
+	// Anwendungsschlüssel
+	//
+
 	t.Run("LoginByToken", func(t *testing.T) {
-		user, err := repo.LoginByToken(credentials.Token, credentials.Username)
+		user, err := repo.Login(credentials.Token, credentials.Username)
 
 		assert.NoError(t, err)
 		assert.Equal(t, credentials.ID, user.ID)
@@ -56,18 +61,18 @@ func TestGoGitlabRepo(t *testing.T) {
 		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
 	})
 
-	_, err = repo.LoginByToken(credentials.Token, credentials.Username)
+	_, err = repo.Login(credentials.Token, credentials.Username)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	t.Run("GetAllProjects", func(t *testing.T) {
-		project, err := repo.GetProjectById(668)
+	t.Run("GetProjectById", func(t *testing.T) {
+		project, err := repo.GetProjectById(685)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 668, project.ID)
-		assert.Equal(t, "gitlab-classroom", project.Name)
-		assert.Equal(t, "https://gitlab.hs-flensburg.de/fb3-masterprojekt-gitlab-classroom/gitlab-classroom", project.WebUrl)
+		assert.Equal(t, 685, project.ID)
+		assert.Equal(t, "MyTestProject", project.Name)
+		assert.Equal(t, "https://gitlab.hs-flensburg.de/mytestgroup/mytestproject", project.WebUrl)
 		assert.Equal(t, model.Private, project.Visibility)
 	})
 
@@ -89,26 +94,26 @@ func TestGoGitlabRepo(t *testing.T) {
 		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
 	})
 
-	t.Run("GetClassroomById", func(t *testing.T) {
-		classroom, err := repo.GetClassroomById(1051)
+	t.Run("GetGroupById", func(t *testing.T) {
+		Group, err := repo.GetGroupById(1237)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1051, classroom.ID)
-		assert.Equal(t, "Masterprojekt Gitlab Classroom", classroom.Name)
-		assert.Equal(t, "https://gitlab.hs-flensburg.de/groups/fb3-masterprojekt-gitlab-classroom", classroom.WebUrl)
-		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebUrl: credentials.WebUrl}, classroom.Member)
-		assertContainProject(t, model.Project{ID: 668, Name: "gitlab-classroom", WebUrl: "https://gitlab.hs-flensburg.de/fb3-masterprojekt-gitlab-classroom/gitlab-classroom", Description: ""}, classroom.Projects)
+		assert.Equal(t, 1237, Group.ID)
+		assert.Equal(t, "MyTestGroup", Group.Name)
+		assert.Equal(t, "https://gitlab.hs-flensburg.de/groups/mytestgroup", Group.WebUrl)
+		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebUrl: credentials.WebUrl}, Group.Member)
+		assertContainProject(t, model.Project{ID: 685, Name: "MyTestProject", WebUrl: "https://gitlab.hs-flensburg.de/mytestgroup/mytestproject", Description: ""}, Group.Projects)
 	})
 
-	t.Run("GetAllProjectsOfClassroom", func(t *testing.T) {
-		projects, err := repo.GetAllProjectsOfClassroom(1051)
+	t.Run("GetAllProjectsOfGroup", func(t *testing.T) {
+		projects, err := repo.GetAllProjectsOfGroup(1237)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(projects), 1)
 	})
 
-	t.Run("GetAllUsersOfClassroom", func(t *testing.T) {
-		users, err := repo.GetAllUsersOfClassroom(1051)
+	t.Run("GetAllUsersOfGroup", func(t *testing.T) {
+		users, err := repo.GetAllUsersOfGroup(1237)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(users), 1)
@@ -119,13 +124,6 @@ func TestGoGitlabRepo(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(users), 1)
-	})
-
-	t.Run("GetAllClassrooms", func(t *testing.T) {
-		classrooms, err := repo.GetAllClassrooms()
-
-		assert.NoError(t, err)
-		assert.GreaterOrEqual(t, len(classrooms), 1)
 	})
 }
 
