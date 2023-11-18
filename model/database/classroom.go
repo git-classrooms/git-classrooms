@@ -1,19 +1,37 @@
 package database
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
 
+type Role uint8
+
+const (
+	Owner Role = iota
+	Moderator
+	Student
+)
+
 type Classroom struct {
-	ID          int `gorm:"primaryKey"`
+	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	Name        string
+	OwnerID     int
 	Owner       User
 	Description string
-	WebUrl      string
-	Member      []User `gorm:"many2many:user_classrooms;"`
+	GroupID     int              `gorm:"<-:create"`
+	Member      []UserClassrooms `gorm:"foreignKey:ClassroomID"`
 	Assignments []Assignment
+}
+
+type UserClassrooms struct {
+	UserID      int `gorm:"primaryKey;autoIncrement:false"`
+	User        User
+	ClassroomID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	Classroom   Classroom
+	Role        Role
 }
