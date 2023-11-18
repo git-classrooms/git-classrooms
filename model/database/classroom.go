@@ -30,10 +30,27 @@ type Classroom struct {
 	Assignments []Assignment
 }
 
+// ClassRoomDTO is the data transfer object representing a user
+type ClassRoomDTO struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	OwnerID     int       `json:"ownerId"`
+	Description string    `json:"description"`
+	GroupID     int       `json:"groupId"`
+}
+
+// UserClassrooms is a struct that represents the relationship between a user and a classroom
 type UserClassrooms struct {
 	UserID      int `gorm:"primaryKey;autoIncrement:false"`
 	User        User
 	ClassroomID uuid.UUID `gorm:"type:uuid;primaryKey"`
 	Classroom   Classroom
 	Role        Role
+}
+
+// UserClassroomDTO is the data transfer object representing a user
+type UserClassroomDTO struct {
+	UserID      int    `json:"userId"`
+	ClassroomID string `json:"classroomId"`
+	Role        Role   `json:"role"`
 }

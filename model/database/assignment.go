@@ -19,11 +19,14 @@ type Assignment struct {
 	Projects          []AssignmentProjects
 }
 
+// AssignmentDTO is the data transfer object representing a user
 type AssignmentDTO struct {
-	ID          uuid.UUID `json:"id"`
-	ClassroomID uuid.UUID `json:"classroom_id"`
+	ID                uuid.UUID `json:"id"`
+	ClassroomID       uuid.UUID `json:"classroomId"`
+	TemplateProjectID int       `json:"templateProjectId"`
 }
 
+// AssignmentProjects is a struct that represents an assignment-projects in the database
 type AssignmentProjects struct {
 	ID           uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	CreatedAt    time.Time
@@ -36,5 +39,10 @@ type AssignmentProjects struct {
 	ProjectID    int `gorm:"<-:create"`
 }
 
+// AssignmentRepositoryDTO is the data transfer object representing a user
 type AssignmentRepositoryDTO struct {
+	ID           uuid.UUID `json:"id"`
+	UserID       uuid.UUID `json:"userId"`
+	AssignmentID uuid.UUID `json:"assignmentId"`
+	ProjectID    int       `json:"projectId"`
 }
