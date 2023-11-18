@@ -1,3 +1,4 @@
+// Package database contains reference types for representing data with gorm
 package database
 
 import (
@@ -15,6 +16,7 @@ type User struct {
 	AssignmentRepositories []AssignmentProjects
 }
 
+// UserDTO is the data transfer object representing a user
 type UserDTO struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`

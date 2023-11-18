@@ -1,3 +1,4 @@
+// Package database contains reference types for representing data with gorm
 package database
 
 import (
@@ -14,6 +15,7 @@ const (
 	Student
 )
 
+// Classroom is a struct that represents a classroom in the database
 type Classroom struct {
 	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	CreatedAt   time.Time

@@ -1,3 +1,4 @@
+// Package database contains reference types for representing data with gorm
 package database
 
 import (
@@ -6,6 +7,7 @@ import (
 	"time"
 )
 
+// Assignment is a struct that represents an assignment in the database
 type Assignment struct {
 	ID                uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
 	CreatedAt         time.Time

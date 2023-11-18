@@ -2,15 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/caarlos0/env/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen"
 	"gorm.io/gorm"
+	"log"
 
 	"backend/model/database"
 	"backend/model/database/query"
@@ -34,12 +32,8 @@ type ApplicationConfig struct {
 }
 
 func main() {
-	if _, err := os.Stat(".env.local"); err == nil {
-		godotenv.Load(".env", ".env.local")
-	} else {
-		godotenv.Load()
-	}
-
+	_ = godotenv.Load(".env", ".env.local")
+	
 	config := ApplicationConfig{}
 	if err := env.Parse(&config); err != nil {
 		log.Fatalf("Couldn't parse environment %s", err.Error())
@@ -61,7 +55,7 @@ func main() {
 		&database.AssignmentProjects{},
 	)
 
-	// Uncomment this to generate Model Code if the Model changed
+	// Uncomment this to generate Query Code if the Model changed
 	// generateGormGen(db)
 
 	if err != nil {
@@ -81,6 +75,7 @@ func main() {
 	log.Fatal(app.Listen(":3000"))
 }
 
+//lint:ignore U1000 Ignore unused function to generate Query Code if the Model changed
 func generateGormGen(db *gorm.DB) {
 	g := gen.NewGenerator(gen.Config{
 		OutPath: "model/database/query",
