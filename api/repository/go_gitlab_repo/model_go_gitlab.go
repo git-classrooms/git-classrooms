@@ -77,6 +77,29 @@ func VisibilityFromGoGitlab(input gitlab.VisibilityValue) model.Visibility {
 	return 0
 }
 
+func AccessLevelFromGoGitlab(input gitlab.AccessLevelValue) model.AccessLevelValue {
+    switch input {
+    case gitlab.NoPermissions:
+        return model.NoPermissions
+    case gitlab.MinimalAccessPermissions:
+        return model.MinimalAccessPermissions
+    case gitlab.GuestPermissions:
+        return model.GuestPermissions
+    case gitlab.ReporterPermissions:
+        return model.ReporterPermissions
+    case gitlab.DeveloperPermissions:
+        return model.DeveloperPermissions
+    case gitlab.MaintainerPermissions:
+        return model.MaintainerPermissions
+    case gitlab.OwnerPermissions:
+        return model.OwnerPermissions
+    case gitlab.AdminPermissions:
+        return model.AdminPermissions
+    default:
+        return model.NoPermissions // Default case
+    }
+}
+
 func UserFromGoGitlab(input gitlab.User) *model.User {
 	return &model.User{
 		ID:       input.ID,
@@ -130,6 +153,18 @@ func GroupFromGoGitlabWithMembersAndProjects(group gitlab.Group, members []model
 	}
 }
 
+func PendingInviteFromGoGitlab(input gitlab.PendingInvite) *model.PendingInvite {
+	return &model.PendingInvite{
+		ID:            input.ID,
+		InviteEmail:   input.InviteEmail,
+		CreatedAt:     input.CreatedAt,
+		AccessLevel:   AccessLevelFromGoGitlab(input.AccessLevel),
+		ExpiresAt:     input.ExpiresAt,
+		UserName:      input.UserName,
+		CreatedByName: input.CreatedByName,
+	}
+}
+
 func ConvertUserPointerSlice(input []*model.User) []model.User {
 	output := make([]model.User, len(input))
 	for i, ptr := range input {
@@ -140,6 +175,14 @@ func ConvertUserPointerSlice(input []*model.User) []model.User {
 
 func ConvertProjectPointerSlice(input []*model.Project) []model.Project {
 	output := make([]model.Project, len(input))
+	for i, ptr := range input {
+		output[i] = *ptr
+	}
+	return output
+}
+
+func ConvertPendingInvitePointerSlice(input []*model.PendingInvite) []model.PendingInvite {
+	output := make([]model.PendingInvite, len(input))
 	for i, ptr := range input {
 		output[i] = *ptr
 	}

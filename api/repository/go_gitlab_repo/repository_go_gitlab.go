@@ -38,6 +38,40 @@ func (repo *GoGitlabRepo) DeleteGroup(id int) error {
 	return err
 }
 
+func (repo *GoGitlabRepo) ChangeGroupName(id int, name string) (*model.Group, error) {
+    repo.assertIsConnected()
+
+    _, _, err := repo.client.Groups.UpdateGroup(id, &gitlab.UpdateGroupOptions{
+        Name: gitlab.String(name),
+    })
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.GetGroupById(id)
+}
+
+func (repo *GoGitlabRepo) AddUserToGroup(groupId int, userId int) (error) {
+	repo.assertIsConnected()
+
+    accessLevel := gitlab.DeveloperPermissions
+
+    _, _, err := repo.client.GroupMembers.AddGroupMember(groupId, &gitlab.AddGroupMemberOptions{
+        UserID:      &userId,
+        AccessLevel: &accessLevel,
+    })
+
+	return err
+}
+
+func (repo *GoGitlabRepo) RemoveUserFromGroup(groupId int, userId int) (error) {
+    repo.assertIsConnected()
+
+    _, err := repo.client.GroupMembers.RemoveGroupMember(groupId, userId, nil)
+
+    return err
+}
+
 func (repo *GoGitlabRepo) GetAllProjects() ([]*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -147,6 +181,109 @@ func (repo *GoGitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	return users, nil
 }
 
+func (repo *GoGitlabRepo) SearchProjectByExpression(expression string) ([]*model.Project, error) {
+    repo.assertIsConnected()
+
+    gitlabProjects, _, err := repo.client.Search.Projects(expression, &gitlab.SearchOptions{})
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.convertGitlabProjects(gitlabProjects)
+}
+
+func (repo *GoGitlabRepo) SearchUserByExpression(expression string) ([]*model.User, error) {
+    repo.assertIsConnected()
+
+    gitlabUsers, _, err := repo.client.Search.Users(expression, &gitlab.SearchOptions{})
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.convertGitlabUsers(gitlabUsers)
+}
+
+func (repo *GoGitlabRepo) SearchUserByExpressionInGroup(expression string, groupId int) ([]*model.User, error) {
+    repo.assertIsConnected()
+
+    gitlabUsers, _, err := repo.client.Search.UsersByGroup(groupId, expression, &gitlab.SearchOptions{})
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.convertGitlabUsers(gitlabUsers)
+}
+
+func (repo *GoGitlabRepo) SearchUserByExpressionInProject(expression string, projectId int) ([]*model.User, error) {
+    repo.assertIsConnected()
+
+    gitlabUsers, _, err := repo.client.Search.UsersByProject(projectId, expression, &gitlab.SearchOptions{})
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.convertGitlabUsers(gitlabUsers)
+}
+
+func (repo *GoGitlabRepo) SearchGroupByExpression(expression string) ([]*model.Group, error) {
+    repo.assertIsConnected()
+
+    gitlabGroups, _, err := repo.client.Groups.SearchGroup(expression)
+    if err != nil {
+        return nil, err
+    }
+
+    groups := make([]*model.Group, len(gitlabGroups))
+    for i, gitlabGroup := range gitlabGroups {
+        groups[i] = GroupFromGoGitlab(*gitlabGroup)
+    }
+
+    return groups, nil
+}
+
+func (repo *GoGitlabRepo) GetPendingProjectInvitations(projectId int) ([]*model.PendingInvite, error) {
+    repo.assertIsConnected()
+
+    pendingInvites, _, err := repo.client.Invites.ListPendingProjectInvitations(projectId, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.convertGitlabPendingInvites(pendingInvites)
+}
+
+func (repo *GoGitlabRepo) GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error) {
+    repo.assertIsConnected()
+
+    pendingInvites, _, err := repo.client.Invites.ListPendingGroupInvitations(groupId, nil)
+    if err != nil {
+        return nil, err
+    }
+
+    return repo.convertGitlabPendingInvites(pendingInvites)
+}
+
+func (repo *GoGitlabRepo) CreateGroupInvite(groupId int, email string) (error) {
+    repo.assertIsConnected()
+
+    _, _, err := repo.client.Invites.GroupInvites(groupId, &gitlab.InvitesOptions{
+        Email: &email,
+        // Set additional options like AccessLevel, ExpiresAt as needed
+    })
+    return err
+}
+
+func (repo *GoGitlabRepo) CreateProjectInvite(id int, email string) (error) {
+    repo.assertIsConnected()
+
+    _, _, err := repo.client.Invites.ProjectInvites(id, &gitlab.InvitesOptions{
+        Email: &email,
+        // Set additional options like AccessLevel, ExpiresAt as needed
+    })
+    return err
+}
+
+
 func (repo *GoGitlabRepo) assertIsConnected() {
 	if repo.client == nil {
 		panic("No connection to Gitlab! Make sure you have executed Login()")
@@ -200,4 +337,13 @@ func (repo *GoGitlabRepo) convertGitlabProject(gitlabProject *gitlab.Project) (*
 	}
 
 	return ProjectFromGoGitlabWithProjectMembers(*gitlabProject, gitlabMembers), nil
+}
+
+func (repo *GoGitlabRepo) convertGitlabPendingInvites(gitlabPendingInvites []*gitlab.PendingInvite) ([]*model.PendingInvite, error) {
+	pendingInvites := make([]*model.PendingInvite, len(gitlabPendingInvites))
+	for i, gitlabPendingInvite := range gitlabPendingInvites {
+		pendingInvites[i] = PendingInviteFromGoGitlab(*gitlabPendingInvite)
+	}
+
+	return pendingInvites, nil
 }

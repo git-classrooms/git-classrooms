@@ -26,11 +26,11 @@ type Repository interface {
 	GetAllUsersOfGroup(id int) ([]*model.User, error)                         //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L77
 	SearchProjectByExpression(expression string) ([]*model.Project, error)    //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L49
 	SearchUserByExpression(expression string) ([]*model.User, error)          //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L290
-	SearchUserByExpressionInGroup(expression string) ([]*model.User, error)   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L300
-	SearchUserByExpressionInProject(expression string) ([]*model.User, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L310
+	SearchUserByExpressionInGroup(expression string, groupId int) ([]*model.User, error)   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L300
+	SearchUserByExpressionInProject(expression string, projectId int) ([]*model.User, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L310
 	SearchGroupByExpression(expression string) ([]*model.Group, error)        //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L609
-	GetPendingProjectInvitations(id int) (*string, error)                     //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L85
-	GetPendingGroupInvitations(id int) (*string, error)                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L60
+	GetPendingProjectInvitations(projectId int) ([]*model.PendingInvite, error)                     //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L85
+	GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error)                  //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L60
 	CreateGroupInvite(groupId int, email string) error                        //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L132
 	CreateProjectInvite(projectId int, email string) error                    //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L157
 	DenyPushingToProject(projectId int) error                                 //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L1608
