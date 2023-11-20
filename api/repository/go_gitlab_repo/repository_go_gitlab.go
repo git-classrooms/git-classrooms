@@ -26,6 +26,35 @@ func (repo *GoGitlabRepo) Login(token string, username string) (*model.User, err
 	return repo.getUserByUsername(username)
 }
 
+func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
+    repo.assertIsConnected()
+
+    gitlabVisibility := VisibilityFromModel(visibility)
+
+    opts := &gitlab.CreateProjectOptions{
+        Name:        gitlab.String(name),
+        Visibility:  &gitlabVisibility,
+        Description: gitlab.String(description),
+    }
+
+    gitlabProject, _, err := repo.client.Projects.CreateProject(opts)
+    if err != nil {
+        return nil, err
+    }
+
+    for _, member := range members {
+        _, _, err := repo.client.ProjectMembers.AddProjectMember(gitlabProject.ID, &gitlab.AddProjectMemberOptions{
+            UserID:      &member.ID,
+            AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+        })
+        if err != nil {
+            return nil, err
+        }
+    }
+
+    return repo.convertGitlabProject(gitlabProject)
+}
+
 func (repo *GoGitlabRepo) DeleteProject(id int) error {
 	repo.assertIsConnected()
 	_, err := repo.client.Projects.DeleteProject(id)

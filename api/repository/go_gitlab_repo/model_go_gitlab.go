@@ -77,6 +77,19 @@ func VisibilityFromGoGitlab(input gitlab.VisibilityValue) model.Visibility {
 	return 0
 }
 
+func VisibilityFromModel(input model.Visibility) gitlab.VisibilityValue {
+    switch input {
+    case model.Public:
+        return gitlab.PublicVisibility
+    case model.Internal:
+        return gitlab.InternalVisibility
+    case model.Private:
+        return gitlab.PrivateVisibility
+    default:
+        return gitlab.PrivateVisibility
+    }
+}
+
 func AccessLevelFromGoGitlab(input gitlab.AccessLevelValue) model.AccessLevelValue {
     switch input {
     case gitlab.NoPermissions:
