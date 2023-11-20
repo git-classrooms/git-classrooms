@@ -3,6 +3,7 @@ package go_gitlab_repo
 import (
 	"backend/model"
 	"fmt"
+	"log"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -17,7 +18,7 @@ func NewGoGitlabRepo() *GoGitlabRepo {
 }
 
 func (repo *GoGitlabRepo) Login(token string, username string) (*model.User, error) {
-	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://gitlab.hs-flensburg.de"))
+	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://hs-flensburg.dev"))
 	if err != nil {
 		return nil, err
 	}
@@ -79,21 +80,7 @@ func (repo *GoGitlabRepo) GetGroupById(id int) (*model.Group, error) {
 		return nil, err
 	}
 
-	Group := GroupFromGoGitlab(*gitlabGroup)
-
-	projects, err := repo.GetAllProjectsOfGroup(gitlabGroup.ID)
-	if err != nil {
-		return nil, err
-	}
-	Group.Projects = ConvertProjectPointerSlice(projects)
-
-	members, err := repo.GetAllUsersOfGroup(gitlabGroup.ID)
-	if err != nil {
-		return nil, err
-	}
-	Group.Member = ConvertUserPointerSlice(members)
-
-	return Group, nil
+	return repo.convertGitlabGroup(gitlabGroup)
 }
 
 func (repo *GoGitlabRepo) GetAllUsers() ([]*model.User, error) {
@@ -110,14 +97,12 @@ func (repo *GoGitlabRepo) GetAllUsers() ([]*model.User, error) {
 func (repo *GoGitlabRepo) GetAllGroups() ([]*model.Group, error) {
 	repo.assertIsConnected()
 
-	_, _, err := repo.client.Groups.ListGroups(&gitlab.ListGroupsOptions{})
+	gitlabGroups, _, err := repo.client.Groups.ListGroups(&gitlab.ListGroupsOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO Jannes continue here
-
-	return nil, nil
+	return repo.convertGitlabGroups(gitlabGroups)
 }
 
 func (repo *GoGitlabRepo) GetAllProjectsOfGroup(id int) ([]*model.Project, error) {
@@ -145,6 +130,28 @@ func (repo *GoGitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	}
 
 	return users, nil
+}
+
+func (repo *GoGitlabRepo) DenyPushingToProject(projectId int) error {
+	repo.assertIsConnected()
+
+	var emailRegex string = "DenyPushing"
+
+	rule := gitlab.AddProjectPushRuleOptions{AuthorEmailRegex: &emailRegex}
+
+	rules, _, err := repo.client.Projects.AddProjectPushRule(projectId, &rule)
+
+	log.Print(rules)
+
+	return err
+}
+
+func (repo *GoGitlabRepo) AllowPushingToProject(projectId int) error {
+	repo.assertIsConnected()
+
+	_, err := repo.client.Projects.DeleteProjectPushRule(projectId)
+
+	return err
 }
 
 func (repo *GoGitlabRepo) assertIsConnected() {
@@ -200,4 +207,36 @@ func (repo *GoGitlabRepo) convertGitlabProject(gitlabProject *gitlab.Project) (*
 	}
 
 	return ProjectFromGoGitlabWithProjectMembers(*gitlabProject, gitlabMembers), nil
+}
+
+func (repo *GoGitlabRepo) convertGitlabGroup(gitlabGroup *gitlab.Group) (*model.Group, error) {
+	Group := GroupFromGoGitlab(*gitlabGroup)
+
+	projects, err := repo.GetAllProjectsOfGroup(gitlabGroup.ID)
+	if err != nil {
+		return nil, err
+	}
+	Group.Projects = ConvertProjectPointerSlice(projects)
+
+	members, err := repo.GetAllUsersOfGroup(gitlabGroup.ID)
+	if err != nil {
+		return nil, err
+	}
+	Group.Member = ConvertUserPointerSlice(members)
+
+	return Group, nil
+}
+
+func (repo *GoGitlabRepo) convertGitlabGroups(gitlabGroups []*gitlab.Group) ([]*model.Group, error) {
+	groups := make([]*model.Group, len(gitlabGroups))
+	for i, gitlabGroup := range gitlabGroups {
+		group, err := repo.convertGitlabGroup(gitlabGroup)
+		if err != nil {
+			return nil, err
+		}
+
+		groups[i] = group
+	}
+
+	return groups, nil
 }
