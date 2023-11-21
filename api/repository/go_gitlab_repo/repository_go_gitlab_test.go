@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/xanzy/go-gitlab"
 )
@@ -22,20 +23,22 @@ type GitlabCredentials struct {
 }
 
 func LoadCredentialsFromEnv() (*GitlabCredentials, error) {
-	idStr := os.Getenv("GITLAB_ID")
+	_ = godotenv.Load(".env", ".env.local")
+
+	idStr := os.Getenv("GO_GITLAB_TEST_USER_ID")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return nil, err
 	}
 
 	credentials := GitlabCredentials{
-		Username: os.Getenv("GITLAB_USERNAME"),
-		Password: os.Getenv("GITLAB_PASSWORD"),
+		Username: os.Getenv("GO_GITLAB_TEST_USERNAME"),
+		Password: os.Getenv("GO_GITLAB_TEST_PASSWORD"),
 		ID:       id,
-		Email:    os.Getenv("GITLAB_EMAIL"),
-		WebUrl:   os.Getenv("GITLAB_WEB_URL"),
-		Name:     os.Getenv("GITLAB_NAME"),
-		Token:    os.Getenv("GITLAB_TOKEN"),
+		Email:    os.Getenv("GO_GITLAB_TEST_EMAIL"),
+		WebUrl:   os.Getenv("GO_GITLAB_TEST_WEB_URL"),
+		Name:     os.Getenv("GO_GITLAB_TEST_NAME"),
+		Token:    os.Getenv("GO_GITLAB_TEST_TOKEN"),
 	}
 
 	return &credentials, nil
@@ -57,10 +60,10 @@ func TestGoGitlabRepo(t *testing.T) {
 		assert.Equal(t, credentials.Username, user.Username)
 		assert.Equal(t, credentials.Name, user.Name)
 		assert.Equal(t, credentials.WebUrl, user.WebUrl)
-		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
+		// assert.Equal(t, credentials.Email, user.Email) // TODO emails not available with personal access tokens, but should be with session tokens
 	})
 
-	_, err = repo.Login("p8HA@v!CpqCA*WkHD4.D_D4hv9@FQa9r", "IntegrationTestsUser2") // credentials.Token, credentials.Username)
+	_, err = repo.Login(credentials.Token, credentials.Username)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,14 +97,14 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetGroupById", func(t *testing.T) {
-		Group, err := repo.GetGroupById(1237)
+		Group, err := repo.GetGroupById(15)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1237, Group.ID)
-		assert.Equal(t, "MyTestGroup", Group.Name)
-		assert.Equal(t, "https://gitlab.hs-flensburg.de/groups/mytestgroup", Group.WebUrl)
+		assert.Equal(t, 15, Group.ID)
+		assert.Equal(t, "IntegrationsTestGroup1", Group.Name)
+		assert.Equal(t, "https://hs-flensburg.dev/groups/integrationstestgroup11", Group.WebUrl)
 		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebUrl: credentials.WebUrl}, Group.Member)
-		assertContainProject(t, model.Project{ID: 685, Name: "MyTestProject", WebUrl: "https://gitlab.hs-flensburg.de/mytestgroup/mytestproject", Description: ""}, Group.Projects)
+		assertContainProject(t, model.Project{ID: 3, Name: "IntegrationTestsProject3", WebUrl: "https://hs-flensburg.dev/integrationstestgroup11/integrationtestsproject3", Description: ""}, Group.Projects)
 	})
 
 	t.Run("GetAllUsers", func(t *testing.T) {
@@ -119,32 +122,36 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetAllProjectsOfGroup", func(t *testing.T) {
-		projects, err := repo.GetAllProjectsOfGroup(1237)
+		projects, err := repo.GetAllProjectsOfGroup(15)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(projects), 1)
 	})
 
 	t.Run("GetAllUsersOfGroup", func(t *testing.T) {
-		users, err := repo.GetAllUsersOfGroup(1237)
+		users, err := repo.GetAllUsersOfGroup(15)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(users), 1)
 	})
 
-	t.Run("Push rules", func(t *testing.T) {
-		client := createTestClient(t, credentials.Token)
+	/*
+		Seems to not work with Push rules
+		Other options: https://docs.gitlab.com/ee/api/protected_branches.html#protect-repository-branches
+		t.Run("Push rules", func(t *testing.T) {
+			client := createTestClient(t, credentials.Token)
 
-		err := repo.DenyPushingToProject(685)
-		assert.NoError(t, err)
+			err := repo.DenyPushingToProject(3)
+			assert.NoError(t, err)
 
-		assert.True(t, containsPushRule(t, client, 685))
+			assert.True(t, containsPushRule(t, client, 3))
 
-		err = repo.AllowPushingToProject(685)
-		assert.NoError(t, err)
+			err = repo.AllowPushingToProject(685)
+			assert.NoError(t, err)
 
-		assert.False(t, containsPushRule(t, client, 685))
-	})
+			assert.False(t, containsPushRule(t, client, 3))
+		})
+	*/
 }
 
 func createTestClient(t *testing.T, token string) *gitlab.Client {

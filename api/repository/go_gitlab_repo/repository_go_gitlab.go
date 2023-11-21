@@ -3,7 +3,6 @@ package go_gitlab_repo
 import (
 	"backend/model"
 	"fmt"
-	"log"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -297,6 +296,12 @@ func (repo *GoGitlabRepo) CreateProjectInvite(id int, email string) error {
 	return err
 }
 
+/*
+TODO:
+	Seems to not work with Push rules
+	Other options:
+		- https://docs.gitlab.com/ee/api/protected_branches.html#protect-repository-branches
+		- just removing users from project
 func (repo *GoGitlabRepo) DenyPushingToProject(projectId int) error {
 	repo.assertIsConnected()
 
@@ -304,9 +309,7 @@ func (repo *GoGitlabRepo) DenyPushingToProject(projectId int) error {
 
 	rule := gitlab.AddProjectPushRuleOptions{AuthorEmailRegex: &emailRegex}
 
-	rules, _, err := repo.client.Projects.AddProjectPushRule(projectId, &rule)
-
-	log.Print(rules)
+	_, _, err := repo.client.Projects.AddProjectPushRule(projectId, &rule)
 
 	return err
 }
@@ -318,6 +321,7 @@ func (repo *GoGitlabRepo) AllowPushingToProject(projectId int) error {
 
 	return err
 }
+*/
 
 func (repo *GoGitlabRepo) assertIsConnected() {
 	if repo.client == nil {

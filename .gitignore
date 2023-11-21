@@ -1,4 +1,3 @@
 # Build dir
 tmp
-**/credentials.yml
-**/setup_envs.sh
+**.env.*
