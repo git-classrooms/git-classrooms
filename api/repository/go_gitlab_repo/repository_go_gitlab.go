@@ -298,18 +298,28 @@ func (repo *GoGitlabRepo) CreateProjectInvite(id int, email string) error {
 
 /*
 TODO:
-	Seems to not work with Push rules
-	Other options:
-		- https://docs.gitlab.com/ee/api/protected_branches.html#protect-repository-branches
-		- just removing users from project
-func (repo *GoGitlabRepo) DenyPushingToProject(projectId int) error {
+	Mit personal access tokens gibt es nicht die möglichkeit das pushen zu unterbinden (für das schließen eines assignments)
+	- Not with Push Rules
+	- Not with Protect Branches
+
+func (repo *GoGitlabRepo) DenyPushingToProject(projectId int, userToAllowAgain model.User) error {
 	repo.assertIsConnected()
 
-	var emailRegex string = "DenyPushing"
+	allowedToUnprotect := []*gitlab.BranchPermissionOptions{
+		{
+			UserID:      &userToAllowAgain.ID,
+			AccessLevel: gitlab.AccessLevel(gitlab.MaintainerPermissions),
+		},
+	}
 
-	rule := gitlab.AddProjectPushRuleOptions{AuthorEmailRegex: &emailRegex}
+	options := gitlab.ProtectRepositoryBranchesOptions{
+		UnprotectAccessLevel: gitlab.AccessLevel(gitlab.MaintainerPermissions),
+		AllowedToUnprotect:   &allowedToUnprotect,
+	}
 
-	_, _, err := repo.client.Projects.AddProjectPushRule(projectId, &rule)
+	branches, _, err := repo.client.ProtectedBranches.ProtectRepositoryBranches(projectId, &options)
+
+	log.Println(branches)
 
 	return err
 }
@@ -317,7 +327,7 @@ func (repo *GoGitlabRepo) DenyPushingToProject(projectId int) error {
 func (repo *GoGitlabRepo) AllowPushingToProject(projectId int) error {
 	repo.assertIsConnected()
 
-	_, err := repo.client.Projects.DeleteProjectPushRule(projectId)
+	_, err := repo.client.ProtectedBranches.UnprotectRepositoryBranches(projectId, "*")
 
 	return err
 }

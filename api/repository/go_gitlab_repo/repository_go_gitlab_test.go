@@ -136,12 +136,13 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	/*
-		Seems to not work with Push rules
-		Other options: https://docs.gitlab.com/ee/api/protected_branches.html#protect-repository-branches
+		Mit personal access tokens gibt es nicht die möglichkeit das pushen zu unterbinden (für das schließen eines assignments)
+		- Not with Push Rules
+		- Not with Protect Branches
 		t.Run("Push rules", func(t *testing.T) {
 			client := createTestClient(t, credentials.Token)
 
-			err := repo.DenyPushingToProject(3)
+			err := repo.DenyPushingToProject(3, model.User{ID: credentials.ID})
 			assert.NoError(t, err)
 
 			assert.True(t, containsPushRule(t, client, 3))
