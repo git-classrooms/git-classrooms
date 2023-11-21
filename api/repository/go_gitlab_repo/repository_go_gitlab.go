@@ -55,6 +55,36 @@ func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+func (repo *GoGitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
+    repo.assertIsConnected()
+
+    gitlabVisibility := VisibilityFromModel(visibility)
+
+    createOpts := &gitlab.CreateGroupOptions{
+        Name:        gitlab.String(name),
+        Description: gitlab.String(description),
+        Visibility:  &gitlabVisibility,
+    }
+
+    gitlabGroup, _, err := repo.client.Groups.CreateGroup(createOpts)
+    if err != nil {
+        return nil, err
+    }
+
+    for _, email := range memberEmails {
+        userID, _ := repo.FindUserIDByEmail(email)
+        _, _, err := repo.client.GroupMembers.AddGroupMember(gitlabGroup.ID, &gitlab.AddGroupMemberOptions{
+            UserID:      &userID,
+            AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+        })
+        if err != nil {
+            return nil, err
+        }
+    }
+
+    return GroupFromGoGitlab(*gitlabGroup), nil
+}
+
 func (repo *GoGitlabRepo) DeleteProject(id int) error {
 	repo.assertIsConnected()
 	_, err := repo.client.Projects.DeleteProject(id)
@@ -354,6 +384,25 @@ func (repo *GoGitlabRepo) getUserByUsername(username string) (*model.User, error
 	}
 
 	return UserFromGoGitlab(*users[0]), nil
+}
+
+func (repo *GoGitlabRepo) FindUserIDByEmail(email string) (int, error) {
+    repo.assertIsConnected()
+
+    listUsersOptions := &gitlab.ListUsersOptions{
+        Search: gitlab.String(email),
+    }
+
+    users, _, err := repo.client.Users.ListUsers(listUsersOptions)
+    if err != nil {
+        return 0, err
+    }
+
+    if len(users) != 1 {
+        return 0, fmt.Errorf("user not found or multiple users found with email: %s", email)
+    }
+
+    return users[0].ID, nil
 }
 
 func (repo *GoGitlabRepo) convertGitlabUsers(gitlabUsers []*gitlab.User) ([]*model.User, error) {
