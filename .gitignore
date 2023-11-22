@@ -1,2 +1,6 @@
 # Build dir
 tmp
+
+
+# Environment configuration file
+.env
