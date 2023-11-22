@@ -17,6 +17,8 @@ func NewGoGitlabRepo() *GoGitlabRepo {
 	return &GoGitlabRepo{client: nil, isConnected: false}
 }
 
+// Reference to Go Gitlab Documentation: https://pkg.go.dev/github.com/xanzy/go-gitlab#section-documentation
+
 func (repo *GoGitlabRepo) Login(token string, username string) (*model.User, error) {
 	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://hs-flensburg.dev"))
 	if err != nil {

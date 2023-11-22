@@ -5,8 +5,6 @@ import (
 )
 
 type Repository interface {
-	// Groups als Gitlab Group realisieren?
-
 	Login(token string, username string) (*model.User, error)                                                                //j
 	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L735 https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L466
 	CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error)   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
@@ -33,8 +31,6 @@ type Repository interface {
 	GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error)                  //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L60
 	CreateGroupInvite(groupId int, email string) error                                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L132
 	CreateProjectInvite(projectId int, email string) error                                   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L157
-	DenyPushingToProject(projectId int) error                                                //j https://github.com/xanzy/go-gitlab/blob/v0.94.0/protected_branches.go#L182
-	AllowPushingToProject(projectId int) error                                               //j https://github.com/xanzy/go-gitlab/blob/v0.94.0/protected_branches.go#L156
-
-	// mache alle user nur noch zu guests
+	DenyPushingToProject(projectId int) error                                                // TODO: keine Möglichkeit bisher gefunden
+	AllowPushingToProject(projectId int) error                                               // TODO: keine Möglichkeit bisher gefunden
 }
