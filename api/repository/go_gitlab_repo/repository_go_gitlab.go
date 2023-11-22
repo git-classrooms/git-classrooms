@@ -3,6 +3,7 @@ package go_gitlab_repo
 import (
 	"backend/model"
 	"fmt"
+	"log"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -56,33 +57,33 @@ func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility
 }
 
 func (repo *GoGitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
-    repo.assertIsConnected()
+	repo.assertIsConnected()
 
-    gitlabVisibility := VisibilityFromModel(visibility)
+	gitlabVisibility := VisibilityFromModel(visibility)
 
-    createOpts := &gitlab.CreateGroupOptions{
-        Name:        gitlab.String(name),
-        Description: gitlab.String(description),
-        Visibility:  &gitlabVisibility,
-    }
+	createOpts := &gitlab.CreateGroupOptions{
+		Name:        gitlab.String(name),
+		Description: gitlab.String(description),
+		Visibility:  &gitlabVisibility,
+	}
 
-    gitlabGroup, _, err := repo.client.Groups.CreateGroup(createOpts)
-    if err != nil {
-        return nil, err
-    }
+	gitlabGroup, _, err := repo.client.Groups.CreateGroup(createOpts)
+	if err != nil {
+		return nil, err
+	}
 
-    for _, email := range memberEmails {
-        userID, _ := repo.FindUserIDByEmail(email)
-        _, _, err := repo.client.GroupMembers.AddGroupMember(gitlabGroup.ID, &gitlab.AddGroupMemberOptions{
-            UserID:      &userID,
-            AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
-        })
-        if err != nil {
-            return nil, err
-        }
-    }
+	for _, email := range memberEmails {
+		userID, _ := repo.FindUserIDByEmail(email)
+		_, _, err := repo.client.GroupMembers.AddGroupMember(gitlabGroup.ID, &gitlab.AddGroupMemberOptions{
+			UserID:      &userID,
+			AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
 
-    return GroupFromGoGitlab(*gitlabGroup), nil
+	return GroupFromGoGitlab(*gitlabGroup), nil
 }
 
 func (repo *GoGitlabRepo) DeleteProject(id int) error {
@@ -328,40 +329,49 @@ func (repo *GoGitlabRepo) CreateProjectInvite(id int, email string) error {
 
 /*
 TODO:
-	Mit personal access tokens gibt es nicht die möglichkeit das pushen zu unterbinden (für das schließen eines assignments)
+	Mit personal access tokens ist es bisher nicht möglich ein Assignment zu schließen bzw. das Pushen zu unterbinden (man bekommt bei alle aufgelisteten Möglichkeiten einen 404 zurück)
 	- Not with Push Rules
 	- Not with Protect Branches
+	- Not with change Project Member Access Level
+*/
 
-func (repo *GoGitlabRepo) DenyPushingToProject(projectId int, userToAllowAgain model.User) error {
-	repo.assertIsConnected()
+func (repo *GoGitlabRepo) DenyPushingToProject(projectId int) error {
+	log.Panic("No working option to close an assignment")
 
-	allowedToUnprotect := []*gitlab.BranchPermissionOptions{
-		{
-			UserID:      &userToAllowAgain.ID,
-			AccessLevel: gitlab.AccessLevel(gitlab.MaintainerPermissions),
-		},
-	}
+	permission := gitlab.AccessLevelValue(gitlab.MinimalAccessPermissions)
 
-	options := gitlab.ProtectRepositoryBranchesOptions{
-		UnprotectAccessLevel: gitlab.AccessLevel(gitlab.MaintainerPermissions),
-		AllowedToUnprotect:   &allowedToUnprotect,
-	}
-
-	branches, _, err := repo.client.ProtectedBranches.ProtectRepositoryBranches(projectId, &options)
-
-	log.Println(branches)
-
-	return err
+	return repo.changeProjectMemberPermissions(projectId, permission)
 }
 
 func (repo *GoGitlabRepo) AllowPushingToProject(projectId int) error {
+	log.Panic("No working option to reopen an assignment")
+
+	permission := gitlab.AccessLevelValue(gitlab.DeveloperPermissions)
+
+	return repo.changeProjectMemberPermissions(projectId, permission)
+}
+
+func (repo *GoGitlabRepo) changeProjectMemberPermissions(projectId int, accessLevel gitlab.AccessLevelValue) error {
 	repo.assertIsConnected()
 
-	_, err := repo.client.ProtectedBranches.UnprotectRepositoryBranches(projectId, "*")
+	members, _, err := repo.client.ProjectMembers.ListAllProjectMembers(projectId, &gitlab.ListProjectMembersOptions{})
+	if err != nil {
+		return err
+	}
 
-	return err
+	for _, member := range members {
+		if member.AccessLevel == *gitlab.AccessLevel(gitlab.OwnerPermissions) {
+			continue
+		}
+
+		_, _, err := repo.client.ProjectMembers.EditProjectMember(projectId, member.ID, &gitlab.EditProjectMemberOptions{AccessLevel: &accessLevel})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
-*/
 
 func (repo *GoGitlabRepo) assertIsConnected() {
 	if repo.client == nil {
@@ -387,22 +397,22 @@ func (repo *GoGitlabRepo) getUserByUsername(username string) (*model.User, error
 }
 
 func (repo *GoGitlabRepo) FindUserIDByEmail(email string) (int, error) {
-    repo.assertIsConnected()
+	repo.assertIsConnected()
 
-    listUsersOptions := &gitlab.ListUsersOptions{
-        Search: gitlab.String(email),
-    }
+	listUsersOptions := &gitlab.ListUsersOptions{
+		Search: gitlab.String(email),
+	}
 
-    users, _, err := repo.client.Users.ListUsers(listUsersOptions)
-    if err != nil {
-        return 0, err
-    }
+	users, _, err := repo.client.Users.ListUsers(listUsersOptions)
+	if err != nil {
+		return 0, err
+	}
 
-    if len(users) != 1 {
-        return 0, fmt.Errorf("user not found or multiple users found with email: %s", email)
-    }
+	if len(users) != 1 {
+		return 0, fmt.Errorf("user not found or multiple users found with email: %s", email)
+	}
 
-    return users[0].ID, nil
+	return users[0].ID, nil
 }
 
 func (repo *GoGitlabRepo) convertGitlabUsers(gitlabUsers []*gitlab.User) ([]*model.User, error) {

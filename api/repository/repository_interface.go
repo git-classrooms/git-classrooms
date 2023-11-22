@@ -35,4 +35,6 @@ type Repository interface {
 	CreateProjectInvite(projectId int, email string) error                                   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L157
 	DenyPushingToProject(projectId int) error                                                //j https://github.com/xanzy/go-gitlab/blob/v0.94.0/protected_branches.go#L182
 	AllowPushingToProject(projectId int) error                                               //j https://github.com/xanzy/go-gitlab/blob/v0.94.0/protected_branches.go#L156
+
+	// mache alle user nur noch zu guests
 }

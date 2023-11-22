@@ -136,21 +136,23 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	/*
-		Mit personal access tokens gibt es nicht die möglichkeit das pushen zu unterbinden (für das schließen eines assignments)
-		- Not with Push Rules
-		- Not with Protect Branches
+		Mit personal access tokens ist es bisher nicht möglich ein Assignment zu schließen bzw. das Pushen zu unterbinden (man bekommt bei alle aufgelisteten Möglichkeiten einen 404 zurück)
+			- Not with Push Rules
+			- Not with Protect Branches
+			- Not with change Project Member Access Level
+
 		t.Run("Push rules", func(t *testing.T) {
 			client := createTestClient(t, credentials.Token)
 
-			err := repo.DenyPushingToProject(3, model.User{ID: credentials.ID})
+			err := repo.DenyPushingToProject(3)
 			assert.NoError(t, err)
 
-			assert.True(t, containsPushRule(t, client, 3))
+			assert.True(t, allProjectMembersHaveSameAccessLevel(t, client, 3, gitlab.AccessLevelValue(gitlab.MinimalAccessPermissions)))
 
 			err = repo.AllowPushingToProject(685)
 			assert.NoError(t, err)
 
-			assert.False(t, containsPushRule(t, client, 3))
+			assert.False(t, allProjectMembersHaveSameAccessLevel(t, client, 3, gitlab.AccessLevelValue(gitlab.DeveloperPermissions)))
 		})
 	*/
 }
@@ -163,13 +165,19 @@ func createTestClient(t *testing.T, token string) *gitlab.Client {
 	return cli
 }
 
-func containsPushRule(t *testing.T, client *gitlab.Client, projectId int) bool {
-	rule, _, err := client.Projects.GetProjectPushRules(projectId)
+func allProjectMembersHaveSameAccessLevel(t *testing.T, client *gitlab.Client, projectId int, accessLevel gitlab.AccessLevelValue) bool {
+	members, _, err := client.ProjectMembers.ListAllProjectMembers(projectId, &gitlab.ListProjectMembersOptions{})
 	if err != nil {
-		t.Errorf("Could not GetProjectPushRules")
+		return false
 	}
 
-	return rule.AuthorEmailRegex == "DenyPushing"
+	for _, member := range members {
+		if member.AccessLevel != accessLevel {
+			return false
+		}
+	}
+
+	return true
 }
 
 func assertContainUser(t *testing.T, expectedUser model.User, users []model.User) {
