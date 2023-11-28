@@ -23,7 +23,7 @@ type GitlabCredentials struct {
 }
 
 func LoadCredentialsFromEnv() (*GitlabCredentials, error) {
-	_ = godotenv.Load(".env", ".env.local")
+	_ = godotenv.Load(".env", ".env.test")
 
 	idStr := os.Getenv("GO_GITLAB_TEST_USER_ID")
 	id, err := strconv.Atoi(idStr)
