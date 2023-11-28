@@ -4,6 +4,7 @@ import (
 	"backend/model"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -63,8 +64,11 @@ func (repo *GoGitlabRepo) CreateGroup(name string, visibility model.Visibility, 
 
 	gitlabVisibility := VisibilityFromModel(visibility)
 
+	path := strings.ToLower(strings.ReplaceAll(name, " ", "-"))
+
 	createOpts := &gitlab.CreateGroupOptions{
 		Name:        gitlab.String(name),
+		Path:        gitlab.String(path),
 		Description: gitlab.String(description),
 		Visibility:  &gitlabVisibility,
 	}
@@ -313,7 +317,8 @@ func (repo *GoGitlabRepo) CreateGroupInvite(groupId int, email string) error {
 	repo.assertIsConnected()
 
 	_, _, err := repo.client.Invites.GroupInvites(groupId, &gitlab.InvitesOptions{
-		Email: &email,
+		Email:       &email,
+		AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		// Set additional options like AccessLevel, ExpiresAt as needed
 	})
 	return err
@@ -323,7 +328,8 @@ func (repo *GoGitlabRepo) CreateProjectInvite(id int, email string) error {
 	repo.assertIsConnected()
 
 	_, _, err := repo.client.Invites.ProjectInvites(id, &gitlab.InvitesOptions{
-		Email: &email,
+		Email:       &email,
+		AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		// Set additional options like AccessLevel, ExpiresAt as needed
 	})
 	return err

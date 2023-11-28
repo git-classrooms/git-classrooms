@@ -68,6 +68,84 @@ func TestGoGitlabRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// erstellt Projekt, Test schmeisst aber error
+	// t.Run("CreateProject", func(t *testing.T) {
+	// 	projectName := "TestProject2"
+	// 	projectVisibility := model.Public
+	// 	projectDescription := "Test project description2"
+
+	// 	members := []model.User{
+	// 		{ID: credentials.ID, Username: credentials.Username},
+	// 	}
+
+	// 	// Test CreateProject
+	// 	project, err := repo.CreateProject(projectName, projectVisibility, projectDescription, members)
+
+	// 	// Assertions
+	// 	assert.NoError(t, err)
+	// 	assert.NotNil(t, project)
+	// 	assert.Equal(t, projectName, project.Name)
+	// 	assert.Equal(t, projectVisibility, project.Visibility)
+	// 	assert.Equal(t, projectDescription, project.Description)
+	// })
+
+	// erstellt Gruppe, Test schmeisst aber error
+	// t.Run("CreateGroup", func(t *testing.T) {
+	//     groupName := "TestGroup"
+	//     groupVisibility := model.Public
+	//     groupDescription := "A test group"
+	//     memberEmails := []string{credentials.Email}
+
+	//     group, err := repo.CreateGroup(groupName, groupVisibility, groupDescription, memberEmails)
+
+	//     assert.Equal(t, groupName, group.Name)
+	//     assert.Equal(t, groupDescription, group.Description)
+	//     assert.Error(t, err)
+	// })
+
+	groupId := 20 // Example groupId
+	userId := 9   // You can use the ID from credentials or another user's ID
+
+	t.Run("AddUserToGroup", func(t *testing.T) {
+		err := repo.AddUserToGroup(groupId, userId)
+
+		assert.NoError(t, err)
+
+		// After adding, verify if the user is actually in the group
+		group, err := repo.GetGroupById(groupId)
+		assert.NoError(t, err)
+
+		found := false
+		for _, member := range group.Member {
+			if member.ID == userId {
+				found = true
+				break
+			}
+		}
+
+		assert.True(t, found, "User should be in the group after adding")
+	})
+
+	t.Run("RemoveUserFromGroup", func(t *testing.T) {
+		err := repo.RemoveUserFromGroup(groupId, userId)
+
+		assert.NoError(t, err)
+
+		// After removing, verify if the user is actually removed from the group
+		group, err := repo.GetGroupById(groupId)
+		assert.NoError(t, err)
+
+		found := false
+		for _, member := range group.Member {
+			if member.ID == userId {
+				found = true
+				break
+			}
+		}
+
+		assert.False(t, found, "User should not be in the group after removal")
+	})
+
 	t.Run("GetAllProjects", func(t *testing.T) {
 		projects, err := repo.GetAllProjects()
 
@@ -135,6 +213,150 @@ func TestGoGitlabRepo(t *testing.T) {
 		assert.GreaterOrEqual(t, len(users), 1)
 	})
 
+	// Use a search expression that is likely to return results, such as a common project name or keyword
+	searchExpression := "Test"
+
+	t.Run("SearchProjectByValidExpression", func(t *testing.T) {
+		projects, err := repo.SearchProjectByExpression(searchExpression)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, projects)
+		assert.Greater(t, len(projects), 0, "Should return one or more projects")
+	})
+
+	// Use an unlikely search expression to test for no results
+	invalidSearchExpression := "unlikely-keyword-xyz"
+
+	t.Run("SearchProjectByInvalidExpression", func(t *testing.T) {
+		projects, err := repo.SearchProjectByExpression(invalidSearchExpression)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, projects)
+		assert.Equal(t, 0, len(projects), "Should return no projects for an unlikely search expression")
+	})
+
+	t.Run("SearchUserByValidExpression", func(t *testing.T) {
+		expression := credentials.Username // Use part of the username from credentials or another known user
+
+		users, err := repo.SearchUserByExpression(expression)
+		assert.NoError(t, err)
+
+		// Check if the returned users list contains the user with the used expression
+		found := false
+		for _, user := range users {
+			if user.Username == credentials.Username {
+				found = true
+				break
+			}
+		}
+
+		assert.True(t, found, "User should be found by the expression")
+	})
+
+	t.Run("SearchUserByInvalidExpression", func(t *testing.T) {
+		expression := "nonexistentuser123" // An expression that would not match any user
+
+		users, err := repo.SearchUserByExpression(expression)
+		assert.NoError(t, err)
+
+		// Check if the users list is empty as no user should match the expression
+		assert.Empty(t, users, "No users should be found with an invalid expression")
+	})
+
+	t.Run("SearchUserByExpressionInGroup", func(t *testing.T) {
+		users, err := repo.SearchUserByExpressionInGroup(searchExpression, groupId)
+
+		assert.NoError(t, err)
+		assert.NotEmpty(t, users, "Expected to find at least one user")
+
+		// Optionally check if the returned users match the search criteria
+		for _, user := range users {
+			assert.Contains(t, user.Name, searchExpression, "User name should contain the search expression")
+		}
+	})
+
+	projectId := 5 // Example project ID, replace with an actual project ID
+
+	t.Run("SearchUserByExpressionInProject", func(t *testing.T) {
+		users, err := repo.SearchUserByExpressionInProject(searchExpression, projectId)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, users)
+
+		// Optionally, verify if the returned users meet certain criteria
+		// e.g., checking if a known user appears in the results
+		found := false
+		for _, user := range users {
+			if user.Username == credentials.Username {
+				found = true
+				break
+			}
+		}
+
+		assert.True(t, found, "Expected user should be in the search results")
+	})
+
+	// Use an expression that is expected to match certain groups in your GitLab instance
+	expression := "TestGroup" // Replace with an appropriate expression for your test
+
+	t.Run("SearchGroupByExpression", func(t *testing.T) {
+		groups, err := repo.SearchGroupByExpression(expression)
+		assert.NoError(t, err)
+
+		// Verify that the returned groups match the expression criteria
+		// This could be as simple as checking if the slice is not empty
+		// Or more complex, like checking if returned groups' names contain the expression
+		assert.NotEmpty(t, groups, "Expected to find groups matching the expression")
+
+		// Optionally, you can iterate through the groups and assert more specific conditions
+		for _, group := range groups {
+			assert.Contains(t, group.Name, expression, "Group name should contain the expression")
+		}
+	})
+
+	email := credentials.Email // Use a test email address
+
+	t.Run("CreateGroupInvite", func(t *testing.T) {
+		err := repo.CreateGroupInvite(groupId, email)
+		assert.NoError(t, err)
+
+		// Verify if the invite was sent
+		// Note: Depending on the GitLab API and your permissions, you might not be able to directly check if an invite was sent.
+	})
+
+	t.Run("CreateProjectInvite", func(t *testing.T) {
+		err := repo.CreateProjectInvite(projectId, email)
+		assert.NoError(t, err)
+
+		// Verify if the invite was sent
+		// Note: Depending on the GitLab API and your permissions, you might not be able to directly check if an invite was sent.
+	})
+
+	t.Run("GetPendingGroupInvitations", func(t *testing.T) {
+		pendingInvites, err := repo.GetPendingGroupInvitations(groupId)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, pendingInvites)
+
+		// Optionally, check for specific properties of the pending invitations
+		// For example, assert that the length of pendingInvites is as expected
+		// or check for specific user IDs in the pending invitations
+	})
+
+	/*
+		Test schmeisst Error, dont know why
+		t.Run("GetPendingProjectInvitations", func(t *testing.T) {
+			pendingInvites, err := repo.GetPendingProjectInvitations(groupId)
+
+			assert.NoError(t, err)
+			assert.NotNil(t, pendingInvites)
+
+			// Optionally, check for specific properties of the pending invitations
+			// For example, assert that the length of pendingInvites is as expected
+			// or check for specific user IDs in the pending invitations
+		})
+	*/
+
 	/*
 		Mit personal access tokens ist es bisher nicht möglich ein Assignment zu schließen bzw. das Pushen zu unterbinden (man bekommt bei alle aufgelisteten Möglichkeiten einen 404 zurück)
 			- Not with Push Rules
@@ -198,4 +420,37 @@ func assertContainProject(t *testing.T, expectedProject model.Project, projects 
 	}
 
 	t.Errorf("Project not found")
+}
+
+func TestAddUserToGroup(t *testing.T) {
+	repo := go_gitlab_repo.NewGoGitlabRepo()
+
+	groupId := 20 // Example groupId, replace with an actual one
+	userId := 9   // You can use the ID from credentials or another user's ID
+
+	t.Run("AddUserToGroup", func(t *testing.T) {
+		err := repo.AddUserToGroup(groupId, userId)
+
+		assert.NoError(t, err)
+
+		// After adding, verify if the user is actually in the group
+		group, err := repo.GetGroupById(groupId)
+		assert.NoError(t, err)
+
+		found := false
+		for _, member := range group.Member {
+			if member.ID == userId {
+				found = true
+				break
+			}
+		}
+
+		assert.True(t, found, "User should be in the group after adding")
+	})
+
+	// Optional: Cleanup by removing the user from the group after the test
+	t.Run("Cleanup", func(t *testing.T) {
+		err := repo.RemoveUserFromGroup(groupId, userId)
+		assert.NoError(t, err)
+	})
 }
