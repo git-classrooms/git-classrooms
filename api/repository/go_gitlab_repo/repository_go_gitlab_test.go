@@ -13,13 +13,13 @@ import (
 )
 
 type GitlabCredentials struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	ID       int    `yaml:"id"`
-	Email    string `yaml:"email"`
-	WebUrl   string `yaml:"webUrl"`
-	Name     string `yaml:"name"`
-	Token    string `yaml:"token"`
+	Username string
+	Password string
+	ID       int
+	Email    string
+	WebUrl   string
+	Name     string
+	Token    string
 }
 
 func LoadCredentialsFromEnv() (*GitlabCredentials, error) {
