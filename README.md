@@ -13,6 +13,21 @@ The frontend proxies the requests for the path `/api/*` to the backend server.
 
 For development we use the git flow branching model for simplicity. 
 
+### Setup
+
+Copy the `.env.example` file and make your changes:
+
+```
+cp .env.example .env
+```
+
+#### OAuth with Gitlab
+1. We use Gitlab as an OAuth provider, so you have to add this application in your Gitlab.
+   * The Redirect URI is for example: https//staging.hs-flensburg.dev/api/auth/gitlab/callback
+   * Uncheck Confidential
+   * Needed Scopes: api
+2. Click on Save application and copy the shown Application ID and Secret to your local .env file
+
 ### Setup without docker
 
 Install air [cosmtrek/air](https://github.com/cosmtrek/air) and run the following:
