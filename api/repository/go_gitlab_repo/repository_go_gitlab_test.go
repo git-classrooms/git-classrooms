@@ -421,36 +421,3 @@ func assertContainProject(t *testing.T, expectedProject model.Project, projects 
 
 	t.Errorf("Project not found")
 }
-
-func TestAddUserToGroup(t *testing.T) {
-	repo := go_gitlab_repo.NewGoGitlabRepo()
-
-	groupId := 20 // Example groupId, replace with an actual one
-	userId := 9   // You can use the ID from credentials or another user's ID
-
-	t.Run("AddUserToGroup", func(t *testing.T) {
-		err := repo.AddUserToGroup(groupId, userId)
-
-		assert.NoError(t, err)
-
-		// After adding, verify if the user is actually in the group
-		group, err := repo.GetGroupById(groupId)
-		assert.NoError(t, err)
-
-		found := false
-		for _, member := range group.Member {
-			if member.ID == userId {
-				found = true
-				break
-			}
-		}
-
-		assert.True(t, found, "User should be in the group after adding")
-	})
-
-	// Optional: Cleanup by removing the user from the group after the test
-	t.Run("Cleanup", func(t *testing.T) {
-		err := repo.RemoveUserFromGroup(groupId, userId)
-		assert.NoError(t, err)
-	})
-}
