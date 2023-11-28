@@ -81,6 +81,8 @@ build:
     DOCKERFILE: Dockerfile
     TARGET: release
     BUILD_CONTEXT: .
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   script:
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
     - docker build -t $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
