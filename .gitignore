@@ -1,6 +1,5 @@
 # Build dir
 tmp
 
-
-# Environment configuration file
+# Ignore environment configuration
 .env
