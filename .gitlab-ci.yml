@@ -74,6 +74,8 @@ lint-backend:
 build:
   stage: build
   image: docker:git
+  services:
+    - docker:24.0.5-dind
   variables:
     IMAGE_NAME: registry.hs-flensburg.dev/gitlab/classroom
     DOCKERFILE: Dockerfile
