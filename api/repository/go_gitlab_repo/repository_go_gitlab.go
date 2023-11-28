@@ -120,9 +120,21 @@ func (repo *GoGitlabRepo) ChangeGroupName(id int, name string) (*model.Group, er
 func (repo *GoGitlabRepo) AddUserToGroup(groupId int, userId int) error {
 	repo.assertIsConnected()
 
-	accessLevel := gitlab.DeveloperPermissions
+	members, _, err := repo.client.Groups.ListGroupMembers(groupId, &gitlab.ListGroupMembersOptions{})
+	if err != nil {
+		return err // Handle error appropriately
+	}
 
-	_, _, err := repo.client.GroupMembers.AddGroupMember(groupId, &gitlab.AddGroupMemberOptions{
+	// Check if user is already a member
+	for _, member := range members {
+		if member.ID == userId {
+			return nil
+		}
+	}
+
+	// User is not a member, proceed to add
+	accessLevel := gitlab.DeveloperPermissions
+	_, _, err = repo.client.GroupMembers.AddGroupMember(groupId, &gitlab.AddGroupMemberOptions{
 		UserID:      &userId,
 		AccessLevel: &accessLevel,
 	})
