@@ -75,7 +75,8 @@ build:
   stage: build
   image: docker:git
   services:
-    - docker:24.0.5-dind
+    - name: registry.hub.docker.com/library/docker:24.0.5-dind
+      alias: docker
   variables:
     IMAGE_NAME: registry.hs-flensburg.dev/gitlab/classroom
     DOCKERFILE: Dockerfile
@@ -84,7 +85,7 @@ build:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   script:
-    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
+    - docker login -u $HARBOR_USERNAME-p $HARBOR_PASSWORD $HARBOR_URL
     - docker build -t $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
     - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
   rules:
@@ -103,7 +104,7 @@ build:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   script:
-    - ssh "root@$SSH_HOST" "docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY"
+    - ssh "root@$SSH_HOST" "docker login -u $HARBOR_USERNAME-p $HARBOR_PASSWORD $HARBOR_URL"
     - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose pull"
     - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose up -d"
 
