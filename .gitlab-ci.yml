@@ -70,3 +70,60 @@ lint-backend:
     paths:
       - gl-code-quality-report.json
 
+
+build:
+  stage: build
+  image: docker:git
+  services:
+    - name: registry.hub.docker.com/library/docker:24.0.5-dind
+      alias: docker
+  variables:
+    IMAGE_NAME: registry.hs-flensburg.dev/gitlab/classroom
+    DOCKERFILE: Dockerfile
+    TARGET: release
+    BUILD_CONTEXT: .
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker login -u $HARBOR_USERNAME-p $HARBOR_PASSWORD $HARBOR_URL
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
+    - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+.deploy:
+  stage: deploy
+  variables:
+    BASE_PATH: ""
+  before_script:
+  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - chmod 400 "$SSH_PRIVATE_KEY"
+  - ssh-add "$SSH_PRIVATE_KEY"
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  script:
+    - ssh "root@$SSH_HOST" "docker login -u $HARBOR_USERNAME-p $HARBOR_PASSWORD $HARBOR_URL"
+    - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose pull"
+    - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose up -d"
+
+
+deploy-staging:
+  extends: .deploy
+  variables:
+    BASE_PATH: /root/services/classroom
+  environment:
+    name: staging
+    url: https://staging.hs-flensburg.dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+
+deploy-production:
+  stage: deploy
+  script:
+    - echo "Not implemented"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
