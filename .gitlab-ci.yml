@@ -85,7 +85,7 @@ build:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   script:
-    - docker login -u $HARBOR_USERNAME-p $HARBOR_PASSWORD $HARBOR_URL
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
     - docker build -t $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
     - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
   rules:
@@ -104,7 +104,7 @@ build:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   script:
-    - ssh "root@$SSH_HOST" "docker login -u $HARBOR_USERNAME-p $HARBOR_PASSWORD $HARBOR_URL"
+    - ssh "root@$SSH_HOST" "docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY"
     - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose pull"
     - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose up -d"
 
