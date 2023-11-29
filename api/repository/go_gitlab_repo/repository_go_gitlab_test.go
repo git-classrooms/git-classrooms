@@ -3,6 +3,7 @@ package go_gitlab_repo_test
 import (
 	"backend/api/repository/go_gitlab_repo"
 	"backend/model"
+	"log"
 	"os"
 	"strconv"
 	"testing"
@@ -23,7 +24,10 @@ type GitlabCredentials struct {
 }
 
 func LoadCredentialsFromEnv() (*GitlabCredentials, error) {
-	_ = godotenv.Load(".env", ".env.test")
+	err := godotenv.Load(".env.test")
+	if err != nil {
+		log.Print(err.Error())
+	}
 
 	idStr := os.Getenv("GO_GITLAB_TEST_USER_ID")
 	id, err := strconv.Atoi(idStr)
