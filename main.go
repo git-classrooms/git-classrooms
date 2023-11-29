@@ -1,15 +1,21 @@
 package main
 
 import (
-	"backend/router"
-	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/driver/postgres"
+	"gorm.io/gen"
+	"gorm.io/gorm"
+
+	"backend/config"
+
+	dbModel "backend/model/database"
+	"backend/model/database/query"
 )
 
 func main() {
-	applicationConfig := config.EnvProvider{}.GetConfig()
+	applicationConfig := config.GetConfig()
 
 	db, err := gorm.Open(postgres.Open(applicationConfig.Database.Dsn()), &gorm.Config{})
 	if err != nil {
@@ -43,8 +49,6 @@ func main() {
 	app.Get("/api/hello", func(c *fiber.Ctx) error {
 		return c.SendString("Hello World!")
 	})
-
-	router.Routes(app)
 
 	log.Fatal(app.Listen(":3000"))
 }

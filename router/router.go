@@ -10,5 +10,5 @@ import (
 func Routes(app *fiber.App) {
 	api := app.Group("/api", logger.New())
 	api.Get("/", handler.Auth)
-	api.Get("/auth/gitlab/callback", handler.Callback)
+	api.Get("/auth/general/callback", handler.Callback)
 }

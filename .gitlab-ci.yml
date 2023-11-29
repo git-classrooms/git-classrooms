@@ -55,7 +55,7 @@ lint-frontend:
     - if: $CI_COMMIT_BRANCH
 
 lint-backend:
-  image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
+  image: registry.general.com/general-org/general-build-images:golangci-lint-alpine
   stage: lint
   script:
     # Use default .golangci.yml file from the image if one is not present in the project root.
@@ -78,7 +78,7 @@ build:
     - name: registry.hub.docker.com/library/docker:24.0.5-dind
       alias: docker
   variables:
-    IMAGE_NAME: registry.hs-flensburg.dev/gitlab/classroom
+    IMAGE_NAME: registry.hs-flensburg.dev/general/classroom
     DOCKERFILE: Dockerfile
     TARGET: release
     BUILD_CONTEXT: .
