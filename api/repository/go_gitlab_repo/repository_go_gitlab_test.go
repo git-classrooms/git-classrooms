@@ -3,6 +3,7 @@ package go_gitlab_repo_test
 import (
 	"backend/api/repository/go_gitlab_repo"
 	"backend/model"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -59,11 +60,13 @@ func TestGoGitlabRepo(t *testing.T) {
 	t.Run("LoginByToken", func(t *testing.T) {
 		user, err := repo.Login(credentials.Token, credentials.Username)
 
+		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+
 		assert.NoError(t, err)
 		assert.Equal(t, credentials.ID, user.ID)
 		assert.Equal(t, credentials.Username, user.Username)
 		assert.Equal(t, credentials.Name, user.Name)
-		assert.Equal(t, credentials.WebUrl, user.WebUrl)
+		assert.Equal(t, webUrl, user.WebUrl)
 		// assert.Equal(t, credentials.Email, user.Email) // TODO emails not available with personal access tokens, but should be with session tokens
 	})
 
@@ -170,11 +173,13 @@ func TestGoGitlabRepo(t *testing.T) {
 	t.Run("GetUserById", func(t *testing.T) {
 		user, err := repo.GetUserById(credentials.ID)
 
+		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+
 		assert.NoError(t, err)
 		assert.Equal(t, credentials.ID, user.ID)
 		assert.Equal(t, credentials.Username, user.Username)
 		assert.Equal(t, credentials.Name, user.Name)
-		assert.Equal(t, credentials.WebUrl, user.WebUrl)
+		assert.Equal(t, webUrl, user.WebUrl)
 		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
 	})
 
@@ -185,7 +190,8 @@ func TestGoGitlabRepo(t *testing.T) {
 		assert.Equal(t, 15, Group.ID)
 		assert.Equal(t, "IntegrationsTestGroup1", Group.Name)
 		assert.Equal(t, "https://hs-flensburg.dev/groups/integrationstestgroup11", Group.WebUrl)
-		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebUrl: credentials.WebUrl}, Group.Member)
+		user_web_url := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebUrl: user_web_url}, Group.Member)
 		assertContainProject(t, model.Project{ID: 3, Name: "IntegrationTestsProject3", WebUrl: "https://hs-flensburg.dev/integrationstestgroup11/integrationtestsproject3", Description: ""}, Group.Projects)
 	})
 
