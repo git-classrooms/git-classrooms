@@ -94,6 +94,7 @@ build:
 
 .deploy:
   stage: deploy
+  image: ubuntu:22.04
   variables:
     BASE_PATH: ""
   before_script:
