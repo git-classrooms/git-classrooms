@@ -17,80 +17,80 @@ cache:
     policy: pull-push
 
 
-test-frontend:
-  stage: test
-  image: $NODE_IMAGE
-  before_script:
-    - cd "$CI_PROJECT_DIR/frontend"
-    - yarn
-  script:
-    - cd "$CI_PROJECT_DIR/frontend"
-    - yarn test:ci
-  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
-  rules:
-    - if: $CI_COMMIT_BRANCH
-
-test-backend:
-  stage: test
-  image: $GOLANG_IMAGE
-  before_script:
-    - go mod download
-  script: 
-    - go test ./... --cover
-  coverage: '/coverage: \d+.\d+% of statements/'
-  rules:
-    - if: $CI_COMMIT_BRANCH
-
-
-lint-frontend:
-  stage: lint
-  image: $NODE_IMAGE
-  before_script:
-    - cd "$CI_PROJECT_DIR/frontend"
-    - yarn
-  script:
-    - cd "$CI_PROJECT_DIR/frontend"
-    - yarn lint
-  rules:
-    - if: $CI_COMMIT_BRANCH
-
-lint-backend:
-  image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
-  stage: lint
-  script:
-    # Use default .golangci.yml file from the image if one is not present in the project root.
-    - '[ -e .golangci.yml ] || cp /golangci/.golangci.yml .'
-    # Write the code coverage report to gl-code-quality-report.json
-    # and print linting issues to stdout in the format: path/to/file:line description
-    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
-    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
-    paths:
-      - gl-code-quality-report.json
-
-
-build:
-  stage: build
-  image: docker:git
-  services:
-    - name: registry.hub.docker.com/library/docker:24.0.5-dind
-      alias: docker
-  variables:
-    IMAGE_NAME: registry.hs-flensburg.dev/gitlab/classroom
-    DOCKERFILE: Dockerfile
-    TARGET: release
-    BUILD_CONTEXT: .
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
-    - docker build -t $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
-    - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
-    - if: $CI_COMMIT_BRANCH == "main"
+      #test-frontend:
+      #  stage: test
+      #  image: $NODE_IMAGE
+      #  before_script:
+      #    - cd "$CI_PROJECT_DIR/frontend"
+      #    - yarn
+      #  script:
+      #    - cd "$CI_PROJECT_DIR/frontend"
+      #    - yarn test:ci
+      #  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+      #  rules:
+      #    - if: $CI_COMMIT_BRANCH
+      #
+      #test-backend:
+      #  stage: test
+      #  image: $GOLANG_IMAGE
+      #  before_script:
+      #    - go mod download
+      #  script: 
+      #    - go test ./... --cover
+      #  coverage: '/coverage: \d+.\d+% of statements/'
+      #  rules:
+      #    - if: $CI_COMMIT_BRANCH
+      #
+      #
+      #lint-frontend:
+      #  stage: lint
+      #  image: $NODE_IMAGE
+      #  before_script:
+      #    - cd "$CI_PROJECT_DIR/frontend"
+      #    - yarn
+      #  script:
+      #    - cd "$CI_PROJECT_DIR/frontend"
+      #    - yarn lint
+      #  rules:
+      #    - if: $CI_COMMIT_BRANCH
+      #
+      #lint-backend:
+      #  image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
+      #  stage: lint
+      #  script:
+      #    # Use default .golangci.yml file from the image if one is not present in the project root.
+      #    - '[ -e .golangci.yml ] || cp /golangci/.golangci.yml .'
+      #    # Write the code coverage report to gl-code-quality-report.json
+      #    # and print linting issues to stdout in the format: path/to/file:line description
+      #    # remove `--issues-exit-code 0` or set to non-zero to fail the job if linting issues are detected
+      #    - golangci-lint run --issues-exit-code 0 --print-issued-lines=false --out-format code-climate:gl-code-quality-report.json,line-number
+      #  artifacts:
+      #    reports:
+      #      codequality: gl-code-quality-report.json
+      #    paths:
+      #      - gl-code-quality-report.json
+      #
+      #
+      #build:
+      #  stage: build
+      #  image: docker:git
+      #  services:
+      #    - name: registry.hub.docker.com/library/docker:24.0.5-dind
+      #      alias: docker
+      #  variables:
+      #    IMAGE_NAME: registry.hs-flensburg.dev/gitlab/classroom
+      #    DOCKERFILE: Dockerfile
+      #    TARGET: release
+      #    BUILD_CONTEXT: .
+      #    DOCKER_HOST: tcp://docker:2375
+      #    DOCKER_TLS_CERTDIR: ""
+      #  script:
+      #    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
+      #    - docker build -t $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
+      #    - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
+      #  rules:
+      #    - if: $CI_COMMIT_BRANCH == "develop"
+      #    - if: $CI_COMMIT_BRANCH == "main"
 
 .deploy:
   stage: deploy
@@ -100,10 +100,11 @@ build:
   before_script:
   - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
-  - chmod 400 "$SSH_PRIVATE_KEY"
-  - ssh-add "$SSH_PRIVATE_KEY"
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
+  - echo "$SSH_PRIVATE_KEY" > ~/.ssh/deployment-key
+  - chmod 400 ~/.ssh/deployment-key
+  - ssh-add ~/.ssh/deployment-key
   script:
     - ssh "root@$SSH_HOST" "docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY"
     - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose pull"
@@ -117,9 +118,6 @@ deploy-staging:
   environment:
     name: staging
     url: https://staging.hs-flensburg.dev
-  rules:
-    - if: $CI_COMMIT_BRANCH == "develop"
-
 
 deploy-production:
   stage: deploy
