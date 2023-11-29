@@ -3,3 +3,4 @@ tmp
 
 # Ignore environment configuration
 .env
+**.env.*
