@@ -3,31 +3,21 @@ package main
 import (
 	"log"
 
-	"github.com/caarlos0/env/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 
-	dbConfig "backend/config/database"
+	"backend/config"
+
 	dbModel "backend/model/database"
 	"backend/model/database/query"
 )
 
-type ApplicationConfig struct {
-	Database dbConfig.PsqlConfig `envPrefix:"POSTGRES_"`
-}
-
 func main() {
-	_ = godotenv.Load(".env", ".env.local")
+	applicationConfig := config.EnvProvider{}.GetConfig()
 
-	config := ApplicationConfig{}
-	if err := env.Parse(&config); err != nil {
-		log.Fatalf("Couldn't parse environment %s", err.Error())
-	}
-
-	db, err := gorm.Open(postgres.Open(config.Database.Dsn()), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(applicationConfig.Database.Dsn()), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
