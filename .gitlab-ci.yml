@@ -100,11 +100,11 @@ cache:
   before_script:
   - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
   - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
   - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - echo "$SSH_PRIVATE_KEY" > ~/.ssh/deployment-key
-  - chmod 400 ~/.ssh/deployment-key
-  - ssh-add ~/.ssh/deployment-key
+  - touch ~/.ssh/config
+  - touch ~/.ssh/known_hosts
+  - chmod -R 400 ~/.ssh
   script:
     - ssh root@$SSH_HOST << EOF
        docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
