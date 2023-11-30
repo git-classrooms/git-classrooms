@@ -6,6 +6,7 @@ require github.com/xanzy/go-gitlab v0.93.2
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 )
 
@@ -27,6 +28,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.50.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	go.uber.org/mock v0.3.0
 	golang.org/x/oauth2 v0.13.0
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect

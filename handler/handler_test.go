@@ -1,0 +1,75 @@
+package handler
+
+import (
+	mock_repository "backend/api/repository/_mocks"
+	"backend/model"
+	"bytes"
+	"encoding/json"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestCreateClassroomHandler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	repo := mock_repository.NewMockRepository(ctrl)
+	hand := NewFiberHandler(repo)
+
+	app := fiber.New()
+
+	t.Run("CreateClassroom", func(t *testing.T) {
+		app.Post("/createClassroom", hand.CreateClassroom)
+
+		requestBody := ClassroomRequest{
+			Name:         "Test",
+			MemberEmails: []string{"User1", "User2"},
+			Description:  "test",
+		}
+
+		repo.
+			EXPECT().
+			CreateGroup(
+				requestBody.Name,
+				model.Private,
+				requestBody.Description,
+				requestBody.MemberEmails,
+			).
+			Return(
+				&model.Group{ID: 1},
+				nil,
+			).
+			Times(1)
+
+		for _, memberEmail := range requestBody.MemberEmails {
+			repo.
+				EXPECT().
+				CreateGroupInvite(1, memberEmail).
+				Return(nil).
+				Times(1)
+		}
+
+		req := newPostJsonRequest("/createClassroom", requestBody)
+
+		resp, err := app.Test(req, 1)
+
+		assert.NoError(t, err)
+		assert.Equal(t, resp.StatusCode, http.StatusOK)
+	})
+}
+
+func newPostJsonRequest(route string, object any) *http.Request {
+	jsonData, err := json.Marshal(object)
+	if err != nil {
+		log.Fatalf("could not create json of object: %s", object)
+	}
+
+	req := httptest.NewRequest("POST", route, bytes.NewReader(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+
+	return req
+}
