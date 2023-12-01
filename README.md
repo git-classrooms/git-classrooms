@@ -49,6 +49,11 @@ Install air [cosmtrek/air](https://github.com/cosmtrek/air) and run the followin
 docker-compose up
 ```
 
+### Mail
+
+For local development we use [mailpit](https://mailpit.axllent.org/), running on [localhost:8025](http://localhost:8025).
+**This requires the docker setup.**
+
 ## Environments
 
 We have to environments:
