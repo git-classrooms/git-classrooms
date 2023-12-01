@@ -107,8 +107,8 @@ cache:
   - chmod -R 400 ~/.ssh
   script:
     - | 
-      ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" << 'ENDSSH'
-      echo "$DOCKER_REGISTRY_TOKEN" | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
+      ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" 
+      # echo "$DOCKER_REGISTRY_TOKEN" | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
       cd $BASE_PATH 
       docker compose pull
       docker compose up -d
@@ -118,7 +118,7 @@ cache:
 deploy-staging:
   extends: .deploy
   variables:
-    BASE_PATH: /root/services/classroom
+    BASE_PATH: /root/services/
   environment:
     name: staging
     url: https://staging.hs-flensburg.dev
