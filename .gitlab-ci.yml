@@ -107,7 +107,7 @@ cache:
   - chmod -R 400 ~/.ssh
   script:
     - | 
-      ssh ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" << 'ENDSSH'
+      ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" << 'ENDSSH'
       docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
       cd $BASE_PATH 
       docker-compose pull
