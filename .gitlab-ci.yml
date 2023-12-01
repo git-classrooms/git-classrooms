@@ -106,10 +106,11 @@ cache:
   - touch ~/.ssh/known_hosts
   - chmod -R 400 ~/.ssh
   script:
-    # -  ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" 
-      # echo "$DOCKER_REGISTRY_TOKEN" | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
+    -  ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "echo \"$DOCKER_REGISTRY_TOKEN\" | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY"
     -  ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "cd $BASE_PATH && docker compose pull"
     -  ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "cd $BASE_PATH && docker compose up -d"
+    -  ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "docker logout $DOCKER_REGISTRY"
+
 
 
 deploy-staging:
