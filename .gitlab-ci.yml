@@ -108,10 +108,10 @@ cache:
   script:
     - | 
       ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" << 'ENDSSH'
-      docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
+      echo "$DOCKER_REGISTRY_TOKEN" | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
       cd $BASE_PATH 
-      docker-compose pull
-      docker-compose up -d
+      docker compose pull
+      docker compose up -d
       ENDSSH
 
 
