@@ -106,7 +106,7 @@ cache:
   - touch ~/.ssh/known_hosts
   - chmod -R 400 ~/.ssh
   script:
-    - ssh root@$SSH_HOST << EOF
+    - ssh root@$SSH_HOST << 'EOF'
       docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
       cd $BASE_PATH 
       docker-compose pull
