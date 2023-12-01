@@ -105,9 +105,12 @@ build:
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
   script:
-    - ssh "root@$SSH_HOST" "docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY"
-    - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose pull"
-    - ssh "root@$SSH_HOST" "cd $BASE_PATH && docker-compose up -d"
+    - ssh root@$SSH_HOST << EOF
+       docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
+       cd $BASE_PATH 
+       docker-compose pull
+       docker-compose up -d
+      EOF
 
 
 deploy-staging:
