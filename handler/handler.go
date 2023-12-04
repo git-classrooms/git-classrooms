@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/api/repository"
 	"backend/model"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -53,5 +54,6 @@ func (handler *FiberHandler) CreateClassroom(c *fiber.Ctx) error {
 		}
 	}
 
+	c.Status(http.StatusCreated)
 	return nil
 }

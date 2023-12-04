@@ -58,7 +58,7 @@ func TestCreateClassroomHandler(t *testing.T) {
 		resp, err := app.Test(req, 1)
 
 		assert.NoError(t, err)
-		assert.Equal(t, resp.StatusCode, http.StatusOK)
+		assert.Equal(t, resp.StatusCode, http.StatusCreated)
 	})
 }
 
