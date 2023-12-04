@@ -3,7 +3,7 @@ version: '3.7'
 services:
 
   classroom:
-    image: registry.hs-flensburg.dev/gitlab/classroom:develop
+    image: registry.hs-flensburg.dev/general/classroom:develop
     ports:
       - 3000:3000
     env_file: .env

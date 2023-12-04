@@ -1,10 +1,13 @@
 package config
 
 import (
-	"os"
+	"backend/config/auth"
+	"backend/config/database"
+	"backend/config/general"
 )
 
-// Config exported via godotenv
-func Config(key string) string {
-	return os.Getenv(key)
+type Config struct {
+	GitLab   general.GitLabConfig `envPrefix:"GITLAB_"`
+	Database database.PsqlConfig  `envPrefix:"POSTGRES_"`
+	Auth     auth.Config          `envPrefix:"AUTH_"`
 }
