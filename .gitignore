@@ -180,4 +180,4 @@ fabric.properties
 ### dotenv ###
 .env.local
 
-# End of https://www.toptal.com/developers/gitignore/api/dotenv
+# End of https://www.toptal.com/developers/gitignore/api/dotenv**.env.*
