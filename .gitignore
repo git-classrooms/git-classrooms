@@ -178,6 +178,7 @@ fabric.properties
 # Edit at https://www.toptal.com/developers/gitignore?templates=dotenv
 
 ### dotenv ###
-.env.local
+!.env.example
+.env*
 
 # End of https://www.toptal.com/developers/gitignore/api/dotenv**.env.*
