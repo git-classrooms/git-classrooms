@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/handler"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -49,6 +50,8 @@ func main() {
 	app.Get("/api/hello", func(c *fiber.Ctx) error {
 		return c.SendString("Hello World!")
 	})
+
+	app.Use("/api", handler.AuthMiddleware)
 
 	log.Fatal(app.Listen(":3000"))
 }
