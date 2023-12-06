@@ -1,4 +1,4 @@
-package handler
+package apiHandler
 
 import (
 	mock_repository "backend/api/repository/_mocks"
@@ -15,15 +15,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateClassroomHandler(t *testing.T) {
+func TestApiHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	repo := mock_repository.NewMockRepository(ctrl)
-	hand := NewFiberHandler(repo)
 
 	app := fiber.New()
+	app.Use("/api", func(c *fiber.Ctx) error {
+
+		c.Locals("gitlab-repo", repo)
+
+		return c.Next()
+	})
+
+	handler := NewFiberApiHandler()
 
 	t.Run("CreateClassroom", func(t *testing.T) {
-		app.Post("/createClassroom", hand.CreateClassroom)
+		app.Post("/api/createClassroom", handler.CreateClassroom)
 
 		requestBody := ClassroomRequest{
 			Name:         "Test",
@@ -53,7 +60,7 @@ func TestCreateClassroomHandler(t *testing.T) {
 				Times(1)
 		}
 
-		req := newPostJsonRequest("/createClassroom", requestBody)
+		req := newPostJsonRequest("/api/createClassroom", requestBody)
 
 		resp, err := app.Test(req, 1)
 

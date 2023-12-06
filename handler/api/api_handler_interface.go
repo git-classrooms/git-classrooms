@@ -1,7 +1,7 @@
-package handler
+package apiHandler
 
 import "github.com/gofiber/fiber/v2"
 
-type Handler interface {
+type ApiHandler interface {
 	CreateClassroom(c *fiber.Ctx) error
 }

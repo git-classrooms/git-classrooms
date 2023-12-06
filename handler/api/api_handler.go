@@ -1,4 +1,4 @@
-package handler
+package apiHandler
 
 import (
 	"backend/api/repository"
@@ -8,12 +8,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type FiberHandler struct {
-	repo repository.Repository
+type FiberApiHandler struct {
 }
 
-func NewFiberHandler(repository repository.Repository) *FiberHandler {
-	return &FiberHandler{repository}
+func NewFiberApiHandler() *FiberApiHandler {
+	return &FiberApiHandler{}
 }
 
 type ClassroomRequest struct {
@@ -22,12 +21,11 @@ type ClassroomRequest struct {
 	Description  string   `json:"description"`
 }
 
-func (handler *FiberHandler) CreateClassroom(c *fiber.Ctx) error {
+func (handler *FiberApiHandler) CreateClassroom(c *fiber.Ctx) error {
+	repo := handler.getRepo(c)
+
 	var err error
 	requestBody := new(ClassroomRequest)
-
-	// TODO clarify how it should be known which user wants to create the classroom, so that this user could be user for the gitlab api
-	// handler.repo.Login()
 
 	err = c.BodyParser(requestBody)
 	if err != nil {
@@ -35,7 +33,7 @@ func (handler *FiberHandler) CreateClassroom(c *fiber.Ctx) error {
 		return err
 	}
 
-	group, err := handler.repo.CreateGroup(
+	group, err := repo.CreateGroup(
 		requestBody.Name,
 		model.Private,
 		requestBody.Description,
@@ -47,7 +45,7 @@ func (handler *FiberHandler) CreateClassroom(c *fiber.Ctx) error {
 	}
 
 	for _, memberEmail := range requestBody.MemberEmails {
-		err = handler.repo.CreateGroupInvite(group.ID, memberEmail)
+		err = repo.CreateGroupInvite(group.ID, memberEmail)
 		if err != nil {
 			c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 			return err
@@ -56,4 +54,9 @@ func (handler *FiberHandler) CreateClassroom(c *fiber.Ctx) error {
 
 	c.Status(http.StatusCreated)
 	return nil
+}
+
+func (handler *FiberApiHandler) getRepo(ctx *fiber.Ctx) repository.Repository {
+	repo := ctx.Locals("gitlab-repo").(repository.Repository)
+	return repo
 }
