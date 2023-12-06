@@ -16,5 +16,5 @@ func Routes(app *fiber.App) {
 
 	api.Post("/createClassroom", fiberHandler.CreateClassroom)
 	api.Get("/", handler.Auth)
-	api.Get("/auth/gitlab/callback", handler.Callback)
+	api.Get("/auth/general/callback", handler.Callback)
 }
