@@ -177,6 +177,18 @@ func TestGoGitlabRepo(t *testing.T) {
 		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
 	})
 
+	t.Run("GetCurrentUser", func(t *testing.T) {
+		user, err := repo.GetCurrentUser()
+		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+
+		assert.NoError(t, err)
+		assert.Equal(t, credentials.ID, user.ID)
+		assert.Equal(t, credentials.Username, user.Username)
+		assert.Equal(t, credentials.Name, user.Name)
+		assert.Equal(t, webUrl, user.WebUrl)
+		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
+	})
+
 	t.Run("GetGroupById", func(t *testing.T) {
 		Group, err := repo.GetGroupById(15)
 
