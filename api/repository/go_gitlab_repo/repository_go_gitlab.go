@@ -1,6 +1,7 @@
 package go_gitlab_repo
 
 import (
+	"backend/config"
 	"backend/model"
 	"fmt"
 	"log"
@@ -20,14 +21,14 @@ func NewGoGitlabRepo() *GoGitlabRepo {
 
 // Reference to Go Gitlab Documentation: https://pkg.go.dev/github.com/xanzy/go-gitlab#section-documentation
 
-func (repo *GoGitlabRepo) Login(token string, username string) (*model.User, error) {
-	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://hs-flensburg.dev"))
+func (repo *GoGitlabRepo) Login(token string) error {
+	// With oauth tokens we need the OAuthClient to make requests
+	cli, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(config.GetConfig().GitLab.URL))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	repo.client = cli
-
-	return repo.getUserByUsername(username)
+	return nil
 }
 
 func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
