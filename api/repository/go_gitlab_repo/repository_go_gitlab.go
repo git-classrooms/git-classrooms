@@ -23,7 +23,8 @@ func NewGoGitlabRepo() *GoGitlabRepo {
 
 func (repo *GoGitlabRepo) Login(token string) error {
 	// With oauth tokens we need the OAuthClient to make requests
-	cli, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(config.GetConfig().GitLab.URL))
+	// TODO: But all tests act with a personal token, we just use the normal client for a while
+	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL(config.GetConfig().GitLab.URL))
 	if err != nil {
 		return err
 	}

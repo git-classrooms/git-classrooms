@@ -1,7 +1,6 @@
-package go_gitlab_repo_test
+package go_gitlab_repo
 
 import (
-	"backend/api/repository/go_gitlab_repo"
 	"backend/model"
 	"fmt"
 	"log"
@@ -55,22 +54,17 @@ func TestGoGitlabRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	repo := go_gitlab_repo.NewGoGitlabRepo()
+	repo := NewGoGitlabRepo()
 
 	t.Run("LoginByToken", func(t *testing.T) {
-		user, err := repo.Login(credentials.Token, credentials.Username)
-
-		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+		err := repo.Login(credentials.Token)
 
 		assert.NoError(t, err)
-		assert.Equal(t, credentials.ID, user.ID)
-		assert.Equal(t, credentials.Username, user.Username)
-		assert.Equal(t, credentials.Name, user.Name)
-		assert.Equal(t, webUrl, user.WebUrl)
+		assert.NotNil(t, repo.client)
 		// assert.Equal(t, credentials.Email, user.Email) // TODO emails not available with personal access tokens, but should be with session tokens
 	})
 
-	_, err = repo.Login(credentials.Token, credentials.Username)
+	err = repo.Login(credentials.Token)
 	if err != nil {
 		t.Fatal(err)
 	}
