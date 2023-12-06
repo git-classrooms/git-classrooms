@@ -6,6 +6,7 @@ import (
 
 type Repository interface {
 	Login(token string) error                                                                                                //j
+	GetCurrentUser() (*model.User, error)                                                                                    //f
 	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L735 https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L466
 	CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error)   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
 

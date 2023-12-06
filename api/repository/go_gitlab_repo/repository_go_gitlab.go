@@ -31,6 +31,17 @@ func (repo *GoGitlabRepo) Login(token string) error {
 	return nil
 }
 
+func (repo *GoGitlabRepo) GetCurrentUser() (*model.User, error) {
+	repo.assertIsConnected()
+
+	gitlabUser, _, err := repo.client.Users.CurrentUser()
+	if err != nil {
+		return nil, err
+	}
+
+	return UserFromGoGitlab(*gitlabUser), nil
+}
+
 func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
