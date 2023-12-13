@@ -5,10 +5,9 @@ import (
 	"backend/auth"
 	"backend/model/database/query"
 	"backend/session"
+
 	"github.com/gofiber/fiber/v2"
 )
-
-var u = query.User
 
 // Auth fiber handler
 func Auth(c *fiber.Ctx) error {
@@ -42,7 +41,7 @@ func Callback(c *fiber.Ctx) error {
 	}
 
 	// Save or Update user in DB
-
+	u := query.User
 	user, err := u.WithContext(c.Context()).
 		Where(u.ID.Eq(gitlabUser.ID)).
 		FirstOrCreate()
