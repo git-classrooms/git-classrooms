@@ -1,7 +1,9 @@
 package main
 
 import (
+	"backend/api/repository/go_gitlab_repo"
 	"backend/handler"
+	"backend/router"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -51,7 +53,18 @@ func main() {
 		return c.SendString("Hello World!")
 	})
 
+	router.Routes(app)
+
 	app.Use("/api", handler.AuthMiddleware)
+	app.Get("/api/secret", func(c *fiber.Ctx) error {
+		repo := c.Locals("gitlab-repo").(*go_gitlab_repo.GoGitlabRepo)
+		user, err := repo.GetCurrentUser()
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(user)
+	})
 
 	log.Fatal(app.Listen(":3000"))
 }
