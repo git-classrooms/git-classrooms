@@ -4,10 +4,11 @@ import (
 	"backend/model/database"
 	"backend/model/database/query"
 	"errors"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/session"
 	"sync"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type UserState int
@@ -99,12 +100,12 @@ func (s *ClassroomSession) GetUser() (*database.User, error) {
 
 // SetUserState should be set when user state changes.
 func (s *ClassroomSession) SetUserState(state UserState) {
-	s.session.Set(userState, state)
+	s.session.Set(userState, int(state))
 }
 
 // GetUserState returns the current UserState of this session.
 func (s *ClassroomSession) GetUserState() UserState {
-	return s.session.Get(userState).(UserState)
+	return UserState(s.session.Get(userState).(int))
 }
 
 //// GitLab
@@ -180,17 +181,17 @@ func (s *ClassroomSession) Save() error {
 
 // Keys will retrieve all keys in current session
 func (s *ClassroomSession) Keys() []string {
-	return s.Keys()
+	return s.session.Keys()
 }
 
 // GetExpiry returns the
 func (s *ClassroomSession) GetExpiry() time.Time {
-	return s.session.Get(expiresAt).(time.Time)
+	return time.Unix(s.session.Get(expiresAt).(int64), 0)
 }
 
 // SetExpiry sets a specific expiration for this session. Throws error when failing.
 func (s *ClassroomSession) SetExpiry(exp time.Time) error {
-	s.session.Set(expiresAt, exp)
+	s.session.Set(expiresAt, exp.Unix())
 	s.session.SetExpiry(time.Until(exp))
 	return s.Save()
 }
