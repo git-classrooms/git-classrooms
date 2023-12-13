@@ -8,6 +8,6 @@ import (
 )
 
 func Routes(app *fiber.App) {
-	app.Get("/auth/", handler.Auth)
-	app.Get(config.GetConfig().Auth.RedirectURL, handler.Callback)
+	app.Get("/auth", handler.Auth)
+	app.Get(config.GetConfig().Auth.RedirectURL.Path, handler.Callback)
 }
