@@ -96,6 +96,26 @@ func TestGoGitlabRepo(t *testing.T) {
 	// 	assert.Equal(t, projectDescription, project.Description)
 	// })
 
+	/*
+		// If you get the error "has already been taken", the test has been run previously and there already exist a project with this name in the group namespace
+		t.Run("ForkProject", func(t *testing.T) {
+			members := make([]model.User, 1)
+			members[0] = model.User{
+				ID: 5,
+			}
+
+			newName := "IntegrationTestForkedProject2"
+
+			project, err := repo.ForkProject(2, 15, newName, members)
+
+			assert.NoError(t, err)
+			assert.Equal(t, newName, project.Name)
+			assert.NotEqual(t, 2, project.ID)
+			assert.Equal(t, 1, len(project.Member))
+			assert.Equal(t, "IntegrationTestsUser1", project.Member[0].Username)
+		})
+	*/
+
 	// erstellt Gruppe, Test schmeisst aber error
 	// t.Run("CreateGroup", func(t *testing.T) {
 	//     groupName := "TestGroup"

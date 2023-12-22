@@ -33,4 +33,10 @@ type Repository interface {
 	CreateProjectInvite(projectId int, email string) error                                   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L157
 	DenyPushingToProject(projectId int) error                                                // TODO: keine Möglichkeit bisher gefunden
 	AllowPushingToProject(projectId int) error                                               // TODO: keine Möglichkeit bisher gefunden
+
+	ForkProject(projectId, classroomId int, name string, members []model.User) (*model.Project, error)
+
+	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
+
+	GetNamespaceOfGroup(classroomId int) (*string, error)
 }

@@ -17,4 +17,5 @@ func Routes(app *fiber.App) {
 	fiberHandler := apiHandler.NewFiberApiHandler()
 
 	api.Post("/createClassroom", fiberHandler.CreateClassroom)
+	api.Post("/createAssignment", fiberHandler.CreateAssignment)
 }

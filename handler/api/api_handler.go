@@ -56,6 +56,11 @@ func (handler *FiberApiHandler) CreateClassroom(c *fiber.Ctx) error {
 	return nil
 }
 
+func (handler *FiberApiHandler) CreateAssignment(c *fiber.Ctx) error {
+	c.Status(http.StatusNotImplemented)
+	return nil
+}
+
 func (handler *FiberApiHandler) getRepo(ctx *fiber.Ctx) repository.Repository {
 	repo := ctx.Locals("gitlab-repo").(repository.Repository)
 	return repo
