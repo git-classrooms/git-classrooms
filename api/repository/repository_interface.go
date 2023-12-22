@@ -34,9 +34,11 @@ type Repository interface {
 	DenyPushingToProject(projectId int) error                                                // TODO: keine Möglichkeit bisher gefunden
 	AllowPushingToProject(projectId int) error                                               // TODO: keine Möglichkeit bisher gefunden
 
-	ForkProject(projectId, classroomId int, name string, members []model.User) (*model.Project, error)
+	ForkProject(projectId int, name string) (*model.Project, error)
 
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
 
-	GetNamespaceOfGroup(classroomId int) (*string, error)
+	GetNamespaceOfGroup(groupId int) (*string, error)
+
+	GetNamespaceOfProject(projectId int) (*string, error)
 }

@@ -32,7 +32,7 @@ func TestApiHandler(t *testing.T) {
 	t.Run("CreateClassroom", func(t *testing.T) {
 		app.Post("/api/createClassroom", handler.CreateClassroom)
 
-		requestBody := ClassroomRequest{
+		requestBody := CreateClassroomRequest{
 			Name:         "Test",
 			MemberEmails: []string{"User1", "User2"},
 			Description:  "test",
@@ -61,6 +61,76 @@ func TestApiHandler(t *testing.T) {
 		}
 
 		req := newPostJsonRequest("/api/createClassroom", requestBody)
+
+		resp, err := app.Test(req, 1)
+
+		assert.NoError(t, err)
+		assert.Equal(t, resp.StatusCode, http.StatusCreated)
+	})
+
+	t.Run("CreateAssignment", func(t *testing.T) {
+		app.Post("/api/createAssignment", handler.CreateAssignment)
+
+		requestBody := CreateAssignmentRequest{
+			AssigneeUserIds:   []int{12, 23},
+			TemplateProjectId: 5,
+		}
+
+		template := model.Project{
+			ID:   requestBody.TemplateProjectId,
+			Name: "Test",
+		}
+		user1 := model.User{
+			ID:       requestBody.AssigneeUserIds[0],
+			Username: "Name1",
+		}
+		user2 := model.User{
+			ID:       requestBody.AssigneeUserIds[1],
+			Username: "Name2",
+		}
+		users := []model.User{user1, user2}
+		name := "Test_" + user1.Username + "_" + user2.Username
+		fork := model.Project{
+			Name: name,
+			ID:   33,
+		}
+		forkWithMembers := model.Project{
+			Name:   fork.Name,
+			ID:     fork.ID,
+			Member: users,
+		}
+
+		repo.
+			EXPECT().
+			GetProjectById(requestBody.TemplateProjectId).
+			Return(&template, nil).
+			Times(1)
+
+		repo.
+			EXPECT().
+			GetUserById(requestBody.AssigneeUserIds[0]).
+			Return(&user1, nil).
+			Times(1)
+
+		repo.
+			EXPECT().
+			GetUserById(requestBody.AssigneeUserIds[1]).
+			Return(&user2, nil).
+			Times(1)
+
+		repo.
+			EXPECT().
+			ForkProject(requestBody.TemplateProjectId, name).
+			Return(&fork, nil).
+			Times(1)
+
+		repo.
+			EXPECT().
+			AddProjectMembers(fork.ID, users).
+			Return(&forkWithMembers, nil).
+			Times(1)
+
+		req := newPostJsonRequest("/api/createAssignment", requestBody)
 
 		resp, err := app.Test(req, 1)
 

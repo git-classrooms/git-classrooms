@@ -193,18 +193,18 @@ func (mr *MockRepositoryMockRecorder) DenyPushingToProject(arg0 interface{}) *go
 }
 
 // ForkProject mocks base method.
-func (m *MockRepository) ForkProject(arg0, arg1 int, arg2 string, arg3 []model.User) (*model.Project, error) {
+func (m *MockRepository) ForkProject(arg0 int, arg1 string) (*model.Project, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ForkProject", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "ForkProject", arg0, arg1)
 	ret0, _ := ret[0].(*model.Project)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ForkProject indicates an expected call of ForkProject.
-func (mr *MockRepositoryMockRecorder) ForkProject(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) ForkProject(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForkProject", reflect.TypeOf((*MockRepository)(nil).ForkProject), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForkProject", reflect.TypeOf((*MockRepository)(nil).ForkProject), arg0, arg1)
 }
 
 // GetAllGroups mocks base method.
@@ -310,6 +310,21 @@ func (m *MockRepository) GetNamespaceOfGroup(arg0 int) (*string, error) {
 func (mr *MockRepositoryMockRecorder) GetNamespaceOfGroup(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNamespaceOfGroup", reflect.TypeOf((*MockRepository)(nil).GetNamespaceOfGroup), arg0)
+}
+
+// GetNamespaceOfProject mocks base method.
+func (m *MockRepository) GetNamespaceOfProject(arg0 int) (*string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNamespaceOfProject", arg0)
+	ret0, _ := ret[0].(*string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNamespaceOfProject indicates an expected call of GetNamespaceOfProject.
+func (mr *MockRepositoryMockRecorder) GetNamespaceOfProject(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNamespaceOfProject", reflect.TypeOf((*MockRepository)(nil).GetNamespaceOfProject), arg0)
 }
 
 // GetPendingGroupInvitations mocks base method.

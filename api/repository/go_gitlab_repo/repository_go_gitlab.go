@@ -49,17 +49,20 @@ func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility
 	return repo.AddProjectMembers(gitlabProject.ID, members)
 }
 
-func (repo *GoGitlabRepo) ForkProject(projectId, classroomId int, name string, members []model.User) (*model.Project, error) {
+func (repo *GoGitlabRepo) ForkProject(projectId int, name string) (*model.Project, error) {
 	repo.assertIsConnected()
 
-	classroomNamespace, err := repo.GetNamespaceOfGroup(classroomId)
-	if err != nil {
-		return nil, err
-	}
+	// TODO: Aktuell wird das geforkte Project unter dem namespace des users erstellt aber nicht unter dem des classrooms
+	/*
+		templateProject, _, err := repo.client.Projects.GetProject(projectId, &gitlab.GetProjectOptions{})
+		if err != nil {
+			return nil, err
+		}
 
+	*/
 	opts := &gitlab.ForkProjectOptions{
-		Name:          &name,
-		NamespacePath: classroomNamespace,
+		Name: &name,
+		// NamespaceID: &templateProject.Namespace.ID,
 	}
 
 	gitlabProject, _, err := repo.client.Projects.ForkProject(projectId, opts)
@@ -67,7 +70,7 @@ func (repo *GoGitlabRepo) ForkProject(projectId, classroomId int, name string, m
 		return nil, err
 	}
 
-	return repo.AddProjectMembers(gitlabProject.ID, members)
+	return repo.convertGitlabProject(gitlabProject)
 }
 
 func (repo *GoGitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
@@ -86,17 +89,31 @@ func (repo *GoGitlabRepo) AddProjectMembers(projectId int, members []model.User)
 	return repo.GetProjectById(projectId)
 }
 
-func (repo *GoGitlabRepo) GetNamespaceOfGroup(classroomId int) (*string, error) {
+func (repo *GoGitlabRepo) GetNamespaceOfGroup(groupId int) (*string, error) {
 	repo.assertIsConnected()
 
-	classroom, err := repo.GetGroupById(classroomId)
+	classroom, err := repo.GetGroupById(groupId)
 	if err != nil {
 		return nil, err
 	}
 	urlPathes := strings.Split(classroom.WebUrl, "/")
-	classroomNamespace := urlPathes[len(urlPathes)-1]
+	namespace := urlPathes[len(urlPathes)-1]
 
-	return &classroomNamespace, nil
+	return &namespace, nil
+}
+
+func (repo *GoGitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
+	repo.assertIsConnected()
+
+	project, err := repo.GetProjectById(projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	urlPathes := strings.Split(project.WebUrl, "/")
+	namespace := urlPathes[len(urlPathes)-2]
+
+	return &namespace, nil
 }
 
 func (repo *GoGitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
