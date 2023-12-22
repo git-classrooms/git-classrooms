@@ -38,7 +38,5 @@ type Repository interface {
 
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
 
-	GetNamespaceOfGroup(groupId int) (*string, error)
-
 	GetNamespaceOfProject(projectId int) (*string, error)
 }

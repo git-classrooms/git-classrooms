@@ -388,14 +388,7 @@ func TestGoGitlabRepo(t *testing.T) {
 		namespace, err := repo.GetNamespaceOfProject(3)
 
 		assert.NoError(t, err)
-		assert.Equal(t, "integrationstestgroup11", namespace)
-	})
-
-	t.Run("GetNamespaceOfGroup", func(t *testing.T) {
-		namespace, err := repo.GetNamespaceOfGroup(15)
-
-		assert.NoError(t, err)
-		assert.Equal(t, "integrationstestgroup11", namespace)
+		assert.Equal(t, "integrationstestgroup11", *namespace)
 	})
 
 	/*

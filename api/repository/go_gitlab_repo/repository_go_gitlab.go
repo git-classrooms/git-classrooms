@@ -89,31 +89,15 @@ func (repo *GoGitlabRepo) AddProjectMembers(projectId int, members []model.User)
 	return repo.GetProjectById(projectId)
 }
 
-func (repo *GoGitlabRepo) GetNamespaceOfGroup(groupId int) (*string, error) {
-	repo.assertIsConnected()
-
-	classroom, err := repo.GetGroupById(groupId)
-	if err != nil {
-		return nil, err
-	}
-	urlPathes := strings.Split(classroom.WebUrl, "/")
-	namespace := urlPathes[len(urlPathes)-1]
-
-	return &namespace, nil
-}
-
 func (repo *GoGitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
 	repo.assertIsConnected()
 
-	project, err := repo.GetProjectById(projectId)
+	project, _, err := repo.client.Projects.GetProject(projectId, &gitlab.GetProjectOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	urlPathes := strings.Split(project.WebUrl, "/")
-	namespace := urlPathes[len(urlPathes)-2]
-
-	return &namespace, nil
+	return &project.Namespace.Path, nil
 }
 
 func (repo *GoGitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
