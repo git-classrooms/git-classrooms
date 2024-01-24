@@ -15,17 +15,22 @@ func NewFiberApiHandler() *FiberApiHandler {
 	return &FiberApiHandler{}
 }
 
-type ClassroomRequest struct {
+type CreateClassroomRequest struct {
 	Name         string   `json:"name"`
 	MemberEmails []string `json:"memberEmails"`
 	Description  string   `json:"description"`
+}
+
+type CreateAssignmentRequest struct {
+	AssigneeUserIds   []int `json:"assigneeUserIds"`
+	TemplateProjectId int   `json:"templateProjectId"`
 }
 
 func (handler *FiberApiHandler) CreateClassroom(c *fiber.Ctx) error {
 	repo := handler.getRepo(c)
 
 	var err error
-	requestBody := new(ClassroomRequest)
+	requestBody := new(CreateClassroomRequest)
 
 	err = c.BodyParser(requestBody)
 	if err != nil {
@@ -50,6 +55,54 @@ func (handler *FiberApiHandler) CreateClassroom(c *fiber.Ctx) error {
 			c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 			return err
 		}
+	}
+
+	c.Status(http.StatusCreated)
+	return nil
+}
+
+func (handler *FiberApiHandler) CreateAssignment(c *fiber.Ctx) error {
+	repo := handler.getRepo(c)
+
+	var err error
+	requestBody := new(CreateAssignmentRequest)
+
+	err = c.BodyParser(requestBody)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		return err
+	}
+
+	templateProject, err := repo.GetProjectById(requestBody.TemplateProjectId)
+	if err != nil {
+		c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		return err
+	}
+
+	name := templateProject.Name
+
+	assignees := make([]model.User, len(requestBody.AssigneeUserIds))
+	for i, id := range requestBody.AssigneeUserIds {
+		user, err := repo.GetUserById(id)
+		if err != nil {
+			c.Status(fiber.StatusInternalServerError)
+			return err
+		}
+		assignees[i] = *user
+		name += "_" + user.Username
+	}
+
+	project := &model.Project{}
+	project, err = repo.ForkProject(requestBody.TemplateProjectId, name)
+	if err != err {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+
+	project, err = repo.AddProjectMembers(project.ID, assignees)
+	if err != err {
+		c.Status(fiber.StatusInternalServerError)
+		return err
 	}
 
 	c.Status(http.StatusCreated)

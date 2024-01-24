@@ -34,6 +34,21 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// AddProjectMembers mocks base method.
+func (m *MockRepository) AddProjectMembers(arg0 int, arg1 []model.User) (*model.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddProjectMembers", arg0, arg1)
+	ret0, _ := ret[0].(*model.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddProjectMembers indicates an expected call of AddProjectMembers.
+func (mr *MockRepositoryMockRecorder) AddProjectMembers(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddProjectMembers", reflect.TypeOf((*MockRepository)(nil).AddProjectMembers), arg0, arg1)
+}
+
 // AddUserToGroup mocks base method.
 func (m *MockRepository) AddUserToGroup(arg0, arg1 int) error {
 	m.ctrl.T.Helper()
@@ -177,6 +192,21 @@ func (mr *MockRepositoryMockRecorder) DenyPushingToProject(arg0 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DenyPushingToProject", reflect.TypeOf((*MockRepository)(nil).DenyPushingToProject), arg0)
 }
 
+// ForkProject mocks base method.
+func (m *MockRepository) ForkProject(arg0 int, arg1 string) (*model.Project, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ForkProject", arg0, arg1)
+	ret0, _ := ret[0].(*model.Project)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ForkProject indicates an expected call of ForkProject.
+func (mr *MockRepositoryMockRecorder) ForkProject(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForkProject", reflect.TypeOf((*MockRepository)(nil).ForkProject), arg0, arg1)
+}
+
 // GetAllGroups mocks base method.
 func (m *MockRepository) GetAllGroups() ([]*model.Group, error) {
 	m.ctrl.T.Helper()
@@ -265,6 +295,36 @@ func (m *MockRepository) GetGroupById(arg0 int) (*model.Group, error) {
 func (mr *MockRepositoryMockRecorder) GetGroupById(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupById", reflect.TypeOf((*MockRepository)(nil).GetGroupById), arg0)
+}
+
+// GetNamespaceOfGroup mocks base method.
+func (m *MockRepository) GetNamespaceOfGroup(arg0 int) (*string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNamespaceOfGroup", arg0)
+	ret0, _ := ret[0].(*string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNamespaceOfGroup indicates an expected call of GetNamespaceOfGroup.
+func (mr *MockRepositoryMockRecorder) GetNamespaceOfGroup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNamespaceOfGroup", reflect.TypeOf((*MockRepository)(nil).GetNamespaceOfGroup), arg0)
+}
+
+// GetNamespaceOfProject mocks base method.
+func (m *MockRepository) GetNamespaceOfProject(arg0 int) (*string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNamespaceOfProject", arg0)
+	ret0, _ := ret[0].(*string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNamespaceOfProject indicates an expected call of GetNamespaceOfProject.
+func (mr *MockRepositoryMockRecorder) GetNamespaceOfProject(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNamespaceOfProject", reflect.TypeOf((*MockRepository)(nil).GetNamespaceOfProject), arg0)
 }
 
 // GetPendingGroupInvitations mocks base method.
