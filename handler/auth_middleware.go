@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/api/repository/go_gitlab_repo"
 	"backend/auth"
+	"backend/context"
 	"backend/session"
 	"time"
 
@@ -60,7 +61,7 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		return err
 	}
 
-	c.Locals("gitlab-repo", repo)
+	context.SetGitlabRepository(c, repo)
 
 	return c.Next()
 }

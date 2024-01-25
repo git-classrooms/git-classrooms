@@ -1,7 +1,7 @@
 package main
 
 import (
-	"backend/api/repository/go_gitlab_repo"
+	"backend/context"
 	"backend/handler"
 	"backend/router"
 	"log"
@@ -57,7 +57,7 @@ func main() {
 
 	app.Use("/api", handler.AuthMiddleware)
 	app.Get("/api/secret", func(c *fiber.Ctx) error {
-		repo := c.Locals("gitlab-repo").(*go_gitlab_repo.GoGitlabRepo)
+		repo := context.GetGitlabRepository(c)
 		user, err := repo.GetCurrentUser()
 		if err != nil {
 			return err
