@@ -201,8 +201,7 @@ func (s *ClassroomSession) GetExpiry() time.Time {
 }
 
 // SetExpiry sets a specific expiration for this session. Throws error when failing.
-func (s *ClassroomSession) SetExpiry(exp time.Time) error {
+func (s *ClassroomSession) SetExpiry(exp time.Time) {
 	s.session.Set(expiresAt, exp.Unix())
 	s.session.SetExpiry(time.Until(exp))
-	return s.Save()
 }

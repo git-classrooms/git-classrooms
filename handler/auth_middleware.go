@@ -43,11 +43,11 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		// Save refreshed token to session
 		sess.SetGitlabAccessToken(token.AccessToken)
 		sess.SetGitlabRefreshToken(token.RefreshToken)
-		err = sess.SetExpiry(token.Expiry)
-		if err != nil {
+		sess.SetExpiry(token.Expiry)
+		if err = sess.Save(); err != nil {
 			return err
 		}
-		// sess.SetExpiry does save the session, which invalidates the pointer and we must get a new one
+		// sess.Save does save the session, which invalidates the pointer and we must get a new one
 		sess = session.Get(c)
 	}
 
