@@ -10,7 +10,11 @@ const (
 )
 
 func GetGitlabRepository(c *fiber.Ctx) *go_gitlab_repo.GoGitlabRepo {
-	return c.Locals(gitlabRepoKey).(*go_gitlab_repo.GoGitlabRepo)
+	value, ok := c.Locals(gitlabRepoKey).(*go_gitlab_repo.GoGitlabRepo)
+	if !ok {
+		return nil
+	}
+	return value
 }
 
 func SetGitlabRepository(c *fiber.Ctx, repo *go_gitlab_repo.GoGitlabRepo) {
