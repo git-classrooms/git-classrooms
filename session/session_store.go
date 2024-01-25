@@ -197,7 +197,11 @@ func (s *ClassroomSession) Keys() []string {
 
 // GetExpiry returns the
 func (s *ClassroomSession) GetExpiry() time.Time {
-	return time.Unix(s.session.Get(expiresAt).(int64), 0)
+	value, ok := s.session.Get(expiresAt).(int64)
+	if !ok {
+		return time.Unix(0, 0)
+	}
+	return time.Unix(value, 0)
 }
 
 // SetExpiry sets a specific expiration for this session. Throws error when failing.
