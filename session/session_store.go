@@ -20,11 +20,12 @@ const (
 
 // Session keys
 const (
-	userState          = "user-state"
-	userID             = "user-id"
-	gitLabAccessToken  = "gitlab-access-token"
-	gitLabRefreshToken = "gitlab-refresh-token"
-	expiresAt          = "expires-at"
+	userState           = "user-state"
+	userID              = "user-id"
+	gitLabAccessToken   = "gitlab-access-token"
+	gitLabRefreshToken  = "gitlab-refresh-token"
+	expiresAt           = "expires-at"
+	oauthRedirectTarget = "oauth-redirect-target"
 )
 
 // Error keys
@@ -106,6 +107,16 @@ func (s *ClassroomSession) SetUserState(state UserState) {
 // GetUserState returns the current UserState of this session.
 func (s *ClassroomSession) GetUserState() UserState {
 	return UserState(s.session.Get(userState).(int))
+}
+
+// SetOAuthRedirectTarget should be set with the initial target user wanted, if interrupted by auth middleware.
+func (s *ClassroomSession) SetOAuthRedirectTarget(uri string) {
+	s.session.Set(oauthRedirectTarget, uri)
+}
+
+// GetOAuthRedirectTarget returns the last OAuthRedirectTarget of this session.
+func (s *ClassroomSession) GetOAuthRedirectTarget() string {
+	return s.session.Get(oauthRedirectTarget).(string)
 }
 
 //// GitLab
