@@ -53,7 +53,7 @@ func Get(c *fiber.Ctx) *ClassroomSession {
 
 	// If session is new and unauthenticated set user state to anonymous
 	if s.Get(userState) == nil {
-		s.Set(userState, Anonymous)
+		s.Set(userState, int(Anonymous))
 	}
 
 	instance = &ClassroomSession{s, c}
