@@ -5,6 +5,7 @@ import (
 	"backend/auth"
 	"backend/model/database/query"
 	"backend/session"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -60,10 +61,7 @@ func Callback(c *fiber.Ctx) error {
 	sess.SetUserState(session.LoggedIn)
 	sess.SetUserID(user.ID)
 
-	err = sess.SetExpiry(token.Expiry)
-	if err != nil {
-		return err
-	}
+	sess.SetExpiry(token.Expiry)
 
 	s := session.Get(c)
 	redirect := s.GetOAuthRedirectTarget()
