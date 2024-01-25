@@ -5,13 +5,20 @@ import (
 	"backend/auth"
 	"backend/model/database/query"
 	"backend/session"
-
 	"github.com/gofiber/fiber/v2"
 )
 
 // Auth fiber handler
 func Auth(c *fiber.Ctx) error {
 	path := auth.ConfigGitlab()
+	redirect := c.Query("redirect", "/")
+
+	s := session.Get(c)
+	s.SetOAuthRedirectTarget(redirect)
+	if err := s.Save(); err != nil {
+		return err
+	}
+
 	url := path.AuthCodeURL("state")
 	return c.Redirect(url)
 }
@@ -19,12 +26,6 @@ func Auth(c *fiber.Ctx) error {
 // Callback to receive gitlabs' response
 func Callback(c *fiber.Ctx) error {
 	token, err := auth.ConfigGitlab().Exchange(c.Context(), c.FormValue("code"))
-	if err != nil {
-		return err
-	}
-
-	// Get users session object
-	// sess, err := session.GetSession().Get(c)
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,8 @@ func Callback(c *fiber.Ctx) error {
 		return err
 	}
 
-	// Don't send gitlab accessToken to Client
-	// TODO: Redirect to client destination page
-	return c.Status(200).JSON(fiber.Map{"token": token})
+	s := session.Get(c)
+	redirect := s.GetOAuthRedirectTarget()
+
+	return c.Redirect(redirect)
 }
