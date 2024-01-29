@@ -61,26 +61,27 @@ func Callback(c *fiber.Ctx) error {
 		FirstOrCreate()
 
 	if err != nil {
-		return nil
-	}
-
-	sess := session.Get(c)
-
-	// Save GitLab session in local user session
-	sess.SetGitlabAccessToken(token.AccessToken)
-	sess.SetGitlabRefreshToken(token.RefreshToken)
-
-	sess.SetUserState(session.LoggedIn)
-	sess.SetUserID(user.ID)
-
-	sess.SetExpiry(token.Expiry)
-	if err = sess.Save(); err != nil {
 		log.Println(err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
 
 	s := session.Get(c)
+
+	// Save GitLab session in local user session
+	s.SetGitlabAccessToken(token.AccessToken)
+	s.SetGitlabRefreshToken(token.RefreshToken)
+
+	s.SetUserState(session.LoggedIn)
+	s.SetUserID(user.ID)
+
+	s.SetExpiry(token.Expiry)
+
 	redirect := s.GetOAuthRedirectTarget()
+
+	if err = s.Save(); err != nil {
+		log.Println(err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+	}
 
 	return c.Redirect(redirect)
 }
