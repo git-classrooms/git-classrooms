@@ -10,6 +10,8 @@ import (
 )
 
 func Routes(app *fiber.App, applicationConfig *config.Config) {
+	app.Static("/", "./public")
+
 	app.Get("/auth", handler.Auth)
 	app.Get(applicationConfig.Auth.RedirectURL.Path, handler.Callback)
 
