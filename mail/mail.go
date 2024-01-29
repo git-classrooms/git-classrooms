@@ -5,17 +5,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"html/template"
-	"strconv"
 
 	gomail "gopkg.in/gomail.v2"
 )
-
-type MailConfig struct {
-	host     string
-	port     int
-	user     string
-	password string
-}
 
 type Mail struct {
 	to      string
@@ -57,27 +49,5 @@ func (m *Mail) Send(templateFileName string, data interface{}) error {
 	dailer := gomail.NewDialer(cfg.host, cfg.port, cfg.user, cfg.password)
 	dailer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
-	if err := dailer.DialAndSend(mail); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func mailConfig() (*MailConfig, error) {
-	p := config.Config("SMTP_PORT")
-
-	port, err := strconv.Atoi(p)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &MailConfig{
-		host:     config.Config("SMTP_HOST"),
-		port:     port,
-		user:     config.Config("SMTP_USER"),
-		password: config.Config("SMTP_PASSWORD"),
-	}, nil
-
+	return dailer.DialAndSend(mail)
 }
