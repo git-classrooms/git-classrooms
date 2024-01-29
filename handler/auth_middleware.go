@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/api/repository/go_gitlab_repo"
 	"backend/auth"
+	"backend/config"
 	"backend/context"
 	"backend/session"
 	"time"
@@ -12,6 +13,11 @@ import (
 )
 
 func AuthMiddleware(c *fiber.Ctx) error {
+	applicationConfig, err := config.GetConfig()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, session.ErrorUnauthenticated)
+	}
+
 	sess := session.Get(c)
 
 	if sess.GetUserState() == session.Anonymous {
@@ -35,7 +41,7 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		token.TokenType = "Bearer"
 
 		// Refresh token
-		token, err = auth.ConfigGitlab().TokenSource(c.Context(), token).Token()
+		token, err = auth.ConfigGitlab(applicationConfig).TokenSource(c.Context(), token).Token()
 		if err != nil {
 			return err
 		}
@@ -56,7 +62,7 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		return err
 	}
 
-	repo := go_gitlab_repo.NewGoGitlabRepo()
+	repo := go_gitlab_repo.NewGoGitlabRepo(applicationConfig)
 	if err := repo.Login(accessToken); err != nil {
 		return err
 	}

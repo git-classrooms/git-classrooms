@@ -18,7 +18,10 @@ import (
 )
 
 func main() {
-	applicationConfig := config.GetConfig()
+	applicationConfig, err := config.GetConfig()
+	if err != nil {
+		panic("failed to get application configuration")
+	}
 
 	db, err := gorm.Open(postgres.Open(applicationConfig.Database.Dsn()), &gorm.Config{})
 	if err != nil {
@@ -55,7 +58,7 @@ func main() {
 		return c.SendString("Hello World!")
 	})
 
-	router.Routes(app)
+	router.Routes(app, applicationConfig)
 
 	app.Use("/api", handler.AuthMiddleware)
 	app.Get("/api/secret", func(c *fiber.Ctx) error {

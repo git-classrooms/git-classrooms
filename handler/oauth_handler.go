@@ -3,6 +3,7 @@ package handler
 import (
 	"backend/api/repository/go_gitlab_repo"
 	"backend/auth"
+	"backend/config"
 	"backend/model/database/query"
 	"backend/session"
 
@@ -11,7 +12,12 @@ import (
 
 // Auth fiber handler
 func Auth(c *fiber.Ctx) error {
-	path := auth.ConfigGitlab()
+	applicationConfig, err := config.GetConfig()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, session.ErrorUnauthenticated)
+	}
+
+	path := auth.ConfigGitlab(applicationConfig)
 	redirect := c.Query("redirect", "/")
 
 	s := session.Get(c)
@@ -26,12 +32,17 @@ func Auth(c *fiber.Ctx) error {
 
 // Callback to receive gitlabs' response
 func Callback(c *fiber.Ctx) error {
-	token, err := auth.ConfigGitlab().Exchange(c.Context(), c.FormValue("code"))
+	applicationConfig, err := config.GetConfig()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, session.ErrorUnauthenticated)
+	}
+
+	token, err := auth.ConfigGitlab(applicationConfig).Exchange(c.Context(), c.FormValue("code"))
 	if err != nil {
 		return err
 	}
 
-	repo := go_gitlab_repo.NewGoGitlabRepo()
+	repo := go_gitlab_repo.NewGoGitlabRepo(applicationConfig)
 	if err := repo.Login(token.AccessToken); err != nil {
 		return err
 	}

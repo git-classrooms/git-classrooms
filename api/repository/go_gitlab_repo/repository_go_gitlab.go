@@ -12,11 +12,21 @@ import (
 
 type GoGitlabRepo struct {
 	client      *gitlab.Client
+	config      *config.Config
 	isConnected bool
 }
 
-func NewGoGitlabRepo() *GoGitlabRepo {
-	return &GoGitlabRepo{client: nil, isConnected: false}
+func NewGoGitlabRepo(configuration *config.Config) *GoGitlabRepo {
+	if configuration != nil {
+		return &GoGitlabRepo{client: nil, config: configuration, isConnected: false}
+	} else {
+		loadedConfig, err := config.GetConfig()
+		if err != nil {
+			log.Fatalf("Can't load config: %v", err)
+		}
+		return &GoGitlabRepo{client: nil, config: loadedConfig, isConnected: false}
+	}
+
 }
 
 // Reference to Go Gitlab Documentation: https://pkg.go.dev/github.com/xanzy/go-gitlab#section-documentation
@@ -24,7 +34,7 @@ func NewGoGitlabRepo() *GoGitlabRepo {
 func (repo *GoGitlabRepo) Login(token string) error {
 	// With oauth tokens we need the OAuthClient to make requests
 	// TODO: But all tests act with a personal token, we just use the normal client for a while
-	cli, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(config.GetConfig().GitLab.URL))
+	cli, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(repo.config.GitLab.URL))
 	if err != nil {
 		return err
 	}

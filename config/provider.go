@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"github.com/caarlos0/env/v10"
 	"github.com/joho/godotenv"
 	"log"
@@ -12,7 +13,7 @@ import (
 var instance *Config
 var once sync.Once
 
-func GetConfig() *Config {
+func GetConfig() (*Config, error) {
 	once.Do(func() {
 		path, _ := os.Getwd()
 
@@ -24,5 +25,9 @@ func GetConfig() *Config {
 			log.Fatalf("Couldn't parse environment %s", err.Error())
 		}
 	})
-	return instance
+
+	if instance == nil {
+		return nil, errors.New("there is no config instance")
+	}
+	return instance, nil
 }

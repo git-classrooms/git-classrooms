@@ -1,6 +1,11 @@
+//go:build integration
+// +build integration
+
+// TODO: Is this an integration test?
 package go_gitlab_repo
 
 import (
+	"backend/config"
 	"backend/model"
 	"fmt"
 	"log"
@@ -54,7 +59,7 @@ func TestGoGitlabRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	repo := NewGoGitlabRepo()
+	repo := NewGoGitlabRepo(&config.Config{})
 
 	t.Run("LoginByToken", func(t *testing.T) {
 		err := repo.Login(credentials.Token)

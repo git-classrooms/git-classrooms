@@ -2,6 +2,7 @@ package context
 
 import (
 	"backend/api/repository/go_gitlab_repo"
+	"backend/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
@@ -45,7 +46,7 @@ func TestClassroomSession_Delete(t *testing.T) {
 			req := new(fasthttp.RequestCtx)
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
-			shouldRepo := go_gitlab_repo.NewGoGitlabRepo()
+			shouldRepo := go_gitlab_repo.NewGoGitlabRepo(&config.Config{})
 			ctx.Locals(gitlabRepoKey, shouldRepo)
 
 			// when
@@ -76,7 +77,7 @@ func TestClassroomSession_Delete(t *testing.T) {
 			req := new(fasthttp.RequestCtx)
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
-			shouldRepo := go_gitlab_repo.NewGoGitlabRepo()
+			shouldRepo := go_gitlab_repo.NewGoGitlabRepo(&config.Config{})
 
 			// when
 			SetGitlabRepository(ctx, shouldRepo)
