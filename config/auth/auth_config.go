@@ -1,7 +1,9 @@
 package auth
 
+import "net/url"
+
 type Config struct {
-	ClientID     string `env:"CLIENT_ID"`
-	ClientSecret string `env:"CLIENT_SECRET"`
-	RedirectURL  string `env:"REDIRECT_URL"`
+	ClientID     string   `env:"CLIENT_ID"`
+	ClientSecret string   `env:"CLIENT_SECRET"`
+	RedirectURL  *url.URL `env:"REDIRECT_URL"`
 }

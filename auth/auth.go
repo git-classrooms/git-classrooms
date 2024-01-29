@@ -7,15 +7,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func ConfigGitlab() *oauth2.Config {
+func ConfigGitlab(applicationConfig *config.Config) *oauth2.Config {
 	conf := &oauth2.Config{
-		ClientID:     config.GetConfig().Auth.ClientID,
-		ClientSecret: config.GetConfig().Auth.ClientSecret,
-		RedirectURL:  config.GetConfig().Auth.RedirectURL,
+		ClientID:     applicationConfig.Auth.ClientID,
+		ClientSecret: applicationConfig.Auth.ClientSecret,
+		RedirectURL:  applicationConfig.Auth.RedirectURL.String(),
 		Scopes:       []string{"api"}, // you can use other scopes to get more data
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  fmt.Sprintf("%s/oauth/authorize", config.GetConfig().GitLab.URL), //"https://gitlab.com/oauth/authorize"
-			TokenURL: fmt.Sprintf("%s/oauth/token", config.GetConfig().GitLab.URL),     //"https://gitlab.com/oauth/token",
+			AuthURL:  fmt.Sprintf("%s/oauth/authorize", applicationConfig.GitLab.URL), //"https://gitlab.com/oauth/authorize"
+			TokenURL: fmt.Sprintf("%s/oauth/token", applicationConfig.GitLab.URL),     //"https://gitlab.com/oauth/token",
 		},
 	}
 	return conf

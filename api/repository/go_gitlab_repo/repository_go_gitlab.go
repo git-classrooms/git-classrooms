@@ -1,6 +1,7 @@
 package go_gitlab_repo
 
 import (
+	"backend/config"
 	"backend/model"
 	"fmt"
 	"log"
@@ -11,23 +12,45 @@ import (
 
 type GoGitlabRepo struct {
 	client      *gitlab.Client
+	config      *config.Config
 	isConnected bool
 }
 
-func NewGoGitlabRepo() *GoGitlabRepo {
-	return &GoGitlabRepo{client: nil, isConnected: false}
+func NewGoGitlabRepo(configuration *config.Config) *GoGitlabRepo {
+	if configuration != nil {
+		return &GoGitlabRepo{client: nil, config: configuration, isConnected: false}
+	} else {
+		loadedConfig, err := config.GetConfig()
+		if err != nil {
+			log.Fatalf("Can't load config: %v", err)
+		}
+		return &GoGitlabRepo{client: nil, config: loadedConfig, isConnected: false}
+	}
+
 }
 
 // Reference to Go Gitlab Documentation: https://pkg.go.dev/github.com/xanzy/go-gitlab#section-documentation
 
-func (repo *GoGitlabRepo) Login(token string, username string) (*model.User, error) {
-	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://hs-flensburg.dev"))
+func (repo *GoGitlabRepo) Login(token string) error {
+	// With oauth tokens we need the OAuthClient to make requests
+	// TODO: But all tests act with a personal token, we just use the normal client for a while
+	cli, err := gitlab.NewOAuthClient(token, gitlab.WithBaseURL(repo.config.GitLab.URL))
+	if err != nil {
+		return err
+	}
+	repo.client = cli
+	return nil
+}
+
+func (repo *GoGitlabRepo) GetCurrentUser() (*model.User, error) {
+	repo.assertIsConnected()
+
+	gitlabUser, _, err := repo.client.Users.CurrentUser()
 	if err != nil {
 		return nil, err
 	}
-	repo.client = cli
 
-	return repo.getUserByUsername(username)
+	return UserFromGoGitlab(*gitlabUser), nil
 }
 
 func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {

@@ -1,7 +1,11 @@
-package go_gitlab_repo_test
+//go:build integration
+// +build integration
+
+// TODO: Is this an integration test?
+package go_gitlab_repo
 
 import (
-	"backend/api/repository/go_gitlab_repo"
+	"backend/config"
 	"backend/model"
 	"fmt"
 	"log"
@@ -55,22 +59,17 @@ func TestGoGitlabRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	repo := go_gitlab_repo.NewGoGitlabRepo()
+	repo := NewGoGitlabRepo(&config.Config{})
 
 	t.Run("LoginByToken", func(t *testing.T) {
-		user, err := repo.Login(credentials.Token, credentials.Username)
-
-		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+		err := repo.Login(credentials.Token)
 
 		assert.NoError(t, err)
-		assert.Equal(t, credentials.ID, user.ID)
-		assert.Equal(t, credentials.Username, user.Username)
-		assert.Equal(t, credentials.Name, user.Name)
-		assert.Equal(t, webUrl, user.WebUrl)
+		assert.NotNil(t, repo.client)
 		// assert.Equal(t, credentials.Email, user.Email) // TODO emails not available with personal access tokens, but should be with session tokens
 	})
 
-	_, err = repo.Login(credentials.Token, credentials.Username)
+	err = repo.Login(credentials.Token)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,6 +203,18 @@ func TestGoGitlabRepo(t *testing.T) {
 	t.Run("GetUserById", func(t *testing.T) {
 		user, err := repo.GetUserById(credentials.ID)
 
+		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+
+		assert.NoError(t, err)
+		assert.Equal(t, credentials.ID, user.ID)
+		assert.Equal(t, credentials.Username, user.Username)
+		assert.Equal(t, credentials.Name, user.Name)
+		assert.Equal(t, webUrl, user.WebUrl)
+		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
+	})
+
+	t.Run("GetCurrentUser", func(t *testing.T) {
+		user, err := repo.GetCurrentUser()
 		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
 
 		assert.NoError(t, err)

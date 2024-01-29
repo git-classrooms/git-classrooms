@@ -1,6 +1,7 @@
 package router
 
 import (
+	"backend/config"
 	"backend/handler"
 	apiHandler "backend/handler/api"
 
@@ -8,9 +9,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-func Routes(app *fiber.App) {
-	app.Get("/auth/", handler.Auth)
-	app.Get("/auth/general/callback", handler.Callback)
+func Routes(app *fiber.App, applicationConfig *config.Config) {
+	app.Get("/auth", handler.Auth)
+	app.Get(applicationConfig.Auth.RedirectURL.Path, handler.Callback)
 
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 

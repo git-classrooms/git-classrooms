@@ -1,6 +1,9 @@
 package main
 
 import (
+	"backend/context"
+	"backend/handler"
+	"backend/router"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +18,10 @@ import (
 )
 
 func main() {
-	applicationConfig := config.GetConfig()
+	applicationConfig, err := config.GetConfig()
+	if err != nil {
+		panic("failed to get application configuration")
+	}
 
 	db, err := gorm.Open(postgres.Open(applicationConfig.Database.Dsn()), &gorm.Config{})
 	if err != nil {
@@ -46,8 +52,23 @@ func main() {
 
 	app := fiber.New()
 
+	app.Static("/", "./frontend/dist")
+
 	app.Get("/api/hello", func(c *fiber.Ctx) error {
 		return c.SendString("Hello World!")
+	})
+
+	router.Routes(app, applicationConfig)
+
+	app.Use("/api", handler.AuthMiddleware)
+	app.Get("/api/secret", func(c *fiber.Ctx) error {
+		repo := context.GetGitlabRepository(c)
+		user, err := repo.GetCurrentUser()
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(user)
 	})
 
 	log.Fatal(app.Listen(":3000"))
