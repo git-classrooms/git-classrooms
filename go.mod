@@ -13,7 +13,10 @@ require (
 	gorm.io/plugin/dbresolver v1.4.7
 )
 
-require github.com/xanzy/go-gitlab v0.93.2
+require (
+	github.com/golang/mock v1.6.0
+	github.com/xanzy/go-gitlab v0.93.2
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -31,7 +34,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
-	golang.org/x/mod v0.9.0 // indirect
+	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
 	gorm.io/datatypes v1.1.1-0.20230130040222-c43177d3cf8c // indirect

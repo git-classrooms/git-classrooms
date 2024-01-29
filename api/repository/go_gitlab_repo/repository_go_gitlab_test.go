@@ -90,6 +90,37 @@ func TestGoGitlabRepo(t *testing.T) {
 	// 	assert.Equal(t, projectDescription, project.Description)
 	// })
 
+	/*
+		// If you get the error "has already been taken", the test has been run previously and there already exist a project with this name in the group namespace
+		t.Run("ForkProject", func(t *testing.T) {
+			newName := "ForkTestFork3"
+
+			forkProject, err := repo.ForkProject(3, newName)
+
+			assert.NoError(t, err)
+			assert.Equal(t, newName, forkProject.Name)
+			assert.NotEqual(t, 3, forkProject.ID)
+		})
+	*/
+
+	/*
+		// to run this test, check that the user is not already member of project
+		t.Run("AddProjectMembers", func(t *testing.T) {
+			members := make([]model.User, 1)
+			members[0] = model.User{
+				ID:       5,
+				Username: "IntegrationTestsUser1",
+				Name:     "TestUser1",
+				WebUrl:   "https://hs-flensburg.dev/IntegrationTestsUser1",
+			}
+
+			project, err := repo.AddProjectMembers(3, members)
+
+			assert.NoError(t, err)
+			assertContainUser(t, members[0], project.Member)
+		})
+	*/
+
 	// erstellt Gruppe, Test schmeisst aber error
 	// t.Run("CreateGroup", func(t *testing.T) {
 	//     groupName := "TestGroup"
@@ -357,6 +388,13 @@ func TestGoGitlabRepo(t *testing.T) {
 		// Optionally, check for specific properties of the pending invitations
 		// For example, assert that the length of pendingInvites is as expected
 		// or check for specific user IDs in the pending invitations
+	})
+
+	t.Run("GetNamespaceOfProject", func(t *testing.T) {
+		namespace, err := repo.GetNamespaceOfProject(3)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "integrationstestgroup11", *namespace)
 	})
 
 	/*

@@ -59,8 +59,38 @@ func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility
 		return nil, err
 	}
 
+	return repo.AddProjectMembers(gitlabProject.ID, members)
+}
+
+func (repo *GoGitlabRepo) ForkProject(projectId int, name string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	// TODO: Aktuell wird das geforkte Project unter dem namespace des users erstellt aber nicht unter dem des classrooms
+	/*
+		templateProject, _, err := repo.client.Projects.GetProject(projectId, &gitlab.GetProjectOptions{})
+		if err != nil {
+			return nil, err
+		}
+
+	*/
+	opts := &gitlab.ForkProjectOptions{
+		Name: &name,
+		// NamespaceID: &templateProject.Namespace.ID,
+	}
+
+	gitlabProject, _, err := repo.client.Projects.ForkProject(projectId, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.convertGitlabProject(gitlabProject)
+}
+
+func (repo *GoGitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
+	repo.assertIsConnected()
+
 	for _, member := range members {
-		_, _, err := repo.client.ProjectMembers.AddProjectMember(gitlabProject.ID, &gitlab.AddProjectMemberOptions{
+		_, _, err := repo.client.ProjectMembers.AddProjectMember(projectId, &gitlab.AddProjectMemberOptions{
 			UserID:      &member.ID,
 			AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		})
@@ -69,7 +99,18 @@ func (repo *GoGitlabRepo) CreateProject(name string, visibility model.Visibility
 		}
 	}
 
-	return repo.convertGitlabProject(gitlabProject)
+	return repo.GetProjectById(projectId)
+}
+
+func (repo *GoGitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
+	repo.assertIsConnected()
+
+	project, _, err := repo.client.Projects.GetProject(projectId, &gitlab.GetProjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &project.Namespace.Path, nil
 }
 
 func (repo *GoGitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
