@@ -181,4 +181,6 @@ fabric.properties
 !.env.example
 .env*
 
-# End of https://www.toptal.com/developers/gitignore/api/dotenv**.env.*
+
+## Ignore certificates for mailpit
+.docker/mail/*
