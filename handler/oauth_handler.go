@@ -6,6 +6,7 @@ import (
 	"backend/config"
 	"backend/model/database/query"
 	"backend/session"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -73,6 +74,10 @@ func Callback(c *fiber.Ctx) error {
 	sess.SetUserID(user.ID)
 
 	sess.SetExpiry(token.Expiry)
+	if err = sess.Save(); err != nil {
+		log.Println(err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+	}
 
 	s := session.Get(c)
 	redirect := s.GetOAuthRedirectTarget()
