@@ -8,8 +8,10 @@ import (
 )
 
 type Config struct {
-	GitLab   general.GitLabConfig `envPrefix:"GITLAB_"`
-	Database database.PsqlConfig  `envPrefix:"POSTGRES_"`
-	Auth     auth.Config          `envPrefix:"AUTH_"`
-	Mail     mail.Config          `envPrefix:"SMTP_"`
+	Port         int                  `env:"PORT" envDefault:"3000"`
+	FrontendPath string               `env:"FRONTEND_PATH" envDefault:"./public"`
+	GitLab       general.GitLabConfig `envPrefix:"GITLAB_"`
+	Database     database.PsqlConfig  `envPrefix:"POSTGRES_"`
+	Auth         auth.Config          `envPrefix:"AUTH_"`
+	Mail         mail.Config          `envPrefix:"SMTP_"`
 }

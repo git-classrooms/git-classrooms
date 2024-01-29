@@ -4,12 +4,12 @@ import (
 	"backend/context"
 	"backend/handler"
 	"backend/router"
-	"log"
-
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen"
 	"gorm.io/gorm"
+	"log"
 
 	"backend/config"
 
@@ -53,7 +53,6 @@ func main() {
 
 	app := fiber.New()
 
-
 	app.Get("/api/hello", func(c *fiber.Ctx) error {
 		return c.SendString("Hello World!")
 	})
@@ -71,7 +70,13 @@ func main() {
 		return c.JSON(user)
 	})
 
-	log.Fatal(app.Listen(":3000"))
+	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
+
+	// we need to redirect all other routes to the frontend
+	spaFile := fmt.Sprintf("%s/index.html", applicationConfig.FrontendPath)
+	app.Get("*", func(c *fiber.Ctx) error { return c.SendFile(spaFile) })
+
+	log.Fatal(app.Listen(fmt.Sprintf(":%d", applicationConfig.Port)))
 }
 
 //lint:ignore U1000 Ignore unused function to generate Query Code if the Model changed
