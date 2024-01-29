@@ -1,5 +1,3 @@
-import React from "react";
-
 export function TopBar(): JSX.Element {
   return (
     <nav className="top-bar">
