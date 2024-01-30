@@ -1,8 +1,8 @@
 package context
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab"
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 )
 
 const (

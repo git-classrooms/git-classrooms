@@ -1,9 +1,9 @@
 package gitlab
 
 import (
-	gitlabConfig "de.hs-flensburg.gitlab/gitlab-classroom/config/gitlab"
-	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"fmt"
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model"
 	"log"
 	"strings"
 

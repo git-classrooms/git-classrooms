@@ -1,9 +1,9 @@
 package session
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/model/database"
-	"de.hs-flensburg.gitlab/gitlab-classroom/model/database/query"
 	"errors"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"sync"
 	"time"
 

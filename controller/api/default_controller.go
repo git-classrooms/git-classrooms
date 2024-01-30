@@ -1,9 +1,9 @@
 package api
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/context"
-	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model"
 	"net/http"
 )
 

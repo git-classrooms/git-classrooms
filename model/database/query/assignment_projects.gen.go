@@ -7,7 +7,7 @@ package query
 import (
 	"context"
 
-	"de.hs-flensburg.gitlab/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"

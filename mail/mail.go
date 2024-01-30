@@ -3,7 +3,7 @@ package mail
 import (
 	"bytes"
 	"crypto/tls"
-	mailConfig "de.hs-flensburg.gitlab/gitlab-classroom/config/mail"
+	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
 	"html/template"
 
 	gomail "gopkg.in/gomail.v2"

@@ -1,13 +1,13 @@
 package auth
 
 import (
-	authConfig "de.hs-flensburg.gitlab/gitlab-classroom/config/auth"
-	gitlabConfig "de.hs-flensburg.gitlab/gitlab-classroom/config/gitlab"
-	"de.hs-flensburg.gitlab/gitlab-classroom/context"
-	"de.hs-flensburg.gitlab/gitlab-classroom/model/database/query"
-	gitlabRepo "de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab"
-	"de.hs-flensburg.gitlab/gitlab-classroom/session"
 	"github.com/gofiber/fiber/v2"
+	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/session"
 	"golang.org/x/oauth2"
 	"log"
 	"time"

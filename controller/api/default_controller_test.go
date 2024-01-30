@@ -2,9 +2,9 @@ package api
 
 import (
 	"bytes"
-	"de.hs-flensburg.gitlab/gitlab-classroom/model"
-	gitlabRepoMock "de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab/_mock"
 	"encoding/json"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model"
+	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"log"
 	"net/http"
 	"net/http/httptest"

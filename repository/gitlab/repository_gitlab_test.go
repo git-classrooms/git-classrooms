@@ -5,8 +5,8 @@
 package gitlab
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"fmt"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model"
 	"log"
 	"os"
 	"strconv"

@@ -1,10 +1,10 @@
 package context
 
 import (
-	gitlabRepoMock "de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab/_mock"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
+	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"testing"
 )
 

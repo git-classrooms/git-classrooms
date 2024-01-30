@@ -1,12 +1,12 @@
 package config
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/config/auth"
-	"de.hs-flensburg.gitlab/gitlab-classroom/config/database"
-	"de.hs-flensburg.gitlab/gitlab-classroom/config/gitlab"
-	"de.hs-flensburg.gitlab/gitlab-classroom/config/mail"
 	"github.com/caarlos0/env/v10"
 	"github.com/joho/godotenv"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
 	"os"
 	"path/filepath"
 )

@@ -1,20 +1,20 @@
 package main
 
 import (
-	apiController "de.hs-flensburg.gitlab/gitlab-classroom/controller/api"
-	authController "de.hs-flensburg.gitlab/gitlab-classroom/controller/auth"
-	"de.hs-flensburg.gitlab/gitlab-classroom/router"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
+	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 	"log"
 
-	"de.hs-flensburg.gitlab/gitlab-classroom/config"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
-	dbModel "de.hs-flensburg.gitlab/gitlab-classroom/model/database"
-	"de.hs-flensburg.gitlab/gitlab-classroom/model/database/query"
+	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 )
 
 func main() {

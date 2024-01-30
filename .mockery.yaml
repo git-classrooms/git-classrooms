@@ -1,16 +1,16 @@
 with-expecter: true
 packages:
-  de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab:
+  gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab:
     config:
       dir: "./repository/gitlab/_mock"
     interfaces:
       Repository:
-  de.hs-flensburg.gitlab/gitlab-classroom/controller/auth:
+  gitlab.hs-flensburg.de/gitlab-classroom/controller/auth:
     config:
       dir: "./controller/auth/_mock"
     interfaces:
       Controller:
-  de.hs-flensburg.gitlab/gitlab-classroom/controller/api:
+  gitlab.hs-flensburg.de/gitlab-classroom/controller/api:
     config:
       dir: "./controller/api/_mock"
     interfaces:

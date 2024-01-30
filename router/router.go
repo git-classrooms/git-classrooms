@@ -1,11 +1,11 @@
 package router
 
 import (
-	authConfig "de.hs-flensburg.gitlab/gitlab-classroom/config/auth"
-	"de.hs-flensburg.gitlab/gitlab-classroom/context"
-	apiController "de.hs-flensburg.gitlab/gitlab-classroom/controller/api"
-	authController "de.hs-flensburg.gitlab/gitlab-classroom/controller/auth"
 	"fmt"
+	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/context"
+	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
+	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"

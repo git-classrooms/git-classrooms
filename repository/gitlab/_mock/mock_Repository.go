@@ -3,7 +3,7 @@
 package gitlab
 
 import (
-	model "de.hs-flensburg.gitlab/gitlab-classroom/model"
+	model "gitlab.hs-flensburg.de/gitlab-classroom/model"
 	mock "github.com/stretchr/testify/mock"
 )
 

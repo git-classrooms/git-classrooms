@@ -1,4 +1,4 @@
-module de.hs-flensburg.gitlab/gitlab-classroom
+module gitlab.hs-flensburg.de/gitlab-classroom
 
 go 1.21
 
