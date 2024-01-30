@@ -5,8 +5,8 @@
 package go_gitlab_repo
 
 import (
-	"backend/config"
-	"backend/model"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"fmt"
 	"log"
 	"os"

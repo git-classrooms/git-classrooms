@@ -5,7 +5,7 @@
 package mock_repository
 
 import (
-	model "backend/model"
+	model "de.hs-flensburg.gitlab/gitlab-classroom/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

@@ -1,8 +1,8 @@
 package apiHandler
 
 import (
-	"backend/api/repository"
-	"backend/model"
+	"de.hs-flensburg.gitlab/gitlab-classroom/api/repository"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"

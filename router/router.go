@@ -1,9 +1,9 @@
 package router
 
 import (
-	"backend/config"
-	"backend/handler"
-	apiHandler "backend/handler/api"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config"
+	"de.hs-flensburg.gitlab/gitlab-classroom/handler"
+	apiHandler "de.hs-flensburg.gitlab/gitlab-classroom/handler/api"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"

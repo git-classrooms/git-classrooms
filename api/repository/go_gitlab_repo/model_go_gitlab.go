@@ -1,7 +1,7 @@
 package go_gitlab_repo
 
 import (
-	"backend/model"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -78,39 +78,39 @@ func VisibilityFromGoGitlab(input gitlab.VisibilityValue) model.Visibility {
 }
 
 func VisibilityFromModel(input model.Visibility) gitlab.VisibilityValue {
-    switch input {
-    case model.Public:
-        return gitlab.PublicVisibility
-    case model.Internal:
-        return gitlab.InternalVisibility
-    case model.Private:
-        return gitlab.PrivateVisibility
-    default:
-        return gitlab.PrivateVisibility
-    }
+	switch input {
+	case model.Public:
+		return gitlab.PublicVisibility
+	case model.Internal:
+		return gitlab.InternalVisibility
+	case model.Private:
+		return gitlab.PrivateVisibility
+	default:
+		return gitlab.PrivateVisibility
+	}
 }
 
 func AccessLevelFromGoGitlab(input gitlab.AccessLevelValue) model.AccessLevelValue {
-    switch input {
-    case gitlab.NoPermissions:
-        return model.NoPermissions
-    case gitlab.MinimalAccessPermissions:
-        return model.MinimalAccessPermissions
-    case gitlab.GuestPermissions:
-        return model.GuestPermissions
-    case gitlab.ReporterPermissions:
-        return model.ReporterPermissions
-    case gitlab.DeveloperPermissions:
-        return model.DeveloperPermissions
-    case gitlab.MaintainerPermissions:
-        return model.MaintainerPermissions
-    case gitlab.OwnerPermissions:
-        return model.OwnerPermissions
-    case gitlab.AdminPermissions:
-        return model.AdminPermissions
-    default:
-        return model.NoPermissions // Default case
-    }
+	switch input {
+	case gitlab.NoPermissions:
+		return model.NoPermissions
+	case gitlab.MinimalAccessPermissions:
+		return model.MinimalAccessPermissions
+	case gitlab.GuestPermissions:
+		return model.GuestPermissions
+	case gitlab.ReporterPermissions:
+		return model.ReporterPermissions
+	case gitlab.DeveloperPermissions:
+		return model.DeveloperPermissions
+	case gitlab.MaintainerPermissions:
+		return model.MaintainerPermissions
+	case gitlab.OwnerPermissions:
+		return model.OwnerPermissions
+	case gitlab.AdminPermissions:
+		return model.AdminPermissions
+	default:
+		return model.NoPermissions // Default case
+	}
 }
 
 func UserFromGoGitlab(input gitlab.User) *model.User {

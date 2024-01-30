@@ -1,8 +1,8 @@
 package context
 
 import (
-	"backend/api/repository/go_gitlab_repo"
-	"backend/config"
+	"de.hs-flensburg.gitlab/gitlab-classroom/api/repository/go_gitlab_repo"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"

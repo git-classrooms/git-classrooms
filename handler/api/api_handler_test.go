@@ -1,9 +1,9 @@
 package apiHandler
 
 import (
-	mock_repository "backend/api/repository/_mocks"
-	"backend/model"
 	"bytes"
+	mock_repository "de.hs-flensburg.gitlab/gitlab-classroom/api/repository/_mocks"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"encoding/json"
 	"log"
 	"net/http"

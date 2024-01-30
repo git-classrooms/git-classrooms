@@ -1,9 +1,9 @@
 package main
 
 import (
-	"backend/context"
-	"backend/handler"
-	"backend/router"
+	"de.hs-flensburg.gitlab/gitlab-classroom/context"
+	"de.hs-flensburg.gitlab/gitlab-classroom/handler"
+	"de.hs-flensburg.gitlab/gitlab-classroom/router"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
@@ -11,10 +11,10 @@ import (
 	"gorm.io/gorm"
 	"log"
 
-	"backend/config"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config"
 
-	dbModel "backend/model/database"
-	"backend/model/database/query"
+	dbModel "de.hs-flensburg.gitlab/gitlab-classroom/model/database"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model/database/query"
 )
 
 func main() {

@@ -1,10 +1,10 @@
 package config
 
 import (
-	"backend/config/auth"
-	"backend/config/database"
-	"backend/config/general"
-	"backend/config/mail"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config/auth"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config/database"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config/general"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config/mail"
 )
 
 type Config struct {

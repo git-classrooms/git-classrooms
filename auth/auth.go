@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"backend/config"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config"
 	"fmt"
 
 	"golang.org/x/oauth2"

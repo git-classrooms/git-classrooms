@@ -1,7 +1,7 @@
 package context
 
 import (
-	"backend/api/repository/go_gitlab_repo"
+	"de.hs-flensburg.gitlab/gitlab-classroom/api/repository/go_gitlab_repo"
 	"github.com/gofiber/fiber/v2"
 )
 

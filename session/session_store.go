@@ -1,8 +1,8 @@
 package session
 
 import (
-	"backend/model/database"
-	"backend/model/database/query"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model/database"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model/database/query"
 	"errors"
 	"sync"
 	"time"

@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"backend/api/repository/go_gitlab_repo"
-	"backend/auth"
-	"backend/config"
-	"backend/model/database/query"
-	"backend/session"
+	"de.hs-flensburg.gitlab/gitlab-classroom/api/repository/go_gitlab_repo"
+	"de.hs-flensburg.gitlab/gitlab-classroom/auth"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model/database/query"
+	"de.hs-flensburg.gitlab/gitlab-classroom/session"
 	"log"
 
 	"github.com/gofiber/fiber/v2"

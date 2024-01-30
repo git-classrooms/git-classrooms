@@ -1,9 +1,9 @@
 package mail
 
 import (
-	mailConfig "backend/config/mail"
 	"bytes"
 	"crypto/tls"
+	mailConfig "de.hs-flensburg.gitlab/gitlab-classroom/config/mail"
 	"html/template"
 
 	gomail "gopkg.in/gomail.v2"

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"backend/model"
+	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 )
 
 type Repository interface {

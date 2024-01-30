@@ -5,9 +5,9 @@
 package query
 
 import (
-	"backend/model/database"
 	"context"
 
+	"de.hs-flensburg.gitlab/gitlab-classroom/model/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
