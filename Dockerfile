@@ -15,7 +15,7 @@ RUN go build -o app ./main.go
 
 
 ## Frontend
-RUN cd frontend && yarn
+RUN cd frontend && yarn --pure-lockfile
 RUN cd frontend && yarn build
 
 
