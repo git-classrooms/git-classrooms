@@ -2,10 +2,9 @@
 // +build integration
 
 // TODO: Is this an integration test?
-package go_gitlab_repo
+package gitlab
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/config"
 	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 	"fmt"
 	"log"
@@ -59,7 +58,26 @@ func TestGoGitlabRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	repo := NewGoGitlabRepo(&config.Config{})
+	//	TODO: Fill these out for the integration tests
+	//	redirectURL, err := url.Parse("")
+	//	if err != nil {
+	//		t.Fatal(err)
+	//	}
+	//	conf := &oauth2.Config{
+	//		ClientID:     "",
+	//		Scopes:       []string{"api"},
+	//		ClientSecret: "",
+	//		Endpoints:    &oauth2.Endpoint{AuthURL: "", TokenURL: ""},
+	//	}
+	//	token, err := conf.PasswordCredentialsToken(context.Background(), "", "")
+	//	if err != nil {
+	//		t.Fatal(err)
+	//	}
+	//
+	//	credentials.Token = token.AccessToken
+
+	// TODO: use mock instead of this
+	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{})
 
 	t.Run("LoginByToken", func(t *testing.T) {
 		err := repo.Login(credentials.Token)

@@ -1,8 +1,8 @@
-package apiHandler
+package api
 
 import "github.com/gofiber/fiber/v2"
 
-type ApiHandler interface {
+type Controller interface {
 	CreateClassroom(c *fiber.Ctx) error
 	CreateAssignment(c *fiber.Ctx) error
 }

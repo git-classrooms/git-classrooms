@@ -3,15 +3,37 @@ package config
 import (
 	"de.hs-flensburg.gitlab/gitlab-classroom/config/auth"
 	"de.hs-flensburg.gitlab/gitlab-classroom/config/database"
-	"de.hs-flensburg.gitlab/gitlab-classroom/config/general"
+	"de.hs-flensburg.gitlab/gitlab-classroom/config/gitlab"
 	"de.hs-flensburg.gitlab/gitlab-classroom/config/mail"
+	"github.com/caarlos0/env/v10"
+	"github.com/joho/godotenv"
+	"os"
+	"path/filepath"
 )
 
-type Config struct {
+type ApplicationConfig struct {
 	Port         int                  `env:"PORT" envDefault:"3000"`
 	FrontendPath string               `env:"FRONTEND_PATH" envDefault:"./public"`
-	GitLab       general.GitLabConfig `envPrefix:"GITLAB_"`
-	Database     database.PsqlConfig  `envPrefix:"POSTGRES_"`
-	Auth         auth.Config          `envPrefix:"AUTH_"`
-	Mail         mail.Config          `envPrefix:"SMTP_"`
+	GitLab       *gitlab.GitlabConfig `envPrefix:"GITLAB_"`
+	Database     *database.PsqlConfig `envPrefix:"POSTGRES_"`
+	Auth         *auth.OAuthConfig    `envPrefix:"AUTH_"`
+	Mail         *mail.MailConfig     `envPrefix:"SMTP_"`
+}
+
+func LoadApplicationConfig() (*ApplicationConfig, error) {
+	path, _ := os.Getwd()
+
+	godotenv.Load(filepath.Join(path, ".env"), filepath.Join(path, ".env.local"))
+
+	config := &ApplicationConfig{
+		GitLab:   &gitlab.GitlabConfig{},
+		Database: &database.PsqlConfig{},
+		Auth:     &auth.OAuthConfig{},
+		Mail:     &mail.MailConfig{},
+	}
+	if err := env.Parse(config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
 }

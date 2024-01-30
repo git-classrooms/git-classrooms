@@ -1,4 +1,4 @@
-#!/usr/bin/env /bin/sh
+#!/usr/bin/env /bin/bash
 
 cd frontend
 yarn test

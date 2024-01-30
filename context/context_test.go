@@ -1,8 +1,7 @@
 package context
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/api/repository/go_gitlab_repo"
-	"de.hs-flensburg.gitlab/gitlab-classroom/config"
+	gitlabRepoMock "de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab/_mock"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
@@ -46,7 +45,7 @@ func TestClassroomSession_Delete(t *testing.T) {
 			req := new(fasthttp.RequestCtx)
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
-			shouldRepo := go_gitlab_repo.NewGoGitlabRepo(&config.Config{})
+			shouldRepo := gitlabRepoMock.NewMockRepository(t)
 			ctx.Locals(gitlabRepoKey, shouldRepo)
 
 			// when
@@ -77,7 +76,7 @@ func TestClassroomSession_Delete(t *testing.T) {
 			req := new(fasthttp.RequestCtx)
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
-			shouldRepo := go_gitlab_repo.NewGoGitlabRepo(&config.Config{})
+			shouldRepo := gitlabRepoMock.NewMockRepository(t)
 
 			// when
 			SetGitlabRepository(ctx, shouldRepo)

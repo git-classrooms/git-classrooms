@@ -1,18 +1,17 @@
-package apiHandler
+package api
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/api/repository"
+	"de.hs-flensburg.gitlab/gitlab-classroom/context"
 	"de.hs-flensburg.gitlab/gitlab-classroom/model"
-	"net/http"
-
 	"github.com/gofiber/fiber/v2"
+	"net/http"
 )
 
-type FiberApiHandler struct {
+type ApiController struct {
 }
 
-func NewFiberApiHandler() *FiberApiHandler {
-	return &FiberApiHandler{}
+func NewApiController() *ApiController {
+	return &ApiController{}
 }
 
 type CreateClassroomRequest struct {
@@ -26,16 +25,15 @@ type CreateAssignmentRequest struct {
 	TemplateProjectId int   `json:"templateProjectId"`
 }
 
-func (handler *FiberApiHandler) CreateClassroom(c *fiber.Ctx) error {
-	repo := handler.getRepo(c)
+func (handler *ApiController) CreateClassroom(c *fiber.Ctx) error {
+	repo := context.GetGitlabRepository(c)
 
 	var err error
 	requestBody := new(CreateClassroomRequest)
 
 	err = c.BodyParser(requestBody)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	group, err := repo.CreateGroup(
@@ -45,38 +43,33 @@ func (handler *FiberApiHandler) CreateClassroom(c *fiber.Ctx) error {
 		requestBody.MemberEmails,
 	)
 	if err != nil {
-		c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-		return err
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	for _, memberEmail := range requestBody.MemberEmails {
 		err = repo.CreateGroupInvite(group.ID, memberEmail)
 		if err != nil {
-			c.Status(fiber.StatusInternalServerError).SendString(err.Error())
-			return err
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 	}
 
-	c.Status(http.StatusCreated)
-	return nil
+	return c.SendStatus(http.StatusCreated)
 }
 
-func (handler *FiberApiHandler) CreateAssignment(c *fiber.Ctx) error {
-	repo := handler.getRepo(c)
+func (handler *ApiController) CreateAssignment(c *fiber.Ctx) error {
+	repo := context.GetGitlabRepository(c)
 
 	var err error
 	requestBody := new(CreateAssignmentRequest)
 
 	err = c.BodyParser(requestBody)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	templateProject, err := repo.GetProjectById(requestBody.TemplateProjectId)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	name := templateProject.Name
@@ -85,8 +78,7 @@ func (handler *FiberApiHandler) CreateAssignment(c *fiber.Ctx) error {
 	for i, id := range requestBody.AssigneeUserIds {
 		user, err := repo.GetUserById(id)
 		if err != nil {
-			c.Status(fiber.StatusInternalServerError)
-			return err
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		assignees[i] = *user
 		name += "_" + user.Username
@@ -94,22 +86,14 @@ func (handler *FiberApiHandler) CreateAssignment(c *fiber.Ctx) error {
 
 	project := &model.Project{}
 	project, err = repo.ForkProject(requestBody.TemplateProjectId, name)
-	if err != err {
-		c.Status(fiber.StatusInternalServerError)
-		return err
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	project, err = repo.AddProjectMembers(project.ID, assignees)
-	if err != err {
-		c.Status(fiber.StatusInternalServerError)
-		return err
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Status(http.StatusCreated)
-	return nil
-}
-
-func (handler *FiberApiHandler) getRepo(ctx *fiber.Ctx) repository.Repository {
-	repo := ctx.Locals("gitlab-repo").(repository.Repository)
-	return repo
+	return c.SendStatus(http.StatusCreated)
 }

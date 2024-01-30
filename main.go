@@ -1,8 +1,8 @@
 package main
 
 import (
-	"de.hs-flensburg.gitlab/gitlab-classroom/context"
-	"de.hs-flensburg.gitlab/gitlab-classroom/handler"
+	apiController "de.hs-flensburg.gitlab/gitlab-classroom/controller/api"
+	authController "de.hs-flensburg.gitlab/gitlab-classroom/controller/auth"
 	"de.hs-flensburg.gitlab/gitlab-classroom/router"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
@@ -18,12 +18,12 @@ import (
 )
 
 func main() {
-	applicationConfig, err := config.GetConfig()
+	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {
-		panic("failed to get application configuration")
+		log.Fatal("failed to get application configuration", err.Error())
 	}
 
-	db, err := gorm.Open(postgres.Open(applicationConfig.Database.Dsn()), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{})
 
 	if err != nil {
 		panic("failed to connect database")
@@ -53,30 +53,12 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("/api/hello", func(c *fiber.Ctx) error {
-		return c.SendString("Hello World!")
-	})
+	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
+	apiCtrl := apiController.NewApiController()
 
-	router.Routes(app, applicationConfig)
+	router.Routes(app, authCtrl, apiCtrl, appConfig.FrontendPath, appConfig.Auth)
 
-	app.Use("/api", handler.AuthMiddleware)
-	app.Get("/api/secret", func(c *fiber.Ctx) error {
-		repo := context.GetGitlabRepository(c)
-		user, err := repo.GetCurrentUser()
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(user)
-	})
-
-	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
-
-	// we need to redirect all other routes to the frontend
-	spaFile := fmt.Sprintf("%s/index.html", applicationConfig.FrontendPath)
-	app.Get("*", func(c *fiber.Ctx) error { return c.SendFile(spaFile) })
-
-	log.Fatal(app.Listen(fmt.Sprintf(":%d", applicationConfig.Port)))
+	log.Fatal(app.Listen(fmt.Sprintf(":%d", appConfig.Port)))
 }
 
 //lint:ignore U1000 Ignore unused function to generate Query Code if the Model changed

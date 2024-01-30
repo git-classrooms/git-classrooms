@@ -1,12 +1,12 @@
-package go_gitlab_repo
+package gitlab
 
 import (
 	"de.hs-flensburg.gitlab/gitlab-classroom/model"
 
-	"github.com/xanzy/go-gitlab"
+	goGitlab "github.com/xanzy/go-gitlab"
 )
 
-func ProjectFromGoGitlab(gitlabProject gitlab.Project) *model.Project {
+func ProjectFromGoGitlab(gitlabProject goGitlab.Project) *model.Project {
 	var owner *model.User = nil
 	if gitlabProject.Owner != nil {
 		owner = UserFromGoGitlab(*gitlabProject.Owner)
@@ -22,7 +22,7 @@ func ProjectFromGoGitlab(gitlabProject gitlab.Project) *model.Project {
 	}
 }
 
-func ProjectFromGoGitlabWithProjectMembers(gitlabProject gitlab.Project, gitlabMembers []*gitlab.ProjectMember) *model.Project {
+func ProjectFromGoGitlabWithProjectMembers(gitlabProject goGitlab.Project, gitlabMembers []*goGitlab.ProjectMember) *model.Project {
 	var owner *model.User = nil
 	if gitlabProject.Owner != nil {
 		owner = UserFromGoGitlab(*gitlabProject.Owner)
@@ -44,7 +44,7 @@ func ProjectFromGoGitlabWithProjectMembers(gitlabProject gitlab.Project, gitlabM
 	}
 }
 
-func ProjectFromGoGitlabWithGroupMembers(gitlabProject gitlab.Project, gitlabMembers []*gitlab.GroupMember) *model.Project {
+func ProjectFromGoGitlabWithGroupMembers(gitlabProject goGitlab.Project, gitlabMembers []*goGitlab.GroupMember) *model.Project {
 	var owner *model.User = nil
 	if gitlabProject.Owner != nil {
 		owner = UserFromGoGitlab(*gitlabProject.Owner)
@@ -66,7 +66,7 @@ func ProjectFromGoGitlabWithGroupMembers(gitlabProject gitlab.Project, gitlabMem
 	}
 }
 
-func VisibilityFromGoGitlab(input gitlab.VisibilityValue) model.Visibility {
+func VisibilityFromGoGitlab(input goGitlab.VisibilityValue) model.Visibility {
 	if input == "public" {
 		return model.Public
 	} else if input == "internal" {
@@ -77,43 +77,43 @@ func VisibilityFromGoGitlab(input gitlab.VisibilityValue) model.Visibility {
 	return 0
 }
 
-func VisibilityFromModel(input model.Visibility) gitlab.VisibilityValue {
+func VisibilityFromModel(input model.Visibility) goGitlab.VisibilityValue {
 	switch input {
 	case model.Public:
-		return gitlab.PublicVisibility
+		return goGitlab.PublicVisibility
 	case model.Internal:
-		return gitlab.InternalVisibility
+		return goGitlab.InternalVisibility
 	case model.Private:
-		return gitlab.PrivateVisibility
+		return goGitlab.PrivateVisibility
 	default:
-		return gitlab.PrivateVisibility
+		return goGitlab.PrivateVisibility
 	}
 }
 
-func AccessLevelFromGoGitlab(input gitlab.AccessLevelValue) model.AccessLevelValue {
+func AccessLevelFromGoGitlab(input goGitlab.AccessLevelValue) model.AccessLevelValue {
 	switch input {
-	case gitlab.NoPermissions:
+	case goGitlab.NoPermissions:
 		return model.NoPermissions
-	case gitlab.MinimalAccessPermissions:
+	case goGitlab.MinimalAccessPermissions:
 		return model.MinimalAccessPermissions
-	case gitlab.GuestPermissions:
+	case goGitlab.GuestPermissions:
 		return model.GuestPermissions
-	case gitlab.ReporterPermissions:
+	case goGitlab.ReporterPermissions:
 		return model.ReporterPermissions
-	case gitlab.DeveloperPermissions:
+	case goGitlab.DeveloperPermissions:
 		return model.DeveloperPermissions
-	case gitlab.MaintainerPermissions:
+	case goGitlab.MaintainerPermissions:
 		return model.MaintainerPermissions
-	case gitlab.OwnerPermissions:
+	case goGitlab.OwnerPermissions:
 		return model.OwnerPermissions
-	case gitlab.AdminPermissions:
+	case goGitlab.AdminPermissions:
 		return model.AdminPermissions
 	default:
 		return model.NoPermissions // Default case
 	}
 }
 
-func UserFromGoGitlab(input gitlab.User) *model.User {
+func UserFromGoGitlab(input goGitlab.User) *model.User {
 	return &model.User{
 		ID:       input.ID,
 		Username: input.Username,
@@ -123,7 +123,7 @@ func UserFromGoGitlab(input gitlab.User) *model.User {
 	}
 }
 
-func UserFromGoGitlabProjectMember(input gitlab.ProjectMember) *model.User {
+func UserFromGoGitlabProjectMember(input goGitlab.ProjectMember) *model.User {
 	return &model.User{
 		ID:       input.ID,
 		Username: input.Username,
@@ -133,7 +133,7 @@ func UserFromGoGitlabProjectMember(input gitlab.ProjectMember) *model.User {
 	}
 }
 
-func UserFromGoGitlabGroupMember(input gitlab.GroupMember) *model.User {
+func UserFromGoGitlabGroupMember(input goGitlab.GroupMember) *model.User {
 	return &model.User{
 		ID:       input.ID,
 		Username: input.Username,
@@ -143,7 +143,7 @@ func UserFromGoGitlabGroupMember(input gitlab.GroupMember) *model.User {
 	}
 }
 
-func GroupFromGoGitlab(input gitlab.Group) *model.Group {
+func GroupFromGoGitlab(input goGitlab.Group) *model.Group {
 	return &model.Group{
 		Name:        input.Name,
 		ID:          input.ID,
@@ -153,7 +153,7 @@ func GroupFromGoGitlab(input gitlab.Group) *model.Group {
 	}
 }
 
-func GroupFromGoGitlabWithMembersAndProjects(group gitlab.Group, members []model.User, projects []model.Project) *model.Group {
+func GroupFromGoGitlabWithMembersAndProjects(group goGitlab.Group, members []model.User, projects []model.Project) *model.Group {
 
 	return &model.Group{
 		Name:        group.Name,
@@ -166,7 +166,7 @@ func GroupFromGoGitlabWithMembersAndProjects(group gitlab.Group, members []model
 	}
 }
 
-func PendingInviteFromGoGitlab(input gitlab.PendingInvite) *model.PendingInvite {
+func PendingInviteFromGoGitlab(input goGitlab.PendingInvite) *model.PendingInvite {
 	return &model.PendingInvite{
 		ID:            input.ID,
 		InviteEmail:   input.InviteEmail,

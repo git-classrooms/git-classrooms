@@ -1,9 +1,9 @@
-package apiHandler
+package api
 
 import (
 	"bytes"
-	mock_repository "de.hs-flensburg.gitlab/gitlab-classroom/api/repository/_mocks"
 	"de.hs-flensburg.gitlab/gitlab-classroom/model"
+	gitlabRepoMock "de.hs-flensburg.gitlab/gitlab-classroom/repository/gitlab/_mock"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -11,13 +11,12 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestApiHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	repo := mock_repository.NewMockRepository(ctrl)
+	// ctrl := gomock.NewController(t)
+	repo := gitlabRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
@@ -27,7 +26,7 @@ func TestApiHandler(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewFiberApiHandler()
+	handler := NewApiController()
 
 	t.Run("CreateClassroom", func(t *testing.T) {
 		app.Post("/api/createClassroom", handler.CreateClassroom)
@@ -62,7 +61,7 @@ func TestApiHandler(t *testing.T) {
 
 		req := newPostJsonRequest("/api/createClassroom", requestBody)
 
-		resp, err := app.Test(req, 1)
+		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, resp.StatusCode, http.StatusCreated)
@@ -132,7 +131,7 @@ func TestApiHandler(t *testing.T) {
 
 		req := newPostJsonRequest("/api/createAssignment", requestBody)
 
-		resp, err := app.Test(req, 1)
+		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, resp.StatusCode, http.StatusCreated)
