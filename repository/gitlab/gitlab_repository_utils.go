@@ -1,7 +1,7 @@
 package gitlab
 
 import (
-	"gitlab.hs-flensburg.de/gitlab-classroom/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 
 	goGitlab "github.com/xanzy/go-gitlab"
 )

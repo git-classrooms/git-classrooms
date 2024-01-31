@@ -3,8 +3,9 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -16,17 +17,18 @@ import (
 
 func TestDefaultController(t *testing.T) {
 	// ctrl := gomock.NewController(t)
-	repo := gitlabRepoMock.NewMockRepository(t)
+	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
+	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 
-		c.Locals("gitlab-repo", repo)
+		c.Locals("gitlab-repo", gitlabRepo)
 
 		return c.Next()
 	})
 
-	handler := NewApiController()
+	handler := NewApiController(mailRepo)
 
 	t.Run("CreateClassroom", func(t *testing.T) {
 		app.Post("/api/createClassroom", handler.CreateClassroom)
@@ -37,7 +39,7 @@ func TestDefaultController(t *testing.T) {
 			Description:  "test",
 		}
 
-		repo.
+		gitlabRepo.
 			EXPECT().
 			CreateGroup(
 				requestBody.Name,
@@ -52,7 +54,7 @@ func TestDefaultController(t *testing.T) {
 			Times(1)
 
 		for _, memberEmail := range requestBody.MemberEmails {
-			repo.
+			gitlabRepo.
 				EXPECT().
 				CreateGroupInvite(1, memberEmail).
 				Return(nil).
@@ -99,31 +101,31 @@ func TestDefaultController(t *testing.T) {
 			Member: users,
 		}
 
-		repo.
+		gitlabRepo.
 			EXPECT().
 			GetProjectById(requestBody.TemplateProjectId).
 			Return(&template, nil).
 			Times(1)
 
-		repo.
+		gitlabRepo.
 			EXPECT().
 			GetUserById(requestBody.AssigneeUserIds[0]).
 			Return(&user1, nil).
 			Times(1)
 
-		repo.
+		gitlabRepo.
 			EXPECT().
 			GetUserById(requestBody.AssigneeUserIds[1]).
 			Return(&user2, nil).
 			Times(1)
 
-		repo.
+		gitlabRepo.
 			EXPECT().
 			ForkProject(requestBody.TemplateProjectId, name).
 			Return(&fork, nil).
 			Times(1)
 
-		repo.
+		gitlabRepo.
 			EXPECT().
 			AddProjectMembers(fork.ID, users).
 			Return(&forkWithMembers, nil).

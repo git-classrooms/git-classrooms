@@ -3,7 +3,7 @@ package gitlab
 import (
 	"fmt"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
 	"strings"
 

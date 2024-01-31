@@ -6,7 +6,7 @@ package gitlab
 
 import (
 	"fmt"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
 	"os"
 	"strconv"

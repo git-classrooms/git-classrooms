@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"net/http"
 )

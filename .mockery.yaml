@@ -5,6 +5,11 @@ packages:
       dir: "./repository/gitlab/_mock"
     interfaces:
       Repository:
+  gitlab.hs-flensburg.de/gitlab-classroom/repository/mail:
+    config:
+      dir: "./repository/mail/_mock"
+    interfaces:
+      Repository:
   gitlab.hs-flensburg.de/gitlab-classroom/controller/auth:
     config:
       dir: "./controller/auth/_mock"
