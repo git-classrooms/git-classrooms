@@ -34,6 +34,7 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 	_classroom.OwnerID = field.NewInt(tableName, "owner_id")
 	_classroom.Description = field.NewString(tableName, "description")
 	_classroom.GroupID = field.NewInt(tableName, "group_id")
+	_classroom.GroupAccessToken = field.NewString(tableName, "group_access_token")
 	_classroom.Member = classroomHasManyMember{
 		db: db.Session(&gorm.Session{}),
 
@@ -57,6 +58,12 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 						}
 						Assignments struct {
 							field.RelationField
+						}
+						Invitations struct {
+							field.RelationField
+							Classroom struct {
+								field.RelationField
+							}
 						}
 					}
 					Projects struct {
@@ -89,6 +96,12 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 						Assignments struct {
 							field.RelationField
 						}
+						Invitations struct {
+							field.RelationField
+							Classroom struct {
+								field.RelationField
+							}
+						}
 					}
 					Projects struct {
 						field.RelationField
@@ -112,6 +125,12 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 						Assignments struct {
 							field.RelationField
 						}
+						Invitations struct {
+							field.RelationField
+							Classroom struct {
+								field.RelationField
+							}
+						}
 					}
 					Projects struct {
 						field.RelationField
@@ -129,6 +148,12 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 						Assignments struct {
 							field.RelationField
 						}
+						Invitations struct {
+							field.RelationField
+							Classroom struct {
+								field.RelationField
+							}
+						}
 					}{
 						RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom", "database.Classroom"),
 						Owner: struct {
@@ -145,6 +170,19 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 							field.RelationField
 						}{
 							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Assignments", "database.Assignment"),
+						},
+						Invitations: struct {
+							field.RelationField
+							Classroom struct {
+								field.RelationField
+							}
+						}{
+							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Invitations", "database.ClassroomInvitation"),
+							Classroom: struct {
+								field.RelationField
+							}{
+								RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Invitations.Classroom", "database.Classroom"),
+							},
 						},
 					},
 					Projects: struct {
@@ -173,6 +211,12 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 		RelationField: field.NewRelation("Assignments", "database.Assignment"),
 	}
 
+	_classroom.Invitations = classroomHasManyInvitations{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Invitations", "database.ClassroomInvitation"),
+	}
+
 	_classroom.Owner = classroomBelongsToOwner{
 		db: db.Session(&gorm.Session{}),
 
@@ -187,18 +231,21 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 type classroom struct {
 	classroomDo
 
-	ALL         field.Asterisk
-	ID          field.Field
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	DeletedAt   field.Field
-	Name        field.String
-	OwnerID     field.Int
-	Description field.String
-	GroupID     field.Int
-	Member      classroomHasManyMember
+	ALL              field.Asterisk
+	ID               field.Field
+	CreatedAt        field.Time
+	UpdatedAt        field.Time
+	DeletedAt        field.Field
+	Name             field.String
+	OwnerID          field.Int
+	Description      field.String
+	GroupID          field.Int
+	GroupAccessToken field.String
+	Member           classroomHasManyMember
 
 	Assignments classroomHasManyAssignments
+
+	Invitations classroomHasManyInvitations
 
 	Owner classroomBelongsToOwner
 
@@ -225,6 +272,7 @@ func (c *classroom) updateTableName(table string) *classroom {
 	c.OwnerID = field.NewInt(table, "owner_id")
 	c.Description = field.NewString(table, "description")
 	c.GroupID = field.NewInt(table, "group_id")
+	c.GroupAccessToken = field.NewString(table, "group_access_token")
 
 	c.fillFieldMap()
 
@@ -241,7 +289,7 @@ func (c *classroom) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *classroom) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 11)
+	c.fieldMap = make(map[string]field.Expr, 13)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
@@ -250,6 +298,7 @@ func (c *classroom) fillFieldMap() {
 	c.fieldMap["owner_id"] = c.OwnerID
 	c.fieldMap["description"] = c.Description
 	c.fieldMap["group_id"] = c.GroupID
+	c.fieldMap["group_access_token"] = c.GroupAccessToken
 
 }
 
@@ -287,6 +336,12 @@ type classroomHasManyMember struct {
 					}
 					Assignments struct {
 						field.RelationField
+					}
+					Invitations struct {
+						field.RelationField
+						Classroom struct {
+							field.RelationField
+						}
 					}
 				}
 				Projects struct {
@@ -436,6 +491,77 @@ func (a classroomHasManyAssignmentsTx) Clear() error {
 }
 
 func (a classroomHasManyAssignmentsTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type classroomHasManyInvitations struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a classroomHasManyInvitations) Where(conds ...field.Expr) *classroomHasManyInvitations {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a classroomHasManyInvitations) WithContext(ctx context.Context) *classroomHasManyInvitations {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a classroomHasManyInvitations) Session(session *gorm.Session) *classroomHasManyInvitations {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a classroomHasManyInvitations) Model(m *database.Classroom) *classroomHasManyInvitationsTx {
+	return &classroomHasManyInvitationsTx{a.db.Model(m).Association(a.Name())}
+}
+
+type classroomHasManyInvitationsTx struct{ tx *gorm.Association }
+
+func (a classroomHasManyInvitationsTx) Find() (result []*database.ClassroomInvitation, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a classroomHasManyInvitationsTx) Append(values ...*database.ClassroomInvitation) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a classroomHasManyInvitationsTx) Replace(values ...*database.ClassroomInvitation) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a classroomHasManyInvitationsTx) Delete(values ...*database.ClassroomInvitation) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a classroomHasManyInvitationsTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a classroomHasManyInvitationsTx) Count() int64 {
 	return a.tx.Count()
 }
 

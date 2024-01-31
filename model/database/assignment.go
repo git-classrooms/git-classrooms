@@ -13,9 +13,9 @@ type Assignment struct {
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 	DeletedAt         gorm.DeletedAt `gorm:"index"`
-	ClassroomID       uuid.UUID
+	ClassroomID       uuid.UUID      `gorm:"not null"`
 	Classroom         Classroom
-	TemplateProjectID int `gorm:"<-:create"`
+	TemplateProjectID int `gorm:"<-:create;not null"`
 	Projects          []AssignmentProjects
 }
 
@@ -32,11 +32,11 @@ type AssignmentProjects struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
-	AssignmentID uuid.UUID      `gorm:"<-:create"`
+	AssignmentID uuid.UUID      `gorm:"<-:create;not null"`
 	Assignment   Assignment
-	UserID       uuid.UUID `gorm:"<-:create"`
+	UserID       uuid.UUID `gorm:"<-:create;not null"`
 	User         User
-	ProjectID    int `gorm:"<-:create"`
+	ProjectID    int `gorm:"<-:create;not null"`
 }
 
 // AssignmentRepositoryDTO is the data transfer object representing a user

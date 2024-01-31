@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestApiHandler(t *testing.T) {
+func TestDefaultController(t *testing.T) {
 	// ctrl := gomock.NewController(t)
 	repo := gitlabRepoMock.NewMockRepository(t)
 

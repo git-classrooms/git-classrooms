@@ -17,17 +17,19 @@ const (
 
 // Classroom is a struct that represents a classroom in the database
 type Classroom struct {
-	ID          uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Name        string
-	OwnerID     int
-	Owner       User
-	Description string
-	GroupID     int              `gorm:"<-:create"`
-	Member      []UserClassrooms `gorm:"foreignKey:ClassroomID"`
-	Assignments []Assignment
+	ID               uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	DeletedAt        gorm.DeletedAt `gorm:"index"`
+	Name             string         `gorm:"not null"`
+	OwnerID          int            `gorm:"not null"`
+	Owner            User
+	Description      string
+	GroupID          int              `gorm:"<-:create;not null"`
+	GroupAccessToken string           `gorm:"not null"`
+	Member           []UserClassrooms `gorm:"foreignKey:ClassroomID"`
+	Assignments      []Assignment
+	Invitations      []ClassroomInvitation
 }
 
 // ClassRoomDTO is the data transfer object representing a user
@@ -41,9 +43,9 @@ type ClassRoomDTO struct {
 
 // UserClassrooms is a struct that represents the relationship between a user and a classroom
 type UserClassrooms struct {
-	UserID      int `gorm:"primaryKey;autoIncrement:false"`
+	UserID      int `gorm:"primaryKey;autoIncrement:false;not null"`
 	User        User
-	ClassroomID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	ClassroomID uuid.UUID `gorm:"type:uuid;primaryKey;not null"`
 	Classroom   Classroom
 	Role        Role
 }

@@ -1,3 +1,4 @@
+// go:generate
 package main
 
 import (
@@ -5,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen"
@@ -20,13 +22,12 @@ import (
 func main() {
 	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {
-		log.Fatal("failed to get application configuration", err.Error())
+		log.Fatal("failed to get application configuration", err)
 	}
 
 	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{})
-
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatal("failed to connect database", err)
 	}
 
 	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
@@ -38,14 +39,15 @@ func main() {
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
+		&dbModel.ClassroomInvitation{},
 	)
+	if err != nil {
+		log.Fatal("failed to migrate database", err)
+	}
 
 	// Uncomment this to generate Query Code if the Model changed
 	// generateGormGen(db)
 
-	if err != nil {
-		panic("failed to migrate database")
-	}
 	log.Println("DB has been initialized")
 
 	// Set db for gorm-gen
@@ -53,8 +55,13 @@ func main() {
 
 	app := fiber.New()
 
+	mailRepo, err := mail.NewMailRepository(appConfig.Mail)
+	if err != nil {
+		log.Fatal("failed to create mail repository", err)
+	}
+
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
-	apiCtrl := apiController.NewApiController()
+	apiCtrl := apiController.NewApiController(mailRepo)
 
 	router.Routes(app, authCtrl, apiCtrl, appConfig.FrontendPath, appConfig.Auth)
 
@@ -76,6 +83,7 @@ func generateGormGen(db *gorm.DB) {
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
+		&dbModel.ClassroomInvitation{},
 	)
 
 	g.Execute()

@@ -4,14 +4,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model"
+	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"net/http"
 )
 
-type ApiController struct {
+type DefaultController struct {
+	mailRepo mailRepo.Repository
 }
 
-func NewApiController() *ApiController {
-	return &ApiController{}
+func NewApiController(mailRepo mailRepo.Repository) *DefaultController {
+	return &DefaultController{mailRepo: mailRepo}
 }
 
 type CreateClassroomRequest struct {
@@ -25,7 +27,7 @@ type CreateAssignmentRequest struct {
 	TemplateProjectId int   `json:"templateProjectId"`
 }
 
-func (handler *ApiController) CreateClassroom(c *fiber.Ctx) error {
+func (handler *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	repo := context.GetGitlabRepository(c)
 
 	var err error
@@ -56,7 +58,7 @@ func (handler *ApiController) CreateClassroom(c *fiber.Ctx) error {
 	return c.SendStatus(http.StatusCreated)
 }
 
-func (handler *ApiController) CreateAssignment(c *fiber.Ctx) error {
+func (handler *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	repo := context.GetGitlabRepository(c)
 
 	var err error
