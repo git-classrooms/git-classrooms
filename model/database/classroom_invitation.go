@@ -8,7 +8,7 @@ import (
 type InvitationStatus uint8
 
 const (
-	InvitationPending Role = iota
+	InvitationPending InvitationStatus = iota
 	InvitationAccepted
 	InvitationDeclined
 	InvitationRevoked
