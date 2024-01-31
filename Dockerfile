@@ -24,7 +24,7 @@ COPY ./go.mod ./go.sum ./
 RUN go mod download
 COPY ./ ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/build/app
 
 #############################################
 # Runtime image
@@ -42,7 +42,7 @@ USER gorunner
 
 WORKDIR /
 
-COPY --chown=gorunner:gorunner --from=builder-go /app /app
+COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
 COPY --chown=gorunner:gorunner --from=builder-go /app/build/repository/mail/template.html /templates/template.html
 COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
 
