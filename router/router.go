@@ -40,8 +40,10 @@ func Routes(
 
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 
-	api.Post("/createClassroom", apiController.CreateClassroom)
-	api.Post("/createAssignment", apiController.CreateAssignment)
+	api.Post("/classrooms", apiController.CreateClassroom)
+	api.Post("/assignments", apiController.CreateAssignment)
+	api.Post("/classrooms/:classroomId/members", apiController.JoinClassroom)
+	api.Post("/classrooms/:classroomId/invitations/:inviteId", apiController.InviteToClassroom)
 
 	// Catch all routes
 	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
