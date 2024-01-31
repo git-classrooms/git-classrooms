@@ -112,6 +112,98 @@ func (_c *MockController_CreateClassroom_Call) RunAndReturn(run func(*fiber.Ctx)
 	return _c
 }
 
+// InviteToClassroom provides a mock function with given fields: c
+func (_m *MockController) InviteToClassroom(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InviteToClassroom")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_InviteToClassroom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InviteToClassroom'
+type MockController_InviteToClassroom_Call struct {
+	*mock.Call
+}
+
+// InviteToClassroom is a helper method to define mock.On call
+//   - c *fiber.Ctx
+func (_e *MockController_Expecter) InviteToClassroom(c interface{}) *MockController_InviteToClassroom_Call {
+	return &MockController_InviteToClassroom_Call{Call: _e.mock.On("InviteToClassroom", c)}
+}
+
+func (_c *MockController_InviteToClassroom_Call) Run(run func(c *fiber.Ctx)) *MockController_InviteToClassroom_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_InviteToClassroom_Call) Return(_a0 error) *MockController_InviteToClassroom_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_InviteToClassroom_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_InviteToClassroom_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// JoinClassroom provides a mock function with given fields: c
+func (_m *MockController) JoinClassroom(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for JoinClassroom")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_JoinClassroom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'JoinClassroom'
+type MockController_JoinClassroom_Call struct {
+	*mock.Call
+}
+
+// JoinClassroom is a helper method to define mock.On call
+//   - c *fiber.Ctx
+func (_e *MockController_Expecter) JoinClassroom(c interface{}) *MockController_JoinClassroom_Call {
+	return &MockController_JoinClassroom_Call{Call: _e.mock.On("JoinClassroom", c)}
+}
+
+func (_c *MockController_JoinClassroom_Call) Run(run func(c *fiber.Ctx)) *MockController_JoinClassroom_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_JoinClassroom_Call) Return(_a0 error) *MockController_JoinClassroom_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_JoinClassroom_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_JoinClassroom_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockController creates a new instance of MockController. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockController(t interface {
