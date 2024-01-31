@@ -12,7 +12,6 @@ const (
 	InvitationAccepted
 	InvitationDeclined
 	InvitationRevoked
-	Poor
 )
 
 type ClassroomInvitation struct {
