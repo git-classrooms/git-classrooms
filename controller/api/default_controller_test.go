@@ -16,7 +16,6 @@ import (
 )
 
 func TestDefaultController(t *testing.T) {
-	// ctrl := gomock.NewController(t)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
