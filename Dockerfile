@@ -32,7 +32,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app
 FROM alpine:3.18 as release
 
 ENV FRONTEND_PATH=/public
-ENV TemplateFilePath=/templates/template.html
+ENV TEMPLATE_FILE_PATH=/templates/template.html
 ENV PORT=3000
 EXPOSE 3000
 

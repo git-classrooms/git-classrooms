@@ -2,13 +2,11 @@ package session
 
 import (
 	"errors"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"sync"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"time"
 )
 
 type UserState int
@@ -33,20 +31,12 @@ const (
 	ErrorUnauthenticated = "user is not authenticated (Anonymous)"
 )
 
-var store *session.Store
-var instance *ClassroomSession
-var once sync.Once
-
 type ClassroomSession struct {
 	session *session.Session
 	c       *fiber.Ctx
 }
 
 func Get(c *fiber.Ctx) *ClassroomSession {
-	once.Do(func() {
-		store = session.New()
-	})
-
 	s, err := store.Get(c)
 	if err != nil {
 		panic(err)
@@ -57,9 +47,7 @@ func Get(c *fiber.Ctx) *ClassroomSession {
 		s.Set(userState, int(Anonymous))
 	}
 
-	instance = &ClassroomSession{s, c}
-
-	return instance
+	return &ClassroomSession{s, c}
 }
 
 //// User
