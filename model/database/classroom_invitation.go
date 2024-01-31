@@ -19,9 +19,9 @@ type ClassroomInvitation struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Status      InvitationStatus `gorm:"not null"`
-	Email       string           `gorm:"not null"`
-	Enabled     bool             `gorm:"not null"`
-	ExpiryDate  time.Time        `gorm:"not null"`
 	ClassroomID uuid.UUID        `gorm:"not null"`
 	Classroom   Classroom
+	Email       string    `gorm:"not null"`
+	Enabled     bool      `gorm:"not null"`
+	ExpiryDate  time.Time `gorm:"not null"`
 }
