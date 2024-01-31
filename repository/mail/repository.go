@@ -3,9 +3,9 @@ package mail
 import "net/url"
 
 type MailData struct {
-	name       string
-	email      string
-	inviteLink *url.URL
+	Name       string
+	Email      string
+	InviteLink *url.URL
 }
 
 type Repository interface {
