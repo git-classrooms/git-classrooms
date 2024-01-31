@@ -1,0 +1,22 @@
+package context
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
+)
+
+const (
+	gitlabRepoKey = "gitlab-repo"
+)
+
+func GetGitlabRepository(c *fiber.Ctx) gitlab.Repository {
+	value, ok := c.Locals(gitlabRepoKey).(gitlab.Repository)
+	if !ok {
+		return nil
+	}
+	return value
+}
+
+func SetGitlabRepository(c *fiber.Ctx, repo gitlab.Repository) {
+	c.Locals(gitlabRepoKey, repo)
+}

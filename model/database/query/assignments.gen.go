@@ -5,9 +5,9 @@
 package query
 
 import (
-	"backend/model/database"
 	"context"
 
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
@@ -61,6 +61,12 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 				Assignments struct {
 					field.RelationField
 				}
+				Invitations struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+				}
 			}
 			Projects struct {
 				field.RelationField
@@ -89,6 +95,12 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 				}
 				Assignments struct {
 					field.RelationField
+				}
+				Invitations struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
 				}
 			}{
 				RelationField: field.NewRelation("Projects.Assignment.Classroom", "database.Classroom"),
@@ -144,6 +156,19 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 					field.RelationField
 				}{
 					RelationField: field.NewRelation("Projects.Assignment.Classroom.Assignments", "database.Assignment"),
+				},
+				Invitations: struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Projects.Assignment.Classroom.Invitations", "database.ClassroomInvitation"),
+					Classroom: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Projects.Assignment.Classroom.Invitations.Classroom", "database.Classroom"),
+					},
 				},
 			},
 			Projects: struct {
@@ -270,6 +295,12 @@ type assignmentHasManyProjects struct {
 			}
 			Assignments struct {
 				field.RelationField
+			}
+			Invitations struct {
+				field.RelationField
+				Classroom struct {
+					field.RelationField
+				}
 			}
 		}
 		Projects struct {

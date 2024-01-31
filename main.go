@@ -1,32 +1,33 @@
+// go:generate
 package main
 
 import (
-	"backend/context"
-	"backend/handler"
-	"backend/router"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
+	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
+	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 	"log"
 
-	"backend/config"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
-	dbModel "backend/model/database"
-	"backend/model/database/query"
+	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 )
 
 func main() {
-	applicationConfig, err := config.GetConfig()
+	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {
-		panic("failed to get application configuration")
+		log.Fatal("failed to get application configuration", err)
 	}
 
-	db, err := gorm.Open(postgres.Open(applicationConfig.Database.Dsn()), &gorm.Config{})
-
+	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatal("failed to connect database", err)
 	}
 
 	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
@@ -38,14 +39,15 @@ func main() {
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
+		&dbModel.ClassroomInvitation{},
 	)
+	if err != nil {
+		log.Fatal("failed to migrate database", err)
+	}
 
 	// Uncomment this to generate Query Code if the Model changed
 	// generateGormGen(db)
 
-	if err != nil {
-		panic("failed to migrate database")
-	}
 	log.Println("DB has been initialized")
 
 	// Set db for gorm-gen
@@ -53,30 +55,17 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("/api/hello", func(c *fiber.Ctx) error {
-		return c.SendString("Hello World!")
-	})
+	mailRepo, err := mail.NewMailRepository(appConfig.Mail)
+	if err != nil {
+		log.Fatal("failed to create mail repository", err)
+	}
 
-	router.Routes(app, applicationConfig)
+	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
+	apiCtrl := apiController.NewApiController(mailRepo)
 
-	app.Use("/api", handler.AuthMiddleware)
-	app.Get("/api/secret", func(c *fiber.Ctx) error {
-		repo := context.GetGitlabRepository(c)
-		user, err := repo.GetCurrentUser()
-		if err != nil {
-			return err
-		}
+	router.Routes(app, authCtrl, apiCtrl, appConfig.FrontendPath, appConfig.Auth)
 
-		return c.JSON(user)
-	})
-
-	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
-
-	// we need to redirect all other routes to the frontend
-	spaFile := fmt.Sprintf("%s/index.html", applicationConfig.FrontendPath)
-	app.Get("*", func(c *fiber.Ctx) error { return c.SendFile(spaFile) })
-
-	log.Fatal(app.Listen(fmt.Sprintf(":%d", applicationConfig.Port)))
+	log.Fatal(app.Listen(fmt.Sprintf(":%d", appConfig.Port)))
 }
 
 //lint:ignore U1000 Ignore unused function to generate Query Code if the Model changed
@@ -94,6 +83,7 @@ func generateGormGen(db *gorm.DB) {
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
+		&dbModel.ClassroomInvitation{},
 	)
 
 	g.Execute()

@@ -5,9 +5,9 @@
 package query
 
 import (
-	"backend/model/database"
 	"context"
 
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
@@ -61,6 +61,12 @@ func newUserClassrooms(db *gorm.DB, opts ...gen.DOOption) userClassrooms {
 						}
 					}
 				}
+				Invitations struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+				}
 			}
 		}{
 			RelationField: field.NewRelation("User.Classrooms", "database.UserClassrooms"),
@@ -90,6 +96,12 @@ func newUserClassrooms(db *gorm.DB, opts ...gen.DOOption) userClassrooms {
 						User struct {
 							field.RelationField
 						}
+					}
+				}
+				Invitations struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
 					}
 				}
 			}{
@@ -145,6 +157,19 @@ func newUserClassrooms(db *gorm.DB, opts ...gen.DOOption) userClassrooms {
 						}{
 							RelationField: field.NewRelation("User.Classrooms.Classroom.Assignments.Projects.User", "database.User"),
 						},
+					},
+				},
+				Invitations: struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("User.Classrooms.Classroom.Invitations", "database.ClassroomInvitation"),
+					Classroom: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("User.Classrooms.Classroom.Invitations.Classroom", "database.Classroom"),
 					},
 				},
 			},
@@ -260,6 +285,12 @@ type userClassroomsBelongsToUser struct {
 					User struct {
 						field.RelationField
 					}
+				}
+			}
+			Invitations struct {
+				field.RelationField
+				Classroom struct {
+					field.RelationField
 				}
 			}
 		}

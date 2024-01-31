@@ -1,34 +1,49 @@
 #############################################
-# Builder stage image
+# Builder web
 #############################################
-FROM golang:1.21-alpine as builder
+FROM node:20-alpine as builder-web
 
-RUN apk --no-cache --update-cache --available upgrade \
-    && apk add git bash  nodejs yarn
+WORKDIR /app/build
+COPY ./frontend/package.json ./frontend/yarn.lock ./
+RUN yarn --pure-lockfile
 
-WORKDIR /app
+COPY ./frontend ./
+RUN yarn build
 
+#############################################
+# Builder go
+#############################################
+FROM golang:1.21-alpine as builder-go
+
+# RUN apk --no-cache --update-cache --available upgrade \
+#    && apk add git bash  nodejs yarn
+
+WORKDIR /app/build
+
+COPY ./go.mod ./go.sum ./
+RUN go mod download
 COPY ./ ./
-## Backend
-RUN go mod tidy
-RUN go build -o app ./main.go
 
-
-## Frontend
-RUN cd frontend && yarn --pure-lockfile
-RUN cd frontend && yarn build
-
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/build/app
 
 #############################################
 # Runtime image
 #############################################
 FROM alpine:3.18 as release
 
-RUN mkdir -p /app/public
-WORKDIR /app
-
-COPY --from=builder /app/app /app
-COPY --from=builder /app/frontend/dist /app/public
+ENV FRONTEND_PATH=/public
+ENV TEMPLATE_FILE_PATH=/templates/template.html
+ENV PORT=3000
 EXPOSE 3000
 
-ENTRYPOINT /app/app
+RUN adduser -D gorunner
+
+USER gorunner
+
+WORKDIR /
+
+COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
+COPY --chown=gorunner:gorunner --from=builder-go /app/build/repository/mail/template.html /templates/template.html
+COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
+
+ENTRYPOINT /app
