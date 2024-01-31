@@ -67,6 +67,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		FirstOrCreate()
 
 	if err != nil {
+		// TODO: Use sentry to log errors
 		log.Println(err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
@@ -85,6 +86,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	redirect := s.GetOAuthRedirectTarget()
 
 	if err = s.Save(); err != nil {
+		// TODO: Use sentry to log errors
 		log.Println(err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
