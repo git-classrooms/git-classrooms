@@ -115,9 +115,23 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	// Send invitations
+	owner, err := repo.GetUserById(classroom.OwnerID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	for i, email := range validatedEmailAddresses {
-		invitation := invitations[i]
-		err = handler.mailRepo.Send(email.Address, fmt.Sprintf("Test: New Invitation from Classroom %s, %s, %s", classroom.Name, classroom.ID.String(), invitation.ID.String()), mailRepo.MailData{}) // TODO: Add meaningful content
+		invitePath := fmt.Sprintf("/api/classrooms/%s/invitations/%s", classroom.ID.String(), invitations[i].ID.String())
+		err = handler.mailRepo.SendClassroomInvitation(email.Address,
+			fmt.Sprintf(`Test: New Invitation for Classroom "%s"`,
+				classroom.Name),
+			mailRepo.ClassroomInvitationData{
+				ClassroomName:      classroom.Name,
+				ClassroomOwnerName: owner.Name,
+				RecipientEmail:     invitations[i].Email,
+				InvitationPath:     invitePath,
+				ExpireDate:         invitations[i].ExpiryDate,
+			})
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}

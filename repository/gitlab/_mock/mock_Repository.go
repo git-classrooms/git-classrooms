@@ -1428,6 +1428,52 @@ func (_c *MockRepository_GetUserById_Call) RunAndReturn(run func(int) (*model.Us
 	return _c
 }
 
+// GroupAccessLogin provides a mock function with given fields: token
+func (_m *MockRepository) GroupAccessLogin(token string) error {
+	ret := _m.Called(token)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GroupAccessLogin")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(token)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_GroupAccessLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GroupAccessLogin'
+type MockRepository_GroupAccessLogin_Call struct {
+	*mock.Call
+}
+
+// GroupAccessLogin is a helper method to define mock.On call
+//   - token string
+func (_e *MockRepository_Expecter) GroupAccessLogin(token interface{}) *MockRepository_GroupAccessLogin_Call {
+	return &MockRepository_GroupAccessLogin_Call{Call: _e.mock.On("GroupAccessLogin", token)}
+}
+
+func (_c *MockRepository_GroupAccessLogin_Call) Run(run func(token string)) *MockRepository_GroupAccessLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockRepository_GroupAccessLogin_Call) Return(_a0 error) *MockRepository_GroupAccessLogin_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_GroupAccessLogin_Call) RunAndReturn(run func(string) error) *MockRepository_GroupAccessLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Login provides a mock function with given fields: token
 func (_m *MockRepository) Login(token string) error {
 	ret := _m.Called(token)

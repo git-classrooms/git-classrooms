@@ -5,28 +5,42 @@ import (
 	"crypto/tls"
 	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
 	"html/template"
+	"net/url"
 
 	gomail "gopkg.in/gomail.v2"
 )
 
-type MailRepository struct {
-	template *template.Template
-	dialer   *gomail.Dialer
+type GoMailRepository struct {
+	publicURL *url.URL
+	template  *template.Template
+	dialer    *gomail.Dialer
 }
 
-func NewMailRepository(config mailConfig.Config) (*MailRepository, error) {
-	t, err := template.ParseFiles(config.GetTemplateFilePath())
+func NewMailRepository(publicURL *url.URL, config mailConfig.Config) (*GoMailRepository, error) {
+	t, err := template.ParseFiles(
+		"./repository/mail/base.template.html",
+		"./repository/mail/invitation.template.html")
 	if err != nil {
 		return nil, err
 	}
-	dailer := gomail.NewDialer(config.GetHost(), config.GetPort(), config.GetUser(), config.GetPassword())
-	dailer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-	return &MailRepository{template: t, dialer: dailer}, nil
+	dialer := gomail.NewDialer(config.GetHost(), config.GetPort(), config.GetUser(), config.GetPassword())
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	return &GoMailRepository{
+		publicURL: publicURL,
+		template:  t,
+		dialer:    dialer,
+	}, nil
 }
 
-func (m *MailRepository) Send(to, subject string, mailData MailData) error {
+func (m *GoMailRepository) SendClassroomInvitation(to string, subject string, data ClassroomInvitationData) error {
+	publicURL, err := m.generateExternalURL(data.InvitationPath)
+	if err != nil {
+		return err
+	}
+	data.InvitationPath = publicURL.String()
+
 	var tpl bytes.Buffer
-	if err := m.template.Execute(&tpl, mailData); err != nil {
+	if err := m.template.ExecuteTemplate(&tpl, "base", data); err != nil {
 		return err
 	}
 
@@ -39,4 +53,12 @@ func (m *MailRepository) Send(to, subject string, mailData MailData) error {
 	mail.SetBody("text/html", result)
 
 	return m.dialer.DialAndSend(mail)
+}
+
+func (m *GoMailRepository) generateExternalURL(path string) (*url.URL, error) {
+	newPath, err := url.JoinPath(m.publicURL.String(), path)
+	if err != nil {
+		return nil, err
+	}
+	return url.Parse(newPath)
 }
