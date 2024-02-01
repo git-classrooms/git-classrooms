@@ -34,6 +34,15 @@ func (repo *GitlabRepo) Login(token string) error {
 	return nil
 }
 
+func (repo *GitlabRepo) GroupAccessLogin(token string) error {
+	cli, err := goGitlab.NewClient(token, goGitlab.WithBaseURL(repo.config.GetURL()))
+	if err != nil {
+		return err
+	}
+	repo.client = cli
+	return nil
+}
+
 func (repo *GitlabRepo) GetCurrentUser() (*model.User, error) {
 	repo.assertIsConnected()
 
