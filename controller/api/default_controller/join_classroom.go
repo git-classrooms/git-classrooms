@@ -29,6 +29,7 @@ func (handler *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		Preload(queryClassroomInvitation.Classroom).
 		Where(queryClassroomInvitation.ID.Eq(invitationId)).
 		Where(queryClassroomInvitation.ClassroomID.Eq(classroomId)).
+		Where(queryClassroomInvitation.Status.Eq(uint8(database.InvitationPending))).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())

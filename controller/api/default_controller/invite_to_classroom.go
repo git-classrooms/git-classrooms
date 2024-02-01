@@ -43,7 +43,6 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	// Check if owner or moderator of specific classroom
-	// TODO: We need to discuss if we want to allow moderators to invite other users (are moderators Group-Owners in Gitlab?)
 	if classroom.OwnerID != user.ID {
 		queryUserClassroom := query.UserClassrooms
 		_, err := queryUserClassroom.
@@ -90,11 +89,41 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		}
 	}
 
-	invitations := make([]*database.ClassroomInvitation, len(validatedEmailAddresses))
+	queryClassroomInvite := query.ClassroomInvitation
+	invites, err := queryClassroomInvite.Where(queryClassroomInvite.ClassroomID.Eq(classroomId)).Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	invitableEmails := make([]*mail.Address, 0)
+
+	for _, email := range validatedEmailAddresses {
+		for _, invite := range invites {
+			if invite.Email == email.Address {
+				if invite.Status != database.InvitationAccepted {
+					invitableEmails = append(invitableEmails, email)
+					break
+				}
+			} else {
+				invitableEmails = append(invitableEmails, email)
+				break
+			}
+		}
+	}
+
+	invitations := make([]*database.ClassroomInvitation, len(invitableEmails))
 
 	// Create invitations
 	err = query.Q.Transaction(func(tx *query.Query) error {
-		for i, email := range validatedEmailAddresses {
+		for i, email := range invitableEmails {
+			_, err := tx.ClassroomInvitation.
+				Where(tx.ClassroomInvitation.Email.Eq(email.Address)).
+				Where(tx.ClassroomInvitation.ClassroomID.Eq(classroomId)).
+				Delete()
+			if err != nil {
+				return err
+			}
+
 			newInvitation := &database.ClassroomInvitation{
 				Status:      database.InvitationPending,
 				ClassroomID: classroomId,
@@ -102,8 +131,7 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 				Enabled:     true,
 				ExpiryDate:  expiresAt,
 			}
-			err := tx.ClassroomInvitation.Create(newInvitation)
-			if err != nil {
+			if err := tx.ClassroomInvitation.Create(newInvitation); err != nil {
 				return err
 			}
 			invitations[i] = newInvitation
@@ -120,7 +148,7 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	for i, email := range validatedEmailAddresses {
+	for i, email := range invitableEmails {
 		invitePath := fmt.Sprintf("/api/classrooms/%s/invitations/%s", classroom.ID.String(), invitations[i].ID.String())
 		err = handler.mailRepo.SendClassroomInvitation(email.Address,
 			fmt.Sprintf(`Test: New Invitation for Classroom "%s"`,
