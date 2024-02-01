@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
+	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
