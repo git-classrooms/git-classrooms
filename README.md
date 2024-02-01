@@ -11,7 +11,11 @@ The frontend proxies the requests for the path `/api/*` to the backend server.
 
 ## Development
 
-For development we use the git flow branching model for simplicity. 
+For development, we use the git flow branching model for simplicity.
+
+### Requirements
+
+- [Mockery](https://vektra.github.io/mockery/latest/)
 
 ### Setup
 
@@ -20,6 +24,10 @@ Copy the `.env.example` file and make your changes:
 ```
 cp .env.example .env
 ```
+
+#### Code generation
+
+To generate up to date mock files and database code you can use the command `go generate` in projects root dir.
 
 #### OAuth with Gitlab
 1. We use Gitlab as an OAuth provider, so you have to add this application in your Gitlab.
@@ -54,7 +62,7 @@ docker-compose up
 For local development we use [mailpit](https://mailpit.axllent.org/), running on [localhost:8025](http://localhost:8025).
 **This requires the docker setup.**
 
-For encrypted connections we need to create a self signed certificate
+For encrypted connections we need to create a self-signed certificate
 
 ```
 openssl req -x509 -newkey rsa:4096 -nodes -keyout .docker/mail/privkey.pem -out .docker/mail/cert.pem -sha256 -days 3650

@@ -30,10 +30,10 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 	_classroomInvitation.CreatedAt = field.NewTime(tableName, "created_at")
 	_classroomInvitation.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_classroomInvitation.Status = field.NewUint8(tableName, "status")
+	_classroomInvitation.ClassroomID = field.NewField(tableName, "classroom_id")
 	_classroomInvitation.Email = field.NewString(tableName, "email")
 	_classroomInvitation.Enabled = field.NewBool(tableName, "enabled")
 	_classroomInvitation.ExpiryDate = field.NewTime(tableName, "expiry_date")
-	_classroomInvitation.ClassroomID = field.NewField(tableName, "classroom_id")
 	_classroomInvitation.Classroom = classroomInvitationBelongsToClassroom{
 		db: db.Session(&gorm.Session{}),
 
@@ -169,10 +169,10 @@ type classroomInvitation struct {
 	CreatedAt   field.Time
 	UpdatedAt   field.Time
 	Status      field.Uint8
+	ClassroomID field.Field
 	Email       field.String
 	Enabled     field.Bool
 	ExpiryDate  field.Time
-	ClassroomID field.Field
 	Classroom   classroomInvitationBelongsToClassroom
 
 	fieldMap map[string]field.Expr
@@ -194,10 +194,10 @@ func (c *classroomInvitation) updateTableName(table string) *classroomInvitation
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.Status = field.NewUint8(table, "status")
+	c.ClassroomID = field.NewField(table, "classroom_id")
 	c.Email = field.NewString(table, "email")
 	c.Enabled = field.NewBool(table, "enabled")
 	c.ExpiryDate = field.NewTime(table, "expiry_date")
-	c.ClassroomID = field.NewField(table, "classroom_id")
 
 	c.fillFieldMap()
 
@@ -219,10 +219,10 @@ func (c *classroomInvitation) fillFieldMap() {
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["status"] = c.Status
+	c.fieldMap["classroom_id"] = c.ClassroomID
 	c.fieldMap["email"] = c.Email
 	c.fieldMap["enabled"] = c.Enabled
 	c.fieldMap["expiry_date"] = c.ExpiryDate
-	c.fieldMap["classroom_id"] = c.ClassroomID
 
 }
 
