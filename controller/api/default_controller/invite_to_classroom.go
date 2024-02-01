@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
-	"net/http"
 	"net/mail"
 	"time"
 )
@@ -17,13 +18,17 @@ type InviteToClassroomRequest struct {
 	MemberEmails []string `json:"memberEmails"`
 }
 
+func (r InviteToClassroomRequest) isValid() bool {
+	return len(r.MemberEmails) != 0
+}
+
 func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	user, err := session.Get(c).GetUser()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	classroomId, err := uuid.Parse(c.Params("id"))
+	classroomId, err := uuid.Parse(c.Params("classroomId"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -38,6 +43,7 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	// Check if owner or moderator of specific classroom
+	// TODO: We need to discuss if we want to allow moderators to invite other users (are moderators Group-Owners in Gitlab?)
 	if classroom.OwnerID != user.ID {
 		queryUserClassroom := query.UserClassrooms
 		_, err := queryUserClassroom.
@@ -51,9 +57,28 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		}
 	}
 
-	requestBody := new(InviteToClassroomRequest)
+	expiresAt := time.Now().AddDate(0, 0, 14) // Two Weeks, TODO: Add to configuration
+
+	repo := context.GetGitlabRepository(c)
+	// TODO: check if an accessToken already exist and update the expiration date of that one instead of creating a new one
+	accessToken, err := repo.CreateGroupAccessToken(classroom.GroupID, "Gitlab-Classroom-Access-Token", model.OwnerPermissions, expiresAt, "api")
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	classroom.GroupAccessToken = accessToken.Token
+	err = queryClassroom.WithContext(c.Context()).Save(classroom)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	requestBody := &InviteToClassroomRequest{}
 	if err = c.BodyParser(requestBody); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if !requestBody.isValid() {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
 	}
 
 	// Validate email addresses
@@ -65,20 +90,23 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		}
 	}
 
+	invitations := make([]*database.ClassroomInvitation, len(validatedEmailAddresses))
+
 	// Create invitations
 	err = query.Q.Transaction(func(tx *query.Query) error {
-		for _, email := range validatedEmailAddresses {
-			newInvitation := database.ClassroomInvitation{
+		for i, email := range validatedEmailAddresses {
+			newInvitation := &database.ClassroomInvitation{
 				Status:      database.InvitationPending,
 				ClassroomID: classroomId,
 				Email:       email.Address,
 				Enabled:     true,
-				ExpiryDate:  time.Now().Add(time.Hour * 24 * 14), // Two Weeks, TODO: Add to configuration
+				ExpiryDate:  expiresAt,
 			}
-			err := tx.ClassroomInvitation.Create(&newInvitation)
+			err := tx.ClassroomInvitation.Create(newInvitation)
 			if err != nil {
 				return err
 			}
+			invitations[i] = newInvitation
 		}
 		return nil
 	})
@@ -87,12 +115,13 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	// Send invitations
-	for _, email := range validatedEmailAddresses {
-		err = handler.mailRepo.Send(email.Address, fmt.Sprintf("Test: New Invitation from Classroom %s", classroom.Name), mailRepo.MailData{}) // TODO: Add meaningful content
+	for i, email := range validatedEmailAddresses {
+		invitation := invitations[i]
+		err = handler.mailRepo.Send(email.Address, fmt.Sprintf("Test: New Invitation from Classroom %s, %s, %s", classroom.Name, classroom.ID.String(), invitation.ID.String()), mailRepo.MailData{}) // TODO: Add meaningful content
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 	}
 
-	return c.SendStatus(http.StatusAccepted)
+	return c.SendStatus(fiber.StatusCreated)
 }

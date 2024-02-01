@@ -42,8 +42,8 @@ func Routes(
 
 	api.Post("/classrooms", apiController.CreateClassroom)
 	api.Post("/assignments", apiController.CreateAssignment)
-	api.Post("/classrooms/:classroomId/members", apiController.JoinClassroom)
-	api.Post("/classrooms/:classroomId/invitations/:inviteId", apiController.InviteToClassroom)
+	api.Post("/classrooms/:classroomId/members", apiController.InviteToClassroom)
+	api.Post("/classrooms/:classroomId/invitations/:invitationId", apiController.JoinClassroom)
 
 	// Catch all routes
 	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
