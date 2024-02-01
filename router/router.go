@@ -20,12 +20,17 @@ func Routes(
 ) {
 	app.Static("/", frontendPath)
 
-	app.Get("/api/hello", func(c *fiber.Ctx) error {
+	app.Get("/auth", authController.Auth)
+	app.Get(config.GetRedirectUrl().Path, authController.Callback)
+
+	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
+	api.Get("/hello", func(c *fiber.Ctx) error {
 		return c.SendString("Hello World!")
 	})
 
-	app.Use("/api", authController.AuthMiddleware)
-	app.Get("/api/secret", func(c *fiber.Ctx) error {
+	api.Use(authController.AuthMiddleware)
+
+	api.Get("/secret", func(c *fiber.Ctx) error {
 		repo := context.GetGitlabRepository(c)
 		user, err := repo.GetCurrentUser()
 		if err != nil {
@@ -34,11 +39,6 @@ func Routes(
 
 		return c.JSON(user)
 	})
-
-	app.Get("/auth", authController.Auth)
-	app.Get(config.GetRedirectUrl().Path, authController.Callback)
-
-	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 
 	api.Post("/classrooms", apiController.CreateClassroom)
 	api.Post("/assignments", apiController.CreateAssignment)
