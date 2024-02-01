@@ -2,13 +2,14 @@ package gitlab
 
 import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"time"
 )
 
 type Repository interface {
 	Login(token string) error                                                                                                //j
 	GetCurrentUser() (*model.User, error)                                                                                    //f
 	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L735 https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L466
-	CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error)   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
+	CreateGroup(name string, visibility model.Visibility, description string, memberEmails ...string) (*model.Group, error)  //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
 
 	DeleteProject(id int) error                                                              //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L1110
 	DeleteGroup(id int) error                                                                //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L566
@@ -40,4 +41,6 @@ type Repository interface {
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
 
 	GetNamespaceOfProject(projectId int) (*string, error)
+
+	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) //F,D,Ph
 }

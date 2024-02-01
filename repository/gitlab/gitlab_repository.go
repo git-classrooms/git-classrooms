@@ -6,6 +6,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
 	"strings"
+	"time"
 
 	goGitlab "github.com/xanzy/go-gitlab"
 )
@@ -114,7 +115,8 @@ func (repo *GitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
 	return &project.Namespace.Path, nil
 }
 
-func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
+// TODO: This is not SOLID and should not Add Members to the group
+func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails ...string) (*model.Group, error) {
 	repo.assertIsConnected()
 
 	gitlabVisibility := VisibilityFromModel(visibility)
@@ -133,6 +135,7 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 		return nil, err
 	}
 
+	// TODO: Delete this
 	for _, email := range memberEmails {
 		userID, _ := repo.FindUserIDByEmail(email)
 		_, _, err := repo.client.GroupMembers.AddGroupMember(gitlabGroup.ID, &goGitlab.AddGroupMemberOptions{
@@ -145,6 +148,25 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 	}
 
 	return GroupFromGoGitlab(*gitlabGroup), nil
+}
+
+func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) {
+	repo.assertIsConnected()
+
+	gitlabAccessLevel := AccessLevelFromModel(accessLevel)
+	gitlabExpiresAt := goGitlab.ISOTime(expiresAt)
+
+	accessToken, _, err := repo.client.GroupAccessTokens.CreateGroupAccessToken(groupID, &goGitlab.CreateGroupAccessTokenOptions{
+		Name:        goGitlab.String(name),
+		Scopes:      &scopes,
+		AccessLevel: &gitlabAccessLevel,
+		ExpiresAt:   &gitlabExpiresAt,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
 }
 
 func (repo *GitlabRepo) DeleteProject(id int) error {
