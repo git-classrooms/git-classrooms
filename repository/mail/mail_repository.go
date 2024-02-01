@@ -18,8 +18,9 @@ type GoMailRepository struct {
 
 func NewMailRepository(publicURL *url.URL, config mailConfig.Config) (*GoMailRepository, error) {
 	t, err := template.ParseFiles(
-		"./repository/mail/base.template.html",
-		"./repository/mail/invitation.template.html")
+		"./templates/base.tmpl.html",
+		"./templates/invitation.tmpl.html",
+	)
 	if err != nil {
 		return nil, err
 	}

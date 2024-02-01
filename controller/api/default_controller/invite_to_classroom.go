@@ -8,8 +8,8 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
+	"log"
 	"net/mail"
 	"time"
 )
@@ -22,7 +22,7 @@ func (r InviteToClassroomRequest) isValid() bool {
 	return len(r.MemberEmails) != 0
 }
 
-func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
+func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	user, err := session.Get(c).GetUser()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -59,12 +59,13 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	expiresAt := time.Now().AddDate(0, 0, 14) // Two Weeks, TODO: Add to configuration
 
 	repo := context.GetGitlabRepository(c)
-	// TODO: check if an accessToken already exist and update the expiration date of that one instead of creating a new one
-	accessToken, err := repo.CreateGroupAccessToken(classroom.GroupID, "Gitlab-Classroom-Access-Token", model.OwnerPermissions, expiresAt, "api")
+
+	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	classroom.GroupAccessTokenID = accessToken.ID
 	classroom.GroupAccessToken = accessToken.Token
 	err = queryClassroom.WithContext(c.Context()).Save(classroom)
 	if err != nil {
@@ -95,21 +96,7 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	invitableEmails := make([]*mail.Address, 0)
-
-	for _, email := range validatedEmailAddresses {
-		for _, invite := range invites {
-			if invite.Email == email.Address {
-				if invite.Status != database.InvitationAccepted {
-					invitableEmails = append(invitableEmails, email)
-					break
-				}
-			} else {
-				invitableEmails = append(invitableEmails, email)
-				break
-			}
-		}
-	}
+	invitableEmails := filterInvitableEmails(validatedEmailAddresses, invites)
 
 	invitations := make([]*database.ClassroomInvitation, len(invitableEmails))
 
@@ -149,8 +136,10 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	for i, email := range invitableEmails {
+		log.Println("Sending invitation to", email.Address)
+
 		invitePath := fmt.Sprintf("/api/classrooms/%s/invitations/%s", classroom.ID.String(), invitations[i].ID.String())
-		err = handler.mailRepo.SendClassroomInvitation(email.Address,
+		err = ctrl.mailRepo.SendClassroomInvitation(email.Address,
 			fmt.Sprintf(`Test: New Invitation for Classroom "%s"`,
 				classroom.Name),
 			mailRepo.ClassroomInvitationData{
@@ -166,4 +155,26 @@ func (handler *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusCreated)
+}
+
+func filterInvitableEmails(emails []*mail.Address, invitations []*database.ClassroomInvitation) []*mail.Address {
+	invitableEmails := make([]*mail.Address, 0)
+
+	for _, email := range emails {
+		found := false
+		for _, invite := range invitations {
+			if invite.Email == email.Address {
+				if invite.Status != database.InvitationAccepted {
+					invitableEmails = append(invitableEmails, email)
+				}
+				found = true
+				break
+			}
+		}
+		if !found {
+			invitableEmails = append(invitableEmails, email)
+		}
+	}
+
+	return invitableEmails
 }

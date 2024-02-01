@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"fmt"
+	"github.com/hashicorp/go-retryablehttp"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
@@ -170,6 +171,19 @@ func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessL
 		Scopes:      &scopes,
 		AccessLevel: &gitlabAccessLevel,
 		ExpiresAt:   &gitlabExpiresAt,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
+}
+
+func (repo *GitlabRepo) RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error) {
+	repo.assertIsConnected()
+
+	accessToken, _, err := repo.client.GroupAccessTokens.RotateGroupAccessToken(groupID, tokenID, func(r *retryablehttp.Request) error {
+		return r.SetBody([]byte(fmt.Sprintf(`{"expires_at": "%s"}`, expiresAt.Format(time.DateOnly))))
 	})
 	if err != nil {
 		return nil, err

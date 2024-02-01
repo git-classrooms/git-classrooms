@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func (handler *DefaultController) JoinClassroom(c *fiber.Ctx) error {
+func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 	invitationIdParameter := c.Params("invitationId")
 	classroomIdParameter := c.Params("classroomId")
 

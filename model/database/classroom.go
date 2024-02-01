@@ -17,19 +17,20 @@ const (
 
 // Classroom is a struct that represents a classroom in the database
 type Classroom struct {
-	ID               uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	DeletedAt        gorm.DeletedAt `gorm:"index"`
-	Name             string         `gorm:"not null"`
-	OwnerID          int            `gorm:"not null"`
-	Owner            User
-	Description      string
-	GroupID          int              `gorm:"<-:create;not null"`
-	GroupAccessToken string           `gorm:"not null"`
-	Member           []UserClassrooms `gorm:"foreignKey:ClassroomID"`
-	Assignments      []Assignment
-	Invitations      []ClassroomInvitation
+	ID                 uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	DeletedAt          gorm.DeletedAt `gorm:"index"`
+	Name               string         `gorm:"not null"`
+	OwnerID            int            `gorm:"not null"`
+	Owner              User
+	Description        string
+	GroupID            int              `gorm:"<-:create;not null"`
+	GroupAccessTokenID int              `gorm:"not null"`
+	GroupAccessToken   string           `gorm:"not null"`
+	Member             []UserClassrooms `gorm:"foreignKey:ClassroomID"`
+	Assignments        []Assignment
+	Invitations        []ClassroomInvitation
 }
 
 // ClassRoomDTO is the data transfer object representing a user

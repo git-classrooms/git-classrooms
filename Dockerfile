@@ -15,8 +15,7 @@ RUN yarn build
 #############################################
 FROM golang:1.21-alpine as builder-go
 
-# RUN apk --no-cache --update-cache --available upgrade \
-#    && apk add git bash  nodejs yarn
+RUN go install github.com/vektra/mockery/v2@v2.40.1
 
 WORKDIR /app/build
 
@@ -33,7 +32,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app/build/app
 FROM alpine:3.18 as release
 
 ENV FRONTEND_PATH=/public
-ENV TEMPLATE_FILE_PATH=/templates/template.html
 ENV PORT=3000
 EXPOSE 3000
 
@@ -44,7 +42,7 @@ USER gorunner
 WORKDIR /
 
 COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
-COPY --chown=gorunner:gorunner --from=builder-go /app/build/repository/mail/template.html /templates/template.html
+COPY --chown=gorunner:gorunner --from=builder-go /app/build/templates /templates
 COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
 
 ENTRYPOINT /app

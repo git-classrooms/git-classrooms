@@ -8,6 +8,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"time"
 )
 
 type CreateClassroomRequest struct {
@@ -20,7 +21,7 @@ func (r CreateClassroomRequest) isValid() bool {
 	return r.Name != "" && r.Description != "" && len(r.MemberEmails) == 0
 }
 
-func (handler *DefaultController) CreateClassroom(c *fiber.Ctx) error {
+func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	repo := context.GetGitlabRepository(c)
 	user, err := session.Get(c).GetUser()
 	if err != nil {
@@ -46,13 +47,23 @@ func (handler *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	expiresAt := time.Now().AddDate(0, 0, 14) // Two Weeks, TODO: Add to configuration
+
+	accessToken, err := repo.CreateGroupAccessToken(group.ID, "Gitlab Classrooms", model.OwnerPermissions, expiresAt, "api")
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	classroomQuery := query.Classroom
 	classRoom := &database.Classroom{
-		Name:        requestBody.Name,
-		OwnerID:     user.ID,
-		Description: "",
-		GroupID:     group.ID,
+		Name:               requestBody.Name,
+		OwnerID:            user.ID,
+		Description:        requestBody.Description,
+		GroupID:            group.ID,
+		GroupAccessTokenID: accessToken.ID,
+		GroupAccessToken:   accessToken.Token,
 	}
+	
 	err = classroomQuery.WithContext(c.Context()).Create(classRoom)
 	if err != nil {
 		newErr := repo.DeleteGroup(group.ID)

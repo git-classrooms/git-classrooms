@@ -11,7 +11,7 @@ type CreateAssignmentRequest struct {
 	TemplateProjectId int   `json:"templateProjectId"`
 }
 
-func (handler *DefaultController) CreateAssignment(c *fiber.Ctx) error {
+func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	repo := context.GetGitlabRepository(c)
 
 	var err error

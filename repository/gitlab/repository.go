@@ -44,4 +44,5 @@ type Repository interface {
 	GetNamespaceOfProject(projectId int) (*string, error)
 
 	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) //F,D,Ph
+	RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error)                                                       //F,D,Ph
 }
