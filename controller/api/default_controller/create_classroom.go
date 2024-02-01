@@ -8,7 +8,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"net/http"
 )
 
 type CreateClassroomRequest struct {
@@ -64,5 +63,5 @@ func (handler *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	}
 
 	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s", classRoom.ID.String()))
-	return c.SendStatus(http.StatusCreated)
+	return c.SendStatus(fiber.StatusCreated)
 }

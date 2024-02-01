@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"net/http"
 )
 
 type CreateAssignmentRequest struct {
@@ -51,5 +50,5 @@ func (handler *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.SendStatus(http.StatusCreated)
+	return c.SendStatus(fiber.StatusCreated)
 }
