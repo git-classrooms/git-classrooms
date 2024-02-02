@@ -2,50 +2,61 @@ package default_controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"time"
 )
 
 type CreateAssignmentRequest struct {
-	AssigneeUserIds   []int `json:"assigneeUserIds"`
-	TemplateProjectId int   `json:"templateProjectId"`
+	Name              string     `json:"name"`
+	Description       string     `json:"description"`
+	TemplateProjectId int        `json:"templateProjectId"`
+	DueDate           *time.Time `json:"dueDate"`
+}
+
+func (r CreateAssignmentRequest) isValid() bool {
+	return r.Name != ""
 }
 
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	repo := context.GetGitlabRepository(c)
 
-	var err error
-	requestBody := new(CreateAssignmentRequest)
+	// Parse parameters
+	classroomId, err := uuid.Parse(c.Params("classroomId"))
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
 
+	// Parse body
+	requestBody := new(CreateAssignmentRequest)
 	err = c.BodyParser(requestBody)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+	if !requestBody.isValid() {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
 
-	templateProject, err := repo.GetProjectById(requestBody.TemplateProjectId)
+	// Check if template repository exists
+	_, err = repo.GetProjectById(requestBody.TemplateProjectId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	name := templateProject.Name
-
-	assignees := make([]model.User, len(requestBody.AssigneeUserIds))
-	for i, id := range requestBody.AssigneeUserIds {
-		user, err := repo.GetUserById(id)
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		assignees[i] = *user
-		name += "_" + user.Username
+	// Create assigment
+	assignmentQuery := query.Assignment
+	assignment := &database.Assignment{
+		ClassroomID:       classroomId,
+		TemplateProjectID: requestBody.TemplateProjectId,
+		Name:              requestBody.Name,
+		Description:       requestBody.Description,
+		DueDate:           requestBody.DueDate,
 	}
 
-	project := &model.Project{}
-	project, err = repo.ForkProject(requestBody.TemplateProjectId, name)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	project, err = repo.AddProjectMembers(project.ID, assignees)
+	// Persist assigment
+	err = assignmentQuery.WithContext(c.Context()).Create(assignment)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

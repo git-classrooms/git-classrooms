@@ -24,6 +24,7 @@ import (
 
 func TestCreateClassroom(t *testing.T) {
 	// --------------- DB SETUP -----------------
+	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 	pq, err := tests.StartPostgres()
 	t.Cleanup(func() {
 		pq.Terminate(context.Background())

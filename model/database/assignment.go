@@ -15,8 +15,12 @@ type Assignment struct {
 	DeletedAt         gorm.DeletedAt `gorm:"index"`
 	ClassroomID       uuid.UUID      `gorm:"not null"`
 	Classroom         Classroom
-	TemplateProjectID int `gorm:"<-:create;not null"`
+	TemplateProjectID int    `gorm:"<-:create;not null"`
+	Name              string `gorm:"not null"`
+	Description       string
+	DueDate           *time.Time
 	Projects          []AssignmentProjects
+	Invitations       []AssignmentInvitation
 }
 
 // AssignmentDTO is the data transfer object representing a user
