@@ -8,10 +8,10 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
-	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -33,17 +33,7 @@ func main() {
 		log.Fatal("failed to connect database", err)
 	}
 
-	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
-
-	log.Println("Running database migrations")
-	err = db.AutoMigrate(
-		&dbModel.User{},
-		&dbModel.Classroom{},
-		&dbModel.UserClassrooms{},
-		&dbModel.Assignment{},
-		&dbModel.AssignmentProjects{},
-		&dbModel.ClassroomInvitation{},
-	)
+	err = utils.MigrateDatabase(db)
 	if err != nil {
 		log.Fatal("failed to migrate database", err)
 	}

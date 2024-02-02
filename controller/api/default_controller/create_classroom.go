@@ -8,6 +8,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"log"
 	"time"
 )
 
@@ -25,6 +26,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	repo := context.GetGitlabRepository(c)
 	user, err := session.Get(c).GetUser()
 	if err != nil {
+		log.Println("failed to get user from session", err)
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -63,7 +65,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 		GroupAccessTokenID: accessToken.ID,
 		GroupAccessToken:   accessToken.Token,
 	}
-	
+
 	err = classroomQuery.WithContext(c.Context()).Create(classRoom)
 	if err != nil {
 		newErr := repo.DeleteGroup(group.ID)

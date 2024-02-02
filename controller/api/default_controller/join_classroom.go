@@ -29,7 +29,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		Preload(queryClassroomInvitation.Classroom).
 		Where(queryClassroomInvitation.ID.Eq(invitationId)).
 		Where(queryClassroomInvitation.ClassroomID.Eq(classroomId)).
-		Where(queryClassroomInvitation.Status.Eq(uint8(database.InvitationPending))).
+		Where(queryClassroomInvitation.Status.Eq(uint8(database.ClassroomInvitationPending))).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
@@ -74,7 +74,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		invitation.Status = database.InvitationAccepted
+		invitation.Status = database.ClassroomInvitationAccepted
 		err = tx.ClassroomInvitation.Save(invitation)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())

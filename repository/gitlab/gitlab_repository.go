@@ -165,12 +165,13 @@ func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessL
 
 	gitlabAccessLevel := AccessLevelFromModel(accessLevel)
 	gitlabExpiresAt := goGitlab.ISOTime(expiresAt)
+	_ = gitlabExpiresAt
 
 	accessToken, _, err := repo.client.GroupAccessTokens.CreateGroupAccessToken(groupID, &goGitlab.CreateGroupAccessTokenOptions{
 		Name:        goGitlab.String(name),
 		Scopes:      &scopes,
 		AccessLevel: &gitlabAccessLevel,
-		ExpiresAt:   &gitlabExpiresAt,
+		// ExpiresAt:   &gitlabExpiresAt,
 	})
 	if err != nil {
 		return nil, err

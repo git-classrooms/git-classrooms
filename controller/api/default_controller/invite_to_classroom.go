@@ -112,7 +112,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 			}
 
 			newInvitation := &database.ClassroomInvitation{
-				Status:      database.InvitationPending,
+				Status:      database.ClassroomInvitationPending,
 				ClassroomID: classroomId,
 				Email:       email.Address,
 				Enabled:     true,
@@ -164,7 +164,7 @@ func filterInvitableEmails(emails []*mail.Address, invitations []*database.Class
 		found := false
 		for _, invite := range invitations {
 			if invite.Email == email.Address {
-				if invite.Status != database.InvitationAccepted {
+				if invite.Status != database.ClassroomInvitationAccepted {
 					invitableEmails = append(invitableEmails, email)
 				}
 				found = true

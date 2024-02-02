@@ -1567,6 +1567,66 @@ func (_c *MockRepository_RemoveUserFromGroup_Call) RunAndReturn(run func(int, in
 	return _c
 }
 
+// RotateGroupAccessToken provides a mock function with given fields: groupID, tokenID, expiresAt
+func (_m *MockRepository) RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error) {
+	ret := _m.Called(groupID, tokenID, expiresAt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RotateGroupAccessToken")
+	}
+
+	var r0 *model.GroupAccessToken
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int, time.Time) (*model.GroupAccessToken, error)); ok {
+		return rf(groupID, tokenID, expiresAt)
+	}
+	if rf, ok := ret.Get(0).(func(int, int, time.Time) *model.GroupAccessToken); ok {
+		r0 = rf(groupID, tokenID, expiresAt)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.GroupAccessToken)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int, time.Time) error); ok {
+		r1 = rf(groupID, tokenID, expiresAt)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_RotateGroupAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RotateGroupAccessToken'
+type MockRepository_RotateGroupAccessToken_Call struct {
+	*mock.Call
+}
+
+// RotateGroupAccessToken is a helper method to define mock.On call
+//   - groupID int
+//   - tokenID int
+//   - expiresAt time.Time
+func (_e *MockRepository_Expecter) RotateGroupAccessToken(groupID interface{}, tokenID interface{}, expiresAt interface{}) *MockRepository_RotateGroupAccessToken_Call {
+	return &MockRepository_RotateGroupAccessToken_Call{Call: _e.mock.On("RotateGroupAccessToken", groupID, tokenID, expiresAt)}
+}
+
+func (_c *MockRepository_RotateGroupAccessToken_Call) Run(run func(groupID int, tokenID int, expiresAt time.Time)) *MockRepository_RotateGroupAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int), args[1].(int), args[2].(time.Time))
+	})
+	return _c
+}
+
+func (_c *MockRepository_RotateGroupAccessToken_Call) Return(_a0 *model.GroupAccessToken, _a1 error) *MockRepository_RotateGroupAccessToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_RotateGroupAccessToken_Call) RunAndReturn(run func(int, int, time.Time) (*model.GroupAccessToken, error)) *MockRepository_RotateGroupAccessToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SearchGroupByExpression provides a mock function with given fields: expression
 func (_m *MockRepository) SearchGroupByExpression(expression string) ([]*model.Group, error) {
 	ret := _m.Called(expression)

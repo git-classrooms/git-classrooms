@@ -59,6 +59,12 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}
 				}
 				User struct {
 					field.RelationField
@@ -97,6 +103,12 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}
 				}
 				User struct {
 					field.RelationField
@@ -111,6 +123,12 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}
 				}{
 					RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment", "database.Assignment"),
 					Classroom: struct {
@@ -122,6 +140,19 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
+					},
+					Invitations: struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
+						Assignment: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
+						},
 					},
 				},
 				User: struct {
@@ -261,6 +292,12 @@ type classroomInvitationBelongsToClassroom struct {
 				}
 				Projects struct {
 					field.RelationField
+				}
+				Invitations struct {
+					field.RelationField
+					Assignment struct {
+						field.RelationField
+					}
 				}
 			}
 			User struct {

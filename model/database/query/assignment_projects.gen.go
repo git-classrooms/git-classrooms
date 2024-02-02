@@ -168,6 +168,19 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 		}{
 			RelationField: field.NewRelation("Assignment.Projects", "database.AssignmentProjects"),
 		},
+		Invitations: struct {
+			field.RelationField
+			Assignment struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("Assignment.Invitations", "database.AssignmentInvitation"),
+			Assignment: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Assignment.Invitations.Assignment", "database.Classroom"),
+			},
+		},
 	}
 
 	_assignmentProjects.User = assignmentProjectsBelongsToUser{
@@ -298,6 +311,12 @@ type assignmentProjectsBelongsToAssignment struct {
 	}
 	Projects struct {
 		field.RelationField
+	}
+	Invitations struct {
+		field.RelationField
+		Assignment struct {
+			field.RelationField
+		}
 	}
 }
 

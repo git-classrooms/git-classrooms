@@ -7,7 +7,7 @@ import (
 
 func main() {
 	g := gen.NewGenerator(gen.Config{
-		WithUnitTest: true,
+		WithUnitTest: false,
 		OutPath:      "model/database/query",
 		Mode:         gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
 	})

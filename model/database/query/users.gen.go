@@ -64,6 +64,12 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}
 				}
 				User struct {
 					field.RelationField
@@ -101,6 +107,12 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}
 				}
 				User struct {
 					field.RelationField
@@ -129,6 +141,12 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					}
 					Projects struct {
 						field.RelationField
+					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
 					}
 				}{
 					RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment", "database.Assignment"),
@@ -184,6 +202,19 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
+					},
+					Invitations: struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
+						Assignment: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
+						},
 					},
 				},
 				User: struct {
@@ -310,6 +341,12 @@ type userHasManyClassrooms struct {
 				}
 				Projects struct {
 					field.RelationField
+				}
+				Invitations struct {
+					field.RelationField
+					Assignment struct {
+						field.RelationField
+					}
 				}
 			}
 			User struct {
