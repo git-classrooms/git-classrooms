@@ -31,7 +31,8 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 	_assignmentProjects.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_assignmentProjects.DeletedAt = field.NewField(tableName, "deleted_at")
 	_assignmentProjects.AssignmentID = field.NewField(tableName, "assignment_id")
-	_assignmentProjects.UserID = field.NewField(tableName, "user_id")
+	_assignmentProjects.UserID = field.NewInt(tableName, "user_id")
+	_assignmentProjects.AssignmentAccepted = field.NewBool(tableName, "assignment_accepted")
 	_assignmentProjects.ProjectID = field.NewInt(tableName, "project_id")
 	_assignmentProjects.Assignment = assignmentProjectsBelongsToAssignment{
 		db: db.Session(&gorm.Session{}),
@@ -173,12 +174,20 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 			Assignment struct {
 				field.RelationField
 			}
+			User struct {
+				field.RelationField
+			}
 		}{
 			RelationField: field.NewRelation("Assignment.Invitations", "database.AssignmentInvitation"),
 			Assignment: struct {
 				field.RelationField
 			}{
 				RelationField: field.NewRelation("Assignment.Invitations.Assignment", "database.Classroom"),
+			},
+			User: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Assignment.Invitations.User", "database.User"),
 			},
 		},
 	}
@@ -197,15 +206,16 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 type assignmentProjects struct {
 	assignmentProjectsDo
 
-	ALL          field.Asterisk
-	ID           field.Field
-	CreatedAt    field.Time
-	UpdatedAt    field.Time
-	DeletedAt    field.Field
-	AssignmentID field.Field
-	UserID       field.Field
-	ProjectID    field.Int
-	Assignment   assignmentProjectsBelongsToAssignment
+	ALL                field.Asterisk
+	ID                 field.Field
+	CreatedAt          field.Time
+	UpdatedAt          field.Time
+	DeletedAt          field.Field
+	AssignmentID       field.Field
+	UserID             field.Int
+	AssignmentAccepted field.Bool
+	ProjectID          field.Int
+	Assignment         assignmentProjectsBelongsToAssignment
 
 	User assignmentProjectsBelongsToUser
 
@@ -229,7 +239,8 @@ func (a *assignmentProjects) updateTableName(table string) *assignmentProjects {
 	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.AssignmentID = field.NewField(table, "assignment_id")
-	a.UserID = field.NewField(table, "user_id")
+	a.UserID = field.NewInt(table, "user_id")
+	a.AssignmentAccepted = field.NewBool(table, "assignment_accepted")
 	a.ProjectID = field.NewInt(table, "project_id")
 
 	a.fillFieldMap()
@@ -247,13 +258,14 @@ func (a *assignmentProjects) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *assignmentProjects) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 9)
+	a.fieldMap = make(map[string]field.Expr, 10)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["assignment_id"] = a.AssignmentID
 	a.fieldMap["user_id"] = a.UserID
+	a.fieldMap["assignment_accepted"] = a.AssignmentAccepted
 	a.fieldMap["project_id"] = a.ProjectID
 
 }
@@ -315,6 +327,9 @@ type assignmentProjectsBelongsToAssignment struct {
 	Invitations struct {
 		field.RelationField
 		Assignment struct {
+			field.RelationField
+		}
+		User struct {
 			field.RelationField
 		}
 	}

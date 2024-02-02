@@ -20,6 +20,54 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 	return &MockRepository_Expecter{mock: &_m.Mock}
 }
 
+// SendAssignmentNotification provides a mock function with given fields: to, subject, data
+func (_m *MockRepository) SendAssignmentNotification(to string, subject string, data mail.AssignmentNotificationData) error {
+	ret := _m.Called(to, subject, data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendAssignmentNotification")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, mail.AssignmentNotificationData) error); ok {
+		r0 = rf(to, subject, data)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_SendAssignmentNotification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendAssignmentNotification'
+type MockRepository_SendAssignmentNotification_Call struct {
+	*mock.Call
+}
+
+// SendAssignmentNotification is a helper method to define mock.On call
+//   - to string
+//   - subject string
+//   - data mail.AssignmentNotificationData
+func (_e *MockRepository_Expecter) SendAssignmentNotification(to interface{}, subject interface{}, data interface{}) *MockRepository_SendAssignmentNotification_Call {
+	return &MockRepository_SendAssignmentNotification_Call{Call: _e.mock.On("SendAssignmentNotification", to, subject, data)}
+}
+
+func (_c *MockRepository_SendAssignmentNotification_Call) Run(run func(to string, subject string, data mail.AssignmentNotificationData)) *MockRepository_SendAssignmentNotification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(mail.AssignmentNotificationData))
+	})
+	return _c
+}
+
+func (_c *MockRepository_SendAssignmentNotification_Call) Return(_a0 error) *MockRepository_SendAssignmentNotification_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_SendAssignmentNotification_Call) RunAndReturn(run func(string, string, mail.AssignmentNotificationData) error) *MockRepository_SendAssignmentNotification_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendClassroomInvitation provides a mock function with given fields: to, subject, data
 func (_m *MockRepository) SendClassroomInvitation(to string, subject string, data mail.ClassroomInvitationData) error {
 	ret := _m.Called(to, subject, data)

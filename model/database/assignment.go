@@ -19,8 +19,8 @@ type Assignment struct {
 	Name              string `gorm:"not null"`
 	Description       string
 	DueDate           *time.Time
-	Projects          []AssignmentProjects
-	Invitations       []AssignmentInvitation
+	Projects          []*AssignmentProjects
+	Invitations       []*AssignmentInvitation
 }
 
 // AssignmentDTO is the data transfer object representing a user
@@ -32,15 +32,16 @@ type AssignmentDTO struct {
 
 // AssignmentProjects is a struct that represents an assignment-projects in the database
 type AssignmentProjects struct {
-	ID           uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
-	AssignmentID uuid.UUID      `gorm:"<-:create;not null"`
-	Assignment   Assignment
-	UserID       uuid.UUID `gorm:"<-:create;not null"`
-	User         User
-	ProjectID    int `gorm:"<-:create;not null"`
+	ID                 uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	DeletedAt          gorm.DeletedAt `gorm:"index"`
+	AssignmentID       uuid.UUID      `gorm:"<-:create;not null"`
+	Assignment         Assignment
+	UserID             int `gorm:"<-:create;not null"`
+	User               User
+	AssignmentAccepted bool `gorm:"not null"`
+	ProjectID          int
 }
 
 // AssignmentRepositoryDTO is the data transfer object representing a user

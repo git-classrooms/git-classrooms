@@ -79,6 +79,9 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 				Assignment struct {
 					field.RelationField
 				}
+				User struct {
+					field.RelationField
+				}
 			}
 		}{
 			RelationField: field.NewRelation("Projects.Assignment", "database.Assignment"),
@@ -190,12 +193,20 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 				Assignment struct {
 					field.RelationField
 				}
+				User struct {
+					field.RelationField
+				}
 			}{
 				RelationField: field.NewRelation("Projects.Assignment.Invitations", "database.AssignmentInvitation"),
 				Assignment: struct {
 					field.RelationField
 				}{
 					RelationField: field.NewRelation("Projects.Assignment.Invitations.Assignment", "database.Classroom"),
+				},
+				User: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Projects.Assignment.Invitations.User", "database.User"),
 				},
 			},
 		},
@@ -348,6 +359,9 @@ type assignmentHasManyProjects struct {
 		Invitations struct {
 			field.RelationField
 			Assignment struct {
+				field.RelationField
+			}
+			User struct {
 				field.RelationField
 			}
 		}

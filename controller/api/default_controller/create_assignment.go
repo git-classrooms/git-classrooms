@@ -1,6 +1,7 @@
 package default_controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
@@ -17,7 +18,7 @@ type CreateAssignmentRequest struct {
 }
 
 func (r CreateAssignmentRequest) isValid() bool {
-	return r.Name != ""
+	return r.Name != "" && r.TemplateProjectId != 0
 }
 
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
@@ -61,5 +62,6 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroomId.String(), assignment.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
 }

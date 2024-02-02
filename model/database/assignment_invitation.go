@@ -21,7 +21,8 @@ type AssignmentInvitation struct {
 	Status       AssignmentInvitationStatus `gorm:"not null"`
 	AssignmentID uuid.UUID                  `gorm:"not null"`
 	Assignment   Classroom
-	Email        string    `gorm:"not null"`
+	UserID       int `gorm:"not null"`
+	User         User
 	Enabled      bool      `gorm:"not null"`
 	ExpiryDate   time.Time `gorm:"not null"`
 }

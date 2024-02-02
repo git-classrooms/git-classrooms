@@ -25,12 +25,12 @@ type Classroom struct {
 	OwnerID            int            `gorm:"not null"`
 	Owner              User
 	Description        string
-	GroupID            int              `gorm:"<-:create;not null"`
-	GroupAccessTokenID int              `gorm:"not null"`
-	GroupAccessToken   string           `gorm:"not null"`
-	Member             []UserClassrooms `gorm:"foreignKey:ClassroomID"`
-	Assignments        []Assignment
-	Invitations        []ClassroomInvitation
+	GroupID            int               `gorm:"<-:create;not null"`
+	GroupAccessTokenID int               `gorm:"not null"`
+	GroupAccessToken   string            `gorm:"not null"`
+	Member             []*UserClassrooms `gorm:"foreignKey:ClassroomID"`
+	Assignments        []*Assignment
+	Invitations        []*ClassroomInvitation
 }
 
 // ClassRoomDTO is the data transfer object representing a user

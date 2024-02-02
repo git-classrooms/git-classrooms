@@ -58,11 +58,9 @@ func (repo *GitlabRepo) GetCurrentUser() (*model.User, error) {
 func (repo *GitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
-	gitlabVisibility := VisibilityFromModel(visibility)
-
 	opts := &goGitlab.CreateProjectOptions{
 		Name:        goGitlab.String(name),
-		Visibility:  &gitlabVisibility,
+		Visibility:  goGitlab.Visibility(VisibilityFromModel(visibility)),
 		Description: goGitlab.String(description),
 	}
 
@@ -74,20 +72,16 @@ func (repo *GitlabRepo) CreateProject(name string, visibility model.Visibility, 
 	return repo.AddProjectMembers(gitlabProject.ID, members)
 }
 
-func (repo *GitlabRepo) ForkProject(projectId int, name string) (*model.Project, error) {
+func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
 	repo.assertIsConnected()
 
-	// TODO: Aktuell wird das geforkte Project unter dem namespace des users erstellt aber nicht unter dem des classrooms
-	/*
-		templateProject, _, err := repo.client.Projects.GetProject(projectId, &goGitlab.GetProjectOptions{})
-		if err != nil {
-			return nil, err
-		}
-
-	*/
 	opts := &goGitlab.ForkProjectOptions{
-		Name: &name,
-		// NamespaceID: &templateProject.Namespace.ID,
+		Name:                          goGitlab.String(name),
+		Path:                          goGitlab.String(name),
+		NamespaceID:                   goGitlab.Int(namespaceId),
+		Visibility:                    goGitlab.Visibility(VisibilityFromModel(visibility)),
+		Description:                   goGitlab.String(description),
+		MergeRequestDefaultTargetSelf: goGitlab.Bool(true),
 	}
 
 	gitlabProject, _, err := repo.client.Projects.ForkProject(projectId, opts)
@@ -163,15 +157,13 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) {
 	repo.assertIsConnected()
 
-	gitlabAccessLevel := AccessLevelFromModel(accessLevel)
 	gitlabExpiresAt := goGitlab.ISOTime(expiresAt)
-	_ = gitlabExpiresAt
 
 	accessToken, _, err := repo.client.GroupAccessTokens.CreateGroupAccessToken(groupID, &goGitlab.CreateGroupAccessTokenOptions{
 		Name:        goGitlab.String(name),
 		Scopes:      &scopes,
-		AccessLevel: &gitlabAccessLevel,
-		// ExpiresAt:   &gitlabExpiresAt,
+		AccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
+		ExpiresAt:   &gitlabExpiresAt,
 	})
 	if err != nil {
 		return nil, err
@@ -218,7 +210,7 @@ func (repo *GitlabRepo) ChangeGroupName(id int, name string) (*model.Group, erro
 	return repo.GetGroupById(id)
 }
 
-func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int) error {
+func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
 	members, _, err := repo.client.Groups.ListGroupMembers(groupId, &goGitlab.ListGroupMembersOptions{})
@@ -234,10 +226,9 @@ func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int) error {
 	}
 
 	// User is not a member, proceed to add
-	accessLevel := goGitlab.DeveloperPermissions
 	_, _, err = repo.client.GroupMembers.AddGroupMember(groupId, &goGitlab.AddGroupMemberOptions{
-		UserID:      &userId,
-		AccessLevel: &accessLevel,
+		UserID:      goGitlab.Int(userId),
+		AccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
 	})
 
 	return err

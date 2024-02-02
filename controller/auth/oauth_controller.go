@@ -6,9 +6,11 @@ import (
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"golang.org/x/oauth2"
+	"gorm.io/gen/field"
 	"log"
 	"time"
 )
@@ -64,6 +66,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	u := query.User
 	user, err := u.WithContext(c.Context()).
 		Where(u.ID.Eq(gitlabUser.ID)).
+		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name})).
 		FirstOrCreate()
 
 	if err != nil {

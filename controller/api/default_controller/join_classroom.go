@@ -6,6 +6,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"time"
 )
 
@@ -45,17 +46,13 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	if invitation.Email != currentUser.Email {
-		return fiber.NewError(fiber.StatusForbidden, "You are not the chosen one")
-	}
-
 	// reauthenticate the repo with the group access token
 	err = repo.GroupAccessLogin(invitation.Classroom.GroupAccessToken)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	err = repo.AddUserToGroup(invitation.Classroom.GroupID, currentUser.ID)
+	err = repo.AddUserToGroup(invitation.Classroom.GroupID, currentUser.ID, gitlabModel.MaintainerPermissions)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -75,6 +72,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		}
 
 		invitation.Status = database.ClassroomInvitationAccepted
+		invitation.Email = currentUser.Email
 		err = tx.ClassroomInvitation.Save(invitation)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())

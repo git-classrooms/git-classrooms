@@ -56,19 +56,8 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		}
 	}
 
-	expiresAt := time.Now().AddDate(0, 0, 14) // Two Weeks, TODO: Add to configuration
-
 	repo := context.GetGitlabRepository(c)
-
-	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	classroom.GroupAccessTokenID = accessToken.ID
-	classroom.GroupAccessToken = accessToken.Token
-	err = queryClassroom.WithContext(c.Context()).Save(classroom)
-	if err != nil {
+	if err := ctrl.RotateAccessToken(c, classroom); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -116,7 +105,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 				ClassroomID: classroomId,
 				Email:       email.Address,
 				Enabled:     true,
-				ExpiryDate:  expiresAt,
+				ExpiryDate:  time.Now().AddDate(0, 0, 14),
 			}
 			if err := tx.ClassroomInvitation.Create(newInvitation); err != nil {
 				return err

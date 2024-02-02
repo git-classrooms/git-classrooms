@@ -81,17 +81,17 @@ func (_c *MockRepository_AddProjectMembers_Call) RunAndReturn(run func(int, []mo
 	return _c
 }
 
-// AddUserToGroup provides a mock function with given fields: groupId, userId
-func (_m *MockRepository) AddUserToGroup(groupId int, userId int) error {
-	ret := _m.Called(groupId, userId)
+// AddUserToGroup provides a mock function with given fields: groupId, userId, accessLevel
+func (_m *MockRepository) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
+	ret := _m.Called(groupId, userId, accessLevel)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AddUserToGroup")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(groupId, userId)
+	if rf, ok := ret.Get(0).(func(int, int, model.AccessLevelValue) error); ok {
+		r0 = rf(groupId, userId, accessLevel)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -107,13 +107,14 @@ type MockRepository_AddUserToGroup_Call struct {
 // AddUserToGroup is a helper method to define mock.On call
 //   - groupId int
 //   - userId int
-func (_e *MockRepository_Expecter) AddUserToGroup(groupId interface{}, userId interface{}) *MockRepository_AddUserToGroup_Call {
-	return &MockRepository_AddUserToGroup_Call{Call: _e.mock.On("AddUserToGroup", groupId, userId)}
+//   - accessLevel model.AccessLevelValue
+func (_e *MockRepository_Expecter) AddUserToGroup(groupId interface{}, userId interface{}, accessLevel interface{}) *MockRepository_AddUserToGroup_Call {
+	return &MockRepository_AddUserToGroup_Call{Call: _e.mock.On("AddUserToGroup", groupId, userId, accessLevel)}
 }
 
-func (_c *MockRepository_AddUserToGroup_Call) Run(run func(groupId int, userId int)) *MockRepository_AddUserToGroup_Call {
+func (_c *MockRepository_AddUserToGroup_Call) Run(run func(groupId int, userId int, accessLevel model.AccessLevelValue)) *MockRepository_AddUserToGroup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(int))
+		run(args[0].(int), args[1].(int), args[2].(model.AccessLevelValue))
 	})
 	return _c
 }
@@ -123,7 +124,7 @@ func (_c *MockRepository_AddUserToGroup_Call) Return(_a0 error) *MockRepository_
 	return _c
 }
 
-func (_c *MockRepository_AddUserToGroup_Call) RunAndReturn(run func(int, int) error) *MockRepository_AddUserToGroup_Call {
+func (_c *MockRepository_AddUserToGroup_Call) RunAndReturn(run func(int, int, model.AccessLevelValue) error) *MockRepository_AddUserToGroup_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -677,9 +678,9 @@ func (_c *MockRepository_DenyPushingToProject_Call) RunAndReturn(run func(int) e
 	return _c
 }
 
-// ForkProject provides a mock function with given fields: projectId, name
-func (_m *MockRepository) ForkProject(projectId int, name string) (*model.Project, error) {
-	ret := _m.Called(projectId, name)
+// ForkProject provides a mock function with given fields: projectId, visibility, namespaceId, name, description
+func (_m *MockRepository) ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
+	ret := _m.Called(projectId, visibility, namespaceId, name, description)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ForkProject")
@@ -687,19 +688,19 @@ func (_m *MockRepository) ForkProject(projectId int, name string) (*model.Projec
 
 	var r0 *model.Project
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, string) (*model.Project, error)); ok {
-		return rf(projectId, name)
+	if rf, ok := ret.Get(0).(func(int, model.Visibility, int, string, string) (*model.Project, error)); ok {
+		return rf(projectId, visibility, namespaceId, name, description)
 	}
-	if rf, ok := ret.Get(0).(func(int, string) *model.Project); ok {
-		r0 = rf(projectId, name)
+	if rf, ok := ret.Get(0).(func(int, model.Visibility, int, string, string) *model.Project); ok {
+		r0 = rf(projectId, visibility, namespaceId, name, description)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Project)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(int, string) error); ok {
-		r1 = rf(projectId, name)
+	if rf, ok := ret.Get(1).(func(int, model.Visibility, int, string, string) error); ok {
+		r1 = rf(projectId, visibility, namespaceId, name, description)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -714,14 +715,17 @@ type MockRepository_ForkProject_Call struct {
 
 // ForkProject is a helper method to define mock.On call
 //   - projectId int
+//   - visibility model.Visibility
+//   - namespaceId int
 //   - name string
-func (_e *MockRepository_Expecter) ForkProject(projectId interface{}, name interface{}) *MockRepository_ForkProject_Call {
-	return &MockRepository_ForkProject_Call{Call: _e.mock.On("ForkProject", projectId, name)}
+//   - description string
+func (_e *MockRepository_Expecter) ForkProject(projectId interface{}, visibility interface{}, namespaceId interface{}, name interface{}, description interface{}) *MockRepository_ForkProject_Call {
+	return &MockRepository_ForkProject_Call{Call: _e.mock.On("ForkProject", projectId, visibility, namespaceId, name, description)}
 }
 
-func (_c *MockRepository_ForkProject_Call) Run(run func(projectId int, name string)) *MockRepository_ForkProject_Call {
+func (_c *MockRepository_ForkProject_Call) Run(run func(projectId int, visibility model.Visibility, namespaceId int, name string, description string)) *MockRepository_ForkProject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(string))
+		run(args[0].(int), args[1].(model.Visibility), args[2].(int), args[3].(string), args[4].(string))
 	})
 	return _c
 }
@@ -731,7 +735,7 @@ func (_c *MockRepository_ForkProject_Call) Return(_a0 *model.Project, _a1 error)
 	return _c
 }
 
-func (_c *MockRepository_ForkProject_Call) RunAndReturn(run func(int, string) (*model.Project, error)) *MockRepository_ForkProject_Call {
+func (_c *MockRepository_ForkProject_Call) RunAndReturn(run func(int, model.Visibility, int, string, string) (*model.Project, error)) *MockRepository_ForkProject_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -3,7 +3,6 @@ package router
 import (
 	"fmt"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 
@@ -30,20 +29,13 @@ func Routes(
 
 	api.Use(authController.AuthMiddleware)
 
-	api.Get("/secret", func(c *fiber.Ctx) error {
-		repo := context.GetGitlabRepository(c)
-		user, err := repo.GetCurrentUser()
-		if err != nil {
-			return err
-		}
-
-		return c.JSON(user)
-	})
-
+	api.Get("/me", apiController.GetMe)
 	api.Post("/classrooms", apiController.CreateClassroom)
-	api.Post("/assignments", apiController.CreateAssignment)
+	api.Post("/classrooms/:classroomId/assignments", apiController.CreateAssignment)
 	api.Post("/classrooms/:classroomId/members", apiController.InviteToClassroom)
 	api.Post("/classrooms/:classroomId/invitations/:invitationId", apiController.JoinClassroom)
+	api.Post("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignment)
+	api.Post("/classrooms/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignment)
 
 	// Catch all routes
 	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })

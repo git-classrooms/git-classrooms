@@ -3,8 +3,11 @@ package api
 import "github.com/gofiber/fiber/v2"
 
 type Controller interface {
-	CreateClassroom(c *fiber.Ctx) error
-	CreateAssignment(c *fiber.Ctx) error
-	JoinClassroom(c *fiber.Ctx) error
-	InviteToClassroom(c *fiber.Ctx) error
+	GetMe(*fiber.Ctx) error
+	CreateClassroom(*fiber.Ctx) error
+	CreateAssignment(*fiber.Ctx) error
+	JoinClassroom(*fiber.Ctx) error
+	JoinAssignment(*fiber.Ctx) error
+	InviteToClassroom(*fiber.Ctx) error
+	InviteToAssignment(*fiber.Ctx) error
 }

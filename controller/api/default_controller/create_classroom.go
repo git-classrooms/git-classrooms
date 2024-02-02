@@ -49,7 +49,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	expiresAt := time.Now().AddDate(0, 0, 14) // Two Weeks, TODO: Add to configuration
+	expiresAt := time.Now().AddDate(0, 0, 364)
 
 	accessToken, err := repo.CreateGroupAccessToken(group.ID, "Gitlab Classrooms", model.OwnerPermissions, expiresAt, "api")
 	if err != nil {
