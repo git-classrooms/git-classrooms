@@ -72,15 +72,6 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) error {
 	queryUserClassrooms := query.UserClassrooms
 	queryAssignmentProject := query.AssignmentProjects
 
-	// SELECT "users"."id","users"."gitlab_email","users"."name","users"."created_at","users"."updated_at","users"."deleted_at"
-	// FROM "users"
-	//       INNER JOIN "user_classrooms" ON "users"."id" = "user_classrooms"."user_id"
-	//       LEFT JOIN "assignment_projects" ON "assignment_projects"."user_id" = "users" ."id"
-	// WHERE "user_classrooms"."classroom_id" = "classroom-id"
-	//       AND "assignment_projects"."id" IS NULL
-	//       AND "user_classrooms"."user_id" <> "owner-id"
-	//       AND "users"."deleted_at" IS NULL
-
 	invitableUsers, err := queryUser.
 		WithContext(c.Context()).
 		Join(queryUserClassrooms, queryUser.ID.EqCol(queryUserClassrooms.UserID)).

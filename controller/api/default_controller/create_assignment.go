@@ -36,8 +36,9 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+
 	if !requestBody.isValid() {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
 	}
 
 	// Check if template repository exists

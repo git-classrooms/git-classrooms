@@ -18,7 +18,6 @@ require (
 	github.com/testcontainers/testcontainers-go v0.27.0
 	github.com/xanzy/go-gitlab v0.93.2
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gorm.io/driver/sqlite v1.4.3
 )
 
 require (
@@ -52,7 +51,6 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20231016141302-07b5767bb0ed // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
-	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/moby/patternmatcher v0.6.0 // indirect
 	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect
