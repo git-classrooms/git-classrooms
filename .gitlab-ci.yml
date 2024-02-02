@@ -33,6 +33,7 @@ test-frontend:
 test-backend:
   stage: test
   image: $GOLANG_IMAGE
+  
   before_script:
     # - apk add --no-cache gcc musl-dev
     - go mod download
