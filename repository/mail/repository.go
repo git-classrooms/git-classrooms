@@ -1,13 +1,24 @@
 package mail
 
-import "net/url"
+import "time"
 
-type MailData struct {
-	Name       string
-	Email      string
-	InviteLink *url.URL
+type ClassroomInvitationData struct {
+	ClassroomName      string
+	ClassroomOwnerName string
+	RecipientEmail     string
+	InvitationPath     string
+	ExpireDate         time.Time
+}
+
+type AssignmentNotificationData struct {
+	ClassroomName      string
+	ClassroomOwnerName string
+	RecipientName      string
+	AssignmentName     string
+	JoinPath           string
 }
 
 type Repository interface {
-	Send(to, subject string, mailData MailData) error
+	SendClassroomInvitation(to string, subject string, data ClassroomInvitationData) error
+	SendAssignmentNotification(to string, subject string, data AssignmentNotificationData) error
 }

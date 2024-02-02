@@ -20,17 +20,17 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 	return &MockRepository_Expecter{mock: &_m.Mock}
 }
 
-// Send provides a mock function with given fields: to, subject, mailData
-func (_m *MockRepository) Send(to string, subject string, mailData mail.MailData) error {
-	ret := _m.Called(to, subject, mailData)
+// SendAssignmentNotification provides a mock function with given fields: to, subject, data
+func (_m *MockRepository) SendAssignmentNotification(to string, subject string, data mail.AssignmentNotificationData) error {
+	ret := _m.Called(to, subject, data)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Send")
+		panic("no return value specified for SendAssignmentNotification")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, mail.MailData) error); ok {
-		r0 = rf(to, subject, mailData)
+	if rf, ok := ret.Get(0).(func(string, string, mail.AssignmentNotificationData) error); ok {
+		r0 = rf(to, subject, data)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -38,32 +38,80 @@ func (_m *MockRepository) Send(to string, subject string, mailData mail.MailData
 	return r0
 }
 
-// MockRepository_Send_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Send'
-type MockRepository_Send_Call struct {
+// MockRepository_SendAssignmentNotification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendAssignmentNotification'
+type MockRepository_SendAssignmentNotification_Call struct {
 	*mock.Call
 }
 
-// Send is a helper method to define mock.On call
+// SendAssignmentNotification is a helper method to define mock.On call
 //   - to string
 //   - subject string
-//   - mailData mail.MailData
-func (_e *MockRepository_Expecter) Send(to interface{}, subject interface{}, mailData interface{}) *MockRepository_Send_Call {
-	return &MockRepository_Send_Call{Call: _e.mock.On("Send", to, subject, mailData)}
+//   - data mail.AssignmentNotificationData
+func (_e *MockRepository_Expecter) SendAssignmentNotification(to interface{}, subject interface{}, data interface{}) *MockRepository_SendAssignmentNotification_Call {
+	return &MockRepository_SendAssignmentNotification_Call{Call: _e.mock.On("SendAssignmentNotification", to, subject, data)}
 }
 
-func (_c *MockRepository_Send_Call) Run(run func(to string, subject string, mailData mail.MailData)) *MockRepository_Send_Call {
+func (_c *MockRepository_SendAssignmentNotification_Call) Run(run func(to string, subject string, data mail.AssignmentNotificationData)) *MockRepository_SendAssignmentNotification_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(mail.MailData))
+		run(args[0].(string), args[1].(string), args[2].(mail.AssignmentNotificationData))
 	})
 	return _c
 }
 
-func (_c *MockRepository_Send_Call) Return(_a0 error) *MockRepository_Send_Call {
+func (_c *MockRepository_SendAssignmentNotification_Call) Return(_a0 error) *MockRepository_SendAssignmentNotification_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockRepository_Send_Call) RunAndReturn(run func(string, string, mail.MailData) error) *MockRepository_Send_Call {
+func (_c *MockRepository_SendAssignmentNotification_Call) RunAndReturn(run func(string, string, mail.AssignmentNotificationData) error) *MockRepository_SendAssignmentNotification_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendClassroomInvitation provides a mock function with given fields: to, subject, data
+func (_m *MockRepository) SendClassroomInvitation(to string, subject string, data mail.ClassroomInvitationData) error {
+	ret := _m.Called(to, subject, data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendClassroomInvitation")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, mail.ClassroomInvitationData) error); ok {
+		r0 = rf(to, subject, data)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_SendClassroomInvitation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendClassroomInvitation'
+type MockRepository_SendClassroomInvitation_Call struct {
+	*mock.Call
+}
+
+// SendClassroomInvitation is a helper method to define mock.On call
+//   - to string
+//   - subject string
+//   - data mail.ClassroomInvitationData
+func (_e *MockRepository_Expecter) SendClassroomInvitation(to interface{}, subject interface{}, data interface{}) *MockRepository_SendClassroomInvitation_Call {
+	return &MockRepository_SendClassroomInvitation_Call{Call: _e.mock.On("SendClassroomInvitation", to, subject, data)}
+}
+
+func (_c *MockRepository_SendClassroomInvitation_Call) Run(run func(to string, subject string, data mail.ClassroomInvitationData)) *MockRepository_SendClassroomInvitation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(mail.ClassroomInvitationData))
+	})
+	return _c
+}
+
+func (_c *MockRepository_SendClassroomInvitation_Call) Return(_a0 error) *MockRepository_SendClassroomInvitation_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_SendClassroomInvitation_Call) RunAndReturn(run func(string, string, mail.ClassroomInvitationData) error) *MockRepository_SendClassroomInvitation_Call {
 	_c.Call.Return(run)
 	return _c
 }

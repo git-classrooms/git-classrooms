@@ -16,18 +16,20 @@ import (
 )
 
 var (
-	Q                   = new(Query)
-	Assignment          *assignment
-	AssignmentProjects  *assignmentProjects
-	Classroom           *classroom
-	ClassroomInvitation *classroomInvitation
-	User                *user
-	UserClassrooms      *userClassrooms
+	Q                    = new(Query)
+	Assignment           *assignment
+	AssignmentInvitation *assignmentInvitation
+	AssignmentProjects   *assignmentProjects
+	Classroom            *classroom
+	ClassroomInvitation  *classroomInvitation
+	User                 *user
+	UserClassrooms       *userClassrooms
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Assignment = &Q.Assignment
+	AssignmentInvitation = &Q.AssignmentInvitation
 	AssignmentProjects = &Q.AssignmentProjects
 	Classroom = &Q.Classroom
 	ClassroomInvitation = &Q.ClassroomInvitation
@@ -37,38 +39,41 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                  db,
-		Assignment:          newAssignment(db, opts...),
-		AssignmentProjects:  newAssignmentProjects(db, opts...),
-		Classroom:           newClassroom(db, opts...),
-		ClassroomInvitation: newClassroomInvitation(db, opts...),
-		User:                newUser(db, opts...),
-		UserClassrooms:      newUserClassrooms(db, opts...),
+		db:                   db,
+		Assignment:           newAssignment(db, opts...),
+		AssignmentInvitation: newAssignmentInvitation(db, opts...),
+		AssignmentProjects:   newAssignmentProjects(db, opts...),
+		Classroom:            newClassroom(db, opts...),
+		ClassroomInvitation:  newClassroomInvitation(db, opts...),
+		User:                 newUser(db, opts...),
+		UserClassrooms:       newUserClassrooms(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Assignment          assignment
-	AssignmentProjects  assignmentProjects
-	Classroom           classroom
-	ClassroomInvitation classroomInvitation
-	User                user
-	UserClassrooms      userClassrooms
+	Assignment           assignment
+	AssignmentInvitation assignmentInvitation
+	AssignmentProjects   assignmentProjects
+	Classroom            classroom
+	ClassroomInvitation  classroomInvitation
+	User                 user
+	UserClassrooms       userClassrooms
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		Assignment:          q.Assignment.clone(db),
-		AssignmentProjects:  q.AssignmentProjects.clone(db),
-		Classroom:           q.Classroom.clone(db),
-		ClassroomInvitation: q.ClassroomInvitation.clone(db),
-		User:                q.User.clone(db),
-		UserClassrooms:      q.UserClassrooms.clone(db),
+		db:                   db,
+		Assignment:           q.Assignment.clone(db),
+		AssignmentInvitation: q.AssignmentInvitation.clone(db),
+		AssignmentProjects:   q.AssignmentProjects.clone(db),
+		Classroom:            q.Classroom.clone(db),
+		ClassroomInvitation:  q.ClassroomInvitation.clone(db),
+		User:                 q.User.clone(db),
+		UserClassrooms:       q.UserClassrooms.clone(db),
 	}
 }
 
@@ -82,33 +87,36 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		Assignment:          q.Assignment.replaceDB(db),
-		AssignmentProjects:  q.AssignmentProjects.replaceDB(db),
-		Classroom:           q.Classroom.replaceDB(db),
-		ClassroomInvitation: q.ClassroomInvitation.replaceDB(db),
-		User:                q.User.replaceDB(db),
-		UserClassrooms:      q.UserClassrooms.replaceDB(db),
+		db:                   db,
+		Assignment:           q.Assignment.replaceDB(db),
+		AssignmentInvitation: q.AssignmentInvitation.replaceDB(db),
+		AssignmentProjects:   q.AssignmentProjects.replaceDB(db),
+		Classroom:            q.Classroom.replaceDB(db),
+		ClassroomInvitation:  q.ClassroomInvitation.replaceDB(db),
+		User:                 q.User.replaceDB(db),
+		UserClassrooms:       q.UserClassrooms.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Assignment          IAssignmentDo
-	AssignmentProjects  IAssignmentProjectsDo
-	Classroom           IClassroomDo
-	ClassroomInvitation IClassroomInvitationDo
-	User                IUserDo
-	UserClassrooms      IUserClassroomsDo
+	Assignment           IAssignmentDo
+	AssignmentInvitation IAssignmentInvitationDo
+	AssignmentProjects   IAssignmentProjectsDo
+	Classroom            IClassroomDo
+	ClassroomInvitation  IClassroomInvitationDo
+	User                 IUserDo
+	UserClassrooms       IUserClassroomsDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Assignment:          q.Assignment.WithContext(ctx),
-		AssignmentProjects:  q.AssignmentProjects.WithContext(ctx),
-		Classroom:           q.Classroom.WithContext(ctx),
-		ClassroomInvitation: q.ClassroomInvitation.WithContext(ctx),
-		User:                q.User.WithContext(ctx),
-		UserClassrooms:      q.UserClassrooms.WithContext(ctx),
+		Assignment:           q.Assignment.WithContext(ctx),
+		AssignmentInvitation: q.AssignmentInvitation.WithContext(ctx),
+		AssignmentProjects:   q.AssignmentProjects.WithContext(ctx),
+		Classroom:            q.Classroom.WithContext(ctx),
+		ClassroomInvitation:  q.ClassroomInvitation.WithContext(ctx),
+		User:                 q.User.WithContext(ctx),
+		UserClassrooms:       q.UserClassrooms.WithContext(ctx),
 	}
 }
 

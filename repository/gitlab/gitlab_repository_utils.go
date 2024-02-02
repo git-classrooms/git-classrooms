@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"time"
 
 	goGitlab "github.com/xanzy/go-gitlab"
 )
@@ -113,6 +114,29 @@ func AccessLevelFromGoGitlab(input goGitlab.AccessLevelValue) model.AccessLevelV
 	}
 }
 
+func AccessLevelFromModel(input model.AccessLevelValue) goGitlab.AccessLevelValue {
+	switch input {
+	case model.NoPermissions:
+		return goGitlab.NoPermissions
+	case model.MinimalAccessPermissions:
+		return goGitlab.MinimalAccessPermissions
+	case model.GuestPermissions:
+		return goGitlab.GuestPermissions
+	case model.ReporterPermissions:
+		return goGitlab.ReporterPermissions
+	case model.DeveloperPermissions:
+		return goGitlab.DeveloperPermissions
+	case model.MaintainerPermissions:
+		return goGitlab.MaintainerPermissions
+	case model.OwnerPermissions:
+		return goGitlab.OwnerPermissions
+	case model.AdminPermissions:
+		return goGitlab.AdminPermissions
+	default:
+		return goGitlab.NoPermissions // Default case
+	}
+}
+
 func UserFromGoGitlab(input goGitlab.User) *model.User {
 	return &model.User{
 		ID:       input.ID,
@@ -200,4 +224,16 @@ func ConvertPendingInvitePointerSlice(input []*model.PendingInvite) []model.Pend
 		output[i] = *ptr
 	}
 	return output
+}
+
+func GroupAccessTokenFromGoGitlabGroupAccessToken(input goGitlab.GroupAccessToken) *model.GroupAccessToken {
+	return &model.GroupAccessToken{
+		ID:          input.ID,
+		UserID:      input.UserID,
+		Name:        input.Name,
+		Scopes:      input.Scopes,
+		ExpiresAt:   time.Time(*input.ExpiresAt),
+		Token:       input.Token,
+		AccessLevel: AccessLevelFromGoGitlab(input.AccessLevel),
+	}
 }

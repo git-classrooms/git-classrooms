@@ -32,6 +32,9 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 	_assignment.DeletedAt = field.NewField(tableName, "deleted_at")
 	_assignment.ClassroomID = field.NewField(tableName, "classroom_id")
 	_assignment.TemplateProjectID = field.NewInt(tableName, "template_project_id")
+	_assignment.Name = field.NewString(tableName, "name")
+	_assignment.Description = field.NewString(tableName, "description")
+	_assignment.DueDate = field.NewTime(tableName, "due_date")
 	_assignment.Projects = assignmentHasManyProjects{
 		db: db.Session(&gorm.Session{}),
 
@@ -70,6 +73,15 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 			}
 			Projects struct {
 				field.RelationField
+			}
+			Invitations struct {
+				field.RelationField
+				Assignment struct {
+					field.RelationField
+				}
+				User struct {
+					field.RelationField
+				}
 			}
 		}{
 			RelationField: field.NewRelation("Projects.Assignment", "database.Assignment"),
@@ -176,12 +188,39 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 			}{
 				RelationField: field.NewRelation("Projects.Assignment.Projects", "database.AssignmentProjects"),
 			},
+			Invitations: struct {
+				field.RelationField
+				Assignment struct {
+					field.RelationField
+				}
+				User struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("Projects.Assignment.Invitations", "database.AssignmentInvitation"),
+				Assignment: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Projects.Assignment.Invitations.Assignment", "database.Classroom"),
+				},
+				User: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Projects.Assignment.Invitations.User", "database.User"),
+				},
+			},
 		},
 		User: struct {
 			field.RelationField
 		}{
 			RelationField: field.NewRelation("Projects.User", "database.User"),
 		},
+	}
+
+	_assignment.Invitations = assignmentHasManyInvitations{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Invitations", "database.AssignmentInvitation"),
 	}
 
 	_assignment.Classroom = assignmentBelongsToClassroom{
@@ -205,7 +244,12 @@ type assignment struct {
 	DeletedAt         field.Field
 	ClassroomID       field.Field
 	TemplateProjectID field.Int
+	Name              field.String
+	Description       field.String
+	DueDate           field.Time
 	Projects          assignmentHasManyProjects
+
+	Invitations assignmentHasManyInvitations
 
 	Classroom assignmentBelongsToClassroom
 
@@ -230,6 +274,9 @@ func (a *assignment) updateTableName(table string) *assignment {
 	a.DeletedAt = field.NewField(table, "deleted_at")
 	a.ClassroomID = field.NewField(table, "classroom_id")
 	a.TemplateProjectID = field.NewInt(table, "template_project_id")
+	a.Name = field.NewString(table, "name")
+	a.Description = field.NewString(table, "description")
+	a.DueDate = field.NewTime(table, "due_date")
 
 	a.fillFieldMap()
 
@@ -246,13 +293,16 @@ func (a *assignment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *assignment) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 8)
+	a.fieldMap = make(map[string]field.Expr, 12)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 	a.fieldMap["classroom_id"] = a.ClassroomID
 	a.fieldMap["template_project_id"] = a.TemplateProjectID
+	a.fieldMap["name"] = a.Name
+	a.fieldMap["description"] = a.Description
+	a.fieldMap["due_date"] = a.DueDate
 
 }
 
@@ -305,6 +355,15 @@ type assignmentHasManyProjects struct {
 		}
 		Projects struct {
 			field.RelationField
+		}
+		Invitations struct {
+			field.RelationField
+			Assignment struct {
+				field.RelationField
+			}
+			User struct {
+				field.RelationField
+			}
 		}
 	}
 	User struct {
@@ -374,6 +433,77 @@ func (a assignmentHasManyProjectsTx) Clear() error {
 }
 
 func (a assignmentHasManyProjectsTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type assignmentHasManyInvitations struct {
+	db *gorm.DB
+
+	field.RelationField
+}
+
+func (a assignmentHasManyInvitations) Where(conds ...field.Expr) *assignmentHasManyInvitations {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a assignmentHasManyInvitations) WithContext(ctx context.Context) *assignmentHasManyInvitations {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a assignmentHasManyInvitations) Session(session *gorm.Session) *assignmentHasManyInvitations {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a assignmentHasManyInvitations) Model(m *database.Assignment) *assignmentHasManyInvitationsTx {
+	return &assignmentHasManyInvitationsTx{a.db.Model(m).Association(a.Name())}
+}
+
+type assignmentHasManyInvitationsTx struct{ tx *gorm.Association }
+
+func (a assignmentHasManyInvitationsTx) Find() (result []*database.AssignmentInvitation, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a assignmentHasManyInvitationsTx) Append(values ...*database.AssignmentInvitation) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a assignmentHasManyInvitationsTx) Replace(values ...*database.AssignmentInvitation) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a assignmentHasManyInvitationsTx) Delete(values ...*database.AssignmentInvitation) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a assignmentHasManyInvitationsTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a assignmentHasManyInvitationsTx) Count() int64 {
 	return a.tx.Count()
 }
 

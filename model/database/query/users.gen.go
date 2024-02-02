@@ -27,6 +27,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
 	_user.ID = field.NewInt(tableName, "id")
+	_user.GitlabEmail = field.NewString(tableName, "gitlab_email")
+	_user.Name = field.NewString(tableName, "name")
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -63,6 +65,15 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					}
 					Projects struct {
 						field.RelationField
+					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
 					}
 				}
 				User struct {
@@ -101,6 +112,15 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}
 				}
 				User struct {
 					field.RelationField
@@ -129,6 +149,15 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					}
 					Projects struct {
 						field.RelationField
+					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
 					}
 				}{
 					RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment", "database.Assignment"),
@@ -185,6 +214,27 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					}{
 						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
 					},
+					Invitations: struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
+						Assignment: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
+						},
+						User: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations.User", "database.User"),
+						},
+					},
 				},
 				User: struct {
 					field.RelationField
@@ -214,12 +264,14 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo
 
-	ALL        field.Asterisk
-	ID         field.Int
-	CreatedAt  field.Time
-	UpdatedAt  field.Time
-	DeletedAt  field.Field
-	Classrooms userHasManyClassrooms
+	ALL         field.Asterisk
+	ID          field.Int
+	GitlabEmail field.String
+	Name        field.String
+	CreatedAt   field.Time
+	UpdatedAt   field.Time
+	DeletedAt   field.Field
+	Classrooms  userHasManyClassrooms
 
 	AssignmentRepositories userHasManyAssignmentRepositories
 
@@ -239,6 +291,8 @@ func (u user) As(alias string) *user {
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt(table, "id")
+	u.GitlabEmail = field.NewString(table, "gitlab_email")
+	u.Name = field.NewString(table, "name")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.DeletedAt = field.NewField(table, "deleted_at")
@@ -258,8 +312,10 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 6)
+	u.fieldMap = make(map[string]field.Expr, 8)
 	u.fieldMap["id"] = u.ID
+	u.fieldMap["gitlab_email"] = u.GitlabEmail
+	u.fieldMap["name"] = u.Name
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt
@@ -310,6 +366,15 @@ type userHasManyClassrooms struct {
 				}
 				Projects struct {
 					field.RelationField
+				}
+				Invitations struct {
+					field.RelationField
+					Assignment struct {
+						field.RelationField
+					}
+					User struct {
+						field.RelationField
+					}
 				}
 			}
 			User struct {

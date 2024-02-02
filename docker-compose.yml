@@ -26,7 +26,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
     ports:
-      - "54321:5432"
+      - "5432:5432"
 
   mail:
     image: axllent/mailpit

@@ -8,28 +8,12 @@ import (
 
 // User is the representation of the user in database
 type User struct {
-	ID                     int `gorm:"primary_key;autoIncrement:false"`
-	CreatedAt              time.Time
-	UpdatedAt              time.Time
-	DeletedAt              gorm.DeletedAt   `gorm:"index"`
-	Classrooms             []UserClassrooms `gorm:"foreignKey:UserID"`
-	AssignmentRepositories []AssignmentProjects
+	ID                     int                   `gorm:"primary_key;autoIncrement:false" json:"id"`
+	GitlabEmail            string                `gorm:"unique;not null" json:"gitlab_email"`
+	Name                   string                `gorm:"not null" json:"name"`
+	CreatedAt              time.Time             `json:"-"`
+	UpdatedAt              time.Time             `json:"-"`
+	DeletedAt              gorm.DeletedAt        `gorm:"index" json:"-"`
+	Classrooms             []*UserClassrooms     `gorm:"foreignKey:UserID" json:"-"`
+	AssignmentRepositories []*AssignmentProjects `json:"-"`
 }
-
-// UserDTO is the data transfer object representing a user
-type UserDTO struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	WebUrl    string `json:"webUrl"`
-	AvatarUrl string `json:"avatarUrl"`
-	UserName  string `json:"username"`
-	Email     string `json:"email"`
-}
-
-// TODO: Implement this function
-// func ToDto(user User, user GitlabUser) UserDTO {
-//	 return UserDTO{
-//	 	ID:   user.ID,
-//	 	Name: user.Name,
-//	 }
-// }

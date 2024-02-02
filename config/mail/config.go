@@ -5,5 +5,4 @@ type Config interface {
 	GetPort() int
 	GetUser() string
 	GetPassword() string
-	GetTemplateFilePath() string
 }

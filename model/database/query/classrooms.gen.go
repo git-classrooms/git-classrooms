@@ -34,6 +34,7 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 	_classroom.OwnerID = field.NewInt(tableName, "owner_id")
 	_classroom.Description = field.NewString(tableName, "description")
 	_classroom.GroupID = field.NewInt(tableName, "group_id")
+	_classroom.GroupAccessTokenID = field.NewInt(tableName, "group_access_token_id")
 	_classroom.GroupAccessToken = field.NewString(tableName, "group_access_token")
 	_classroom.Member = classroomHasManyMember{
 		db: db.Session(&gorm.Session{}),
@@ -68,6 +69,15 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 					}
 					Projects struct {
 						field.RelationField
+					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
 					}
 				}
 				User struct {
@@ -106,6 +116,15 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 					Projects struct {
 						field.RelationField
 					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}
 				}
 				User struct {
 					field.RelationField
@@ -134,6 +153,15 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 					}
 					Projects struct {
 						field.RelationField
+					}
+					Invitations struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
 					}
 				}{
 					RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment", "database.Assignment"),
@@ -190,6 +218,27 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 					}{
 						RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
 					},
+					Invitations: struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
+						Assignment: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
+						},
+						User: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Invitations.User", "database.User"),
+						},
+					},
 				},
 				User: struct {
 					field.RelationField
@@ -231,17 +280,18 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 type classroom struct {
 	classroomDo
 
-	ALL              field.Asterisk
-	ID               field.Field
-	CreatedAt        field.Time
-	UpdatedAt        field.Time
-	DeletedAt        field.Field
-	Name             field.String
-	OwnerID          field.Int
-	Description      field.String
-	GroupID          field.Int
-	GroupAccessToken field.String
-	Member           classroomHasManyMember
+	ALL                field.Asterisk
+	ID                 field.Field
+	CreatedAt          field.Time
+	UpdatedAt          field.Time
+	DeletedAt          field.Field
+	Name               field.String
+	OwnerID            field.Int
+	Description        field.String
+	GroupID            field.Int
+	GroupAccessTokenID field.Int
+	GroupAccessToken   field.String
+	Member             classroomHasManyMember
 
 	Assignments classroomHasManyAssignments
 
@@ -272,6 +322,7 @@ func (c *classroom) updateTableName(table string) *classroom {
 	c.OwnerID = field.NewInt(table, "owner_id")
 	c.Description = field.NewString(table, "description")
 	c.GroupID = field.NewInt(table, "group_id")
+	c.GroupAccessTokenID = field.NewInt(table, "group_access_token_id")
 	c.GroupAccessToken = field.NewString(table, "group_access_token")
 
 	c.fillFieldMap()
@@ -289,7 +340,7 @@ func (c *classroom) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *classroom) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 13)
+	c.fieldMap = make(map[string]field.Expr, 14)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
@@ -298,6 +349,7 @@ func (c *classroom) fillFieldMap() {
 	c.fieldMap["owner_id"] = c.OwnerID
 	c.fieldMap["description"] = c.Description
 	c.fieldMap["group_id"] = c.GroupID
+	c.fieldMap["group_access_token_id"] = c.GroupAccessTokenID
 	c.fieldMap["group_access_token"] = c.GroupAccessToken
 
 }
@@ -346,6 +398,15 @@ type classroomHasManyMember struct {
 				}
 				Projects struct {
 					field.RelationField
+				}
+				Invitations struct {
+					field.RelationField
+					Assignment struct {
+						field.RelationField
+					}
+					User struct {
+						field.RelationField
+					}
 				}
 			}
 			User struct {

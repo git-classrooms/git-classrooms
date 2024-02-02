@@ -3,6 +3,8 @@
 package gitlab
 
 import (
+	time "time"
+
 	mock "github.com/stretchr/testify/mock"
 	model "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
@@ -79,17 +81,17 @@ func (_c *MockRepository_AddProjectMembers_Call) RunAndReturn(run func(int, []mo
 	return _c
 }
 
-// AddUserToGroup provides a mock function with given fields: groupId, userId
-func (_m *MockRepository) AddUserToGroup(groupId int, userId int) error {
-	ret := _m.Called(groupId, userId)
+// AddUserToGroup provides a mock function with given fields: groupId, userId, accessLevel
+func (_m *MockRepository) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
+	ret := _m.Called(groupId, userId, accessLevel)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AddUserToGroup")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int) error); ok {
-		r0 = rf(groupId, userId)
+	if rf, ok := ret.Get(0).(func(int, int, model.AccessLevelValue) error); ok {
+		r0 = rf(groupId, userId, accessLevel)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -105,13 +107,14 @@ type MockRepository_AddUserToGroup_Call struct {
 // AddUserToGroup is a helper method to define mock.On call
 //   - groupId int
 //   - userId int
-func (_e *MockRepository_Expecter) AddUserToGroup(groupId interface{}, userId interface{}) *MockRepository_AddUserToGroup_Call {
-	return &MockRepository_AddUserToGroup_Call{Call: _e.mock.On("AddUserToGroup", groupId, userId)}
+//   - accessLevel model.AccessLevelValue
+func (_e *MockRepository_Expecter) AddUserToGroup(groupId interface{}, userId interface{}, accessLevel interface{}) *MockRepository_AddUserToGroup_Call {
+	return &MockRepository_AddUserToGroup_Call{Call: _e.mock.On("AddUserToGroup", groupId, userId, accessLevel)}
 }
 
-func (_c *MockRepository_AddUserToGroup_Call) Run(run func(groupId int, userId int)) *MockRepository_AddUserToGroup_Call {
+func (_c *MockRepository_AddUserToGroup_Call) Run(run func(groupId int, userId int, accessLevel model.AccessLevelValue)) *MockRepository_AddUserToGroup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(int))
+		run(args[0].(int), args[1].(int), args[2].(model.AccessLevelValue))
 	})
 	return _c
 }
@@ -121,7 +124,7 @@ func (_c *MockRepository_AddUserToGroup_Call) Return(_a0 error) *MockRepository_
 	return _c
 }
 
-func (_c *MockRepository_AddUserToGroup_Call) RunAndReturn(run func(int, int) error) *MockRepository_AddUserToGroup_Call {
+func (_c *MockRepository_AddUserToGroup_Call) RunAndReturn(run func(int, int, model.AccessLevelValue) error) *MockRepository_AddUserToGroup_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -232,8 +235,15 @@ func (_c *MockRepository_ChangeGroupName_Call) RunAndReturn(run func(int, string
 }
 
 // CreateGroup provides a mock function with given fields: name, visibility, description, memberEmails
-func (_m *MockRepository) CreateGroup(name string, visibility model.Visibility, description string, memberEmails []string) (*model.Group, error) {
-	ret := _m.Called(name, visibility, description, memberEmails)
+func (_m *MockRepository) CreateGroup(name string, visibility model.Visibility, description string, memberEmails ...string) (*model.Group, error) {
+	_va := make([]interface{}, len(memberEmails))
+	for _i := range memberEmails {
+		_va[_i] = memberEmails[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, name, visibility, description)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateGroup")
@@ -241,19 +251,19 @@ func (_m *MockRepository) CreateGroup(name string, visibility model.Visibility, 
 
 	var r0 *model.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, model.Visibility, string, []string) (*model.Group, error)); ok {
-		return rf(name, visibility, description, memberEmails)
+	if rf, ok := ret.Get(0).(func(string, model.Visibility, string, ...string) (*model.Group, error)); ok {
+		return rf(name, visibility, description, memberEmails...)
 	}
-	if rf, ok := ret.Get(0).(func(string, model.Visibility, string, []string) *model.Group); ok {
-		r0 = rf(name, visibility, description, memberEmails)
+	if rf, ok := ret.Get(0).(func(string, model.Visibility, string, ...string) *model.Group); ok {
+		r0 = rf(name, visibility, description, memberEmails...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Group)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, model.Visibility, string, []string) error); ok {
-		r1 = rf(name, visibility, description, memberEmails)
+	if rf, ok := ret.Get(1).(func(string, model.Visibility, string, ...string) error); ok {
+		r1 = rf(name, visibility, description, memberEmails...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -270,14 +280,21 @@ type MockRepository_CreateGroup_Call struct {
 //   - name string
 //   - visibility model.Visibility
 //   - description string
-//   - memberEmails []string
-func (_e *MockRepository_Expecter) CreateGroup(name interface{}, visibility interface{}, description interface{}, memberEmails interface{}) *MockRepository_CreateGroup_Call {
-	return &MockRepository_CreateGroup_Call{Call: _e.mock.On("CreateGroup", name, visibility, description, memberEmails)}
+//   - memberEmails ...string
+func (_e *MockRepository_Expecter) CreateGroup(name interface{}, visibility interface{}, description interface{}, memberEmails ...interface{}) *MockRepository_CreateGroup_Call {
+	return &MockRepository_CreateGroup_Call{Call: _e.mock.On("CreateGroup",
+		append([]interface{}{name, visibility, description}, memberEmails...)...)}
 }
 
-func (_c *MockRepository_CreateGroup_Call) Run(run func(name string, visibility model.Visibility, description string, memberEmails []string)) *MockRepository_CreateGroup_Call {
+func (_c *MockRepository_CreateGroup_Call) Run(run func(name string, visibility model.Visibility, description string, memberEmails ...string)) *MockRepository_CreateGroup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(model.Visibility), args[2].(string), args[3].([]string))
+		variadicArgs := make([]string, len(args)-3)
+		for i, a := range args[3:] {
+			if a != nil {
+				variadicArgs[i] = a.(string)
+			}
+		}
+		run(args[0].(string), args[1].(model.Visibility), args[2].(string), variadicArgs...)
 	})
 	return _c
 }
@@ -287,7 +304,83 @@ func (_c *MockRepository_CreateGroup_Call) Return(_a0 *model.Group, _a1 error) *
 	return _c
 }
 
-func (_c *MockRepository_CreateGroup_Call) RunAndReturn(run func(string, model.Visibility, string, []string) (*model.Group, error)) *MockRepository_CreateGroup_Call {
+func (_c *MockRepository_CreateGroup_Call) RunAndReturn(run func(string, model.Visibility, string, ...string) (*model.Group, error)) *MockRepository_CreateGroup_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CreateGroupAccessToken provides a mock function with given fields: groupID, name, accessLevel, expiresAt, scopes
+func (_m *MockRepository) CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) {
+	_va := make([]interface{}, len(scopes))
+	for _i := range scopes {
+		_va[_i] = scopes[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, groupID, name, accessLevel, expiresAt)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateGroupAccessToken")
+	}
+
+	var r0 *model.GroupAccessToken
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, string, model.AccessLevelValue, time.Time, ...string) (*model.GroupAccessToken, error)); ok {
+		return rf(groupID, name, accessLevel, expiresAt, scopes...)
+	}
+	if rf, ok := ret.Get(0).(func(int, string, model.AccessLevelValue, time.Time, ...string) *model.GroupAccessToken); ok {
+		r0 = rf(groupID, name, accessLevel, expiresAt, scopes...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.GroupAccessToken)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, string, model.AccessLevelValue, time.Time, ...string) error); ok {
+		r1 = rf(groupID, name, accessLevel, expiresAt, scopes...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_CreateGroupAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateGroupAccessToken'
+type MockRepository_CreateGroupAccessToken_Call struct {
+	*mock.Call
+}
+
+// CreateGroupAccessToken is a helper method to define mock.On call
+//   - groupID int
+//   - name string
+//   - accessLevel model.AccessLevelValue
+//   - expiresAt time.Time
+//   - scopes ...string
+func (_e *MockRepository_Expecter) CreateGroupAccessToken(groupID interface{}, name interface{}, accessLevel interface{}, expiresAt interface{}, scopes ...interface{}) *MockRepository_CreateGroupAccessToken_Call {
+	return &MockRepository_CreateGroupAccessToken_Call{Call: _e.mock.On("CreateGroupAccessToken",
+		append([]interface{}{groupID, name, accessLevel, expiresAt}, scopes...)...)}
+}
+
+func (_c *MockRepository_CreateGroupAccessToken_Call) Run(run func(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string)) *MockRepository_CreateGroupAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]string, len(args)-4)
+		for i, a := range args[4:] {
+			if a != nil {
+				variadicArgs[i] = a.(string)
+			}
+		}
+		run(args[0].(int), args[1].(string), args[2].(model.AccessLevelValue), args[3].(time.Time), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *MockRepository_CreateGroupAccessToken_Call) Return(_a0 *model.GroupAccessToken, _a1 error) *MockRepository_CreateGroupAccessToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_CreateGroupAccessToken_Call) RunAndReturn(run func(int, string, model.AccessLevelValue, time.Time, ...string) (*model.GroupAccessToken, error)) *MockRepository_CreateGroupAccessToken_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -585,9 +678,9 @@ func (_c *MockRepository_DenyPushingToProject_Call) RunAndReturn(run func(int) e
 	return _c
 }
 
-// ForkProject provides a mock function with given fields: projectId, name
-func (_m *MockRepository) ForkProject(projectId int, name string) (*model.Project, error) {
-	ret := _m.Called(projectId, name)
+// ForkProject provides a mock function with given fields: projectId, visibility, namespaceId, name, description
+func (_m *MockRepository) ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
+	ret := _m.Called(projectId, visibility, namespaceId, name, description)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ForkProject")
@@ -595,19 +688,19 @@ func (_m *MockRepository) ForkProject(projectId int, name string) (*model.Projec
 
 	var r0 *model.Project
 	var r1 error
-	if rf, ok := ret.Get(0).(func(int, string) (*model.Project, error)); ok {
-		return rf(projectId, name)
+	if rf, ok := ret.Get(0).(func(int, model.Visibility, int, string, string) (*model.Project, error)); ok {
+		return rf(projectId, visibility, namespaceId, name, description)
 	}
-	if rf, ok := ret.Get(0).(func(int, string) *model.Project); ok {
-		r0 = rf(projectId, name)
+	if rf, ok := ret.Get(0).(func(int, model.Visibility, int, string, string) *model.Project); ok {
+		r0 = rf(projectId, visibility, namespaceId, name, description)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Project)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(int, string) error); ok {
-		r1 = rf(projectId, name)
+	if rf, ok := ret.Get(1).(func(int, model.Visibility, int, string, string) error); ok {
+		r1 = rf(projectId, visibility, namespaceId, name, description)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -622,14 +715,17 @@ type MockRepository_ForkProject_Call struct {
 
 // ForkProject is a helper method to define mock.On call
 //   - projectId int
+//   - visibility model.Visibility
+//   - namespaceId int
 //   - name string
-func (_e *MockRepository_Expecter) ForkProject(projectId interface{}, name interface{}) *MockRepository_ForkProject_Call {
-	return &MockRepository_ForkProject_Call{Call: _e.mock.On("ForkProject", projectId, name)}
+//   - description string
+func (_e *MockRepository_Expecter) ForkProject(projectId interface{}, visibility interface{}, namespaceId interface{}, name interface{}, description interface{}) *MockRepository_ForkProject_Call {
+	return &MockRepository_ForkProject_Call{Call: _e.mock.On("ForkProject", projectId, visibility, namespaceId, name, description)}
 }
 
-func (_c *MockRepository_ForkProject_Call) Run(run func(projectId int, name string)) *MockRepository_ForkProject_Call {
+func (_c *MockRepository_ForkProject_Call) Run(run func(projectId int, visibility model.Visibility, namespaceId int, name string, description string)) *MockRepository_ForkProject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(string))
+		run(args[0].(int), args[1].(model.Visibility), args[2].(int), args[3].(string), args[4].(string))
 	})
 	return _c
 }
@@ -639,7 +735,7 @@ func (_c *MockRepository_ForkProject_Call) Return(_a0 *model.Project, _a1 error)
 	return _c
 }
 
-func (_c *MockRepository_ForkProject_Call) RunAndReturn(run func(int, string) (*model.Project, error)) *MockRepository_ForkProject_Call {
+func (_c *MockRepository_ForkProject_Call) RunAndReturn(run func(int, model.Visibility, int, string, string) (*model.Project, error)) *MockRepository_ForkProject_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1336,6 +1432,52 @@ func (_c *MockRepository_GetUserById_Call) RunAndReturn(run func(int) (*model.Us
 	return _c
 }
 
+// GroupAccessLogin provides a mock function with given fields: token
+func (_m *MockRepository) GroupAccessLogin(token string) error {
+	ret := _m.Called(token)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GroupAccessLogin")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(token)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockRepository_GroupAccessLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GroupAccessLogin'
+type MockRepository_GroupAccessLogin_Call struct {
+	*mock.Call
+}
+
+// GroupAccessLogin is a helper method to define mock.On call
+//   - token string
+func (_e *MockRepository_Expecter) GroupAccessLogin(token interface{}) *MockRepository_GroupAccessLogin_Call {
+	return &MockRepository_GroupAccessLogin_Call{Call: _e.mock.On("GroupAccessLogin", token)}
+}
+
+func (_c *MockRepository_GroupAccessLogin_Call) Run(run func(token string)) *MockRepository_GroupAccessLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockRepository_GroupAccessLogin_Call) Return(_a0 error) *MockRepository_GroupAccessLogin_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockRepository_GroupAccessLogin_Call) RunAndReturn(run func(string) error) *MockRepository_GroupAccessLogin_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Login provides a mock function with given fields: token
 func (_m *MockRepository) Login(token string) error {
 	ret := _m.Called(token)
@@ -1425,6 +1567,66 @@ func (_c *MockRepository_RemoveUserFromGroup_Call) Return(_a0 error) *MockReposi
 }
 
 func (_c *MockRepository_RemoveUserFromGroup_Call) RunAndReturn(run func(int, int) error) *MockRepository_RemoveUserFromGroup_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RotateGroupAccessToken provides a mock function with given fields: groupID, tokenID, expiresAt
+func (_m *MockRepository) RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error) {
+	ret := _m.Called(groupID, tokenID, expiresAt)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RotateGroupAccessToken")
+	}
+
+	var r0 *model.GroupAccessToken
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int, int, time.Time) (*model.GroupAccessToken, error)); ok {
+		return rf(groupID, tokenID, expiresAt)
+	}
+	if rf, ok := ret.Get(0).(func(int, int, time.Time) *model.GroupAccessToken); ok {
+		r0 = rf(groupID, tokenID, expiresAt)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.GroupAccessToken)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(int, int, time.Time) error); ok {
+		r1 = rf(groupID, tokenID, expiresAt)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockRepository_RotateGroupAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RotateGroupAccessToken'
+type MockRepository_RotateGroupAccessToken_Call struct {
+	*mock.Call
+}
+
+// RotateGroupAccessToken is a helper method to define mock.On call
+//   - groupID int
+//   - tokenID int
+//   - expiresAt time.Time
+func (_e *MockRepository_Expecter) RotateGroupAccessToken(groupID interface{}, tokenID interface{}, expiresAt interface{}) *MockRepository_RotateGroupAccessToken_Call {
+	return &MockRepository_RotateGroupAccessToken_Call{Call: _e.mock.On("RotateGroupAccessToken", groupID, tokenID, expiresAt)}
+}
+
+func (_c *MockRepository_RotateGroupAccessToken_Call) Run(run func(groupID int, tokenID int, expiresAt time.Time)) *MockRepository_RotateGroupAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int), args[1].(int), args[2].(time.Time))
+	})
+	return _c
+}
+
+func (_c *MockRepository_RotateGroupAccessToken_Call) Return(_a0 *model.GroupAccessToken, _a1 error) *MockRepository_RotateGroupAccessToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockRepository_RotateGroupAccessToken_Call) RunAndReturn(run func(int, int, time.Time) (*model.GroupAccessToken, error)) *MockRepository_RotateGroupAccessToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

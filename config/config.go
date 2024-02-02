@@ -7,11 +7,13 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
+	"net/url"
 	"os"
 	"path/filepath"
 )
 
 type ApplicationConfig struct {
+	PublicURL    *url.URL             `env:"PUBLIC_URL" envDefault:"https://staging.hs-flensburg.dev"`
 	Port         int                  `env:"PORT" envDefault:"3000"`
 	FrontendPath string               `env:"FRONTEND_PATH" envDefault:"./public"`
 	GitLab       *gitlab.GitlabConfig `envPrefix:"GITLAB_"`
