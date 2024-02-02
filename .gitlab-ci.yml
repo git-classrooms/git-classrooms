@@ -34,9 +34,10 @@ test-backend:
   stage: test
   image: $GOLANG_IMAGE
   before_script:
+    - apk add --no-cache gcc musl-dev
     - go mod download
-  script: 
-    - go test ./... --cover
+  script:
+    - CGO_ENABLED=1 go test ./... --cover
   coverage: '/coverage: \d+.\d+% of statements/'
   rules:
     - if: $CI_COMMIT_BRANCH
