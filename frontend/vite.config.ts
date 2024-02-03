@@ -15,8 +15,8 @@ export default defineConfig({
   server: {
     host: true,
     proxy: {
-      "/api": "http://localhost:3000",
-      "/auth": "http://localhost:3000",
+      "/api": "http://backend:3000",
+      "/auth": "http://backend:3000",
     },
   },
   resolve: {

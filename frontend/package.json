@@ -13,13 +13,19 @@
     "tsr": "tsr watch"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
     "@tanstack/react-query": "^5.17.19",
     "@tanstack/react-query-devtools": "^5.17.21",
     "@tanstack/react-router": "^1.15.2",
     "@tanstack/router-devtools": "^1.15.2",
     "axios": "^1.6.7",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.321.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.17.22",

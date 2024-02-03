@@ -3,15 +3,28 @@
 // Import Routes
 
 import { Route as rootRoute } from "./routes/__root"
+import { Route as LoginImport } from "./routes/login"
 import { Route as AboutImport } from "./routes/about"
+import { Route as AuthImport } from "./routes/_auth"
 import { Route as HelloRouteImport } from "./routes/hello/route"
 import { Route as IndexImport } from "./routes/index"
 import { Route as HelloIndexImport } from "./routes/hello/index"
+import { Route as AuthDashboardImport } from "./routes/_auth/dashboard"
 
 // Create/Update Routes
 
+const LoginRoute = LoginImport.update({
+  path: "/login",
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AboutRoute = AboutImport.update({
   path: "/about",
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRoute = AuthImport.update({
+  id: "/_auth",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -30,6 +43,11 @@ const HelloIndexRoute = HelloIndexImport.update({
   getParentRoute: () => HelloRouteRoute,
 } as any)
 
+const AuthDashboardRoute = AuthDashboardImport.update({
+  path: "/dashboard",
+  getParentRoute: () => AuthRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module "@tanstack/react-router" {
@@ -42,9 +60,21 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof HelloRouteImport
       parentRoute: typeof rootRoute
     }
+    "/_auth": {
+      preLoaderRoute: typeof AuthImport
+      parentRoute: typeof rootRoute
+    }
     "/about": {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
+    }
+    "/login": {
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    "/_auth/dashboard": {
+      preLoaderRoute: typeof AuthDashboardImport
+      parentRoute: typeof AuthImport
     }
     "/hello/": {
       preLoaderRoute: typeof HelloIndexImport
@@ -58,5 +88,7 @@ declare module "@tanstack/react-router" {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   HelloRouteRoute.addChildren([HelloIndexRoute]),
+  AuthRoute.addChildren([AuthDashboardRoute]),
   AboutRoute,
+  LoginRoute,
 ])

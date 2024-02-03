@@ -1,91 +1,80 @@
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./src/**/*.{ts,tsx}",
-  ],
-  theme: {
-    colors: {
-      blue: {
-        "50": "#e9f3fc",
-        "100": "#cbe2f9",
-        "200": "#9dc7f1",
-        "300": "#63a6e9",
-        "400": "#428fdc",
-        "500": "#1f75cb",
-        "600": "#1068bf",
-        "700": "#0b5cad",
-        "800": "#064787",
-        "900": "#033464",
-        "950": "#002850",
-      },
-      green: {
-        "50": "#ecf4ee",
-        "100": "#c3e6cd",
-        "200": "#91d4a8",
-        "300": "#52b87a",
-        "400": "#2da160",
-        "500": "#108548",
-        "600": "#217645",
-        "700": "#24663b",
-        "800": "#0d532a",
-        "900": "#0a4020",
-        "950": "#072b15",
-      },
-      orange: {
-        "50": "#fdf1dd",
-        "100": "#f5d9a8",
-        "200": "#e9be74",
-        "300": "#d99530",
-        "400": "#c17d10",
-        "500": "#ab6100",
-        "600": "#9e5400",
-        "700": "#8f4700",
-        "800": "#703800",
-        "900": "#5c2900",
-        "950": "#421f00",
-      },
-      red: {
-        "50": "#fcf1ef",
-        "100": "#fdd4cd",
-        "200": "#fcb5aa",
-        "300": "#f57f6c",
-        "400": "#ec5941",
-        "500": "#dd2b0e",
-        "600": "#c91c00",
-        "700": "#ae1800",
-        "800": "#8d1300",
-        "900": "#660e00",
-        "950": "#4d0a00",
-      },
-      purple: {
-        "50": "#f4f0ff",
-        "100": "#e1d8f9",
-        "200": "#cbbbf2",
-        "300": "#ac93e6",
-        "400": "#9475db",
-        "500": "#7b58cf",
-        "600": "#694cc0",
-        "700": "#5943b6",
-        "800": "#453894",
-        "900": "#2f2a6b",
-        "950": "#232150",
-      },
-      gray: {
-        "10": "#fbfafd",
-        "50": "#ececef",
-        "100": "#dcdcde",
-        "200": "#bfbfc3",
-        "300": "#a4a3a8",
-        "400": "#89888d",
-        "500": "#737278",
-        "600": "#626168",
-        "700": "#535158",
-        "800": "#434248",
-        "900": "#333238",
-        "950": "#1f1e24",
-      }
-    }
-  },
-  plugins: [],
-}
+import type { Config } from "tailwindcss"
 
+const config = {
+  darkMode: ["class"],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+	],
+  prefix: "",
+  theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
+    extend: {
+      colors: {
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config
+
+export default config
