@@ -1,8 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import GitlabLogo from './../assets/gitlab_logo.svg'
 import { Button } from "@/components/ui/button";
+import { isAuthenticated } from '@/lib/utils'
 
 export const Route = createFileRoute("/login")({
+  beforeLoad: async () => {
+    if (await isAuthenticated()) {
+      throw redirect({
+        to: '/dashboard',
+      })
+
+    }
+  },
   component: Login,
 });
 
