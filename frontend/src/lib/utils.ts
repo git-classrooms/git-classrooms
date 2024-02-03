@@ -15,5 +15,4 @@ export async function isAuthenticated() {
   } catch (e) {
     return false
   }
-
 }
