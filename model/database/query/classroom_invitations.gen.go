@@ -40,6 +40,9 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 		RelationField: field.NewRelation("Classroom", "database.Classroom"),
 		Owner: struct {
 			field.RelationField
+			OwnedClassrooms struct {
+				field.RelationField
+			}
 			Classrooms struct {
 				field.RelationField
 				User struct {
@@ -59,15 +62,6 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 					Projects struct {
 						field.RelationField
 					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}
 				}
 				User struct {
 					field.RelationField
@@ -75,6 +69,11 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 			}
 		}{
 			RelationField: field.NewRelation("Classroom.Owner", "database.User"),
+			OwnedClassrooms: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("Classroom.Owner.OwnedClassrooms", "database.Classroom"),
+			},
 			Classrooms: struct {
 				field.RelationField
 				User struct {
@@ -106,15 +105,6 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 					Projects struct {
 						field.RelationField
 					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}
 				}
 				User struct {
 					field.RelationField
@@ -129,15 +119,6 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 					Projects struct {
 						field.RelationField
 					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}
 				}{
 					RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment", "database.Assignment"),
 					Classroom: struct {
@@ -149,27 +130,6 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 						field.RelationField
 					}{
 						RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
-					},
-					Invitations: struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}{
-						RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
-						Assignment: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
-						},
-						User: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classroom.Owner.AssignmentRepositories.Assignment.Invitations.User", "database.User"),
-						},
 					},
 				},
 				User: struct {
@@ -291,6 +251,9 @@ type classroomInvitationBelongsToClassroom struct {
 
 	Owner struct {
 		field.RelationField
+		OwnedClassrooms struct {
+			field.RelationField
+		}
 		Classrooms struct {
 			field.RelationField
 			User struct {
@@ -309,15 +272,6 @@ type classroomInvitationBelongsToClassroom struct {
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Invitations struct {
-					field.RelationField
-					Assignment struct {
-						field.RelationField
-					}
-					User struct {
-						field.RelationField
-					}
 				}
 			}
 			User struct {

@@ -14,6 +14,7 @@ type User struct {
 	CreatedAt              time.Time             `json:"-"`
 	UpdatedAt              time.Time             `json:"-"`
 	DeletedAt              gorm.DeletedAt        `gorm:"index" json:"-"`
+	OwnedClassrooms        []*Classroom          `gorm:"foreignKey:OwnerID" json:"-"`
 	Classrooms             []*UserClassrooms     `gorm:"foreignKey:UserID" json:"-"`
 	AssignmentRepositories []*AssignmentProjects `json:"-"`
 }

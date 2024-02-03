@@ -17,7 +17,7 @@ type Repository interface {
 	ChangeGroupName(id int, name string) (*model.Group, error)                               //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L495
 	AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error        //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L237
 	RemoveUserFromGroup(groupId int, userId int) error                                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L349
-	GetAllProjects() ([]*model.Project, error)                                               //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L373
+	GetAllProjects(search string) ([]*model.Project, error)                                  //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L373
 	GetProjectById(id int) (*model.Project, error)                                           //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L577
 	GetUserById(id int) (*model.User, error)                                                 //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/users.go#L169
 	GetGroupById(id int) (*model.Group, error)                                               //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L288

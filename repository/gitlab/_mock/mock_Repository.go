@@ -797,9 +797,9 @@ func (_c *MockRepository_GetAllGroups_Call) RunAndReturn(run func() ([]*model.Gr
 	return _c
 }
 
-// GetAllProjects provides a mock function with given fields:
-func (_m *MockRepository) GetAllProjects() ([]*model.Project, error) {
-	ret := _m.Called()
+// GetAllProjects provides a mock function with given fields: search
+func (_m *MockRepository) GetAllProjects(search string) ([]*model.Project, error) {
+	ret := _m.Called(search)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAllProjects")
@@ -807,19 +807,19 @@ func (_m *MockRepository) GetAllProjects() ([]*model.Project, error) {
 
 	var r0 []*model.Project
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]*model.Project, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) ([]*model.Project, error)); ok {
+		return rf(search)
 	}
-	if rf, ok := ret.Get(0).(func() []*model.Project); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) []*model.Project); ok {
+		r0 = rf(search)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*model.Project)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(search)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -833,13 +833,14 @@ type MockRepository_GetAllProjects_Call struct {
 }
 
 // GetAllProjects is a helper method to define mock.On call
-func (_e *MockRepository_Expecter) GetAllProjects() *MockRepository_GetAllProjects_Call {
-	return &MockRepository_GetAllProjects_Call{Call: _e.mock.On("GetAllProjects")}
+//   - search string
+func (_e *MockRepository_Expecter) GetAllProjects(search interface{}) *MockRepository_GetAllProjects_Call {
+	return &MockRepository_GetAllProjects_Call{Call: _e.mock.On("GetAllProjects", search)}
 }
 
-func (_c *MockRepository_GetAllProjects_Call) Run(run func()) *MockRepository_GetAllProjects_Call {
+func (_c *MockRepository_GetAllProjects_Call) Run(run func(search string)) *MockRepository_GetAllProjects_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -849,7 +850,7 @@ func (_c *MockRepository_GetAllProjects_Call) Return(_a0 []*model.Project, _a1 e
 	return _c
 }
 
-func (_c *MockRepository_GetAllProjects_Call) RunAndReturn(run func() ([]*model.Project, error)) *MockRepository_GetAllProjects_Call {
+func (_c *MockRepository_GetAllProjects_Call) RunAndReturn(run func(string) ([]*model.Project, error)) *MockRepository_GetAllProjects_Call {
 	_c.Call.Return(run)
 	return _c
 }

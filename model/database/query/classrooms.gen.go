@@ -42,35 +42,20 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 		RelationField: field.NewRelation("Member", "database.UserClassrooms"),
 		User: struct {
 			field.RelationField
-			Classrooms struct {
+			OwnedClassrooms struct {
 				field.RelationField
-			}
-			AssignmentRepositories struct {
-				field.RelationField
-				Assignment struct {
+				Owner struct {
+					field.RelationField
+				}
+				Member struct {
+					field.RelationField
+				}
+				Assignments struct {
 					field.RelationField
 					Classroom struct {
 						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
 					}
 					Projects struct {
-						field.RelationField
-					}
-					Invitations struct {
 						field.RelationField
 						Assignment struct {
 							field.RelationField
@@ -80,12 +65,119 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 						}
 					}
 				}
-				User struct {
+				Invitations struct {
 					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
 				}
+			}
+			Classrooms struct {
+				field.RelationField
+			}
+			AssignmentRepositories struct {
+				field.RelationField
 			}
 		}{
 			RelationField: field.NewRelation("Member.User", "database.User"),
+			OwnedClassrooms: struct {
+				field.RelationField
+				Owner struct {
+					field.RelationField
+				}
+				Member struct {
+					field.RelationField
+				}
+				Assignments struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+					Projects struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}
+				}
+				Invitations struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+				}
+			}{
+				RelationField: field.NewRelation("Member.User.OwnedClassrooms", "database.Classroom"),
+				Owner: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Member.User.OwnedClassrooms.Owner", "database.User"),
+				},
+				Member: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Member.User.OwnedClassrooms.Member", "database.UserClassrooms"),
+				},
+				Assignments: struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+					Projects struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}
+				}{
+					RelationField: field.NewRelation("Member.User.OwnedClassrooms.Assignments", "database.Assignment"),
+					Classroom: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Member.User.OwnedClassrooms.Assignments.Classroom", "database.Classroom"),
+					},
+					Projects: struct {
+						field.RelationField
+						Assignment struct {
+							field.RelationField
+						}
+						User struct {
+							field.RelationField
+						}
+					}{
+						RelationField: field.NewRelation("Member.User.OwnedClassrooms.Assignments.Projects", "database.AssignmentProjects"),
+						Assignment: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Member.User.OwnedClassrooms.Assignments.Projects.Assignment", "database.Assignment"),
+						},
+						User: struct {
+							field.RelationField
+						}{
+							RelationField: field.NewRelation("Member.User.OwnedClassrooms.Assignments.Projects.User", "database.User"),
+						},
+					},
+				},
+				Invitations: struct {
+					field.RelationField
+					Classroom struct {
+						field.RelationField
+					}
+				}{
+					RelationField: field.NewRelation("Member.User.OwnedClassrooms.Invitations", "database.ClassroomInvitation"),
+					Classroom: struct {
+						field.RelationField
+					}{
+						RelationField: field.NewRelation("Member.User.OwnedClassrooms.Invitations.Classroom", "database.Classroom"),
+					},
+				},
+			},
 			Classrooms: struct {
 				field.RelationField
 			}{
@@ -93,158 +185,8 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 			},
 			AssignmentRepositories: struct {
 				field.RelationField
-				Assignment struct {
-					field.RelationField
-					Classroom struct {
-						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
-					}
-					Projects struct {
-						field.RelationField
-					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}
-				}
-				User struct {
-					field.RelationField
-				}
 			}{
 				RelationField: field.NewRelation("Member.User.AssignmentRepositories", "database.AssignmentProjects"),
-				Assignment: struct {
-					field.RelationField
-					Classroom struct {
-						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
-					}
-					Projects struct {
-						field.RelationField
-					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}
-				}{
-					RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment", "database.Assignment"),
-					Classroom: struct {
-						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
-					}{
-						RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom", "database.Classroom"),
-						Owner: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Owner", "database.User"),
-						},
-						Member: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Member", "database.UserClassrooms"),
-						},
-						Assignments: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Assignments", "database.Assignment"),
-						},
-						Invitations: struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}{
-							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Invitations", "database.ClassroomInvitation"),
-							Classroom: struct {
-								field.RelationField
-							}{
-								RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Classroom.Invitations.Classroom", "database.Classroom"),
-							},
-						},
-					},
-					Projects: struct {
-						field.RelationField
-					}{
-						RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
-					},
-					Invitations: struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}{
-						RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
-						Assignment: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
-						},
-						User: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Member.User.AssignmentRepositories.Assignment.Invitations.User", "database.User"),
-						},
-					},
-				},
-				User: struct {
-					field.RelationField
-				}{
-					RelationField: field.NewRelation("Member.User.AssignmentRepositories.User", "database.User"),
-				},
 			},
 		},
 		Classroom: struct {
@@ -371,35 +313,20 @@ type classroomHasManyMember struct {
 
 	User struct {
 		field.RelationField
-		Classrooms struct {
+		OwnedClassrooms struct {
 			field.RelationField
-		}
-		AssignmentRepositories struct {
-			field.RelationField
-			Assignment struct {
+			Owner struct {
+				field.RelationField
+			}
+			Member struct {
+				field.RelationField
+			}
+			Assignments struct {
 				field.RelationField
 				Classroom struct {
 					field.RelationField
-					Owner struct {
-						field.RelationField
-					}
-					Member struct {
-						field.RelationField
-					}
-					Assignments struct {
-						field.RelationField
-					}
-					Invitations struct {
-						field.RelationField
-						Classroom struct {
-							field.RelationField
-						}
-					}
 				}
 				Projects struct {
-					field.RelationField
-				}
-				Invitations struct {
 					field.RelationField
 					Assignment struct {
 						field.RelationField
@@ -409,9 +336,18 @@ type classroomHasManyMember struct {
 					}
 				}
 			}
-			User struct {
+			Invitations struct {
 				field.RelationField
+				Classroom struct {
+					field.RelationField
+				}
 			}
+		}
+		Classrooms struct {
+			field.RelationField
+		}
+		AssignmentRepositories struct {
+			field.RelationField
 		}
 	}
 	Classroom struct {

@@ -112,6 +112,98 @@ func (_c *MockController_CreateClassroom_Call) RunAndReturn(run func(*fiber.Ctx)
 	return _c
 }
 
+// GetClassroomAssignment provides a mock function with given fields: ctx
+func (_m *MockController) GetClassroomAssignment(ctx *fiber.Ctx) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetClassroomAssignment")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetClassroomAssignment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetClassroomAssignment'
+type MockController_GetClassroomAssignment_Call struct {
+	*mock.Call
+}
+
+// GetClassroomAssignment is a helper method to define mock.On call
+//   - ctx *fiber.Ctx
+func (_e *MockController_Expecter) GetClassroomAssignment(ctx interface{}) *MockController_GetClassroomAssignment_Call {
+	return &MockController_GetClassroomAssignment_Call{Call: _e.mock.On("GetClassroomAssignment", ctx)}
+}
+
+func (_c *MockController_GetClassroomAssignment_Call) Run(run func(ctx *fiber.Ctx)) *MockController_GetClassroomAssignment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetClassroomAssignment_Call) Return(_a0 error) *MockController_GetClassroomAssignment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetClassroomAssignment_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetClassroomAssignment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetClassroomAssignments provides a mock function with given fields: ctx
+func (_m *MockController) GetClassroomAssignments(ctx *fiber.Ctx) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetClassroomAssignments")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetClassroomAssignments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetClassroomAssignments'
+type MockController_GetClassroomAssignments_Call struct {
+	*mock.Call
+}
+
+// GetClassroomAssignments is a helper method to define mock.On call
+//   - ctx *fiber.Ctx
+func (_e *MockController_Expecter) GetClassroomAssignments(ctx interface{}) *MockController_GetClassroomAssignments_Call {
+	return &MockController_GetClassroomAssignments_Call{Call: _e.mock.On("GetClassroomAssignments", ctx)}
+}
+
+func (_c *MockController_GetClassroomAssignments_Call) Run(run func(ctx *fiber.Ctx)) *MockController_GetClassroomAssignments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetClassroomAssignments_Call) Return(_a0 error) *MockController_GetClassroomAssignments_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetClassroomAssignments_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetClassroomAssignments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetMe provides a mock function with given fields: _a0
 func (_m *MockController) GetMe(_a0 *fiber.Ctx) error {
 	ret := _m.Called(_a0)
@@ -154,6 +246,512 @@ func (_c *MockController_GetMe_Call) Return(_a0 error) *MockController_GetMe_Cal
 }
 
 func (_c *MockController_GetMe_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroom provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroom(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroom")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroom_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroom'
+type MockController_GetMeClassroom_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroom is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroom(_a0 interface{}) *MockController_GetMeClassroom_Call {
+	return &MockController_GetMeClassroom_Call{Call: _e.mock.On("GetMeClassroom", _a0)}
+}
+
+func (_c *MockController_GetMeClassroom_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroom_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroom_Call) Return(_a0 error) *MockController_GetMeClassroom_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroom_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroom_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomAssignment provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomAssignment(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomAssignment")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomAssignment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomAssignment'
+type MockController_GetMeClassroomAssignment_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomAssignment is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomAssignment(_a0 interface{}) *MockController_GetMeClassroomAssignment_Call {
+	return &MockController_GetMeClassroomAssignment_Call{Call: _e.mock.On("GetMeClassroomAssignment", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomAssignment_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomAssignment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomAssignment_Call) Return(_a0 error) *MockController_GetMeClassroomAssignment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomAssignment_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomAssignment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomAssignments provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomAssignments(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomAssignments")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomAssignments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomAssignments'
+type MockController_GetMeClassroomAssignments_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomAssignments is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomAssignments(_a0 interface{}) *MockController_GetMeClassroomAssignments_Call {
+	return &MockController_GetMeClassroomAssignments_Call{Call: _e.mock.On("GetMeClassroomAssignments", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomAssignments_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomAssignments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomAssignments_Call) Return(_a0 error) *MockController_GetMeClassroomAssignments_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomAssignments_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomAssignments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomInvitations provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomInvitations(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomInvitations")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomInvitations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomInvitations'
+type MockController_GetMeClassroomInvitations_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomInvitations is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomInvitations(_a0 interface{}) *MockController_GetMeClassroomInvitations_Call {
+	return &MockController_GetMeClassroomInvitations_Call{Call: _e.mock.On("GetMeClassroomInvitations", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomInvitations_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomInvitations_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomInvitations_Call) Return(_a0 error) *MockController_GetMeClassroomInvitations_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomInvitations_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomInvitations_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomMember provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomMember(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomMember")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomMember_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomMember'
+type MockController_GetMeClassroomMember_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomMember is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomMember(_a0 interface{}) *MockController_GetMeClassroomMember_Call {
+	return &MockController_GetMeClassroomMember_Call{Call: _e.mock.On("GetMeClassroomMember", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomMember_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomMember_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMember_Call) Return(_a0 error) *MockController_GetMeClassroomMember_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMember_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomMember_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomMemberAssignment provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomMemberAssignment(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomMemberAssignment")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomMemberAssignment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomMemberAssignment'
+type MockController_GetMeClassroomMemberAssignment_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomMemberAssignment is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomMemberAssignment(_a0 interface{}) *MockController_GetMeClassroomMemberAssignment_Call {
+	return &MockController_GetMeClassroomMemberAssignment_Call{Call: _e.mock.On("GetMeClassroomMemberAssignment", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomMemberAssignment_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomMemberAssignment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMemberAssignment_Call) Return(_a0 error) *MockController_GetMeClassroomMemberAssignment_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMemberAssignment_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomMemberAssignment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomMemberAssignments provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomMemberAssignments(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomMemberAssignments")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomMemberAssignments_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomMemberAssignments'
+type MockController_GetMeClassroomMemberAssignments_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomMemberAssignments is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomMemberAssignments(_a0 interface{}) *MockController_GetMeClassroomMemberAssignments_Call {
+	return &MockController_GetMeClassroomMemberAssignments_Call{Call: _e.mock.On("GetMeClassroomMemberAssignments", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomMemberAssignments_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomMemberAssignments_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMemberAssignments_Call) Return(_a0 error) *MockController_GetMeClassroomMemberAssignments_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMemberAssignments_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomMemberAssignments_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomMembers provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomMembers(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomMembers")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomMembers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomMembers'
+type MockController_GetMeClassroomMembers_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomMembers is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomMembers(_a0 interface{}) *MockController_GetMeClassroomMembers_Call {
+	return &MockController_GetMeClassroomMembers_Call{Call: _e.mock.On("GetMeClassroomMembers", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomMembers_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomMembers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMembers_Call) Return(_a0 error) *MockController_GetMeClassroomMembers_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMembers_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomMembers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomMiddleware provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomMiddleware(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomMiddleware")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomMiddleware_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomMiddleware'
+type MockController_GetMeClassroomMiddleware_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomMiddleware is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomMiddleware(_a0 interface{}) *MockController_GetMeClassroomMiddleware_Call {
+	return &MockController_GetMeClassroomMiddleware_Call{Call: _e.mock.On("GetMeClassroomMiddleware", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomMiddleware_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomMiddleware_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMiddleware_Call) Return(_a0 error) *MockController_GetMeClassroomMiddleware_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomMiddleware_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomMiddleware_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassroomTemplates provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassroomTemplates(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassroomTemplates")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassroomTemplates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassroomTemplates'
+type MockController_GetMeClassroomTemplates_Call struct {
+	*mock.Call
+}
+
+// GetMeClassroomTemplates is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassroomTemplates(_a0 interface{}) *MockController_GetMeClassroomTemplates_Call {
+	return &MockController_GetMeClassroomTemplates_Call{Call: _e.mock.On("GetMeClassroomTemplates", _a0)}
+}
+
+func (_c *MockController_GetMeClassroomTemplates_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassroomTemplates_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomTemplates_Call) Return(_a0 error) *MockController_GetMeClassroomTemplates_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassroomTemplates_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassroomTemplates_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMeClassrooms provides a mock function with given fields: _a0
+func (_m *MockController) GetMeClassrooms(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMeClassrooms")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetMeClassrooms_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMeClassrooms'
+type MockController_GetMeClassrooms_Call struct {
+	*mock.Call
+}
+
+// GetMeClassrooms is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetMeClassrooms(_a0 interface{}) *MockController_GetMeClassrooms_Call {
+	return &MockController_GetMeClassrooms_Call{Call: _e.mock.On("GetMeClassrooms", _a0)}
+}
+
+func (_c *MockController_GetMeClassrooms_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetMeClassrooms_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetMeClassrooms_Call) Return(_a0 error) *MockController_GetMeClassrooms_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetMeClassrooms_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetMeClassrooms_Call {
 	_c.Call.Return(run)
 	return _c
 }
