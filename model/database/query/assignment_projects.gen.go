@@ -42,6 +42,9 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 			field.RelationField
 			Owner struct {
 				field.RelationField
+				OwnedClassrooms struct {
+					field.RelationField
+				}
 				Classrooms struct {
 					field.RelationField
 					User struct {
@@ -77,6 +80,9 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 			RelationField: field.NewRelation("Assignment.Classroom", "database.Classroom"),
 			Owner: struct {
 				field.RelationField
+				OwnedClassrooms struct {
+					field.RelationField
+				}
 				Classrooms struct {
 					field.RelationField
 					User struct {
@@ -97,6 +103,11 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 				}
 			}{
 				RelationField: field.NewRelation("Assignment.Classroom.Owner", "database.User"),
+				OwnedClassrooms: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("Assignment.Classroom.Owner.OwnedClassrooms", "database.Classroom"),
+				},
 				Classrooms: struct {
 					field.RelationField
 					User struct {
@@ -168,27 +179,6 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 			field.RelationField
 		}{
 			RelationField: field.NewRelation("Assignment.Projects", "database.AssignmentProjects"),
-		},
-		Invitations: struct {
-			field.RelationField
-			Assignment struct {
-				field.RelationField
-			}
-			User struct {
-				field.RelationField
-			}
-		}{
-			RelationField: field.NewRelation("Assignment.Invitations", "database.AssignmentInvitation"),
-			Assignment: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Assignment.Invitations.Assignment", "database.Classroom"),
-			},
-			User: struct {
-				field.RelationField
-			}{
-				RelationField: field.NewRelation("Assignment.Invitations.User", "database.User"),
-			},
 		},
 	}
 
@@ -289,6 +279,9 @@ type assignmentProjectsBelongsToAssignment struct {
 		field.RelationField
 		Owner struct {
 			field.RelationField
+			OwnedClassrooms struct {
+				field.RelationField
+			}
 			Classrooms struct {
 				field.RelationField
 				User struct {
@@ -323,15 +316,6 @@ type assignmentProjectsBelongsToAssignment struct {
 	}
 	Projects struct {
 		field.RelationField
-	}
-	Invitations struct {
-		field.RelationField
-		Assignment struct {
-			field.RelationField
-		}
-		User struct {
-			field.RelationField
-		}
 	}
 }
 

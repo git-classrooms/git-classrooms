@@ -242,10 +242,16 @@ func (repo *GitlabRepo) RemoveUserFromGroup(groupId int, userId int) error {
 	return err
 }
 
-func (repo *GitlabRepo) GetAllProjects() ([]*model.Project, error) {
+func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
-	gitlabProjects, _, err := repo.client.Projects.ListProjects(&goGitlab.ListProjectsOptions{})
+	gitlabProjects, _, err := repo.client.Projects.ListProjects(&goGitlab.ListProjectsOptions{
+		Archived:   goGitlab.Bool(false),
+		Visibility: goGitlab.Visibility(goGitlab.PublicVisibility),
+		Owned:      goGitlab.Bool(true),
+		OrderBy:    goGitlab.String("created_at"),
+		Search:     goGitlab.String(search),
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -32,14 +32,23 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.CreatedAt = field.NewTime(tableName, "created_at")
 	_user.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_user.DeletedAt = field.NewField(tableName, "deleted_at")
-	_user.Classrooms = userHasManyClassrooms{
+	_user.OwnedClassrooms = userHasManyOwnedClassrooms{
 		db: db.Session(&gorm.Session{}),
 
-		RelationField: field.NewRelation("Classrooms", "database.UserClassrooms"),
-		User: struct {
+		RelationField: field.NewRelation("OwnedClassrooms", "database.Classroom"),
+		Owner: struct {
 			field.RelationField
+			OwnedClassrooms struct {
+				field.RelationField
+			}
 			Classrooms struct {
 				field.RelationField
+				User struct {
+					field.RelationField
+				}
+				Classroom struct {
+					field.RelationField
+				}
 			}
 			AssignmentRepositories struct {
 				field.RelationField
@@ -47,33 +56,9 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					field.RelationField
 					Classroom struct {
 						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
 					}
 					Projects struct {
 						field.RelationField
-					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
 					}
 				}
 				User struct {
@@ -81,11 +66,32 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 				}
 			}
 		}{
-			RelationField: field.NewRelation("Classrooms.User", "database.User"),
-			Classrooms: struct {
+			RelationField: field.NewRelation("OwnedClassrooms.Owner", "database.User"),
+			OwnedClassrooms: struct {
 				field.RelationField
 			}{
-				RelationField: field.NewRelation("Classrooms.User.Classrooms", "database.UserClassrooms"),
+				RelationField: field.NewRelation("OwnedClassrooms.Owner.OwnedClassrooms", "database.Classroom"),
+			},
+			Classrooms: struct {
+				field.RelationField
+				User struct {
+					field.RelationField
+				}
+				Classroom struct {
+					field.RelationField
+				}
+			}{
+				RelationField: field.NewRelation("OwnedClassrooms.Owner.Classrooms", "database.UserClassrooms"),
+				User: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("OwnedClassrooms.Owner.Classrooms.User", "database.User"),
+				},
+				Classroom: struct {
+					field.RelationField
+				}{
+					RelationField: field.NewRelation("OwnedClassrooms.Owner.Classrooms.Classroom", "database.Classroom"),
+				},
 			},
 			AssignmentRepositories: struct {
 				field.RelationField
@@ -93,161 +99,73 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 					field.RelationField
 					Classroom struct {
 						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
 					}
 					Projects struct {
 						field.RelationField
-					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
 					}
 				}
 				User struct {
 					field.RelationField
 				}
 			}{
-				RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories", "database.AssignmentProjects"),
+				RelationField: field.NewRelation("OwnedClassrooms.Owner.AssignmentRepositories", "database.AssignmentProjects"),
 				Assignment: struct {
 					field.RelationField
 					Classroom struct {
 						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
 					}
 					Projects struct {
 						field.RelationField
 					}
-					Invitations struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}
 				}{
-					RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment", "database.Assignment"),
+					RelationField: field.NewRelation("OwnedClassrooms.Owner.AssignmentRepositories.Assignment", "database.Assignment"),
 					Classroom: struct {
 						field.RelationField
-						Owner struct {
-							field.RelationField
-						}
-						Member struct {
-							field.RelationField
-						}
-						Assignments struct {
-							field.RelationField
-						}
-						Invitations struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}
 					}{
-						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Classroom", "database.Classroom"),
-						Owner: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Classroom.Owner", "database.User"),
-						},
-						Member: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Classroom.Member", "database.UserClassrooms"),
-						},
-						Assignments: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Classroom.Assignments", "database.Assignment"),
-						},
-						Invitations: struct {
-							field.RelationField
-							Classroom struct {
-								field.RelationField
-							}
-						}{
-							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Classroom.Invitations", "database.ClassroomInvitation"),
-							Classroom: struct {
-								field.RelationField
-							}{
-								RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Classroom.Invitations.Classroom", "database.Classroom"),
-							},
-						},
+						RelationField: field.NewRelation("OwnedClassrooms.Owner.AssignmentRepositories.Assignment.Classroom", "database.Classroom"),
 					},
 					Projects: struct {
 						field.RelationField
 					}{
-						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
-					},
-					Invitations: struct {
-						field.RelationField
-						Assignment struct {
-							field.RelationField
-						}
-						User struct {
-							field.RelationField
-						}
-					}{
-						RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations", "database.AssignmentInvitation"),
-						Assignment: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations.Assignment", "database.Classroom"),
-						},
-						User: struct {
-							field.RelationField
-						}{
-							RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.Assignment.Invitations.User", "database.User"),
-						},
+						RelationField: field.NewRelation("OwnedClassrooms.Owner.AssignmentRepositories.Assignment.Projects", "database.AssignmentProjects"),
 					},
 				},
 				User: struct {
 					field.RelationField
 				}{
-					RelationField: field.NewRelation("Classrooms.User.AssignmentRepositories.User", "database.User"),
+					RelationField: field.NewRelation("OwnedClassrooms.Owner.AssignmentRepositories.User", "database.User"),
 				},
 			},
 		},
-		Classroom: struct {
+		Member: struct {
 			field.RelationField
 		}{
-			RelationField: field.NewRelation("Classrooms.Classroom", "database.Classroom"),
+			RelationField: field.NewRelation("OwnedClassrooms.Member", "database.UserClassrooms"),
 		},
+		Assignments: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("OwnedClassrooms.Assignments", "database.Assignment"),
+		},
+		Invitations: struct {
+			field.RelationField
+			Classroom struct {
+				field.RelationField
+			}
+		}{
+			RelationField: field.NewRelation("OwnedClassrooms.Invitations", "database.ClassroomInvitation"),
+			Classroom: struct {
+				field.RelationField
+			}{
+				RelationField: field.NewRelation("OwnedClassrooms.Invitations.Classroom", "database.Classroom"),
+			},
+		},
+	}
+
+	_user.Classrooms = userHasManyClassrooms{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Classrooms", "database.UserClassrooms"),
 	}
 
 	_user.AssignmentRepositories = userHasManyAssignmentRepositories{
@@ -264,14 +182,16 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo
 
-	ALL         field.Asterisk
-	ID          field.Int
-	GitlabEmail field.String
-	Name        field.String
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	DeletedAt   field.Field
-	Classrooms  userHasManyClassrooms
+	ALL             field.Asterisk
+	ID              field.Int
+	GitlabEmail     field.String
+	Name            field.String
+	CreatedAt       field.Time
+	UpdatedAt       field.Time
+	DeletedAt       field.Field
+	OwnedClassrooms userHasManyOwnedClassrooms
+
+	Classrooms userHasManyClassrooms
 
 	AssignmentRepositories userHasManyAssignmentRepositories
 
@@ -312,7 +232,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 8)
+	u.fieldMap = make(map[string]field.Expr, 9)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["gitlab_email"] = u.GitlabEmail
 	u.fieldMap["name"] = u.Name
@@ -332,15 +252,24 @@ func (u user) replaceDB(db *gorm.DB) user {
 	return u
 }
 
-type userHasManyClassrooms struct {
+type userHasManyOwnedClassrooms struct {
 	db *gorm.DB
 
 	field.RelationField
 
-	User struct {
+	Owner struct {
 		field.RelationField
+		OwnedClassrooms struct {
+			field.RelationField
+		}
 		Classrooms struct {
 			field.RelationField
+			User struct {
+				field.RelationField
+			}
+			Classroom struct {
+				field.RelationField
+			}
 		}
 		AssignmentRepositories struct {
 			field.RelationField
@@ -348,33 +277,9 @@ type userHasManyClassrooms struct {
 				field.RelationField
 				Classroom struct {
 					field.RelationField
-					Owner struct {
-						field.RelationField
-					}
-					Member struct {
-						field.RelationField
-					}
-					Assignments struct {
-						field.RelationField
-					}
-					Invitations struct {
-						field.RelationField
-						Classroom struct {
-							field.RelationField
-						}
-					}
 				}
 				Projects struct {
 					field.RelationField
-				}
-				Invitations struct {
-					field.RelationField
-					Assignment struct {
-						field.RelationField
-					}
-					User struct {
-						field.RelationField
-					}
 				}
 			}
 			User struct {
@@ -382,9 +287,89 @@ type userHasManyClassrooms struct {
 			}
 		}
 	}
-	Classroom struct {
+	Member struct {
 		field.RelationField
 	}
+	Assignments struct {
+		field.RelationField
+	}
+	Invitations struct {
+		field.RelationField
+		Classroom struct {
+			field.RelationField
+		}
+	}
+}
+
+func (a userHasManyOwnedClassrooms) Where(conds ...field.Expr) *userHasManyOwnedClassrooms {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a userHasManyOwnedClassrooms) WithContext(ctx context.Context) *userHasManyOwnedClassrooms {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a userHasManyOwnedClassrooms) Session(session *gorm.Session) *userHasManyOwnedClassrooms {
+	a.db = a.db.Session(session)
+	return &a
+}
+
+func (a userHasManyOwnedClassrooms) Model(m *database.User) *userHasManyOwnedClassroomsTx {
+	return &userHasManyOwnedClassroomsTx{a.db.Model(m).Association(a.Name())}
+}
+
+type userHasManyOwnedClassroomsTx struct{ tx *gorm.Association }
+
+func (a userHasManyOwnedClassroomsTx) Find() (result []*database.Classroom, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a userHasManyOwnedClassroomsTx) Append(values ...*database.Classroom) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a userHasManyOwnedClassroomsTx) Replace(values ...*database.Classroom) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a userHasManyOwnedClassroomsTx) Delete(values ...*database.Classroom) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a userHasManyOwnedClassroomsTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a userHasManyOwnedClassroomsTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type userHasManyClassrooms struct {
+	db *gorm.DB
+
+	field.RelationField
 }
 
 func (a userHasManyClassrooms) Where(conds ...field.Expr) *userHasManyClassrooms {

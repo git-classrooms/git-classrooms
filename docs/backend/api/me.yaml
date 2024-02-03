@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: GitLab Classrooms – Backend API
+  description: GitLab Classrooms – Backend API
+  version: 1.0.0
+servers:
+  - url: 'https://staging.hs-flensburg.dev'
+
+components:
+  securitySchemes:
+    gitlabOAuth:
+      type: oauth2
+      description: This API uses OAuth 2 with gitlab
+      flows:
+        implicit:
+          authorizationUrl: https://staging.hs-flensburg.dev/auth
+          tokenUrl: https://hs-flensburg.dev/oauth/token
+          scopes:
+            api: Access to the GitLab api
+
+
+security:
+  - gitlabOAuth: []
+
+paths:
+  /api/classrooms:
+    post:
+      summary: Creates a classroom for the currently authenticated user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  required: true
+                  type: string
+                memberEmails:
+                  required: true
+                  type: array
+                  items:
+                    type: string
+                description:
+                  type: string
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+
+

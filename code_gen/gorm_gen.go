@@ -19,7 +19,6 @@ func main() {
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
 		&dbModel.ClassroomInvitation{},
-		&dbModel.AssignmentInvitation{},
 	)
 
 	g.Execute()
