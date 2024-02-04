@@ -79,7 +79,7 @@ function ClassroomDetail() {
           </Link>
         </Button>
       </Header>
-      <AssignmentTable assignments={assignments} />
+      <AssignmentTable assignments={assignments} classroomId={classroomId} />
 
       <Header title="Members">
         <Button variant="default" asChild>
@@ -93,7 +93,13 @@ function ClassroomDetail() {
   );
 }
 
-function AssignmentTable({ assignments }: { assignments: Assignment[] }) {
+function AssignmentTable({
+  assignments,
+  classroomId,
+}: {
+  assignments: Assignment[];
+  classroomId: string;
+}) {
   return (
     <Table>
       <TableCaption>Assignments</TableCaption>
@@ -109,7 +115,16 @@ function AssignmentTable({ assignments }: { assignments: Assignment[] }) {
           <TableRow key={a.id}>
             <TableCell>{a.name}</TableCell>
             <TableCell>{a.dueDate}</TableCell>
-            <TableCell className="text-right"></TableCell>
+            <TableCell className="text-right">
+              <Button asChild>
+                <Link
+                  to="/classrooms/$classroomId/assignments/$assignmentId"
+                  params={{ classroomId, assignmentId: a.id }}
+                >
+                  Show Assignment
+                </Link>
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

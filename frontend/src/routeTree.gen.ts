@@ -11,6 +11,7 @@ import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/c
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/index"
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
 import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
+import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
 
 // Create/Update Routes
 
@@ -57,6 +58,12 @@ const AuthClassroomsClassroomIdAssignmentsCreateRoute =
     getParentRoute: () => AuthRoute,
   } as any)
 
+const AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute =
+  AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport.update({
+    path: "/classrooms/$classroomId/assignments/$assignmentId/",
+    getParentRoute: () => AuthRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module "@tanstack/react-router" {
@@ -93,6 +100,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsCreateImport
       parentRoute: typeof AuthImport
     }
+    "/_auth/classrooms/$classroomId/assignments/$assignmentId/": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport
+      parentRoute: typeof AuthImport
+    }
   }
 }
 
@@ -106,6 +117,7 @@ export const routeTree = rootRoute.addChildren([
     AuthClassroomsClassroomIdInviteRoute,
     AuthClassroomsClassroomIdIndexRoute,
     AuthClassroomsClassroomIdAssignmentsCreateRoute,
+    AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
   ]),
   LoginRoute,
 ])

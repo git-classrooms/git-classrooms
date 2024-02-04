@@ -6,6 +6,7 @@ import {
 import { apiClient } from "@/lib/utils.ts";
 import {
   Assignment,
+  AssignmentProject,
   CreateAssignmentForm,
   TemplateProject,
 } from "@/types/assignments.ts";
@@ -16,6 +17,45 @@ export const assignmentsQueryOptions = (classroomId: string) =>
     queryFn: async () => {
       const res = await apiClient.get<Assignment[]>(
         `/api/classrooms/${classroomId}/assignments`,
+      );
+      return res.data;
+    },
+  });
+
+export const assignmentQueryOptions = (
+  classroomId: string,
+  assignmentId: string,
+) =>
+  queryOptions({
+    queryKey: [
+      "classrooms",
+      `classroom-${classroomId}`,
+      "assignments",
+      `classroom-${assignmentId}`,
+    ],
+    queryFn: async () => {
+      const res = await apiClient.get<Assignment>(
+        `/api/classrooms/${classroomId}/assignments/${assignmentId}`,
+      );
+      return res.data;
+    },
+  });
+
+export const assignmentProjectsQueryOptions = (
+  classroomId: string,
+  assignmentId: string,
+) =>
+  queryOptions({
+    queryKey: [
+      "classrooms",
+      `classroom-${classroomId}`,
+      "assignments",
+      `classroom-${assignmentId}`,
+      "projects",
+    ],
+    queryFn: async () => {
+      const res = await apiClient.get<AssignmentProject[]>(
+        `/api/classrooms/${classroomId}/assignments/${assignmentId}/projects`,
       );
       return res.data;
     },
@@ -44,6 +84,25 @@ export const useCreateAssignment = (classroomId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(assignmentsQueryOptions(classroomId));
+    },
+  });
+};
+
+export const useInviteAssignmentMembers = (
+  classroomId: string,
+  assignmentId: string,
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await apiClient.post(
+        `/api/classrooms/${classroomId}/assignments/${assignmentId}/projects`,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(
+        assignmentProjectsQueryOptions(classroomId, assignmentId),
+      );
     },
   });
 };

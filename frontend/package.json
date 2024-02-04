@@ -39,7 +39,6 @@
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.17.22",
     "@tanstack/router-cli": "^1.14.1",
-    "@tanstack/router-vite-plugin": "^1.14.1",
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.5.6",
     "@types/node": "^20.11.10",

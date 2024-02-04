@@ -1,10 +1,19 @@
 import { z } from "zod";
+import { User } from "@/types/user.ts";
 
 export type Assignment = {
   id: string;
   name: string;
   description: string;
   dueDate: string;
+};
+
+export type AssignmentProject = {
+  assignmentId: string;
+  user: User;
+  assignmentAccepted: boolean;
+  projectId: number;
+  projectPath: string;
 };
 
 export type TemplateProject = {

@@ -20,6 +20,7 @@ type Controller interface {
 	CreateClassroom(*fiber.Ctx) error
 	GetClassroomAssignments(ctx *fiber.Ctx) error
 	GetClassroomAssignment(ctx *fiber.Ctx) error
+	GetClassroomAssignmentProjects(*fiber.Ctx) error
 	CreateAssignment(*fiber.Ctx) error
 	JoinClassroom(*fiber.Ctx) error
 	JoinAssignment(*fiber.Ctx) error
