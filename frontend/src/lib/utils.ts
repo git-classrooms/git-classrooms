@@ -16,3 +16,5 @@ export async function isAuthenticated() {
     return false
   }
 }
+
+export const apiClient = axios.create({ withCredentials: true })
