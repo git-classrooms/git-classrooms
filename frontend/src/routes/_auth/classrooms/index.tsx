@@ -1,17 +1,17 @@
-import { classRoomsQueryOptions } from "@/api/classrooms";
+import { classroomsQueryOptions } from "@/api/classrooms";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Classroom } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_auth/classrooms")({
+export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
-  loader: ({ context }) => context.queryClient.ensureQueryData(classRoomsQueryOptions)
+  loader: ({ context }) => context.queryClient.ensureQueryData(classroomsQueryOptions)
 });
 
 function Classrooms() {
-  const { data } = useSuspenseQuery(classRoomsQueryOptions)
+  const { data } = useSuspenseQuery(classroomsQueryOptions)
   return (
     <div className="p-2">
       <div className="flex flex-row justify-between">
@@ -20,18 +20,16 @@ function Classrooms() {
           <Link to="/classrooms/create" >Create</Link>
         </Button>
       </div>
-      <ClassroomTable title="Your classrooms" classRooms={data.ownClassrooms}>
-        <Button variant="outline"> Show Classroom </Button>
-      </ClassroomTable>
+      <ClassroomTable classrooms={data.ownClassrooms} />
     </div>
   );
 }
 
 
-function ClassroomTable({ classRooms, title, children }: { children: React.ReactNode, title: string, classRooms: Classroom[] }) {
+function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
   return (
     <Table>
-      <TableCaption>{title}</TableCaption>
+      <TableCaption>Classrooms</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
@@ -40,12 +38,16 @@ function ClassroomTable({ classRooms, title, children }: { children: React.React
         </TableRow>
       </TableHeader>
       <TableBody>
-        {classRooms.map(c =>
+        {classrooms.map(c =>
           <TableRow key={c.classroom.id}>
             <TableCell>{c.classroom.name}</TableCell>
             <TableCell>{c.classroom.ownerId}</TableCell>
             <TableCell className="text-right">
-              {children}
+              <Button asChild variant="default">
+                <Link to="/classrooms/$classroomID" params={{ classroomID: c.classroom.id }}>
+                  Show classroom
+                </Link>
+              </Button>
             </TableCell>
           </TableRow>
         )}

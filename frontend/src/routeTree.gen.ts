@@ -6,8 +6,9 @@ import { Route as rootRoute } from "./routes/__root"
 import { Route as LoginImport } from "./routes/login"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
-import { Route as AuthClassroomsImport } from "./routes/_auth/classrooms"
-import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms_.create"
+import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/index"
+import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/create"
+import { Route as AuthClassroomsClassroomIdImport } from "./routes/_auth/classrooms/$classroomId"
 
 // Create/Update Routes
 
@@ -26,13 +27,18 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthClassroomsRoute = AuthClassroomsImport.update({
-  path: "/classrooms",
+const AuthClassroomsIndexRoute = AuthClassroomsIndexImport.update({
+  path: "/classrooms/",
   getParentRoute: () => AuthRoute,
 } as any)
 
 const AuthClassroomsCreateRoute = AuthClassroomsCreateImport.update({
   path: "/classrooms/create",
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthClassroomsClassroomIdRoute = AuthClassroomsClassroomIdImport.update({
+  path: "/classrooms/$classroomId",
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -52,12 +58,16 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    "/_auth/classrooms": {
-      preLoaderRoute: typeof AuthClassroomsImport
+    "/_auth/classrooms/$classroomId": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdImport
       parentRoute: typeof AuthImport
     }
     "/_auth/classrooms/create": {
       preLoaderRoute: typeof AuthClassroomsCreateImport
+      parentRoute: typeof AuthImport
+    }
+    "/_auth/classrooms/": {
+      preLoaderRoute: typeof AuthClassroomsIndexImport
       parentRoute: typeof AuthImport
     }
   }
@@ -67,6 +77,10 @@ declare module "@tanstack/react-router" {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
-  AuthRoute.addChildren([AuthClassroomsRoute, AuthClassroomsCreateRoute]),
+  AuthRoute.addChildren([
+    AuthClassroomsClassroomIdRoute,
+    AuthClassroomsCreateRoute,
+    AuthClassroomsIndexRoute,
+  ]),
   LoginRoute,
 ])
