@@ -19,17 +19,16 @@ func Routes(
 ) {
 	app.Get("/auth", authController.Auth)
 	app.Get(config.GetRedirectUrl().Path, authController.Callback)
+	app.Post("/auth/logout", authController.Logout)
 
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
-	api.Get("/hello", func(c *fiber.Ctx) error {
-		return c.SendString("Hello World!")
-	})
 
 	api.Use(authController.AuthMiddleware)
 
 	me := api.Group("/me")
 	me.Get("/", apiController.GetMe)
 
+	// TODO: Nochmal überlegen ob das alles so gut is wie wir es jetzt tun
 	me.Get("/classrooms", apiController.GetMeClassrooms)                                                                         // -> {ownClassrooms: [Classroom], joinedClassrooms: [Classroom with role]}
 	me.Use("/classrooms/:classroomId", apiController.GetMeClassroomMiddleware)                                                   // puts {Classroom with role} into context
 	me.Get("/classrooms/:classroomId", apiController.GetMeClassroom)                                                             // -> {Classroom with role}
@@ -42,6 +41,8 @@ func Routes(
 	me.Get("/classrooms/:classroomId/assignments", apiController.GetMeClassroomAssignments)                                      // -> [Assignment with status if accepted]
 	me.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetMeClassroomAssignment)                         // -> {Assignment with status if accepted and link to gitlab}
 
+	// TODO: Namen angleichen der Dateien
+	// TODO: Get current invitations from classroom
 	api.Post("/classrooms", apiController.CreateClassroom)
 	api.Get("/classrooms/:classroomId/assignments", apiController.GetClassroomAssignments)
 	api.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
@@ -52,7 +53,12 @@ func Routes(
 	api.Get("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.GetClassroomAssignmentProjects)
 	api.Post("/classrooms/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignment)
 
+	setupFrontend(app, frontendPath)
+}
+
+func setupFrontend(app *fiber.App, frontendPath string) {
 	app.Static("/", frontendPath)
+
 	// Catch all routes
 	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
 
