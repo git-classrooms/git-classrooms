@@ -18,7 +18,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from '@/components/ui/textarea'
 import { createFormSchema } from "@/types/classroom";
-import {  useCreateClassRoom } from "@/api/classrooms";
+import {  useCreateClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_auth/classrooms/create")({
 
 function ClassroomsForm() {
   const navigate = useNavigate({ from: "/_auth/classrooms/create" })
-  const { mutateAsync, isError, isPending } = useCreateClassRoom()
+  const { mutateAsync, isError, isPending } = useCreateClassroom()
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
     defaultValues: {
