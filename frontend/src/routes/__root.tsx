@@ -2,6 +2,8 @@ import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient } from "@tanstack/react-query";
 import React, { Suspense } from "react";
+import { ThemeProvider } from "@/provider/themeProvider.tsx";
+import { ModeToggle } from "@/components/modeToggle.tsx";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -23,8 +25,9 @@ const TanStackRouterDevtools =
 
 function RootComponent() {
   return (
-    <>
+    <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
       <div className="w-screen h-screen overflow-scroll">
+        <ModeToggle />
         <div className="max-w-2xl m-auto">
           <Outlet />
           <ReactQueryDevtools initialIsOpen={false} />
@@ -33,6 +36,6 @@ function RootComponent() {
           </Suspense>
         </div>
       </div>
-    </>
+    </ThemeProvider>
   );
 }

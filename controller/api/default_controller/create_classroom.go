@@ -13,13 +13,12 @@ import (
 )
 
 type CreateClassroomRequest struct {
-	Name         string   `json:"name"`
-	MemberEmails []string `json:"memberEmails"`
-	Description  string   `json:"description"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func (r CreateClassroomRequest) isValid() bool {
-	return r.Name != "" && r.Description != "" && len(r.MemberEmails) > 0
+	return r.Name != "" && r.Description != ""
 }
 
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
