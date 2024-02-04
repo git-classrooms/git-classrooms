@@ -158,6 +158,52 @@ func (_c *MockController_GetClassroomAssignment_Call) RunAndReturn(run func(*fib
 	return _c
 }
 
+// GetClassroomAssignmentProjects provides a mock function with given fields: _a0
+func (_m *MockController) GetClassroomAssignmentProjects(_a0 *fiber.Ctx) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetClassroomAssignmentProjects")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetClassroomAssignmentProjects_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetClassroomAssignmentProjects'
+type MockController_GetClassroomAssignmentProjects_Call struct {
+	*mock.Call
+}
+
+// GetClassroomAssignmentProjects is a helper method to define mock.On call
+//   - _a0 *fiber.Ctx
+func (_e *MockController_Expecter) GetClassroomAssignmentProjects(_a0 interface{}) *MockController_GetClassroomAssignmentProjects_Call {
+	return &MockController_GetClassroomAssignmentProjects_Call{Call: _e.mock.On("GetClassroomAssignmentProjects", _a0)}
+}
+
+func (_c *MockController_GetClassroomAssignmentProjects_Call) Run(run func(_a0 *fiber.Ctx)) *MockController_GetClassroomAssignmentProjects_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetClassroomAssignmentProjects_Call) Return(_a0 error) *MockController_GetClassroomAssignmentProjects_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetClassroomAssignmentProjects_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetClassroomAssignmentProjects_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetClassroomAssignments provides a mock function with given fields: ctx
 func (_m *MockController) GetClassroomAssignments(ctx *fiber.Ctx) error {
 	ret := _m.Called(ctx)
