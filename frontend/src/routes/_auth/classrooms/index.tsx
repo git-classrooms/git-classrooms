@@ -5,10 +5,12 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Classroom } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Loader } from "@/components/loader.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
   loader: ({ context }) => context.queryClient.ensureQueryData(classroomsQueryOptions),
+  pendingComponent: Loader,
 });
 
 function Classrooms() {
