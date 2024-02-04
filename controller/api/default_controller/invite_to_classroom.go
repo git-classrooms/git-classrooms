@@ -105,7 +105,6 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 				Status:      database.ClassroomInvitationPending,
 				ClassroomID: classroomId,
 				Email:       email.Address,
-				Enabled:     true,
 				ExpiryDate:  time.Now().AddDate(0, 0, 14),
 			}
 			if err := tx.ClassroomInvitation.WithContext(c.Context()).Create(newInvitation); err != nil {
