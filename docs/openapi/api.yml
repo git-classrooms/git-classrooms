@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: GitLab Classrooms – Backend API
+  description: GitLab Classrooms – Backend API
+  version: 1.0.0
+servers:
+  - url: 'https://staging.hs-flensburg.dev'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_id
+security:
+  - cookieAuth: []
+
+paths:
+  /api/classrooms:
+    post:
+      tags:
+        - Classroom
+      summary: Creates a classroom for the currently authenticated user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "/definition/create_classroom_request.schema.json"
+      responses:
+        201:
+          description: Created
+          headers:
+            Location:
+              description: URL to the newly created classroom
+              schema:
+                type: string
+                format: uri
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+          content:
+            text/plain:
+              example: user is not authenticated (Anonymous)
+  /api/me/classrooms/{classroomId}:
+    get:
+      tags:
+        - Me
+      summary: Gets the specified classroom if the currently authenticated user has access to it.
+      parameters:
+        - in: path
+          name: classroomId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: UUID of the classroom to get
+      responses:
+        200:
+          description: Get
+          content:
+            application/json:
+              schema:
+                $ref: "/definition/types/user_classroom.schema.json"
+        401:
+          description: Unauthorized
+          content:
+            text/plain:
+              example: user is not authenticated (Anonymous)
+        500:
+          description: Internal server error
+
+
+
+
