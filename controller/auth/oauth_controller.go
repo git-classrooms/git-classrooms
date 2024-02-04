@@ -16,7 +16,7 @@ import (
 )
 
 type OAuthController struct {
-	authConfig   authConfig.Config
+	authConfig   *oauth2.Config
 	gitlabConfig gitlabConfig.Config
 }
 
@@ -24,7 +24,7 @@ func NewOAuthController(authConfig authConfig.Config,
 	gitlabConfig gitlabConfig.Config) *OAuthController {
 
 	return &OAuthController{
-		authConfig:   authConfig,
+		authConfig:   authConfig.GetOAuthConfig(),
 		gitlabConfig: gitlabConfig,
 	}
 }
@@ -39,14 +39,14 @@ func (ctrl *OAuthController) Auth(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	oauth := ctrl.authConfig.GetOAuthConfig()
+	oauth := ctrl.authConfig
 	url := oauth.AuthCodeURL("state")
 	return c.Redirect(url)
 }
 
 // Callback to receive gitlabs' response
 func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
-	token, err := ctrl.authConfig.GetOAuthConfig().Exchange(c.Context(), c.FormValue("code"))
+	token, err := ctrl.authConfig.Exchange(c.Context(), c.FormValue("code"))
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
@@ -68,11 +68,8 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		Where(u.ID.Eq(gitlabUser.ID)).
 		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name})).
 		FirstOrCreate()
-
 	if err != nil {
-		// TODO: Use sentry to log errors
-		log.Println(err)
-		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	s := session.Get(c)
@@ -95,6 +92,15 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	}
 
 	return c.Redirect(redirect)
+}
+
+func (ctrl *OAuthController) Logout(c *fiber.Ctx) error {
+	err := session.Get(c).Destroy()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 // AuthMiddleware to check session for Gitlab Tokens
@@ -122,7 +128,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		token.TokenType = "Bearer"
 
 		// Refresh token
-		token, err = ctrl.authConfig.GetOAuthConfig().TokenSource(c.Context(), token).Token()
+		token, err = ctrl.authConfig.TokenSource(c.Context(), token).Token()
 		if err != nil {
 			return err
 		}
