@@ -1,8 +1,7 @@
 export function TopBar(): JSX.Element {
   return (
     <nav className="top-bar">
-      <div className="top-bar__logo">
-        {/* <Link to="/">GitLab</Link> */}</div>
+      <div className="top-bar__logo">{/* <Link to="/">GitLab</Link> */}</div>
       <div className="top-bar__links">
         {/* 
         <Link to="/projects">Projects</Link>

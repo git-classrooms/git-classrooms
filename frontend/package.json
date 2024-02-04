@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "jest",
     "test:ci": "jest --ci --coverage",
-    "tsr": "tsr watch"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

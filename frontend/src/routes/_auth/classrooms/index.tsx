@@ -1,23 +1,14 @@
 import { classroomsQueryOptions } from "@/api/classrooms";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Classroom } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(classroomsQueryOptions),
+  loader: ({ context }) => context.queryClient.ensureQueryData(classroomsQueryOptions),
 });
 
 function Classrooms() {
@@ -52,10 +43,7 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
             <TableCell>{c.classroom.ownerId}</TableCell>
             <TableCell className="text-right">
               <Button asChild variant="outline">
-                <Link
-                  to="/classrooms/$classroomId"
-                  params={{ classroomId: c.classroom.id }}
-                >
+                <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
                   Show classroom
                 </Link>
               </Button>

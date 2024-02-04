@@ -1,20 +1,19 @@
-import axios from "axios"
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import axios from "axios";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export async function isAuthenticated() {
   try {
-    await axios
-      .get("/api/me", { withCredentials: true })
+    await axios.get("/api/me", { withCredentials: true });
 
-    return true
+    return true;
   } catch (e) {
-    return false
+    return false;
   }
 }
 
-export const apiClient = axios.create({ withCredentials: true })
+export const apiClient = axios.create({ withCredentials: true });
