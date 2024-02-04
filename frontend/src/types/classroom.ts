@@ -27,7 +27,7 @@ export const createFormSchema = z.object({
 
 
 export const inviteFormSchema = z.object({
-  memberEmails: z.array(z.coerce.string().email().min(5)),
+  memberEmails: z.string()
 })
 
 
