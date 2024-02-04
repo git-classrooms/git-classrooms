@@ -1,4 +1,5 @@
 import { classroomsQueryOptions } from "@/api/classrooms";
+import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Classroom } from "@/types/classroom";
@@ -14,14 +15,13 @@ function Classrooms() {
   const { data } = useSuspenseQuery(classroomsQueryOptions)
   return (
     <div className="p-2">
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Classrooms</h1>
+      <Header title="Clasrooms">
         <Button asChild variant="default">
           <Link to="/classrooms/create" >Create</Link>
         </Button>
-      </div>
+      </Header>
       <ClassroomTable classrooms={data.ownClassrooms} />
-    </div>
+    </div >
   );
 }
 
@@ -43,7 +43,7 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
             <TableCell>{c.classroom.name}</TableCell>
             <TableCell>{c.classroom.ownerId}</TableCell>
             <TableCell className="text-right">
-              <Button asChild variant="default">
+              <Button asChild variant="outline">
                 <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
                   Show classroom
                 </Link>

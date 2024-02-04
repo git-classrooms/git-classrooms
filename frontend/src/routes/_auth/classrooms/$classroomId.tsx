@@ -1,4 +1,6 @@
 import { assignmentsQueryOptions, classroomMemberQueryOptions, classroomQueryOptions } from "@/api/classrooms";
+import { Header } from "@/components/header";
+import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,7 +8,6 @@ import { Assignment } from "@/types/assignments";
 import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId")({
   component: ClassroomDetail,
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId")({
     return { classroom, assignments, members }
 
   },
-  pendingComponent: () => <Loader2 className="animate-spin h-8 w-8" />,
+  pendingComponent: Loader
 });
 
 function ClassroomDetail() {
@@ -40,20 +41,18 @@ function ClassroomDetail() {
         </CardHeader>
       </Card>
 
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Assignments</h1>
+      <Header title="Assignments">
         <Button variant="default">
           Create assignment
         </Button>
-      </div>
+      </Header>
       <AssignmentTable assignments={assignments} />
 
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Members</h1>
+      <Header title="Members">
         <Button variant="default">
           Invite members
         </Button>
-      </div>
+      </Header>
       <MemberTable members={members} />
     </div>
   );
