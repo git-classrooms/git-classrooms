@@ -19,7 +19,7 @@ type CreateClassroomRequest struct {
 }
 
 func (r CreateClassroomRequest) isValid() bool {
-	return r.Name != "" && r.Description != "" && len(r.MemberEmails) == 0
+	return r.Name != "" && r.Description != "" && len(r.MemberEmails) > 0
 }
 
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {

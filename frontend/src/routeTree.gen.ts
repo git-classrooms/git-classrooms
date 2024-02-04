@@ -4,12 +4,10 @@
 
 import { Route as rootRoute } from "./routes/__root"
 import { Route as LoginImport } from "./routes/login"
-import { Route as AboutImport } from "./routes/about"
 import { Route as AuthImport } from "./routes/_auth"
-import { Route as HelloRouteImport } from "./routes/hello/route"
 import { Route as IndexImport } from "./routes/index"
-import { Route as HelloIndexImport } from "./routes/hello/index"
-import { Route as AuthDashboardImport } from "./routes/_auth/dashboard"
+import { Route as AuthClassroomsImport } from "./routes/_auth/classrooms"
+import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms_.create"
 
 // Create/Update Routes
 
@@ -18,18 +16,8 @@ const LoginRoute = LoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AboutRoute = AboutImport.update({
-  path: "/about",
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AuthRoute = AuthImport.update({
   id: "/_auth",
-  getParentRoute: () => rootRoute,
-} as any)
-
-const HelloRouteRoute = HelloRouteImport.update({
-  path: "/hello",
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -38,13 +26,13 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const HelloIndexRoute = HelloIndexImport.update({
-  path: "/",
-  getParentRoute: () => HelloRouteRoute,
+const AuthClassroomsRoute = AuthClassroomsImport.update({
+  path: "/classrooms",
+  getParentRoute: () => AuthRoute,
 } as any)
 
-const AuthDashboardRoute = AuthDashboardImport.update({
-  path: "/dashboard",
+const AuthClassroomsCreateRoute = AuthClassroomsCreateImport.update({
+  path: "/classrooms/create",
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -56,29 +44,21 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    "/hello": {
-      preLoaderRoute: typeof HelloRouteImport
-      parentRoute: typeof rootRoute
-    }
     "/_auth": {
       preLoaderRoute: typeof AuthImport
-      parentRoute: typeof rootRoute
-    }
-    "/about": {
-      preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
     "/login": {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    "/_auth/dashboard": {
-      preLoaderRoute: typeof AuthDashboardImport
+    "/_auth/classrooms": {
+      preLoaderRoute: typeof AuthClassroomsImport
       parentRoute: typeof AuthImport
     }
-    "/hello/": {
-      preLoaderRoute: typeof HelloIndexImport
-      parentRoute: typeof HelloRouteImport
+    "/_auth/classrooms/create": {
+      preLoaderRoute: typeof AuthClassroomsCreateImport
+      parentRoute: typeof AuthImport
     }
   }
 }
@@ -87,8 +67,6 @@ declare module "@tanstack/react-router" {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
-  HelloRouteRoute.addChildren([HelloIndexRoute]),
-  AuthRoute.addChildren([AuthDashboardRoute]),
-  AboutRoute,
+  AuthRoute.addChildren([AuthClassroomsRoute, AuthClassroomsCreateRoute]),
   LoginRoute,
 ])
