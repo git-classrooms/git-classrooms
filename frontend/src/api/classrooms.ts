@@ -1,5 +1,4 @@
 import { apiClient } from "@/lib/utils";
-import { Assignment } from "@/types/assignments";
 import {
   Classroom,
   ClassroomForm,
@@ -41,17 +40,6 @@ export const classroomMemberQueryOptions = (classroomId: string) =>
     queryFn: async () => {
       const res = await apiClient.get<User[]>(
         `/api/me/classrooms/${classroomId}/members`,
-      );
-      return res.data;
-    },
-  });
-
-export const assignmentsQueryOptions = (classroomId: string) =>
-  queryOptions({
-    queryKey: ["classrooms", `classroom-${classroomId}`, "assignments"],
-    queryFn: async () => {
-      const res = await apiClient.get<Assignment[]>(
-        `/api/classrooms/${classroomId}/assignments`,
       );
       return res.data;
     },

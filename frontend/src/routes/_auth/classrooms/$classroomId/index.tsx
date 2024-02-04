@@ -1,5 +1,4 @@
 import {
-  assignmentsQueryOptions,
   classroomMemberQueryOptions,
   classroomQueryOptions,
 } from "@/api/classrooms";
@@ -25,6 +24,7 @@ import { Assignment } from "@/types/assignments";
 import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { assignmentsQueryOptions } from "@/api/assignments.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   component: ClassroomDetail,
@@ -70,7 +70,14 @@ function ClassroomDetail() {
       </Card>
 
       <Header title="Assignments">
-        <Button variant="default">Create assignment</Button>
+        <Button variant="default" asChild>
+          <Link
+            to="/classrooms/$classroomId/assignments/create"
+            params={{ classroomId }}
+          >
+            Create assignment
+          </Link>
+        </Button>
       </Header>
       <AssignmentTable assignments={assignments} />
 
