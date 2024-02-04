@@ -1,12 +1,11 @@
-import { assignmentsQueryOptions, classroomMemberQueryOptions, classroomQueryOptions, classroomsQueryOptions } from "@/api/classrooms";
+import { assignmentsQueryOptions, classroomMemberQueryOptions, classroomQueryOptions } from "@/api/classrooms";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Assignment } from "@/types/assignments";
-import { Classroom } from "@/types/classroom";
 import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId")({
