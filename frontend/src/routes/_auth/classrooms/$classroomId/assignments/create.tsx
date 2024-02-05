@@ -60,7 +60,7 @@ function CreateAssignment() {
   return (
     <div className="p-2">
       <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Create a classroom</h1>
+        <h1 className="text-xl font-bold">Create an assignment</h1>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
