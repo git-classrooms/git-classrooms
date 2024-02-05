@@ -4,8 +4,6 @@ services:
 
   classroom:
     image: registry.hs-flensburg.dev/gitlab/classroom:develop
-    ports:
-      - 3000:3000
     env_file: .env
     depends_on:
       postgres:
@@ -37,7 +35,6 @@ services:
       - "traefik.http.routers.mail.tls.certresolver=myresolver"
       - "traefik.http.services.mail.loadbalancer.server.port=8025"
 
-
   postgres:
     image: postgres:14-alpine
     environment:
@@ -45,7 +42,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
