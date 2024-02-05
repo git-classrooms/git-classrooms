@@ -9,7 +9,7 @@ import (
 // User is the representation of the user in database
 type User struct {
 	ID                     int                   `gorm:"primary_key;autoIncrement:false" json:"id"`
-	GitlabEmail            string                `gorm:"unique;not null" json:"gitlab_email"`
+	GitlabEmail            string                `gorm:"unique;not null" json:"gitlabEmail"`
 	Name                   string                `gorm:"not null" json:"name"`
 	CreatedAt              time.Time             `json:"-"`
 	UpdatedAt              time.Time             `json:"-"`
