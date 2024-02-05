@@ -51,11 +51,7 @@ Install air [cosmtrek/air](https://github.com/cosmtrek/air) and run the followin
 
 ### Setup with docker
 
-**Make sure you have docker-compose installed on your machine.**
-
-```
-docker-compose up
-```
+For a step-by-step setup guide with docker please refer [docker setup](docker_setup.md).
 
 ### Mail
 
