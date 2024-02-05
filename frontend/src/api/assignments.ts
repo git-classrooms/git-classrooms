@@ -64,3 +64,11 @@ export const useInviteAssignmentMembers = (classroomId: string, assignmentId: st
     },
   });
 };
+export const useAcceptAssignment = (classroomId: string, assignmentId: string) => {
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.post<void>(`/api/classrooms/${classroomId}/assignments/${assignmentId}/accept`);
+      return res.data
+    }
+  })
+}
