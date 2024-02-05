@@ -64,3 +64,12 @@ export const useInviteClassroomMembers = (classroomId: string) => {
     onSuccess: () => queryClient.invalidateQueries(classroomInvitationsQueryOptions(classroomId)),
   });
 };
+
+export const useJoinClassroom = (classroomId: string,invitationId: string) => {
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.post<void>(`/api/classrooms/${classroomId}/invitations/${invitationId}`);
+      return res.data
+    }
+  })
+}
