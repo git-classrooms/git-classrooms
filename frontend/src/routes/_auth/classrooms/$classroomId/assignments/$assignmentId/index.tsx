@@ -54,15 +54,14 @@ function AssignmentDetail() {
         <Button onClick={() => mutateAsync()} disabled={isPending}>
           {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Invites"}
         </Button>
-
-        {isError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>The classroom could not be created!</AlertDescription>
-          </Alert>
-        )}
       </Header>
+      {isError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>The Invitation could not be send!</AlertDescription>
+        </Alert>
+      )}
       <AssignmentProjectTable assignmentProjects={assignmentProjects} />
     </div>
   );
