@@ -234,16 +234,9 @@ func (_c *MockRepository_ChangeGroupName_Call) RunAndReturn(run func(int, string
 	return _c
 }
 
-// CreateGroup provides a mock function with given fields: name, visibility, description, memberEmails
-func (_m *MockRepository) CreateGroup(name string, visibility model.Visibility, description string, memberEmails ...string) (*model.Group, error) {
-	_va := make([]interface{}, len(memberEmails))
-	for _i := range memberEmails {
-		_va[_i] = memberEmails[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, name, visibility, description)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
+// CreateGroup provides a mock function with given fields: name, visibility, description
+func (_m *MockRepository) CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error) {
+	ret := _m.Called(name, visibility, description)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateGroup")
@@ -251,19 +244,19 @@ func (_m *MockRepository) CreateGroup(name string, visibility model.Visibility, 
 
 	var r0 *model.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, model.Visibility, string, ...string) (*model.Group, error)); ok {
-		return rf(name, visibility, description, memberEmails...)
+	if rf, ok := ret.Get(0).(func(string, model.Visibility, string) (*model.Group, error)); ok {
+		return rf(name, visibility, description)
 	}
-	if rf, ok := ret.Get(0).(func(string, model.Visibility, string, ...string) *model.Group); ok {
-		r0 = rf(name, visibility, description, memberEmails...)
+	if rf, ok := ret.Get(0).(func(string, model.Visibility, string) *model.Group); ok {
+		r0 = rf(name, visibility, description)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Group)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, model.Visibility, string, ...string) error); ok {
-		r1 = rf(name, visibility, description, memberEmails...)
+	if rf, ok := ret.Get(1).(func(string, model.Visibility, string) error); ok {
+		r1 = rf(name, visibility, description)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -280,21 +273,13 @@ type MockRepository_CreateGroup_Call struct {
 //   - name string
 //   - visibility model.Visibility
 //   - description string
-//   - memberEmails ...string
-func (_e *MockRepository_Expecter) CreateGroup(name interface{}, visibility interface{}, description interface{}, memberEmails ...interface{}) *MockRepository_CreateGroup_Call {
-	return &MockRepository_CreateGroup_Call{Call: _e.mock.On("CreateGroup",
-		append([]interface{}{name, visibility, description}, memberEmails...)...)}
+func (_e *MockRepository_Expecter) CreateGroup(name interface{}, visibility interface{}, description interface{}) *MockRepository_CreateGroup_Call {
+	return &MockRepository_CreateGroup_Call{Call: _e.mock.On("CreateGroup", name, visibility, description)}
 }
 
-func (_c *MockRepository_CreateGroup_Call) Run(run func(name string, visibility model.Visibility, description string, memberEmails ...string)) *MockRepository_CreateGroup_Call {
+func (_c *MockRepository_CreateGroup_Call) Run(run func(name string, visibility model.Visibility, description string)) *MockRepository_CreateGroup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]string, len(args)-3)
-		for i, a := range args[3:] {
-			if a != nil {
-				variadicArgs[i] = a.(string)
-			}
-		}
-		run(args[0].(string), args[1].(model.Visibility), args[2].(string), variadicArgs...)
+		run(args[0].(string), args[1].(model.Visibility), args[2].(string))
 	})
 	return _c
 }
@@ -304,7 +289,7 @@ func (_c *MockRepository_CreateGroup_Call) Return(_a0 *model.Group, _a1 error) *
 	return _c
 }
 
-func (_c *MockRepository_CreateGroup_Call) RunAndReturn(run func(string, model.Visibility, string, ...string) (*model.Group, error)) *MockRepository_CreateGroup_Call {
+func (_c *MockRepository_CreateGroup_Call) RunAndReturn(run func(string, model.Visibility, string) (*model.Group, error)) *MockRepository_CreateGroup_Call {
 	_c.Call.Return(run)
 	return _c
 }
