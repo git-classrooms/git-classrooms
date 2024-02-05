@@ -10,7 +10,6 @@ services:
       - ./:/backend/
 
   frontend:
-    command: yarn dev
     build:
       context: frontend
       dockerfile: ./Dockerfile

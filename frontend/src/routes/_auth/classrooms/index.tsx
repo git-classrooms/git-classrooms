@@ -5,26 +5,27 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Classroom } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Loader } from "@/components/loader.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
-  loader: ({ context }) => context.queryClient.ensureQueryData(classroomsQueryOptions)
+  loader: ({ context }) => context.queryClient.ensureQueryData(classroomsQueryOptions),
+  pendingComponent: Loader,
 });
 
 function Classrooms() {
-  const { data } = useSuspenseQuery(classroomsQueryOptions)
+  const { data } = useSuspenseQuery(classroomsQueryOptions);
   return (
     <div className="p-2">
-      <Header title="Clasrooms">
+      <Header title="Classrooms">
         <Button asChild variant="default">
-          <Link to="/classrooms/create" >Create</Link>
+          <Link to="/classrooms/create">Create</Link>
         </Button>
       </Header>
       <ClassroomTable classrooms={data.ownClassrooms} />
-    </div >
+    </div>
   );
 }
-
 
 function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
   return (
@@ -33,12 +34,12 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
-          <TableHead>Onwer</TableHead>
+          <TableHead>Owner</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {classrooms.map(c =>
+        {classrooms.map((c) => (
           <TableRow key={c.classroom.id}>
             <TableCell>{c.classroom.name}</TableCell>
             <TableCell>{c.classroom.ownerId}</TableCell>
@@ -50,8 +51,8 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
               </Button>
             </TableCell>
           </TableRow>
-        )}
+        ))}
       </TableBody>
     </Table>
-  )
+  );
 }

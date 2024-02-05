@@ -31,7 +31,7 @@ type AssignmentProjects struct {
 	AssignmentID       uuid.UUID      `gorm:"<-:create;not null" json:"assignmentId"`
 	Assignment         Assignment     `json:"-"`
 	UserID             int            `gorm:"<-:create;not null" json:"userId"`
-	User               User           `json:"-"`
+	User               User           `json:"user"`
 	AssignmentAccepted bool           `gorm:"not null" json:"assignmentAccepted"`
 	ProjectID          int            `json:"projectId"`
 }

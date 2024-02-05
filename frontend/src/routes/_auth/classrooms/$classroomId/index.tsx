@@ -1,43 +1,21 @@
-import {
-  assignmentsQueryOptions,
-  classroomMemberQueryOptions,
-  classroomQueryOptions,
-} from "@/api/classrooms";
+import { classroomMemberQueryOptions, classroomQueryOptions } from "@/api/classrooms";
 import { Header } from "@/components/header";
 import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Assignment } from "@/types/assignments";
 import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { assignmentsQueryOptions } from "@/api/assignments.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   component: ClassroomDetail,
   loader: ({ context, params }) => {
-    const classroom = context.queryClient.ensureQueryData(
-      classroomQueryOptions(params.classroomId),
-    );
-    const assignments = context.queryClient.ensureQueryData(
-      assignmentsQueryOptions(params.classroomId),
-    );
-    const members = context.queryClient.ensureQueryData(
-      classroomMemberQueryOptions(params.classroomId),
-    );
+    const classroom = context.queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
+    const assignments = context.queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
+    const members = context.queryClient.ensureQueryData(classroomMemberQueryOptions(params.classroomId));
 
     return { classroom, assignments, members };
   },
@@ -46,15 +24,9 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
 
 function ClassroomDetail() {
   const { classroomId } = Route.useParams();
-  const { data: classroom } = useSuspenseQuery(
-    classroomQueryOptions(classroomId),
-  );
-  const { data: assignments } = useSuspenseQuery(
-    assignmentsQueryOptions(classroomId),
-  );
-  const { data: members } = useSuspenseQuery(
-    classroomMemberQueryOptions(classroomId),
-  );
+  const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
+  const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
+  const { data: members } = useSuspenseQuery(classroomMemberQueryOptions(classroomId));
 
   return (
     <div className="p-2 space-y-6">
@@ -70,9 +42,13 @@ function ClassroomDetail() {
       </Card>
 
       <Header title="Assignments">
-        <Button variant="default">Create assignment</Button>
+        <Button variant="default" asChild>
+          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
+            Create assignment
+          </Link>
+        </Button>
       </Header>
-      <AssignmentTable assignments={assignments} />
+      <AssignmentTable assignments={assignments} classroomId={classroomId} />
 
       <Header title="Members">
         <Button variant="default" asChild>
@@ -86,7 +62,7 @@ function ClassroomDetail() {
   );
 }
 
-function AssignmentTable({ assignments }: { assignments: Assignment[] }) {
+function AssignmentTable({ assignments, classroomId }: { assignments: Assignment[]; classroomId: string }) {
   return (
     <Table>
       <TableCaption>Assignments</TableCaption>
@@ -102,7 +78,16 @@ function AssignmentTable({ assignments }: { assignments: Assignment[] }) {
           <TableRow key={a.id}>
             <TableCell>{a.name}</TableCell>
             <TableCell>{a.dueDate}</TableCell>
-            <TableCell className="text-right"></TableCell>
+            <TableCell className="text-right">
+              <Button asChild>
+                <Link
+                  to="/classrooms/$classroomId/assignments/$assignmentId"
+                  params={{ classroomId, assignmentId: a.id }}
+                >
+                  Show Assignment
+                </Link>
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

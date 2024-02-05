@@ -8,9 +8,10 @@ import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
 import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/index"
 import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/create"
-import { Route as AuthClassroomsClassroomIdImport } from "./routes/_auth/classrooms/$classroomId"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/index"
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
+import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
+import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
 
 // Create/Update Routes
 
@@ -39,21 +40,28 @@ const AuthClassroomsCreateRoute = AuthClassroomsCreateImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
-const AuthClassroomsClassroomIdRoute = AuthClassroomsClassroomIdImport.update({
-  path: "/classrooms/$classroomId",
-  getParentRoute: () => AuthRoute,
-} as any)
-
 const AuthClassroomsClassroomIdIndexRoute =
   AuthClassroomsClassroomIdIndexImport.update({
-    path: "/",
-    getParentRoute: () => AuthClassroomsClassroomIdRoute,
+    path: "/classrooms/$classroomId/",
+    getParentRoute: () => AuthRoute,
   } as any)
 
 const AuthClassroomsClassroomIdInviteRoute =
   AuthClassroomsClassroomIdInviteImport.update({
-    path: "/invite",
-    getParentRoute: () => AuthClassroomsClassroomIdRoute,
+    path: "/classrooms/$classroomId/invite",
+    getParentRoute: () => AuthRoute,
+  } as any)
+
+const AuthClassroomsClassroomIdAssignmentsCreateRoute =
+  AuthClassroomsClassroomIdAssignmentsCreateImport.update({
+    path: "/classrooms/$classroomId/assignments/create",
+    getParentRoute: () => AuthRoute,
+  } as any)
+
+const AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute =
+  AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport.update({
+    path: "/classrooms/$classroomId/assignments/$assignmentId/",
+    getParentRoute: () => AuthRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -72,10 +80,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    "/_auth/classrooms/$classroomId": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdImport
-      parentRoute: typeof AuthImport
-    }
     "/_auth/classrooms/create": {
       preLoaderRoute: typeof AuthClassroomsCreateImport
       parentRoute: typeof AuthImport
@@ -86,11 +90,19 @@ declare module "@tanstack/react-router" {
     }
     "/_auth/classrooms/$classroomId/invite": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdInviteImport
-      parentRoute: typeof AuthClassroomsClassroomIdImport
+      parentRoute: typeof AuthImport
     }
     "/_auth/classrooms/$classroomId/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexImport
-      parentRoute: typeof AuthClassroomsClassroomIdImport
+      parentRoute: typeof AuthImport
+    }
+    "/_auth/classrooms/$classroomId/assignments/create": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsCreateImport
+      parentRoute: typeof AuthImport
+    }
+    "/_auth/classrooms/$classroomId/assignments/$assignmentId/": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport
+      parentRoute: typeof AuthImport
     }
   }
 }
@@ -100,12 +112,12 @@ declare module "@tanstack/react-router" {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   AuthRoute.addChildren([
-    AuthClassroomsClassroomIdRoute.addChildren([
-      AuthClassroomsClassroomIdInviteRoute,
-      AuthClassroomsClassroomIdIndexRoute,
-    ]),
     AuthClassroomsCreateRoute,
     AuthClassroomsIndexRoute,
+    AuthClassroomsClassroomIdInviteRoute,
+    AuthClassroomsClassroomIdIndexRoute,
+    AuthClassroomsClassroomIdAssignmentsCreateRoute,
+    AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
   ]),
   LoginRoute,
 ])

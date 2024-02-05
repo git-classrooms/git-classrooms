@@ -4,46 +4,20 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  ClassroomInvitation,
-  GetStatus,
-  InviteForm,
-  inviteFormSchema,
-} from "@/types/classroom";
+import { ClassroomInvitation, GetStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import {
-  classroomInvitationsQueryOptions,
-  useInviteClassroomMembers,
-} from "@/api/classrooms.ts";
+import { classroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classrooms.ts";
 import { Loader } from "@/components/loader.tsx";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table.tsx";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(
-      classroomInvitationsQueryOptions(params.classroomId),
-    ),
+    context.queryClient.ensureQueryData(classroomInvitationsQueryOptions(params.classroomId)),
   pendingComponent: Loader,
   component: ClassroomsForm,
 });
@@ -53,12 +27,9 @@ function ClassroomsForm() {
   //   from: "/_auth/classrooms/$classroomId/invite",
   // });
   const { classroomId } = Route.useParams();
-  const { data: invitations } = useSuspenseQuery(
-    classroomInvitationsQueryOptions(classroomId),
-  );
+  const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
 
-  const { mutateAsync, isError, isPending } =
-    useInviteClassroomMembers(classroomId);
+  const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
     resolver: zodResolver(inviteFormSchema),
@@ -93,35 +64,23 @@ function ClassroomsForm() {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="toni@test.com"
-                    className="resize-none"
-                    {...field}
-                  />
+                  <Textarea placeholder="toni@test.com" className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>
-                  E-Mails to invite into your Classroom
-                </FormDescription>
+                <FormDescription>E-Mails to invite into your Classroom</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
           <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              "Submit"
-            )}
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
           </Button>
 
           {isError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                The classroom could not be created!
-              </AlertDescription>
+              <AlertDescription>The classroom could not be created!</AlertDescription>
             </Alert>
           )}
         </form>
@@ -130,11 +89,7 @@ function ClassroomsForm() {
   );
 }
 
-function InvitationsTable({
-  invitations,
-}: {
-  invitations: ClassroomInvitation[];
-}) {
+function InvitationsTable({ invitations }: { invitations: ClassroomInvitation[] }) {
   return (
     <Table>
       <TableCaption>Classrooms</TableCaption>

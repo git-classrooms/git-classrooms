@@ -8,5 +8,5 @@ RUN apk --no-cache --update-cache --available upgrade \
 
 WORKDIR /app
 
-COPY ./package.json ./yarn.lock ./
-RUN yarn
+USER node
+CMD yarn && yarn dev

@@ -41,7 +41,7 @@ func (ctrl *DefaultController) GetMeClassroomAssignment(c *fiber.Ctx) error {
 		}
 		webURL = projectFromGitLab.WebUrl
 	}
-	response := &getMeClassroomAssignmentsResponse{
+	response := &getMeClassroomAssignmentResponse{
 		AssignmentProjects: *assignmentProject,
 		ProjectPath:        webURL,
 	}

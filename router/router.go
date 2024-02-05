@@ -49,6 +49,7 @@ func Routes(
 	api.Post("/classrooms/:classroomId/members", apiController.InviteToClassroom)
 	api.Post("/classrooms/:classroomId/invitations/:invitationId", apiController.JoinClassroom)
 	api.Post("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignment)
+	api.Get("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.GetClassroomAssignmentProjects)
 	api.Post("/classrooms/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignment)
 
 	app.Static("/", frontendPath)
