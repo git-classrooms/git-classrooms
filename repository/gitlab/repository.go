@@ -10,7 +10,7 @@ type Repository interface {
 	GroupAccessLogin(token string) error                                                                                     //f
 	GetCurrentUser() (*model.User, error)                                                                                    //f
 	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L735 https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L466
-	CreateGroup(name string, visibility model.Visibility, description string, memberEmails ...string) (*model.Group, error)  //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
+	CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error)                          //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
 
 	DeleteProject(id int) error                                                              //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L1110
 	DeleteGroup(id int) error                                                                //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L566
