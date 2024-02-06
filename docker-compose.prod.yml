@@ -4,8 +4,6 @@ services:
 
   classroom:
     image: registry.hs-flensburg.dev/gitlab/classroom:develop
-    ports:
-      - 3000:3000
     env_file: .env
     depends_on:
       postgres:
@@ -15,6 +13,27 @@ services:
       - "traefik.http.routers.classroom.rule=Host(`staging.hs-flensburg.dev`)"
       - "traefik.http.routers.classroom.entrypoints=websecure"
       - "traefik.http.routers.classroom.tls.certresolver=myresolver"
+      - "traefik.http.services.classroom.loadbalancer.server.port=3000"
+
+  mail:
+    image: axllent/mailpit
+    ports:
+      - 8025:8025
+      - 1025:1025
+    volumes:
+      - .docker/mail:/secrets
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_SMTP_TLS_CERT: /secrets/cert.pem
+      MP_SMTP_TLS_KEY: /secrets/privkey.pem
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mail.rule=Host(`mail.hs-flensburg.dev`)"
+      - "traefik.http.routers.mail.entrypoints=websecure"
+      - "traefik.http.routers.mail.tls.certresolver=myresolver"
+      - "traefik.http.services.mail.loadbalancer.server.port=8025"
 
   postgres:
     image: postgres:14-alpine
@@ -23,7 +42,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
