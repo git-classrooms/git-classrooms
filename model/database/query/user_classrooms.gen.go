@@ -177,7 +177,7 @@ func newUserClassrooms(db *gorm.DB, opts ...gen.DOOption) userClassrooms {
 }
 
 type userClassrooms struct {
-	userClassroomsDo
+	userClassroomsDo userClassroomsDo
 
 	ALL         field.Asterisk
 	UserID      field.Int
@@ -209,6 +209,18 @@ func (u *userClassrooms) updateTableName(table string) *userClassrooms {
 	u.fillFieldMap()
 
 	return u
+}
+
+func (u *userClassrooms) WithContext(ctx context.Context) IUserClassroomsDo {
+	return u.userClassroomsDo.WithContext(ctx)
+}
+
+func (u userClassrooms) TableName() string { return u.userClassroomsDo.TableName() }
+
+func (u userClassrooms) Alias() string { return u.userClassroomsDo.Alias() }
+
+func (u userClassrooms) Columns(cols ...field.Expr) gen.Columns {
+	return u.userClassroomsDo.Columns(cols...)
 }
 
 func (u *userClassrooms) GetFieldByName(fieldName string) (field.OrderExpr, bool) {

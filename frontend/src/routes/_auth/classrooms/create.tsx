@@ -11,13 +11,14 @@ import { createFormSchema } from "@/types/classroom";
 import { useCreateClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { getUUIDFromLocation } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/create")({
   component: ClassroomsForm,
 });
 
 function ClassroomsForm() {
-  const navigate = useNavigate({ from: "/_auth/classrooms/create" });
+  const navigate = useNavigate();
   const { mutateAsync, isError, isPending } = useCreateClassroom();
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
@@ -29,8 +30,8 @@ function ClassroomsForm() {
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     const location = await mutateAsync(values);
-    console.log("Location after submit lcassroom", location);
-    await navigate({ to: "/classrooms" });
+    const classroomId = getUUIDFromLocation(location);
+    await navigate({ to: "/classrooms/$classroomId", params: { classroomId } });
   }
 
   return (

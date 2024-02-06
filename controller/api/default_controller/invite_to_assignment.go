@@ -97,7 +97,7 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) error {
 				UserID:             member.UserID,
 				AssignmentAccepted: false,
 			}
-			if err := tx.AssignmentProjects.Create(assignmentProject); err != nil {
+			if err := tx.AssignmentProjects.WithContext(c.Context()).Create(assignmentProject); err != nil {
 				return err
 			}
 		}
