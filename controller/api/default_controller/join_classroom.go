@@ -58,7 +58,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 	}
 
 	err = query.Q.Transaction(func(tx *query.Query) error {
-		err = tx.UserClassrooms.Create(&database.UserClassrooms{
+		err = tx.UserClassrooms.WithContext(c.Context()).Create(&database.UserClassrooms{
 			UserID:    currentUser.ID,
 			Classroom: invitation.Classroom,
 			Role:      database.Student,
@@ -73,7 +73,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 
 		invitation.Status = database.ClassroomInvitationAccepted
 		invitation.Email = currentUser.Email
-		err = tx.ClassroomInvitation.Save(invitation)
+		err = tx.ClassroomInvitation.WithContext(c.Context()).Save(invitation)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}

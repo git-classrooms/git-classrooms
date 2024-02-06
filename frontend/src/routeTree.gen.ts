@@ -10,10 +10,10 @@ import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/in
 import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/create"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/index"
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
+import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from "./routes/_auth/classrooms/$classroomId/invitations/$invitationId"
 import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
-import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdIndexImport } from "./routes/_auth/classrooms/$classroomId/invitations/$invitationId.index"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
-import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/accept.index"
+import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/accept"
 
 // Create/Update Routes
 
@@ -54,15 +54,15 @@ const AuthClassroomsClassroomIdInviteRoute =
     getParentRoute: () => AuthRoute,
   } as any)
 
-const AuthClassroomsClassroomIdAssignmentsCreateRoute =
-  AuthClassroomsClassroomIdAssignmentsCreateImport.update({
-    path: "/classrooms/$classroomId/assignments/create",
+const AuthClassroomsClassroomIdInvitationsInvitationIdRoute =
+  AuthClassroomsClassroomIdInvitationsInvitationIdImport.update({
+    path: "/classrooms/$classroomId/invitations/$invitationId",
     getParentRoute: () => AuthRoute,
   } as any)
 
-const AuthClassroomsClassroomIdInvitationsInvitationIdIndexRoute =
-  AuthClassroomsClassroomIdInvitationsInvitationIdIndexImport.update({
-    path: "/classrooms/$classroomId/invitations/$invitationId/",
+const AuthClassroomsClassroomIdAssignmentsCreateRoute =
+  AuthClassroomsClassroomIdAssignmentsCreateImport.update({
+    path: "/classrooms/$classroomId/assignments/create",
     getParentRoute: () => AuthRoute,
   } as any)
 
@@ -72,9 +72,9 @@ const AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute =
     getParentRoute: () => AuthRoute,
   } as any)
 
-const AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptIndexRoute =
-  AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptIndexImport.update({
-    path: "/classrooms/$classroomId/assignments/$assignmentId/accept/",
+const AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptRoute =
+  AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptImport.update({
+    path: "/classrooms/$classroomId/assignments/$assignmentId/accept",
     getParentRoute: () => AuthRoute,
   } as any)
 
@@ -114,16 +114,16 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsCreateImport
       parentRoute: typeof AuthImport
     }
+    "/_auth/classrooms/$classroomId/invitations/$invitationId": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdInvitationsInvitationIdImport
+      parentRoute: typeof AuthImport
+    }
+    "/_auth/classrooms/$classroomId/assignments/$assignmentId/accept": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptImport
+      parentRoute: typeof AuthImport
+    }
     "/_auth/classrooms/$classroomId/assignments/$assignmentId/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport
-      parentRoute: typeof AuthImport
-    }
-    "/_auth/classrooms/$classroomId/invitations/$invitationId/": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdInvitationsInvitationIdIndexImport
-      parentRoute: typeof AuthImport
-    }
-    "/_auth/classrooms/$classroomId/assignments/$assignmentId/accept/": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptIndexImport
       parentRoute: typeof AuthImport
     }
   }
@@ -139,9 +139,9 @@ export const routeTree = rootRoute.addChildren([
     AuthClassroomsClassroomIdInviteRoute,
     AuthClassroomsClassroomIdIndexRoute,
     AuthClassroomsClassroomIdAssignmentsCreateRoute,
+    AuthClassroomsClassroomIdInvitationsInvitationIdRoute,
+    AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptRoute,
     AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
-    AuthClassroomsClassroomIdInvitationsInvitationIdIndexRoute,
-    AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptIndexRoute,
   ]),
   LoginRoute,
 ])

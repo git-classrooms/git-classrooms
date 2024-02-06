@@ -170,7 +170,7 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 }
 
 type classroomInvitation struct {
-	classroomInvitationDo
+	classroomInvitationDo classroomInvitationDo
 
 	ALL         field.Asterisk
 	ID          field.Field
@@ -210,6 +210,18 @@ func (c *classroomInvitation) updateTableName(table string) *classroomInvitation
 	c.fillFieldMap()
 
 	return c
+}
+
+func (c *classroomInvitation) WithContext(ctx context.Context) IClassroomInvitationDo {
+	return c.classroomInvitationDo.WithContext(ctx)
+}
+
+func (c classroomInvitation) TableName() string { return c.classroomInvitationDo.TableName() }
+
+func (c classroomInvitation) Alias() string { return c.classroomInvitationDo.Alias() }
+
+func (c classroomInvitation) Columns(cols ...field.Expr) gen.Columns {
+	return c.classroomInvitationDo.Columns(cols...)
 }
 
 func (c *classroomInvitation) GetFieldByName(fieldName string) (field.OrderExpr, bool) {

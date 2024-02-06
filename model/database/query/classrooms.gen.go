@@ -220,7 +220,7 @@ func newClassroom(db *gorm.DB, opts ...gen.DOOption) classroom {
 }
 
 type classroom struct {
-	classroomDo
+	classroomDo classroomDo
 
 	ALL                field.Asterisk
 	ID                 field.Field
@@ -271,6 +271,16 @@ func (c *classroom) updateTableName(table string) *classroom {
 
 	return c
 }
+
+func (c *classroom) WithContext(ctx context.Context) IClassroomDo {
+	return c.classroomDo.WithContext(ctx)
+}
+
+func (c classroom) TableName() string { return c.classroomDo.TableName() }
+
+func (c classroom) Alias() string { return c.classroomDo.Alias() }
+
+func (c classroom) Columns(cols ...field.Expr) gen.Columns { return c.classroomDo.Columns(cols...) }
 
 func (c *classroom) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := c.fieldMap[fieldName]

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { reversed } from "@/types/utils.ts";
+import { User } from "@/types/user.ts";
 
 export const Role = {
   Owner: 0,
@@ -16,10 +17,12 @@ export type Classroom = {
     id: string;
     name: string;
     ownerId: number;
+    owner: User;
     description: string;
     groupId: number;
   };
   role: Role;
+  gitlabUrl: string;
 };
 
 export const createFormSchema = z.object({

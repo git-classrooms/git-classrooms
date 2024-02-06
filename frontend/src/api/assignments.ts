@@ -44,8 +44,8 @@ export const useCreateAssignment = (classroomId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (values: CreateAssignmentForm) => {
-      const res = await apiClient.post<Assignment>(`/api/classrooms/${classroomId}/assignments`, values);
-      return res.data;
+      const res = await apiClient.post<void>(`/api/classrooms/${classroomId}/assignments`, values);
+      return res.headers.location as string;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(assignmentsQueryOptions(classroomId));
@@ -68,7 +68,7 @@ export const useAcceptAssignment = (classroomId: string, assignmentId: string) =
   return useMutation({
     mutationFn: async () => {
       const res = await apiClient.post<void>(`/api/classrooms/${classroomId}/assignments/${assignmentId}/accept`);
-      return res.data
-    }
-  })
-}
+      return res.data;
+    },
+  });
+};

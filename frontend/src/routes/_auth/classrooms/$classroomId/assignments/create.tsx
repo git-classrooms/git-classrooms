@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateAssignmentForm, createAssignmentFormSchema } from "@/types/assignments.ts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
-import { cn } from "@/lib/utils.ts";
+import { cn, getUUIDFromLocation } from "@/lib/utils.ts";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { useState } from "react";
@@ -34,9 +34,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 
 function CreateAssignment() {
   const { classroomId } = Route.useParams();
-  const navigate = useNavigate({
-    from: "/_auth/classrooms/$classroomId/assignments/create",
-  });
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const { data: templateProjects } = useSuspenseQuery(templateProjectQueryOptions(classroomId));
@@ -53,8 +51,8 @@ function CreateAssignment() {
 
   async function onSubmit(values: CreateAssignmentForm) {
     const location = await mutateAsync(values);
-    console.log("Location after submit assignment", location);
-    await navigate({ to: "/classrooms" });
+    const assignmentId = getUUIDFromLocation(location);
+    await navigate({ to: "/classrooms/$classroomId/assignments/$assignmentId", params: { classroomId, assignmentId } });
   }
 
   return (

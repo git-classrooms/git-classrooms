@@ -14,6 +14,7 @@ import { Loader } from "@/components/loader.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { formatDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: ({ context, params }) =>
@@ -23,9 +24,6 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
 });
 
 function ClassroomsForm() {
-  // const navigate = useNavigate({
-  //   from: "/_auth/classrooms/$classroomId/invite",
-  // });
   const { classroomId } = Route.useParams();
   const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
 
@@ -105,7 +103,7 @@ function InvitationsTable({ invitations }: { invitations: ClassroomInvitation[] 
         {invitations.map((i) => (
           <TableRow key={i.email}>
             <TableCell>{i.email}</TableCell>
-            <TableCell>{i.createdAt}</TableCell>
+            <TableCell>{formatDate(i.createdAt)}</TableCell>
             <TableCell>{GetStatus[i.status]}</TableCell>
             <TableCell className="text-right">
               <Button variant="outline">Refresh status</Button>

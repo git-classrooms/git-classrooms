@@ -213,7 +213,7 @@ func newAssignment(db *gorm.DB, opts ...gen.DOOption) assignment {
 }
 
 type assignment struct {
-	assignmentDo
+	assignmentDo assignmentDo
 
 	ALL               field.Asterisk
 	ID                field.Field
@@ -258,6 +258,16 @@ func (a *assignment) updateTableName(table string) *assignment {
 
 	return a
 }
+
+func (a *assignment) WithContext(ctx context.Context) IAssignmentDo {
+	return a.assignmentDo.WithContext(ctx)
+}
+
+func (a assignment) TableName() string { return a.assignmentDo.TableName() }
+
+func (a assignment) Alias() string { return a.assignmentDo.Alias() }
+
+func (a assignment) Columns(cols ...field.Expr) gen.Columns { return a.assignmentDo.Columns(cols...) }
 
 func (a *assignment) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := a.fieldMap[fieldName]

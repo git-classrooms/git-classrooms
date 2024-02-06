@@ -9,6 +9,7 @@ import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { assignmentsQueryOptions } from "@/api/assignments.ts";
+import { formatDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   component: ClassroomDetail,
@@ -77,7 +78,7 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
         {assignments.map((a) => (
           <TableRow key={a.id}>
             <TableCell>{a.name}</TableCell>
-            <TableCell>{a.dueDate}</TableCell>
+            <TableCell>{formatDate(a.dueDate)}</TableCell>
             <TableCell className="text-right">
               <Button asChild>
                 <Link

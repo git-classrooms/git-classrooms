@@ -194,7 +194,7 @@ func newAssignmentProjects(db *gorm.DB, opts ...gen.DOOption) assignmentProjects
 }
 
 type assignmentProjects struct {
-	assignmentProjectsDo
+	assignmentProjectsDo assignmentProjectsDo
 
 	ALL                field.Asterisk
 	ID                 field.Field
@@ -236,6 +236,18 @@ func (a *assignmentProjects) updateTableName(table string) *assignmentProjects {
 	a.fillFieldMap()
 
 	return a
+}
+
+func (a *assignmentProjects) WithContext(ctx context.Context) IAssignmentProjectsDo {
+	return a.assignmentProjectsDo.WithContext(ctx)
+}
+
+func (a assignmentProjects) TableName() string { return a.assignmentProjectsDo.TableName() }
+
+func (a assignmentProjects) Alias() string { return a.assignmentProjectsDo.Alias() }
+
+func (a assignmentProjects) Columns(cols ...field.Expr) gen.Columns {
+	return a.assignmentProjectsDo.Columns(cols...)
 }
 
 func (a *assignmentProjects) GetFieldByName(fieldName string) (field.OrderExpr, bool) {

@@ -80,7 +80,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	queryClassroomInvite := query.ClassroomInvitation
-	invites, err := queryClassroomInvite.Where(queryClassroomInvite.ClassroomID.Eq(classroomId)).Find()
+	invites, err := queryClassroomInvite.WithContext(c.Context()).Where(queryClassroomInvite.ClassroomID.Eq(classroomId)).Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -93,6 +93,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	err = query.Q.Transaction(func(tx *query.Query) error {
 		for i, email := range invitableEmails {
 			_, err := tx.ClassroomInvitation.
+				WithContext(c.Context()).
 				Where(tx.ClassroomInvitation.Email.Eq(email.Address)).
 				Where(tx.ClassroomInvitation.ClassroomID.Eq(classroomId)).
 				Delete()
@@ -107,7 +108,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 				Enabled:     true,
 				ExpiryDate:  time.Now().AddDate(0, 0, 14),
 			}
-			if err := tx.ClassroomInvitation.Create(newInvitation); err != nil {
+			if err := tx.ClassroomInvitation.WithContext(c.Context()).Create(newInvitation); err != nil {
 				return err
 			}
 			invitations[i] = newInvitation
