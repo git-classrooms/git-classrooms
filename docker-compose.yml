@@ -13,8 +13,10 @@ services:
     build:
       context: frontend
       dockerfile: ./Dockerfile
+    user: $UID
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     ports:
       - "5173:5173"
 
