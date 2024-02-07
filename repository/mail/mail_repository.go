@@ -3,12 +3,15 @@ package mail
 import (
 	"bytes"
 	"crypto/tls"
+	"embed"
 	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
+	"gopkg.in/gomail.v2"
 	"html/template"
 	"net/url"
-
-	gomail "gopkg.in/gomail.v2"
 )
+
+//go:embed templates
+var mailTemplates embed.FS
 
 type GoMailRepository struct {
 	publicURL *url.URL
@@ -25,9 +28,10 @@ func NewMailRepository(publicURL *url.URL, config mailConfig.Config) (*GoMailRep
 }
 
 func (m *GoMailRepository) SendClassroomInvitation(to string, subject string, data ClassroomInvitationData) error {
-	t, err := template.ParseFiles(
-		"./templates/base.tmpl.html",
-		"./templates/invitation.tmpl.html",
+	t, err := template.ParseFS(
+		mailTemplates,
+		"templates/base.tmpl.html",
+		"templates/invitation.tmpl.html",
 	)
 	if err != nil {
 		return err
@@ -42,10 +46,12 @@ func (m *GoMailRepository) SendClassroomInvitation(to string, subject string, da
 }
 
 func (m *GoMailRepository) SendAssignmentNotification(to string, subject string, data AssignmentNotificationData) error {
-	t, err := template.ParseFiles(
-		"./templates/base.tmpl.html",
-		"./templates/assignmentNotification.tmpl.html",
+	t, err := template.ParseFS(
+		mailTemplates,
+		"templates/base.tmpl.html",
+		"templates/assignmentNotification.tmpl.html",
 	)
+
 	if err != nil {
 		return err
 	}
