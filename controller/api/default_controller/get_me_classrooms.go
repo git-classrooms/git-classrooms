@@ -40,7 +40,7 @@ func (ctrl *DefaultController) GetMeClassrooms(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	ownedClassroomResponses := make([]*getMeClassroomsClassroom, len(user.OwnedClassrooms))
 	for i, owned := range user.OwnedClassrooms {
 		group, err := repo.GetGroupById(owned.GroupID)
