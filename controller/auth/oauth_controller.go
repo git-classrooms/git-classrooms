@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"context"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang/groupcache/singleflight"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/context"
@@ -18,14 +21,16 @@ import (
 type OAuthController struct {
 	authConfig   *oauth2.Config
 	gitlabConfig gitlabConfig.Config
+	g            *singleflight.Group
 }
 
 func NewOAuthController(authConfig authConfig.Config,
 	gitlabConfig gitlabConfig.Config) *OAuthController {
-
+	g := &singleflight.Group{}
 	return &OAuthController{
 		authConfig:   authConfig.GetOAuthConfig(),
 		gitlabConfig: gitlabConfig,
+		g:            g,
 	}
 }
 
@@ -109,7 +114,7 @@ func (ctrl *OAuthController) Logout(c *fiber.Ctx) error {
 func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	sess := session.Get(c)
 
-	_, err := sess.GetUserID()
+	userId, err := sess.GetUserID()
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
@@ -121,28 +126,13 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	// exp.Add(-20 * time.Minute).After(time.Now())
 	// If
 	if exp.Before(time.Now().Add(20 * time.Minute)) {
-		refreshToken, err := sess.GetGitlabRefreshToken()
+		// this added to prevent multiple requests from refreshing the token at the same time
+		// If 2 refresh requests are sent at the same time, the first one will refresh the token
+		// and the second would get an error because the refresh token was already used
+		_, err := ctrl.g.Do(fmt.Sprintf("%d", userId), func() (interface{}, error) {
+			return nil, ctrl.refreshSession(c.Context(), sess)
+		})
 		if err != nil {
-			return err
-		}
-
-		// Build refresh token from session
-		token := new(oauth2.Token)
-		token.RefreshToken = refreshToken
-		token.Expiry = time.Now().Add(-1 * time.Minute)
-		token.TokenType = "Bearer"
-
-		// Refresh token
-		token, err = ctrl.authConfig.TokenSource(c.Context(), token).Token()
-		if err != nil {
-			return err
-		}
-
-		// Save refreshed token to session
-		sess.SetGitlabAccessToken(token.AccessToken)
-		sess.SetGitlabRefreshToken(token.RefreshToken)
-		sess.SetAccessTokenExpiry(token.Expiry)
-		if err = sess.Save(); err != nil {
 			return err
 		}
 		// sess.Save does save the session, which invalidates the pointer and we must get a new one
@@ -163,4 +153,38 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	ctx.SetGitlabRepository(repo)
 
 	return ctx.Next()
+}
+
+func (ctrl *OAuthController) refreshSession(c context.Context, sess *session.ClassroomSession) error {
+	refreshToken, err := sess.GetGitlabRefreshToken()
+	if err != nil {
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
+
+	// Build refresh token from session
+	token := &oauth2.Token{
+		RefreshToken: refreshToken,
+		Expiry:       time.Now().Add(-1 * time.Minute),
+	}
+
+	// Refresh token
+	token, err = ctrl.authConfig.TokenSource(c, token).Token()
+	if err != nil {
+		oldError := err
+		err = sess.Destroy()
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, oldError.Error()+"\n"+err.Error())
+		}
+		return fiber.NewError(fiber.StatusUnauthorized, oldError.Error())
+	}
+
+	// Save refreshed token to session
+	sess.SetGitlabAccessToken(token.AccessToken)
+	sess.SetGitlabRefreshToken(token.RefreshToken)
+	sess.SetAccessTokenExpiry(token.Expiry)
+	if err = sess.Save(); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return nil
 }
