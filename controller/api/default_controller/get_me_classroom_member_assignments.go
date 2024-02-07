@@ -16,7 +16,8 @@ type getMeClassroomMemberAssignmentsResponse struct {
 }
 
 func (ctrl *DefaultController) GetMeClassroomMemberAssignments(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	ctx := context.Get(c)
+	classroom := ctx.GetClassroom()
 
 	if classroom.Role != database.Owner {
 		return fiber.NewError(fiber.StatusForbidden, "only the owner can access the assignments")
@@ -51,7 +52,7 @@ func (ctrl *DefaultController) GetMeClassroomMemberAssignments(c *fiber.Ctx) err
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := ctx.GetGitlabRepository()
 	responses := make([]*getMeClassroomMemberAssignmentsResponse, len(assignmentProjects))
 	for i, project := range assignmentProjects {
 		webURL := ""

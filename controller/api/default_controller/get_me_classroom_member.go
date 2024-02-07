@@ -8,7 +8,7 @@ import (
 )
 
 func (ctrl *DefaultController) GetMeClassroomMember(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	classroom := context.Get(c).GetClassroom()
 
 	memberId, err := strconv.ParseInt(c.Params("memberId"), 10, 64)
 	if err != nil {

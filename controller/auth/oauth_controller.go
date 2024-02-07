@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -69,7 +69,9 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name})).
 		FirstOrCreate()
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		// TODO: Use sentry to log errors
+		log.Println(err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
 
 	s := session.Get(c)
@@ -81,7 +83,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	s.SetUserState(session.LoggedIn)
 	s.SetUserID(user.ID)
 
-	s.SetExpiry(token.Expiry)
+	s.SetAccessTokenExpiry(token.Expiry)
 
 	redirect := s.GetOAuthRedirectTarget()
 
@@ -107,11 +109,14 @@ func (ctrl *OAuthController) Logout(c *fiber.Ctx) error {
 func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	sess := session.Get(c)
 
-	if sess.GetUserState() == session.Anonymous {
-		return fiber.NewError(fiber.StatusUnauthorized, session.ErrorUnauthenticated)
+	_, err := sess.GetUserID()
+	if err != nil {
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
-
-	exp := sess.GetExpiry()
+	exp, err := sess.GetAccessTokenExpiry()
+	if err != nil {
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
 
 	// exp.Add(-20 * time.Minute).After(time.Now())
 	// If
@@ -136,7 +141,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		// Save refreshed token to session
 		sess.SetGitlabAccessToken(token.AccessToken)
 		sess.SetGitlabRefreshToken(token.RefreshToken)
-		sess.SetExpiry(token.Expiry)
+		sess.SetAccessTokenExpiry(token.Expiry)
 		if err = sess.Save(); err != nil {
 			return err
 		}
@@ -154,7 +159,8 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
-	context.SetGitlabRepository(c, repo)
+	ctx := fiberContext.Get(c)
+	ctx.SetGitlabRepository(repo)
 
-	return c.Next()
+	return ctx.Next()
 }

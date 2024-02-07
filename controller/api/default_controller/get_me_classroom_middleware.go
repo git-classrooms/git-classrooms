@@ -49,6 +49,6 @@ func (ctrl *DefaultController) GetMeClassroomMiddleware(c *fiber.Ctx) error {
 			ClassroomID: classroomId,
 		}
 	}
-	context.SetClassroom(c, classroom)
+	context.Get(c).SetClassroom(classroom)
 	return c.Next()
 }

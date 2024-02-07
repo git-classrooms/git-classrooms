@@ -22,7 +22,7 @@ func (r CreateAssignmentRequest) isValid() bool {
 }
 
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 
 	// Parse parameters
 	classroomId, err := uuid.Parse(c.Params("classroomId"))

@@ -6,7 +6,7 @@ import (
 )
 
 func (ctrl *DefaultController) GetMeClassroom(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	classroom := context.Get(c).GetClassroom()
 
 	return c.JSON(classroom)
 }

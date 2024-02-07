@@ -2,12 +2,20 @@ package default_controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"time"
 )
+
+type Params struct {
+	ClassroomID  *uuid.UUID `params:"classroomId"`
+	AssignmentID *uuid.UUID `params:"assignmentId"`
+	MemberID     *int       `params:"memberId"`
+	InvitationID *int       `params:"invitationId"`
+}
 
 type DefaultController struct {
 	mailRepo mailRepo.Repository
@@ -18,7 +26,7 @@ func NewApiController(mailRepo mailRepo.Repository) *DefaultController {
 }
 
 func (ctrl *DefaultController) RotateAccessToken(c *fiber.Ctx, classroom *database.Classroom) error {
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	expiresAt := time.Now().AddDate(0, 0, 364)
 	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
 	if err != nil {

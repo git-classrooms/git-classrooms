@@ -107,7 +107,7 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	owner, err := repo.GetUserById(classroom.OwnerID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

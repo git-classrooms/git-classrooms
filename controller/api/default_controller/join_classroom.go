@@ -40,7 +40,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	currentUser, err := repo.GetCurrentUser()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

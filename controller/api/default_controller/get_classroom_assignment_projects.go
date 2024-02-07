@@ -38,7 +38,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentProjects(c *fiber.Ctx) erro
 
 	responses := make([]getGetClassroomAssignmentProjectsResponse, len(assignment.Projects))
 	for i, project := range assignment.Projects {
-		repo := context.GetGitlabRepository(c)
+		repo := context.Get(c).GetGitlabRepository()
 		webURL := ""
 		if project.AssignmentAccepted {
 			projectFromGitLab, err := repo.GetProjectById(project.ProjectID)

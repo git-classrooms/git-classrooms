@@ -8,7 +8,7 @@ import (
 )
 
 func (ctrl *DefaultController) GetMeClassroomInvitations(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	classroom := context.Get(c).GetClassroom()
 	if classroom.Role != database.Owner {
 		return fiber.NewError(fiber.StatusForbidden, "only the owner can access the invitations")
 	}

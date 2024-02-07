@@ -63,7 +63,7 @@ func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "You have already joined this assignment")
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	// Check if template repository still exists
 	_, err = repo.GetProjectById(assignment.TemplateProjectID)
 	if err != nil {

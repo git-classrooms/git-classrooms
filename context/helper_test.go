@@ -18,9 +18,10 @@ func TestClassroomSession_Delete(t *testing.T) {
 			req := new(fasthttp.RequestCtx)
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
+			c := Get(ctx)
 
 			// when
-			repo := GetGitlabRepository(ctx)
+			repo := c.GetGitlabRepository()
 
 			//then
 			assert.Nil(t, repo)
@@ -32,9 +33,10 @@ func TestClassroomSession_Delete(t *testing.T) {
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
 			ctx.Locals(gitlabRepoKey, "test")
+			c := Get(ctx)
 
 			// when
-			repo := GetGitlabRepository(ctx)
+			repo := c.GetGitlabRepository()
 
 			// then
 			assert.Nil(t, repo)
@@ -47,9 +49,10 @@ func TestClassroomSession_Delete(t *testing.T) {
 			defer app.ReleaseCtx(ctx)
 			shouldRepo := gitlabRepoMock.NewMockRepository(t)
 			ctx.Locals(gitlabRepoKey, shouldRepo)
+			c := Get(ctx)
 
 			// when
-			repo := GetGitlabRepository(ctx)
+			repo := c.GetGitlabRepository()
 
 			// then
 			assert.Equal(t, shouldRepo, repo)
@@ -62,9 +65,10 @@ func TestClassroomSession_Delete(t *testing.T) {
 			req := new(fasthttp.RequestCtx)
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
+			c := Get(ctx)
 
 			// when
-			SetGitlabRepository(ctx, nil)
+			c.SetGitlabRepository(nil)
 
 			// then
 			repo := ctx.Locals(gitlabRepoKey)
@@ -77,9 +81,10 @@ func TestClassroomSession_Delete(t *testing.T) {
 			ctx := app.AcquireCtx(req)
 			defer app.ReleaseCtx(ctx)
 			shouldRepo := gitlabRepoMock.NewMockRepository(t)
+			c := Get(ctx)
 
 			// when
-			SetGitlabRepository(ctx, shouldRepo)
+			c.SetGitlabRepository(shouldRepo)
 
 			// then
 			repo := ctx.Locals(gitlabRepoKey)

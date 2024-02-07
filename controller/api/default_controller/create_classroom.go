@@ -22,8 +22,8 @@ func (r CreateClassroomRequest) isValid() bool {
 }
 
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
-	repo := context.GetGitlabRepository(c)
-	user, err := session.Get(c).GetUser()
+	repo := context.Get(c).GetGitlabRepository()
+	userId, err := session.Get(c).GetUserID() // TODO: Change from session to context
 	if err != nil {
 		log.Println("failed to get user from session", err)
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -58,7 +58,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	classroomQuery := query.Classroom
 	classRoom := &database.Classroom{
 		Name:               requestBody.Name,
-		OwnerID:            user.ID,
+		OwnerID:            userId,
 		Description:        requestBody.Description,
 		GroupID:            group.ID,
 		GroupAccessTokenID: accessToken.ID,

@@ -15,7 +15,7 @@ type getMeClassroomMemberAssignmentResponse struct {
 }
 
 func (ctrl *DefaultController) GetMeClassroomMemberAssignment(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	classroom := context.Get(c).GetClassroom()
 
 	if classroom.Role != database.Owner {
 		return fiber.NewError(fiber.StatusForbidden, "only the owner can access the assignments")
@@ -54,7 +54,7 @@ func (ctrl *DefaultController) GetMeClassroomMemberAssignment(c *fiber.Ctx) erro
 
 	webURL := ""
 	if assignmentProject.AssignmentAccepted {
-		repo := context.GetGitlabRepository(c)
+		repo := context.Get(c).GetGitlabRepository()
 		projectFromGitLab, err := repo.GetProjectById(assignmentProject.ProjectID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
