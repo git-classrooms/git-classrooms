@@ -10,11 +10,11 @@ import (
 	"github.com/golang/groupcache/singleflight"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
-	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"golang.org/x/oauth2"
 	"gorm.io/gen/field"
 )
@@ -68,7 +68,6 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 	state := c.FormValue("state") // get the state passed from auth, which was sent by gitlab
-	log.Println(state)
 
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
 	if err := repo.Login(token.AccessToken); err != nil {

@@ -3,9 +3,9 @@ package default_controller
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 )
 
 func (ctrl *DefaultController) GetClassroomAssignments(c *fiber.Ctx) error {

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"log"
 )
 

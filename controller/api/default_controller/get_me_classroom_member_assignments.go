@@ -3,10 +3,10 @@ package default_controller
 import (
 	"database/sql/driver"
 	"github.com/gofiber/fiber/v2"
-	"gitlab.hs-flensburg.de/gitlab-classroom/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"strconv"
 )
 
