@@ -6,8 +6,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/context/session"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"slices"
+	"gorm.io/gen/field"
 )
 
 type getMeClassroomsClassroom struct {
@@ -34,6 +33,7 @@ func (ctrl *DefaultController) GetMeClassrooms(c *fiber.Ctx) error {
 	joinedClassrooms, err := queryUserClassrooms.
 		WithContext(c.Context()).
 		Preload(queryUserClassrooms.Classroom).
+		Preload(field.NewRelation("Classroom.Owner", "")).
 		Where(queryUserClassrooms.UserID.Eq(userId)).
 		Find()
 	if err != nil {
@@ -58,29 +58,13 @@ func (ctrl *DefaultController) GetMeClassrooms(c *fiber.Ctx) error {
 		}
 	}
 
-	ownerIds := utils.Map(joinedClassrooms, func(classroom *database.UserClassrooms) int {
-		return classroom.Classroom.OwnerID
-	})
-
-	owners, err := queryUser.WithContext(c.Context()).Where(queryUser.ID.In(ownerIds...)).Find()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
 	joinedClassroomResponses := make([]*getMeClassroomsClassroom, len(joinedClassrooms))
 	for i, joinedClassroom := range joinedClassrooms {
-		index := slices.IndexFunc(owners, func(owner *database.User) bool {
-			return owner.ID == joinedClassroom.Classroom.OwnerID
-		})
-		if index == -1 {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
 		group, err := repo.GetGroupById(joinedClassroom.Classroom.GroupID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		joinedClassroom.Classroom.Owner = *owners[index]
 		joinedClassroomResponses[i] = &getMeClassroomsClassroom{
 			UserClassrooms: *joinedClassroom,
 			GitlabUrl:      group.WebUrl,
