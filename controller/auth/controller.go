@@ -7,4 +7,5 @@ type Controller interface {
 	Auth(c *fiber.Ctx) error
 	Callback(c *fiber.Ctx) error
 	Logout(c *fiber.Ctx) error
+	IsAuthenticated(c *fiber.Ctx) error
 }

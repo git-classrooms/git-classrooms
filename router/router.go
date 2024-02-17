@@ -1,7 +1,8 @@
 package router
 
 import (
-	"fmt"
+	"path"
+
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
@@ -24,6 +25,7 @@ func Routes(
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 
 	api.Use(authController.AuthMiddleware)
+	api.Get("/isAuth", authController.IsAuthenticated)
 
 	me := api.Group("/me")
 	me.Get("/", apiController.GetMe)
@@ -63,6 +65,6 @@ func setupFrontend(app *fiber.App, frontendPath string) {
 	app.Get("/api/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })
 
 	// we need to redirect all other routes to the frontend
-	spaFile := fmt.Sprintf("%s/index.html", frontendPath)
+	spaFile := path.Join(frontendPath, "index.html")
 	app.Get("*", func(c *fiber.Ctx) error { return c.SendFile(spaFile) })
 }
