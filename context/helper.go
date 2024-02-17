@@ -11,7 +11,15 @@ const (
 	classroomKey  = "classroom"
 )
 
-func GetGitlabRepository(c *fiber.Ctx) gitlab.Repository {
+type FiberContext struct {
+	*fiber.Ctx
+}
+
+func Get(c *fiber.Ctx) *FiberContext {
+	return &FiberContext{Ctx: c}
+}
+
+func (c *FiberContext) GetGitlabRepository() gitlab.Repository {
 	value, ok := c.Locals(gitlabRepoKey).(gitlab.Repository)
 	if !ok {
 		return nil
@@ -19,15 +27,15 @@ func GetGitlabRepository(c *fiber.Ctx) gitlab.Repository {
 	return value
 }
 
-func SetGitlabRepository(c *fiber.Ctx, repo gitlab.Repository) {
+func (c *FiberContext) SetGitlabRepository(repo gitlab.Repository) {
 	c.Locals(gitlabRepoKey, repo)
 }
 
-func SetClassroom(c *fiber.Ctx, classroom *database.UserClassrooms) {
+func (c *FiberContext) SetClassroom(classroom *database.UserClassrooms) {
 	c.Locals(classroomKey, classroom)
 }
 
-func GetClassroom(c *fiber.Ctx) *database.UserClassrooms {
+func (c *FiberContext) GetClassroom() *database.UserClassrooms {
 	value, ok := c.Locals(classroomKey).(*database.UserClassrooms)
 	if !ok {
 		return nil

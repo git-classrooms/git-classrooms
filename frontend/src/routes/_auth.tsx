@@ -1,23 +1,20 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
-import { isAuthenticated } from '@/lib/utils'
+import { isAuthenticated } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth")({
   beforeLoad: async ({ location }) => {
-    if (!await isAuthenticated()) {
+    if (!(await isAuthenticated())) {
       throw redirect({
-        to: '/login',
+        to: "/login",
         search: {
-          redirect: location.href
-        }
-      })
-
+          redirect: location.href,
+        },
+      });
     }
   },
   component: Index,
 });
 
 function Index() {
-  return (
-    <Outlet />
-  );
+  return <Outlet />;
 }

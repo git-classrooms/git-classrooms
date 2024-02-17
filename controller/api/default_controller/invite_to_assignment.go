@@ -67,31 +67,37 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	// Fetch candidates for invitation mail
-	queryUser := query.User
-	queryUserClassrooms := query.UserClassrooms
 	queryAssignmentProject := query.AssignmentProjects
-
-	invitableUsers, err := queryUser.
+	assignmentProjects, err := queryAssignmentProject.
 		WithContext(c.Context()).
-		Join(queryUserClassrooms, queryUser.ID.EqCol(queryUserClassrooms.UserID)).
-		LeftJoin(queryAssignmentProject, queryAssignmentProject.UserID.EqCol(queryUser.ID)).
-		Where(queryUserClassrooms.ClassroomID.Eq(classroomID)).
-		Where(queryAssignmentProject.ID.IsNull()).
-		Where(queryUserClassrooms.UserID.Neq(classroom.OwnerID)).
+		Where(queryAssignmentProject.AssignmentID.Eq(assignmentID)).
 		Find()
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	ids := make([]int, len(assignmentProjects))
+	for i, project := range assignmentProjects {
+		ids[i] = project.UserID
+	}
+
+	queryUserClassrooms := query.UserClassrooms
+	invitableUsers, err := queryUserClassrooms.WithContext(c.Context()).Preload(queryUserClassrooms.User).
+		Where(queryUserClassrooms.ClassroomID.Eq(classroomID)).
+		Where(queryUserClassrooms.UserID.NotIn(ids...)).
+		Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	err = query.Q.Transaction(func(tx *query.Query) error {
 		for _, member := range invitableUsers {
 			assignmentProject := &database.AssignmentProjects{
 				AssignmentID:       assignmentID,
-				UserID:             member.ID,
+				UserID:             member.UserID,
 				AssignmentAccepted: false,
 			}
-			if err := tx.AssignmentProjects.Create(assignmentProject); err != nil {
+			if err := tx.AssignmentProjects.WithContext(c.Context()).Create(assignmentProject); err != nil {
 				return err
 			}
 		}
@@ -101,23 +107,23 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	owner, err := repo.GetUserById(classroom.OwnerID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	for _, member := range invitableUsers {
-		log.Println("Sending invitation to", member.GitlabEmail)
+		log.Println("Sending invitation to", member.User.GitlabEmail)
 
 		joinPath := fmt.Sprintf("/classrooms/%s/assignments/%s/accept", classroom.ID.String(), assigment.ID.String())
-		err = ctrl.mailRepo.SendAssignmentNotification(member.GitlabEmail,
+		err = ctrl.mailRepo.SendAssignmentNotification(member.User.GitlabEmail,
 			fmt.Sprintf(`You were invited to a new Assigment "%s"`,
 				classroom.Name),
 			mailRepo.AssignmentNotificationData{
 				ClassroomName:      classroom.Name,
 				ClassroomOwnerName: owner.Name,
-				RecipientName:      member.Name,
+				RecipientName:      member.User.Name,
 				AssignmentName:     assigment.Name,
 				JoinPath:           joinPath,
 			})

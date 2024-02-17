@@ -13,7 +13,8 @@ type getMeClassroomAssignmentsResponse struct {
 }
 
 func (ctrl *DefaultController) GetMeClassroomAssignments(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	ctx := context.Get(c)
+	classroom := ctx.GetClassroom()
 
 	queryAssignment := query.Assignment
 	queryAssignmentProjects := query.AssignmentProjects
@@ -26,7 +27,7 @@ func (ctrl *DefaultController) GetMeClassroomAssignments(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := ctx.GetGitlabRepository()
 	responses := make([]*getMeClassroomAssignmentsResponse, len(assignmentProjects))
 	for i, project := range assignmentProjects {
 		webURL := ""

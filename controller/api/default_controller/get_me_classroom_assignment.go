@@ -14,7 +14,8 @@ type getMeClassroomAssignmentResponse struct {
 }
 
 func (ctrl *DefaultController) GetMeClassroomAssignment(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	ctx := context.Get(c)
+	classroom := ctx.GetClassroom()
 
 	assignmentId, err := uuid.Parse(c.Params("assignmentId"))
 	if err != nil {
@@ -32,7 +33,7 @@ func (ctrl *DefaultController) GetMeClassroomAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := ctx.GetGitlabRepository()
 	webURL := ""
 	if assignmentProject.AssignmentAccepted {
 		projectFromGitLab, err := repo.GetProjectById(assignmentProject.ProjectID)
@@ -41,7 +42,7 @@ func (ctrl *DefaultController) GetMeClassroomAssignment(c *fiber.Ctx) error {
 		}
 		webURL = projectFromGitLab.WebUrl
 	}
-	response := &getMeClassroomAssignmentsResponse{
+	response := &getMeClassroomAssignmentResponse{
 		AssignmentProjects: *assignmentProject,
 		ProjectPath:        webURL,
 	}

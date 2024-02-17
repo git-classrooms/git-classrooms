@@ -42,7 +42,6 @@ USER gorunner
 WORKDIR /
 
 COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
-COPY --chown=gorunner:gorunner --from=builder-go /app/build/templates /templates
 COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
 
 ENTRYPOINT /app

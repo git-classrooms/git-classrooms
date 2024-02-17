@@ -23,7 +23,7 @@ type Classroom struct {
 	DeletedAt          gorm.DeletedAt         `gorm:"index" json:"-"`
 	Name               string                 `gorm:"not null" json:"name"`
 	OwnerID            int                    `gorm:"not null" json:"ownerId"`
-	Owner              User                   `json:"-"`
+	Owner              User                   `json:"owner"`
 	Description        string                 `json:"description"`
 	GroupID            int                    `gorm:"<-:create;not null" json:"groupId"`
 	GroupAccessTokenID int                    `gorm:"not null" json:"-"`

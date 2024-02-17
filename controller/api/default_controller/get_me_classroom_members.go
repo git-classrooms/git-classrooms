@@ -7,7 +7,7 @@ import (
 )
 
 func (ctrl *DefaultController) GetMeClassroomMembers(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	classroom := context.Get(c).GetClassroom()
 
 	queryUserClassrooms := query.UserClassrooms
 	fetchedMembers, err := queryUserClassrooms.

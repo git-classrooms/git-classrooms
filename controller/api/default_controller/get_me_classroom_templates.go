@@ -7,14 +7,15 @@ import (
 )
 
 func (ctrl *DefaultController) GetMeClassroomTemplates(c *fiber.Ctx) error {
-	classroom := context.GetClassroom(c)
+	ctx := context.Get(c)
+	classroom := ctx.GetClassroom()
 	if classroom.Role != database.Owner {
 		return fiber.NewError(fiber.StatusForbidden, "only the owner can access the templates")
 	}
 
 	search := c.Query("search")
 
-	repo := context.GetGitlabRepository(c)
+	repo := ctx.GetGitlabRepository()
 	projects, err := repo.GetAllProjects(search)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

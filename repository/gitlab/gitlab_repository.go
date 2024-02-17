@@ -6,6 +6,7 @@ import (
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -77,7 +78,7 @@ func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, 
 
 	opts := &goGitlab.ForkProjectOptions{
 		Name:                          goGitlab.String(name),
-		Path:                          goGitlab.String(name),
+		Path:                          goGitlab.String(convertToGitLabPath(name)),
 		NamespaceID:                   goGitlab.Int(namespaceId),
 		Visibility:                    goGitlab.Visibility(VisibilityFromModel(visibility)),
 		Description:                   goGitlab.String(description),
@@ -119,13 +120,12 @@ func (repo *GitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
 	return &project.Namespace.Path, nil
 }
 
-// TODO: This is not SOLID and should not Add Members to the group
-func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, description string, memberEmails ...string) (*model.Group, error) {
+func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error) {
 	repo.assertIsConnected()
 
 	gitlabVisibility := VisibilityFromModel(visibility)
 
-	path := strings.ToLower(strings.ReplaceAll(name, " ", "-"))
+	path := convertToGitLabPath(strings.ToLower(name))
 
 	createOpts := &goGitlab.CreateGroupOptions{
 		Name:        goGitlab.String(name),
@@ -137,18 +137,6 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 	gitlabGroup, _, err := repo.client.Groups.CreateGroup(createOpts)
 	if err != nil {
 		return nil, err
-	}
-
-	// TODO: Delete this
-	for _, email := range memberEmails {
-		userID, _ := repo.FindUserIDByEmail(email)
-		_, _, err := repo.client.GroupMembers.AddGroupMember(gitlabGroup.ID, &goGitlab.AddGroupMemberOptions{
-			UserID:      &userID,
-			AccessLevel: goGitlab.AccessLevel(goGitlab.DeveloperPermissions),
-		})
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	return GroupFromGoGitlab(*gitlabGroup), nil
@@ -604,4 +592,29 @@ func (repo *GitlabRepo) convertGitlabPendingInvites(gitlabPendingInvites []*goGi
 	}
 
 	return pendingInvites, nil
+}
+
+func convertToGitLabPath(s string) string {
+	// Remove unwanted characters
+	reg, _ := regexp.Compile("[^a-zA-Z0-9_.-]+")
+	s = reg.ReplaceAllString(s, "")
+
+	// Remove leading and trailing special characters
+	s = strings.Trim(s, "_.-")
+
+	// Prevent consecutive special characters
+	reg, _ = regexp.Compile("[-_.]{2,}")
+	s = reg.ReplaceAllString(s, "-")
+
+	// Prevent specific endings
+	if strings.HasSuffix(s, ".git") || strings.HasSuffix(s, ".atom") {
+		s = s[:len(s)-4]
+	}
+
+	// Ensure the path name is at least one character long
+	if len(s) == 0 {
+		s = "gc_"
+	}
+
+	return s
 }

@@ -23,7 +23,7 @@ func (r InviteToClassroomRequest) isValid() bool {
 }
 
 func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
-	user, err := session.Get(c).GetUser()
+	userID, err := session.Get(c).GetUserID()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -43,12 +43,12 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	// Check if owner or moderator of specific classroom
-	if classroom.OwnerID != user.ID {
+	if classroom.OwnerID != userID {
 		queryUserClassroom := query.UserClassrooms
 		_, err := queryUserClassroom.
 			WithContext(c.Context()).
 			Where(queryUserClassroom.ClassroomID.Eq(classroomId)).
-			Where(queryUserClassroom.UserID.Eq(user.ID)).
+			Where(queryUserClassroom.UserID.Eq(userID)).
 			Where(queryUserClassroom.Role.Eq(uint8(database.Moderator))).
 			First()
 		if err != nil {
@@ -56,7 +56,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 		}
 	}
 
-	repo := context.GetGitlabRepository(c)
+	repo := context.Get(c).GetGitlabRepository()
 	if err := ctrl.RotateAccessToken(c, classroom); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -80,7 +80,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	queryClassroomInvite := query.ClassroomInvitation
-	invites, err := queryClassroomInvite.Where(queryClassroomInvite.ClassroomID.Eq(classroomId)).Find()
+	invites, err := queryClassroomInvite.WithContext(c.Context()).Where(queryClassroomInvite.ClassroomID.Eq(classroomId)).Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -93,6 +93,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	err = query.Q.Transaction(func(tx *query.Query) error {
 		for i, email := range invitableEmails {
 			_, err := tx.ClassroomInvitation.
+				WithContext(c.Context()).
 				Where(tx.ClassroomInvitation.Email.Eq(email.Address)).
 				Where(tx.ClassroomInvitation.ClassroomID.Eq(classroomId)).
 				Delete()
@@ -106,7 +107,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 				Email:       email.Address,
 				ExpiryDate:  time.Now().AddDate(0, 0, 14),
 			}
-			if err := tx.ClassroomInvitation.Create(newInvitation); err != nil {
+			if err := tx.ClassroomInvitation.WithContext(c.Context()).Create(newInvitation); err != nil {
 				return err
 			}
 			invitations[i] = newInvitation

@@ -9,11 +9,11 @@ const (
 )
 
 type Project struct {
-	Name        string
-	ID          int
-	Visibility  Visibility
-	WebUrl      string
-	Description string
-	Owner       *User
-	Member      []User
+	Name        string     `json:"name"`
+	ID          int        `json:"id"`
+	Visibility  Visibility `json:"visibility"`
+	WebUrl      string     `json:"webUrl"`
+	Description string     `json:"description"`
+	Owner       *User      `json:"owner"`
+	Member      []User     `json:"member"`
 }

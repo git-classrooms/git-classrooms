@@ -5,5 +5,5 @@ export function Loader() {
     <div className="w-full h-screen flex items-center justify-center">
       <Loader2 className="animate-spin h-8 w-8" />
     </div>
-  )
+  );
 }
