@@ -5,23 +5,22 @@ import { useJoinClassroom } from "@/api/classrooms.ts";
 import { Header } from "@/components/header.tsx";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 
-export const Route = createFileRoute('/_auth/classrooms/$classroomId/invitations/$invitationId')({
-  component: JoinClassroom
-})
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
+  component: JoinClassroom,
+});
 
-function JoinClassroom(){
+function JoinClassroom() {
   const navigate = useNavigate({
     from: "/_auth/classrooms/$classroomId/invitations/$invitationId/",
   });
-  const { classroomId, invitationId } = Route.useParams();
-  const { mutateAsync, isError, isPending } = useJoinClassroom(classroomId, invitationId);
-  const onClick = async ()=>{
-    await mutateAsync()
+  const { invitationId } = Route.useParams();
+  const { mutateAsync, isError, isPending } = useJoinClassroom(invitationId);
+  const onClick = async () => {
+    await mutateAsync();
     await navigate({ to: "/classrooms" });
-  }
+  };
 
-
-  return(
+  return (
     <div className="p-2 space-y-6">
       <Header title="Join Classroom">
         <Button onClick={onClick} disabled={isPending}>
@@ -37,5 +36,4 @@ function JoinClassroom(){
       )}
     </div>
   );
-
 }

@@ -2,40 +2,46 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query
 import { apiClient } from "@/lib/utils.ts";
 import { Assignment, AssignmentProject, CreateAssignmentForm, TemplateProject } from "@/types/assignments.ts";
 
-export const assignmentsQueryOptions = (classroomId: string) =>
+export const ownedAssignmentsQueryOptions = (classroomId: string) =>
   queryOptions({
-    queryKey: ["classrooms", `classroom-${classroomId}`, "assignments"],
+    queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "assignments"],
     queryFn: async () => {
-      const res = await apiClient.get<Assignment[]>(`/api/classrooms/${classroomId}/assignments`);
+      const res = await apiClient.get<Assignment[]>(`/classrooms/owned/${classroomId}/assignments`);
       return res.data;
     },
   });
 
-export const assignmentQueryOptions = (classroomId: string, assignmentId: string) =>
+export const ownedAssignmentQueryOptions = (classroomId: string, assignmentId: string) =>
   queryOptions({
-    queryKey: ["classrooms", `classroom-${classroomId}`, "assignments", `classroom-${assignmentId}`],
+    queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "assignments", `classroom-${assignmentId}`],
     queryFn: async () => {
-      const res = await apiClient.get<Assignment>(`/api/classrooms/${classroomId}/assignments/${assignmentId}`);
+      const res = await apiClient.get<Assignment>(`/classrooms/owned/${classroomId}/assignments/${assignmentId}`);
       return res.data;
     },
   });
 
-export const assignmentProjectsQueryOptions = (classroomId: string, assignmentId: string) =>
+export const ownedAssignmentProjectsQueryOptions = (classroomId: string, assignmentId: string) =>
   queryOptions({
-    queryKey: ["classrooms", `classroom-${classroomId}`, "assignments", `classroom-${assignmentId}`, "projects"],
+    queryKey: [
+      "ownedClassrooms",
+      `ownedClassroom-${classroomId}`,
+      "assignments",
+      `classroom-${assignmentId}`,
+      "projects",
+    ],
     queryFn: async () => {
       const res = await apiClient.get<AssignmentProject[]>(
-        `/api/classrooms/${classroomId}/assignments/${assignmentId}/projects`,
+        `/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`,
       );
       return res.data;
     },
   });
 
-export const templateProjectQueryOptions = (classroomId: string) =>
+export const ownedTemplateProjectQueryOptions = (classroomId: string) =>
   queryOptions({
-    queryKey: ["classrooms", `classroom-${classroomId}`, "templateProjects"],
+    queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "templateProjects"],
     queryFn: async () => {
-      const res = await apiClient.get<TemplateProject[]>(`/api/me/classrooms/${classroomId}/templateProjects`);
+      const res = await apiClient.get<TemplateProject[]>(`/classrooms/owned/${classroomId}/templateProjects`);
       return res.data;
     },
   });
@@ -44,11 +50,11 @@ export const useCreateAssignment = (classroomId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (values: CreateAssignmentForm) => {
-      const res = await apiClient.post<void>(`/api/classrooms/${classroomId}/assignments`, values);
+      const res = await apiClient.post<void>(`/classrooms/owned/${classroomId}/assignments`, values);
       return res.headers.location as string;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(assignmentsQueryOptions(classroomId));
+      queryClient.invalidateQueries(ownedAssignmentsQueryOptions(classroomId));
     },
   });
 };
@@ -57,17 +63,17 @@ export const useInviteAssignmentMembers = (classroomId: string, assignmentId: st
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      await apiClient.post(`/api/classrooms/${classroomId}/assignments/${assignmentId}/projects`);
+      await apiClient.post(`/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(assignmentProjectsQueryOptions(classroomId, assignmentId));
+      queryClient.invalidateQueries(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
     },
   });
 };
 export const useAcceptAssignment = (classroomId: string, assignmentId: string) => {
   return useMutation({
     mutationFn: async () => {
-      const res = await apiClient.post<void>(`/api/classrooms/${classroomId}/assignments/${assignmentId}/accept`);
+      const res = await apiClient.post<void>(`/classrooms/joined/${classroomId}/assignments/${assignmentId}/accept`);
       return res.data;
     },
   });

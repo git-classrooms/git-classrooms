@@ -70,6 +70,6 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s", classRoom.ID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/owned/%s", classRoom.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
 }

@@ -25,7 +25,7 @@ function Login() {
     <div className="flex flex-col items-center">
       <img src={GitlabLogo} className="h-96 w-96" />
       <Button asChild>
-        <a href={`/auth?redirect=${redirect}`}>Login with Gitlab</a>
+        <a href={`/api/auth/sign-in?redirect=${redirect}`}>Login with Gitlab</a>
       </Button>
     </div>
   );

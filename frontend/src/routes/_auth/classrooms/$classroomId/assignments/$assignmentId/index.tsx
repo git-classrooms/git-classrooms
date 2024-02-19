@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import {
-  assignmentProjectsQueryOptions,
-  assignmentQueryOptions,
+  ownedAssignmentProjectsQueryOptions,
+  ownedAssignmentQueryOptions,
   useInviteAssignmentMembers,
 } from "@/api/assignments.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -18,10 +18,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context, params }) => {
     const assignment = await context.queryClient.ensureQueryData(
-      assignmentQueryOptions(params.classroomId, params.assignmentId),
+      ownedAssignmentQueryOptions(params.classroomId, params.assignmentId),
     );
     const assignmentProjects = await context.queryClient.ensureQueryData(
-      assignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
+      ownedAssignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
     );
     return { assignment, assignmentProjects };
   },
@@ -31,8 +31,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 
 function AssignmentDetail() {
   const { classroomId, assignmentId } = Route.useParams();
-  const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
-  const { data: assignmentProjects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
+  const { data: assignment } = useSuspenseQuery(ownedAssignmentQueryOptions(classroomId, assignmentId));
+  const { data: assignmentProjects } = useSuspenseQuery(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
 
   const { mutateAsync, isError, isPending } = useInviteAssignmentMembers(classroomId, assignmentId);
 
