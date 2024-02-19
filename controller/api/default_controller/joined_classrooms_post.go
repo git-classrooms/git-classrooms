@@ -15,7 +15,7 @@ type joinClassroomRequest struct {
 	InvitationID uuid.UUID `json:"invitationId"`
 }
 
-func (*DefaultController) JoinClassroomNew(c *fiber.Ctx) error {
+func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
 

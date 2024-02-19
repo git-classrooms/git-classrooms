@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-func (ctrl *DefaultController) JoinAssignmentNew(c *fiber.Ctx) error {
+func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()
 	userID := ctx.GetUserID()

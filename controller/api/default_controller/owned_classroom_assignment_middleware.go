@@ -11,6 +11,8 @@ func ownedClassroomAssignmentQuery(classroomId uuid.UUID, c *fiber.Ctx) query.IA
 	queryAssignment := query.Assignment
 	return queryAssignment.
 		WithContext(c.Context()).
+		Preload(queryAssignment.Projects).
+		Preload(queryAssignment.Projects.User).
 		Where(queryAssignment.ClassroomID.Eq(classroomId))
 }
 
