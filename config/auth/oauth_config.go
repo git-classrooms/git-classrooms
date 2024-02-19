@@ -8,7 +8,7 @@ import (
 type OAuthConfig struct {
 	ClientID     string   `env:"CLIENT_ID"`
 	ClientSecret string   `env:"CLIENT_SECRET"`
-	RedirectURL  *url.URL `env:"REDIRECT_URL,expand" envDefault:"$PUBLIC_URL/api/auth/gitlab/callback"`
+	RedirectURL  *url.URL `env:"REDIRECT_URL,expand" envDefault:"$PUBLIC_URL/api/v1/auth/gitlab/callback"`
 	AuthURL      *url.URL `env:"AUTH_URL"`
 	TokenURL     *url.URL `env:"TOKEN_URL"`
 	Scopes       []string `env:"SCOPES" envSeparator:"," envDefault:"api"`

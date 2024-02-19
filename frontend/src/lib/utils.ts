@@ -13,11 +13,11 @@ export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "
 
 export async function isAuthenticated() {
   try {
-    await axios.get("/api/auth", { withCredentials: true });
+    await axios.get("/api/v1/auth", { withCredentials: true });
     return true;
   } catch (e) {
     return false;
   }
 }
 
-export const apiClient = axios.create({ baseURL: "/api", withCredentials: true });
+export const apiClient = axios.create({ baseURL: "/api/v1", withCredentials: true });

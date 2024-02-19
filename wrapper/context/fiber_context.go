@@ -9,13 +9,14 @@ import (
 type contextKey string
 
 const (
-	gitlabRepoKey                contextKey = "gitlab-repo"
-	classroomKey                 contextKey = "classroom"
-	ownedClassroomKey            contextKey = "owned-classroom"
-	ownedClassroomAssignmentKey  contextKey = "owned-classroom-assignment"
-	joinedClassroomKey           contextKey = "joined-classroom"
-	joinedClassroomAssignmentKey contextKey = "joined-classroom-assignment"
-	userIDKey                    contextKey = "user-id"
+	gitlabRepoKey                      contextKey = "gitlab-repo"
+	classroomKey                       contextKey = "classroom"
+	ownedClassroomKey                  contextKey = "owned-classroom"
+	ownedClassroomAssignmentKey        contextKey = "owned-classroom-assignment"
+	ownedClassroomAssignmentProjectKey contextKey = "owned-classroom-assignment-project"
+	joinedClassroomKey                 contextKey = "joined-classroom"
+	joinedClassroomAssignmentKey       contextKey = "joined-classroom-assignment"
+	userIDKey                          contextKey = "user-id"
 )
 
 type FiberContext struct {
@@ -64,6 +65,14 @@ func (c *FiberContext) GetOwnedClassroomAssignment() *database.Assignment {
 
 func (c *FiberContext) SetOwnedClassroomAssignment(assignment *database.Assignment) {
 	c.Locals(ownedClassroomAssignmentKey, assignment)
+}
+
+func (c *FiberContext) GetOwnedClassroomAssignmentProject() *database.AssignmentProjects {
+	return c.Locals(ownedClassroomAssignmentProjectKey).(*database.AssignmentProjects)
+}
+
+func (c *FiberContext) SetOwnedClassroomAssignmentProject(assignmentProject *database.AssignmentProjects) {
+	c.Locals(ownedClassroomAssignmentProjectKey, assignmentProject)
 }
 
 func (c *FiberContext) SetJoinedClassroom(classroom *database.UserClassrooms) {

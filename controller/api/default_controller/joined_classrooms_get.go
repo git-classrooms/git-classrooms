@@ -1,6 +1,7 @@
 package default_controller
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
@@ -8,7 +9,6 @@ import (
 func (ctrl *DefaultController) GetJoinedClassrooms(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
-	repo := ctx.GetGitlabRepository()
 
 	joinedClassrooms, err := joinedClassroomQuery(userID, c).
 		Find()
@@ -18,13 +18,9 @@ func (ctrl *DefaultController) GetJoinedClassrooms(c *fiber.Ctx) error {
 
 	var joinedClassroomResponses = make([]*getJoinedClassroomResponse, len(joinedClassrooms))
 	for i, classroom := range joinedClassrooms {
-		group, err := repo.GetGroupById(classroom.Classroom.GroupID)
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
 		joinedClassroomResponses[i] = &getJoinedClassroomResponse{
 			UserClassrooms: *classroom,
-			GitlabUrl:      group.WebUrl,
+			GitlabUrl:      fmt.Sprintf("/api/v1/classrooms/joined/%s/gitlab", classroom.ClassroomID.String()),
 		}
 	}
 

@@ -2,6 +2,7 @@ package router
 
 import (
 	"path"
+	"strings"
 
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
@@ -19,12 +20,20 @@ func Routes(
 	config authConfig.Config,
 ) {
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
+	setupV1Routes(&api, config, authController, apiController)
 
-	api.Get("/auth/sign-in", authController.SignIn)
-	api.Post("/auth/sign-out", authController.SignOut)
-	app.Get(config.GetRedirectUrl().Path, authController.Callback)
-	api.Use(authController.AuthMiddleware)
-	api.Get("/auth", authController.GetAuth)
+	setupFrontend(app, frontendPath)
+}
+
+func setupV1Routes(api *fiber.Router, config authConfig.Config, authController authController.Controller,
+	apiController apiController.Controller) {
+	v1 := (*api).Group("/v1")
+
+	v1.Get("/auth/sign-in", authController.SignIn)
+	v1.Post("/auth/sign-out", authController.SignOut)
+	v1.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)
+	v1.Use(authController.AuthMiddleware)
+	v1.Get("/auth", authController.GetAuth)
 
 	//	"/me"
 	//	"/users/:userId/classrooms/" -> middleware
@@ -34,37 +43,42 @@ func Routes(
 	//	"/ownedClassrooms/members/assignment"
 	//	"/joinedClassrooms/members/assignments"
 
-	api.Get("/me", apiController.GetMe)
+	v1.Get("/me", apiController.GetMe)
 
-	api.Get("/classrooms/owned", apiController.GetOwnedClassrooms)
-	api.Post("/classrooms/owned", apiController.CreateClassroom)
-	api.Use("/classrooms/owned/:classroomId", apiController.OwnedClassroomMiddleware)
-	api.Get("/classrooms/owned/:classroomId", apiController.GetOwnedClassroom)
+	v1.Get("/classrooms/owned", apiController.GetOwnedClassrooms)
+	v1.Post("/classrooms/owned", apiController.CreateClassroom)
+	v1.Use("/classrooms/owned/:classroomId", apiController.OwnedClassroomMiddleware)
+	v1.Get("/classrooms/owned/:classroomId", apiController.GetOwnedClassroom)
+	v1.Get("/classrooms/owned/:classroomId/gitlab", apiController.GetOwnedClassroomGitlab)
 
-	api.Get("/classrooms/owned/:classroomId/assignments", apiController.GetOwnedClassroomAssignments)
-	api.Post("/classrooms/owned/:classroomId/assignments", apiController.CreateAssignment)
-	api.Use("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.OwnedClassroomAssignmentMiddleware)
-	api.Get("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.GetOwnedClassroomAssignment)
+	v1.Get("/classrooms/owned/:classroomId/assignments", apiController.GetOwnedClassroomAssignments)
+	v1.Post("/classrooms/owned/:classroomId/assignments", apiController.CreateAssignment)
+	v1.Use("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.OwnedClassroomAssignmentMiddleware)
+	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.GetOwnedClassroomAssignment)
 
-	api.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.GetOwnedClassroomAssignmentProjects)
-	api.Post("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignmentProject)
+	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.GetOwnedClassroomAssignmentProjects)
+	v1.Post("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignmentProject)
+	v1.Use("/classrooms/owned/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.OwnedClassroomAssignmentProjectMiddleware)
+	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.GetOwnedClassroomAssignmentProject)
+	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects/:projectId/gitlab", apiController.GetOwnedClassroomAssignmentProjectGitlab)
 
-	api.Get("/classrooms/owned/:classroomId/members", apiController.GetOwnedClassroomMembers)
+	v1.Get("/classrooms/owned/:classroomId/members", apiController.GetOwnedClassroomMembers)
 
-	api.Get("/classrooms/owned/:classroomId/invitations", apiController.GetOwnedClassroomInvitations)
-	api.Post("/classrooms/owned/:classroomId/invitations", apiController.InviteToClassroom)
+	v1.Get("/classrooms/owned/:classroomId/invitations", apiController.GetOwnedClassroomInvitations)
+	v1.Post("/classrooms/owned/:classroomId/invitations", apiController.InviteToClassroom)
 
-	api.Get("/classrooms/owned/:classroomId/templateProjects", apiController.GetOwnedClassroomTemplates)
+	v1.Get("/classrooms/owned/:classroomId/templateProjects", apiController.GetOwnedClassroomTemplates)
 
-	api.Get("/classrooms/joined", apiController.GetJoinedClassrooms)
-	api.Post("/classrooms/joined", apiController.JoinClassroom) // with invitation id in the body
-	api.Use("/classrooms/joined/:classroomId", apiController.JoinedClassroomMiddleware)
-	api.Get("/classrooms/joined/:classroomId", apiController.GetJoinedClassroom)
+	v1.Get("/classrooms/joined", apiController.GetJoinedClassrooms)
+	v1.Post("/classrooms/joined", apiController.JoinClassroom) // with invitation id in the body
+	v1.Use("/classrooms/joined/:classroomId", apiController.JoinedClassroomMiddleware)
+	v1.Get("/classrooms/joined/:classroomId", apiController.GetJoinedClassroom)
+	v1.Get("/classrooms/joined/:classroomId/gitlab", apiController.GetJoinedClassroomGitlab)
 
-	api.Get("/classrooms/joined/:classroomId/assignments", apiController.GetJoinedClassroomAssignments)
-	api.Use("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.JoinedClassroomAssignmentMiddleware)
-	api.Get("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.GetJoinedClassroomAssignment)
-	api.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignment)
+	v1.Get("/classrooms/joined/:classroomId/assignments", apiController.GetJoinedClassroomAssignments)
+	v1.Use("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.JoinedClassroomAssignmentMiddleware)
+	v1.Get("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.GetJoinedClassroomAssignment)
+	v1.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignment)
 
 	// api.Get("/classrooms/owned/:classroomId/members/:memberId", apiController.GetOwnedClassroomMember)
 	// api.Get("/classrooms/owned/:classroomId/members/:memberId/assignments", apiController.GetOwnedClassroomMemberAssignments)
@@ -74,7 +88,6 @@ func Routes(
 	// api.Post("/classrooms/joined/:classroomId/invitations", apiController.InviteToClassroom) // moderator only
 	//
 
-	setupFrontend(app, frontendPath)
 }
 
 func setupFrontend(app *fiber.App, frontendPath string) {

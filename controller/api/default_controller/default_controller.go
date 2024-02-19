@@ -11,10 +11,10 @@ import (
 )
 
 type Params struct {
-	ClassroomID  *uuid.UUID `params:"classroomId"`
-	AssignmentID *uuid.UUID `params:"assignmentId"`
-	MemberID     *int       `params:"memberId"`
-	InvitationID *int       `params:"invitationId"`
+	ClassroomID         *uuid.UUID `params:"classroomId"`
+	AssignmentID        *uuid.UUID `params:"assignmentId"`
+	AssignmentProjectID *uuid.UUID `params:"projectId"`
+	MemberID            *int       `params:"memberId"`
 }
 
 type DefaultController struct {

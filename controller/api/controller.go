@@ -8,12 +8,17 @@ type Controller interface {
 	GetOwnedClassrooms(*fiber.Ctx) error
 	OwnedClassroomMiddleware(*fiber.Ctx) error
 	GetOwnedClassroom(*fiber.Ctx) error
+	GetOwnedClassroomGitlab(*fiber.Ctx) error
 
 	GetOwnedClassroomAssignments(*fiber.Ctx) error
 	OwnedClassroomAssignmentMiddleware(*fiber.Ctx) error
 	GetOwnedClassroomAssignment(*fiber.Ctx) error
 
 	GetOwnedClassroomAssignmentProjects(*fiber.Ctx) error
+	OwnedClassroomAssignmentProjectMiddleware(*fiber.Ctx) error
+	GetOwnedClassroomAssignmentProject(*fiber.Ctx) error
+	GetOwnedClassroomAssignmentProjectGitlab(*fiber.Ctx) error
+
 	InviteToAssignmentProject(*fiber.Ctx) error
 
 	GetOwnedClassroomMembers(*fiber.Ctx) error
@@ -25,6 +30,7 @@ type Controller interface {
 	GetJoinedClassrooms(*fiber.Ctx) error
 	JoinedClassroomMiddleware(*fiber.Ctx) error
 	GetJoinedClassroom(*fiber.Ctx) error
+	GetJoinedClassroomGitlab(*fiber.Ctx) error
 
 	GetJoinedClassroomAssignments(*fiber.Ctx) error
 	JoinedClassroomAssignmentMiddleware(*fiber.Ctx) error

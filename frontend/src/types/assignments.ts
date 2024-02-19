@@ -9,6 +9,7 @@ export type Assignment = {
 };
 
 export type AssignmentProject = {
+  id: string;
   assignmentId: string;
   user: User;
   assignmentAccepted: boolean;
