@@ -7,13 +7,13 @@ import {
 } from "@/api/assignments.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { format } from "date-fns";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { AssignmentProject } from "@/types/assignments.ts";
 import { Header } from "@/components/header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Code, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
+import { formatDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context, params }) => {
@@ -46,7 +46,7 @@ function AssignmentDetail() {
         <CardHeader>
           <CardTitle>{assignment.name}</CardTitle>
           <CardDescription>{assignment.description}</CardDescription>
-          <CardFooter>Due date: {format(assignment.dueDate, "PPP")}</CardFooter>
+          <CardFooter>Due date: {assignment.dueDate ? formatDate(assignment.dueDate) : "No Due Date"}</CardFooter>
         </CardHeader>
       </Card>
 

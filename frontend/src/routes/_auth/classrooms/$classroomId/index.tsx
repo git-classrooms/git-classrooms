@@ -78,7 +78,7 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
         {assignments.map((a) => (
           <TableRow key={a.id}>
             <TableCell>{a.name}</TableCell>
-            <TableCell>{formatDate(a.dueDate)}</TableCell>
+            <TableCell>{a.dueDate ? formatDate(a.dueDate) : "No Due Date"}</TableCell>
             <TableCell className="text-right">
               <Button asChild>
                 <Link
