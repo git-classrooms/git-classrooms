@@ -3,69 +3,35 @@ package default_controller
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"log"
 	"net/mail"
 	"time"
 )
 
-type InviteToClassroomRequest struct {
+type inviteToClassroomRequest struct {
 	MemberEmails []string `json:"memberEmails"`
 }
 
-func (r InviteToClassroomRequest) isValid() bool {
+func (r inviteToClassroomRequest) isValid() bool {
 	return len(r.MemberEmails) != 0
 }
 
 func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
-	userID, err := session.Get(c).GetUserID()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	classroomId, err := uuid.Parse(c.Params("classroomId"))
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	queryClassroom := query.Classroom
-	classroom, err := queryClassroom.
-		WithContext(c.Context()).
-		Where(queryClassroom.ID.Eq(classroomId)).
-		First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	}
-
-	// Check if owner or moderator of specific classroom
-	if classroom.OwnerID != userID {
-		queryUserClassroom := query.UserClassrooms
-		_, err := queryUserClassroom.
-			WithContext(c.Context()).
-			Where(queryUserClassroom.ClassroomID.Eq(classroomId)).
-			Where(queryUserClassroom.UserID.Eq(userID)).
-			Where(queryUserClassroom.Role.Eq(uint8(database.Moderator))).
-			First()
-		if err != nil {
-			return fiber.NewError(fiber.StatusUnauthorized, err.Error())
-		}
-	}
-
-	repo := context.Get(c).GetGitlabRepository()
+	ctx := context.Get(c)
+	classroom := ctx.GetOwnedClassroom()
+	repo := ctx.GetGitlabRepository()
 	if err := ctrl.RotateAccessToken(c, classroom); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	requestBody := &InviteToClassroomRequest{}
-	if err = c.BodyParser(requestBody); err != nil {
+	requestBody := &inviteToClassroomRequest{}
+	if err := c.BodyParser(requestBody); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-
 	if !requestBody.isValid() {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
 	}
@@ -73,6 +39,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	// Validate email addresses
 	validatedEmailAddresses := make([]*mail.Address, len(requestBody.MemberEmails))
 	for i, email := range requestBody.MemberEmails {
+		var err error
 		validatedEmailAddresses[i], err = mail.ParseAddress(email)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -80,7 +47,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	}
 
 	queryClassroomInvite := query.ClassroomInvitation
-	invites, err := queryClassroomInvite.WithContext(c.Context()).Where(queryClassroomInvite.ClassroomID.Eq(classroomId)).Find()
+	invites, err := queryClassroomInvite.WithContext(c.Context()).Where(queryClassroomInvite.ClassroomID.Eq(classroom.ID)).Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -95,7 +62,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 			_, err := tx.ClassroomInvitation.
 				WithContext(c.Context()).
 				Where(tx.ClassroomInvitation.Email.Eq(email.Address)).
-				Where(tx.ClassroomInvitation.ClassroomID.Eq(classroomId)).
+				Where(tx.ClassroomInvitation.ClassroomID.Eq(classroom.ID)).
 				Delete()
 			if err != nil {
 				return err
@@ -103,7 +70,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 
 			newInvitation := &database.ClassroomInvitation{
 				Status:      database.ClassroomInvitationPending,
-				ClassroomID: classroomId,
+				ClassroomID: classroom.ID,
 				Email:       email.Address,
 				ExpiryDate:  time.Now().AddDate(0, 0, 14),
 			}

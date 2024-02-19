@@ -6,9 +6,16 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 )
 
+type contextKey string
+
 const (
-	gitlabRepoKey = "gitlab-repo"
-	classroomKey  = "classroom"
+	gitlabRepoKey                contextKey = "gitlab-repo"
+	classroomKey                 contextKey = "classroom"
+	ownedClassroomKey            contextKey = "owned-classroom"
+	ownedClassroomAssignmentKey  contextKey = "owned-classroom-assignment"
+	joinedClassroomKey           contextKey = "joined-classroom"
+	joinedClassroomAssignmentKey contextKey = "joined-classroom-assignment"
+	userIDKey                    contextKey = "user-id"
 )
 
 type FiberContext struct {
@@ -41,4 +48,44 @@ func (c *FiberContext) GetClassroom() *database.UserClassrooms {
 		return nil
 	}
 	return value
+}
+
+func (c *FiberContext) SetOwnedClassroom(classroom *database.Classroom) {
+	c.Locals(ownedClassroomKey, classroom)
+}
+
+func (c *FiberContext) GetOwnedClassroom() *database.Classroom {
+	return c.Locals(ownedClassroomKey).(*database.Classroom)
+}
+
+func (c *FiberContext) GetOwnedClassroomAssignment() *database.Assignment {
+	return c.Locals(ownedClassroomAssignmentKey).(*database.Assignment)
+}
+
+func (c *FiberContext) SetOwnedClassroomAssignment(assignment *database.Assignment) {
+	c.Locals(ownedClassroomAssignmentKey, assignment)
+}
+
+func (c *FiberContext) SetJoinedClassroom(classroom *database.UserClassrooms) {
+	c.Locals(joinedClassroomKey, classroom)
+}
+
+func (c *FiberContext) GetJoinedClassroom() *database.UserClassrooms {
+	return c.Locals(joinedClassroomKey).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) GetJoinedClassroomAssignment() *database.AssignmentProjects {
+	return c.Locals(joinedClassroomAssignmentKey).(*database.AssignmentProjects)
+}
+
+func (c *FiberContext) SetJoinedClassroomAssignment(assignment *database.AssignmentProjects) {
+	c.Locals(joinedClassroomAssignmentKey, assignment)
+}
+
+func (c *FiberContext) GetUserID() int {
+	return c.Locals(userIDKey).(int)
+}
+
+func (c *FiberContext) SetUserID(userID int) {
+	c.Locals(userIDKey, userID)
 }

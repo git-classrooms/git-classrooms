@@ -32,7 +32,6 @@ func newClassroomInvitation(db *gorm.DB, opts ...gen.DOOption) classroomInvitati
 	_classroomInvitation.Status = field.NewUint8(tableName, "status")
 	_classroomInvitation.ClassroomID = field.NewField(tableName, "classroom_id")
 	_classroomInvitation.Email = field.NewString(tableName, "email")
-	_classroomInvitation.Enabled = field.NewBool(tableName, "enabled")
 	_classroomInvitation.ExpiryDate = field.NewTime(tableName, "expiry_date")
 	_classroomInvitation.Classroom = classroomInvitationBelongsToClassroom{
 		db: db.Session(&gorm.Session{}),
@@ -179,7 +178,6 @@ type classroomInvitation struct {
 	Status      field.Uint8
 	ClassroomID field.Field
 	Email       field.String
-	Enabled     field.Bool
 	ExpiryDate  field.Time
 	Classroom   classroomInvitationBelongsToClassroom
 
@@ -204,7 +202,6 @@ func (c *classroomInvitation) updateTableName(table string) *classroomInvitation
 	c.Status = field.NewUint8(table, "status")
 	c.ClassroomID = field.NewField(table, "classroom_id")
 	c.Email = field.NewString(table, "email")
-	c.Enabled = field.NewBool(table, "enabled")
 	c.ExpiryDate = field.NewTime(table, "expiry_date")
 
 	c.fillFieldMap()
@@ -234,14 +231,13 @@ func (c *classroomInvitation) GetFieldByName(fieldName string) (field.OrderExpr,
 }
 
 func (c *classroomInvitation) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 9)
+	c.fieldMap = make(map[string]field.Expr, 8)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["status"] = c.Status
 	c.fieldMap["classroom_id"] = c.ClassroomID
 	c.fieldMap["email"] = c.Email
-	c.fieldMap["enabled"] = c.Enabled
 	c.fieldMap["expiry_date"] = c.ExpiryDate
 
 }

@@ -36,7 +36,7 @@ func NewOAuthController(authConfig authConfig.Config,
 }
 
 // Auth fiber handler
-func (ctrl *OAuthController) Auth(c *fiber.Ctx) error {
+func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 	redirect := c.Query("redirect", "/")
 
 	// s := session.Get(c)
@@ -114,7 +114,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	return c.Redirect(redirect)
 }
 
-func (ctrl *OAuthController) Logout(c *fiber.Ctx) error {
+func (ctrl *OAuthController) SignOut(c *fiber.Ctx) error {
 	err := session.Get(c).Destroy()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -123,7 +123,7 @@ func (ctrl *OAuthController) Logout(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
-func (ctrl *OAuthController) IsAuthenticated(c *fiber.Ctx) error {
+func (ctrl *OAuthController) GetAuth(c *fiber.Ctx) error {
 	s := session.Get(c)
 	_, err := s.GetUserID()
 	if err != nil {
@@ -172,9 +172,10 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
+	// Set every variable from the session to the context
 	ctx := fiberContext.Get(c)
 	ctx.SetGitlabRepository(repo)
-
+	ctx.SetUserID(userId)
 	return ctx.Next()
 }
 

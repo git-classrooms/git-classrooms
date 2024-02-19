@@ -7,8 +7,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"log"
 	"time"
 )
 
@@ -22,15 +20,13 @@ func (r CreateClassroomRequest) isValid() bool {
 }
 
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
-	repo := context.Get(c).GetGitlabRepository()
-	userId, err := session.Get(c).GetUserID() // TODO: Change from session to context
-	if err != nil {
-		log.Println("failed to get user from session", err)
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
+	ctx := context.Get(c)
+	repo := ctx.GetGitlabRepository()
+
+	userID := ctx.GetUserID()
 
 	requestBody := &CreateClassroomRequest{}
-	err = c.BodyParser(requestBody)
+	err := c.BodyParser(requestBody)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -58,7 +54,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	classroomQuery := query.Classroom
 	classRoom := &database.Classroom{
 		Name:               requestBody.Name,
-		OwnerID:            userId,
+		OwnerID:            userID,
 		Description:        requestBody.Description,
 		GroupID:            group.ID,
 		GroupAccessTokenID: accessToken.ID,

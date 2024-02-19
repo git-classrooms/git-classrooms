@@ -2,19 +2,15 @@ package default_controller
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 func (ctrl *DefaultController) GetMe(c *fiber.Ctx) error {
-	userID, err := session.Get(c).GetUserID()
+
+	// TODO: Add Avatar-URL and json tags to the User struct
+	gitlabUser, err := context.Get(c).GetGitlabRepository().GetCurrentUser()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	q := query.User
-	user, err := q.WithContext(c.Context()).Where(q.ID.Eq(userID)).First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	}
-	return c.JSON(user)
+	return c.JSON(gitlabUser)
 }

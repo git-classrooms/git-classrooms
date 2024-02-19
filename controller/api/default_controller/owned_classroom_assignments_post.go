@@ -3,40 +3,33 @@ package default_controller
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"time"
 )
 
-type CreateAssignmentRequest struct {
+type createAssignmentRequest struct {
 	Name              string     `json:"name"`
 	Description       string     `json:"description"`
 	TemplateProjectId int        `json:"templateProjectId"`
 	DueDate           *time.Time `json:"dueDate"`
 }
 
-func (r CreateAssignmentRequest) isValid() bool {
+func (r createAssignmentRequest) isValid() bool {
 	return r.Name != "" && r.TemplateProjectId != 0
 }
 
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
-	repo := context.Get(c).GetGitlabRepository()
+	ctx := context.Get(c)
+	repo := ctx.GetGitlabRepository()
+	classroom := ctx.GetOwnedClassroom()
 
-	// Parse parameters
-	classroomId, err := uuid.Parse(c.Params("classroomId"))
+	requestBody := &createAssignmentRequest{}
+	err := c.BodyParser(requestBody)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-
-	// Parse body
-	requestBody := new(CreateAssignmentRequest)
-	err = c.BodyParser(requestBody)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
 	if !requestBody.isValid() {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
 	}
@@ -50,7 +43,7 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	// Create assigment
 	assignmentQuery := query.Assignment
 	assignment := &database.Assignment{
-		ClassroomID:       classroomId,
+		ClassroomID:       classroom.ID,
 		TemplateProjectID: requestBody.TemplateProjectId,
 		Name:              requestBody.Name,
 		Description:       requestBody.Description,
@@ -63,6 +56,6 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroomId.String(), assignment.ID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
 }

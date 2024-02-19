@@ -18,14 +18,63 @@ func Routes(
 	frontendPath string,
 	config authConfig.Config,
 ) {
-	app.Get("/auth", authController.Auth)
-	app.Get(config.GetRedirectUrl().Path, authController.Callback)
-	app.Post("/auth/logout", authController.Logout)
-
+	app.Get("/auth", authController.SignIn)
+	app.Post("/auth/logout", authController.SignOut)
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 
+	api.Get("/auth/sign-in", authController.SignIn)
+	api.Post("/auth/sign-out", authController.SignOut)
+	app.Get(config.GetRedirectUrl().Path, authController.Callback)
 	api.Use(authController.AuthMiddleware)
-	api.Get("/isAuth", authController.IsAuthenticated)
+	api.Get("/auth", authController.GetAuth)
+
+	//	"/me"
+	//	"/users/:userId/classrooms/" -> middleware
+	//
+	//	"/classrooms/joined/:classroomId"
+	//
+	//	"/ownedClassrooms/members/assignment"
+	//	"/joinedClassrooms/members/assignments"
+
+	api.Get("/me", apiController.GetMe)
+
+	api.Get("/classrooms/owned", apiController.GetOwnedClassrooms)
+	api.Post("/classrooms/owned", apiController.CreateClassroom)
+	api.Use("/classrooms/owned/:classroomId", apiController.OwnedClassroomMiddleware)
+	api.Get("/classrooms/owned/:classroomId", apiController.GetOwnedClassroom)
+
+	api.Get("/classrooms/owned/:classroomId/assignments", apiController.GetOwnedClassroomAssignments)
+	api.Post("/classrooms/owned/:classroomId/assignments", apiController.CreateAssignment)
+	api.Use("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.OwnedClassroomAssignmentMiddleware)
+	api.Get("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.GetOwnedClassroomAssignment)
+
+	api.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.GetClassroomAssignmentProjects)
+	api.Post("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignmentProject)
+
+	api.Get("/classrooms/owned/:classroomId/members", apiController.GetOwnedClassroomMembers)
+
+	api.Get("/classrooms/owned/:classroomId/invitations", apiController.GetOwnedClassroomInvitations)
+	api.Post("/classrooms/owned/:classroomId/invitations", apiController.InviteToClassroom)
+
+	api.Get("/classrooms/owned/:classroomId/templateProjects", apiController.GetOwnedClassroomTemplates)
+
+	api.Get("/classrooms/joined", apiController.GetJoinedClassrooms)
+	api.Post("/classrooms/joined", apiController.JoinClassroomNew) // with invitation id in the body
+	api.Use("/classrooms/joined/:classroomId", apiController.JoinedClassroomMiddleware)
+	api.Get("/classrooms/joined/:classroomId", apiController.GetJoinedClassroom)
+
+	api.Get("/classrooms/joined/:classroomId/assignments", apiController.GetJoinedClassroomAssignments)
+	api.Use("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.JoinedClassroomAssignmentMiddleware)
+	api.Get("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.GetJoinedClassroomAssignment)
+	api.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignmentNew)
+
+	// api.Get("/classrooms/owned/:classroomId/members/:memberId", apiController.GetOwnedClassroomMember)
+	// api.Get("/classrooms/owned/:classroomId/members/:memberId/assignments", apiController.GetOwnedClassroomMemberAssignments)
+	// api.Get("/classrooms/owned/:classroomId/members/:memberId/assignments/:assignmentId", apiController.GetOwnedClassroomMemberAssignment)
+	//
+	// api.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignment) // moderator only
+	// api.Post("/classrooms/joined/:classroomId/invitations", apiController.InviteToClassroom) // moderator only
+	//
 
 	me := api.Group("/me")
 	me.Get("/", apiController.GetMe)
