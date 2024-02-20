@@ -10,13 +10,12 @@ type contextKey string
 
 const (
 	gitlabRepoKey                      contextKey = "gitlab-repo"
-	classroomKey                       contextKey = "classroom"
+	userIDKey                          contextKey = "user-id"
 	ownedClassroomKey                  contextKey = "owned-classroom"
 	ownedClassroomAssignmentKey        contextKey = "owned-classroom-assignment"
 	ownedClassroomAssignmentProjectKey contextKey = "owned-classroom-assignment-project"
 	joinedClassroomKey                 contextKey = "joined-classroom"
 	joinedClassroomAssignmentKey       contextKey = "joined-classroom-assignment"
-	userIDKey                          contextKey = "user-id"
 )
 
 type FiberContext struct {
@@ -27,24 +26,20 @@ func Get(c *fiber.Ctx) *FiberContext {
 	return &FiberContext{Ctx: c}
 }
 
-func (c *FiberContext) GetGitlabRepository() gitlab.Repository {
-	value, ok := c.Locals(gitlabRepoKey).(gitlab.Repository)
-	if !ok {
-		return nil
-	}
-	return value
+func (c *FiberContext) GetUserID() int {
+	return c.Locals(userIDKey).(int)
+}
+
+func (c *FiberContext) SetUserID(userID int) {
+	c.Locals(userIDKey, userID)
 }
 
 func (c *FiberContext) SetGitlabRepository(repo gitlab.Repository) {
 	c.Locals(gitlabRepoKey, repo)
 }
 
-func (c *FiberContext) SetClassroom(classroom *database.UserClassrooms) {
-	c.Locals(classroomKey, classroom)
-}
-
-func (c *FiberContext) GetClassroom() *database.UserClassrooms {
-	value, ok := c.Locals(classroomKey).(*database.UserClassrooms)
+func (c *FiberContext) GetGitlabRepository() gitlab.Repository {
+	value, ok := c.Locals(gitlabRepoKey).(gitlab.Repository)
 	if !ok {
 		return nil
 	}
@@ -89,12 +84,4 @@ func (c *FiberContext) GetJoinedClassroomAssignment() *database.AssignmentProjec
 
 func (c *FiberContext) SetJoinedClassroomAssignment(assignment *database.AssignmentProjects) {
 	c.Locals(joinedClassroomAssignmentKey, assignment)
-}
-
-func (c *FiberContext) GetUserID() int {
-	return c.Locals(userIDKey).(int)
-}
-
-func (c *FiberContext) SetUserID(userID int) {
-	c.Locals(userIDKey, userID)
 }
