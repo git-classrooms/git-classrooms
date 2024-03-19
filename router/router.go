@@ -29,7 +29,7 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	apiController apiController.Controller) {
 	v1 := (*api).Group("/v1")
 
-	v1.Get("/auth/sign-in", authController.SignIn)
+	v1.Post("/auth/sign-in", authController.SignIn)
 	v1.Post("/auth/sign-out", authController.SignOut)
 	v1.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)
 	v1.Use(authController.AuthMiddleware)

@@ -35,9 +35,19 @@ func NewOAuthController(authConfig authConfig.Config,
 	}
 }
 
+type signInRequest struct {
+	Redirect string `form:"redirect"`
+}
+
 // Auth fiber handler
 func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
-	redirect := c.Query("redirect", "/")
+	body := &signInRequest{}
+	c.BodyParser(body)
+
+	redirect := "/"
+	if body.Redirect != "" {
+		redirect = body.Redirect
+	}
 
 	// s := session.Get(c)
 	// s.SetOAuthRedirectTarget(redirect)
@@ -57,7 +67,8 @@ func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 
 	authCodeOption := oauth2.S256ChallengeOption("Challenge")    // here include PKCE-Challenge against csrf-attacks should be random
 	url := ctrl.authConfig.AuthCodeURL(redirect, authCodeOption) // the string state is sent back by the auth-server of gitlab here we could include the redirect url | and or we include a random csrf token that will be validated
-	return c.Redirect(url)
+
+	return c.Redirect(url, fiber.StatusSeeOther)
 }
 
 // Callback to receive gitlabs' response
@@ -108,7 +119,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
 
-	return c.Redirect(redirect)
+	return c.Redirect(redirect, fiber.StatusSeeOther)
 }
 
 func (ctrl *OAuthController) SignOut(c *fiber.Ctx) error {
@@ -117,7 +128,7 @@ func (ctrl *OAuthController) SignOut(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
+	return c.Redirect("/", fiber.StatusSeeOther)
 }
 
 func (ctrl *OAuthController) GetAuth(c *fiber.Ctx) error {
