@@ -2,9 +2,10 @@ package session
 
 import (
 	"errors"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
-	"time"
+	"golang.org/x/oauth2"
 )
 
 type UserState int
@@ -18,8 +19,7 @@ const (
 const (
 	userState           = "user-state"
 	userID              = "user-id"
-	gitLabAccessToken   = "gitlab-access-token"
-	gitLabRefreshToken  = "gitlab-refresh-token"
+	gitLabOauth2Token   = "gitlab-oauth2-token"
 	expiresAt           = "expires-at"
 	oauthRedirectTarget = "oauth-redirect-target"
 )
@@ -41,7 +41,7 @@ func Get(c *fiber.Ctx) *ClassroomSession {
 
 	// If session is new and unauthenticated set user state to anonymous
 	if s.Get(userState) == nil {
-		s.Set(userState, int(Anonymous))
+		s.Set(userState, Anonymous)
 	}
 
 	return &ClassroomSession{Session: s}
@@ -72,12 +72,12 @@ func (s *ClassroomSession) SetUserID(user int) {
 
 // SetUserState should be set when user state changes.
 func (s *ClassroomSession) SetUserState(state UserState) {
-	s.Set(userState, int(state))
+	s.Set(userState, state)
 }
 
 // GetUserState returns the current UserState of this session.
 func (s *ClassroomSession) GetUserState() UserState {
-	return UserState(s.Get(userState).(int))
+	return s.Get(userState).(UserState)
 }
 
 // SetOAuthRedirectTarget should be set with the initial target user wanted, if interrupted by auth middleware.
@@ -92,40 +92,13 @@ func (s *ClassroomSession) GetOAuthRedirectTarget() string {
 
 //// GitLab
 
-func (s *ClassroomSession) SetGitlabAccessToken(token string) {
-	s.Set(gitLabAccessToken, token)
+func (s *ClassroomSession) SetGitlabOauth2Token(token *oauth2.Token) {
+	s.Set(gitLabOauth2Token, token)
 }
 
-func (s *ClassroomSession) GetGitlabAccessToken() (string, error) {
+func (s *ClassroomSession) GetGitlabOauth2Token() (*oauth2.Token, error) {
 	if err := s.checkLogin(); err != nil {
-		return "", err
+		return nil, err
 	}
-	return s.Get(gitLabAccessToken).(string), nil
-}
-
-func (s *ClassroomSession) SetGitlabRefreshToken(token string) {
-	s.Set(gitLabRefreshToken, token)
-}
-
-func (s *ClassroomSession) GetGitlabRefreshToken() (string, error) {
-	if err := s.checkLogin(); err != nil {
-		return "", err
-	}
-	return s.Get(gitLabRefreshToken).(string), nil
-}
-
-/// Session
-
-// GetExpiry returns the
-func (s *ClassroomSession) GetAccessTokenExpiry() (time.Time, error) {
-	if err := s.checkLogin(); err != nil {
-		return time.Unix(0, 0), err
-	}
-	value := s.Get(expiresAt).(int64)
-	return time.Unix(value, 0), nil
-}
-
-// SetExpiry sets a specific expiration for this session. Throws error when failing.
-func (s *ClassroomSession) SetAccessTokenExpiry(exp time.Time) {
-	s.Set(expiresAt, exp.Unix())
+	return s.Get(gitLabOauth2Token).(*oauth2.Token), nil
 }

@@ -95,13 +95,10 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	s := session.Get(c)
 
 	// Save GitLab session in local user session
-	s.SetGitlabAccessToken(token.AccessToken)
-	s.SetGitlabRefreshToken(token.RefreshToken)
+	s.SetGitlabOauth2Token(token)
 
 	s.SetUserState(session.LoggedIn)
 	s.SetUserID(user.ID)
-
-	s.SetAccessTokenExpiry(token.Expiry)
 
 	redirect := state
 
@@ -141,14 +138,15 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
-	exp, err := sess.GetAccessTokenExpiry()
+
+	token, err := sess.GetGitlabOauth2Token()
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
 	// exp.Add(-20 * time.Minute).After(time.Now())
 	// If
-	if exp.Before(time.Now().Add(20 * time.Minute)) {
+	if token.Expiry.Before(time.Now().Add(20 * time.Minute)) {
 		// this added to prevent multiple requests from refreshing the token at the same time
 		// If 2 refresh requests are sent at the same time, the first one will refresh the token
 		// and the second would get an error because the refresh token was already used
@@ -162,13 +160,8 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		sess = session.Get(c)
 	}
 
-	accessToken, err := sess.GetGitlabAccessToken()
-	if err != nil {
-		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
-	}
-
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
-	if err := repo.Login(accessToken); err != nil {
+	if err := repo.Login(token.AccessToken); err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
@@ -180,19 +173,16 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 }
 
 func (ctrl *OAuthController) refreshSession(c context.Context, sess *session.ClassroomSession) error {
-	refreshToken, err := sess.GetGitlabRefreshToken()
+	token, err := sess.GetGitlabOauth2Token()
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
-	// Build refresh token from session
-	token := &oauth2.Token{
-		RefreshToken: refreshToken,
-		Expiry:       time.Now().Add(-1 * time.Minute),
-	}
+	// Set expiry to past to force refresh
+	token.Expiry = time.Now().Add(-1 * time.Minute)
 
 	// Refresh token
-	token, err = ctrl.authConfig.TokenSource(c, token).Token()
+	newToken, err := ctrl.authConfig.TokenSource(c, token).Token()
 	if err != nil {
 		oldError := err
 		err = sess.Destroy()
@@ -203,9 +193,7 @@ func (ctrl *OAuthController) refreshSession(c context.Context, sess *session.Cla
 	}
 
 	// Save refreshed token to session
-	sess.SetGitlabAccessToken(token.AccessToken)
-	sess.SetGitlabRefreshToken(token.RefreshToken)
-	sess.SetAccessTokenExpiry(token.Expiry)
+	sess.SetGitlabOauth2Token(newToken)
 	if err = sess.Save(); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
