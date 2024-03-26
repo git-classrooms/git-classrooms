@@ -7,8 +7,10 @@ import (
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -19,6 +21,18 @@ func Routes(
 	frontendPath string,
 	config authConfig.Config,
 ) {
+	// Init session on every request if not present
+	app.Use(func(c *fiber.Ctx) error {
+		sess := session.Get(c)
+		if sess.Session.Fresh() {
+			err := sess.Save()
+			if err != nil {
+				return c.SendStatus(fiber.StatusInternalServerError)
+			}
+		}
+		return c.Next()
+	})
+
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 	setupV1Routes(&api, config, authController, apiController)
 
@@ -27,11 +41,14 @@ func Routes(
 
 func setupV1Routes(api *fiber.Router, config authConfig.Config, authController authController.Controller,
 	apiController apiController.Controller) {
+
 	v1 := (*api).Group("/v1")
 
+	v1.Use("/auth", csrf.New(session.CsrfConfig))
 	v1.Post("/auth/sign-in", authController.SignIn)
 	v1.Post("/auth/sign-out", authController.SignOut)
 	v1.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)
+	v1.Get("/auth/csrf", authController.GetCsrf)
 	v1.Use(authController.AuthMiddleware)
 	v1.Get("/auth", authController.GetAuth)
 

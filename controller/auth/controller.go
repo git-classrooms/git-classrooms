@@ -8,4 +8,5 @@ type Controller interface {
 	SignOut(c *fiber.Ctx) error
 	Callback(c *fiber.Ctx) error
 	GetAuth(c *fiber.Ctx) error
+	GetCsrf(c *fiber.Ctx) error
 }

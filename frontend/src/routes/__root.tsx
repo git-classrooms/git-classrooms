@@ -4,7 +4,6 @@ import { QueryClient } from "@tanstack/react-query";
 import React, { Suspense } from "react";
 import { ThemeProvider } from "@/provider/themeProvider.tsx";
 import { ModeToggle } from "@/components/modeToggle.tsx";
-import { LogoutButton } from "@/components/logoutButton";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -29,7 +28,6 @@ function RootComponent() {
     <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
       <div className="w-screen h-screen overflow-scroll">
         <ModeToggle />
-        <LogoutButton />
         <div className="max-w-2xl m-auto">
           <Outlet />
           <ReactQueryDevtools initialIsOpen={false} />

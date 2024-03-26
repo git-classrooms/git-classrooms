@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"encoding/json"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang/groupcache/singleflight"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
@@ -35,6 +37,11 @@ func NewOAuthController(authConfig authConfig.Config,
 	}
 }
 
+type authState struct {
+	Csrf     string `json:"csrf"`
+	Redirect string `json:"redirect"`
+}
+
 type signInRequest struct {
 	Redirect string `form:"redirect"`
 }
@@ -49,24 +56,15 @@ func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 		redirect = body.Redirect
 	}
 
-	// s := session.Get(c)
-	// s.SetOAuthRedirectTarget(redirect)
-	// if err := s.Save(); err != nil {
-	// 	return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	// }
+	csrf := c.Locals("csrf").(string)
 
-	// buffer := make([]byte, 64)
-	// n, err := rand.Read(buffer)
-	// if n != 64 || err != nil {
-	// 	return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
-	// }
-	// randomString := base64.StdEncoding.EncodeToString(buffer)
+	stateBytes, err := json.Marshal(authState{csrf, redirect})
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
 
-	//s := session.Get(c)
-	// s.SetOAuthState(randomString)
-
-	authCodeOption := oauth2.S256ChallengeOption("Challenge")    // here include PKCE-Challenge against csrf-attacks should be random
-	url := ctrl.authConfig.AuthCodeURL(redirect, authCodeOption) // the string state is sent back by the auth-server of gitlab here we could include the redirect url | and or we include a random csrf token that will be validated
+	authCodeOption := oauth2.S256ChallengeOption("Challenge")              // here include PKCE-Challenge against csrf-attacks should be random
+	url := ctrl.authConfig.AuthCodeURL(string(stateBytes), authCodeOption) // the string state is sent back by the auth-server of gitlab here we could include the redirect url | and or we include a random csrf token that will be validated
 
 	return c.Redirect(url, fiber.StatusSeeOther)
 }
@@ -78,7 +76,21 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
-	state := c.FormValue("state") // get the state passed from auth, which was sent by gitlab
+	stateVal := c.FormValue("state") // get the state passed from auth, which was sent by gitlab
+	state := &authState{}
+
+	if err := json.Unmarshal([]byte(stateVal), state); err != nil {
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
+
+	if state.Csrf == "" || state.Redirect == "" {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid state")
+	}
+
+	// Check if the csrf token is valid
+	if state.Csrf != c.Locals("csrf").(string) {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid csrf token")
+	}
 
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
 	if err := repo.Login(token.AccessToken); err != nil {
@@ -111,7 +123,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	s.SetUserState(session.LoggedIn)
 	s.SetUserID(user.ID)
 
-	redirect := state
+	redirect := state.Redirect
 
 	if err = s.Save(); err != nil {
 		// TODO: Use sentry to log errors
@@ -181,6 +193,15 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	ctx.SetGitlabRepository(repo)
 	ctx.SetUserID(userId)
 	return ctx.Next()
+}
+
+// GetCsrf returns a csrf token
+func (ctrl *OAuthController) GetCsrf(c *fiber.Ctx) error {
+	token, ok := c.Locals("csrf").(string)
+	if !ok {
+		return fiber.NewError(fiber.StatusInternalServerError, "There is no csrf token in the context")
+	}
+	return c.JSON(fiber.Map{"csrf": token})
 }
 
 func (ctrl *OAuthController) refreshSession(c context.Context, sess *session.ClassroomSession) error {

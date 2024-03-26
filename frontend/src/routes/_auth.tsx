@@ -1,5 +1,7 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { isAuthenticated } from "@/lib/utils";
+import { LogoutButton } from "@/components/logoutButton";
+import { Loader } from "@/components/loader";
 
 export const Route = createFileRoute("/_auth")({
   beforeLoad: async ({ location }) => {
@@ -13,8 +15,14 @@ export const Route = createFileRoute("/_auth")({
     }
   },
   component: Index,
+  pendingComponent: Loader,
 });
 
 function Index() {
-  return <Outlet />;
+  return (
+    <>
+      <LogoutButton />
+      <Outlet />
+    </>
+  );
 }
