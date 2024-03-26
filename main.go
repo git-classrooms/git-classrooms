@@ -5,6 +5,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
@@ -16,7 +18,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 func main() {
@@ -47,6 +48,8 @@ func main() {
 	query.SetDefault(db)
 
 	app := fiber.New(fiber.Config{
+		EnableTrustedProxyCheck: true,
+		TrustedProxies:          appConfig.TrustedProxies,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 

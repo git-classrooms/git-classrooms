@@ -13,13 +13,14 @@ import (
 )
 
 type ApplicationConfig struct {
-	PublicURL    *url.URL             `env:"PUBLIC_URL" envDefault:"https://staging.hs-flensburg.dev"`
-	Port         int                  `env:"PORT" envDefault:"3000"`
-	FrontendPath string               `env:"FRONTEND_PATH" envDefault:"./public"`
-	GitLab       *gitlab.GitlabConfig `envPrefix:"GITLAB_"`
-	Database     *database.PsqlConfig `envPrefix:"POSTGRES_"`
-	Auth         *auth.OAuthConfig    `envPrefix:"AUTH_"`
-	Mail         *mail.MailConfig     `envPrefix:"SMTP_"`
+	PublicURL      *url.URL             `env:"PUBLIC_URL" envDefault:"https://staging.hs-flensburg.dev"`
+	Port           int                  `env:"PORT" envDefault:"3000"`
+	FrontendPath   string               `env:"FRONTEND_PATH" envDefault:"./public"`
+	TrustedProxies []string             `env:"TRUSTED_PROXIES" envSeparator:"," envDefault:""`
+	GitLab         *gitlab.GitlabConfig `envPrefix:"GITLAB_"`
+	Database       *database.PsqlConfig `envPrefix:"POSTGRES_"`
+	Auth           *auth.OAuthConfig    `envPrefix:"AUTH_"`
+	Mail           *mail.MailConfig     `envPrefix:"SMTP_"`
 }
 
 func LoadApplicationConfig() (*ApplicationConfig, error) {
