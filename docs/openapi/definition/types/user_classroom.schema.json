@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UserClassrooms",
+  "type": "object",
+  "properties": {
+    "classroom": {
+      "$ref": "classroom.schema.json"
+    },
+    "role": {
+      "type": "integer"
+    }
+  },
+  "required": ["classroom", "role"],
+  "definitions": {
+    "Classroom": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ownerId": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "groupId": {
+          "type": "integer"
+        }
+      },
+      "required": ["id", "name", "ownerId", "description", "groupId"]
+    },
+    "Role": {
+      "type": "integer"
+    }
+  }
+}

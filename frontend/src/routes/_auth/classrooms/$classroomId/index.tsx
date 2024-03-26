@@ -1,4 +1,4 @@
-import { classroomMemberQueryOptions, classroomQueryOptions } from "@/api/classrooms";
+import { ownedClassroomMemberQueryOptions, ownedClassroomQueryOptions } from "@/api/classrooms";
 import { Header } from "@/components/header";
 import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
@@ -8,15 +8,15 @@ import { Assignment } from "@/types/assignments";
 import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { assignmentsQueryOptions } from "@/api/assignments.ts";
+import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
 import { formatDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   component: ClassroomDetail,
   loader: ({ context, params }) => {
-    const classroom = context.queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    const assignments = context.queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
-    const members = context.queryClient.ensureQueryData(classroomMemberQueryOptions(params.classroomId));
+    const classroom = context.queryClient.ensureQueryData(ownedClassroomQueryOptions(params.classroomId));
+    const assignments = context.queryClient.ensureQueryData(ownedAssignmentsQueryOptions(params.classroomId));
+    const members = context.queryClient.ensureQueryData(ownedClassroomMemberQueryOptions(params.classroomId));
 
     return { classroom, assignments, members };
   },
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
 
 function ClassroomDetail() {
   const { classroomId } = Route.useParams();
-  const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
-  const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
-  const { data: members } = useSuspenseQuery(classroomMemberQueryOptions(classroomId));
+  const { data: classroom } = useSuspenseQuery(ownedClassroomQueryOptions(classroomId));
+  const { data: assignments } = useSuspenseQuery(ownedAssignmentsQueryOptions(classroomId));
+  const { data: members } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
 
   return (
     <div className="p-2 space-y-6">
@@ -37,8 +37,8 @@ function ClassroomDetail() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{classroom.classroom.name}</CardTitle>
-          <CardDescription>{classroom.classroom.description}</CardDescription>
+          <CardTitle>{classroom.name}</CardTitle>
+          <CardDescription>{classroom.description}</CardDescription>
         </CardHeader>
       </Card>
 
@@ -78,7 +78,7 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
         {assignments.map((a) => (
           <TableRow key={a.id}>
             <TableCell>{a.name}</TableCell>
-            <TableCell>{formatDate(a.dueDate)}</TableCell>
+            <TableCell>{a.dueDate ? formatDate(a.dueDate) : "No Due Date"}</TableCell>
             <TableCell className="text-right">
               <Button asChild>
                 <Link

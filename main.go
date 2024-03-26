@@ -3,7 +3,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
@@ -12,9 +15,9 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 func main() {
@@ -33,6 +36,8 @@ func main() {
 		log.Fatal("failed to connect database", err)
 	}
 
+	session.InitSessionStore(appConfig.Database.Dsn())
+
 	err = utils.MigrateDatabase(db)
 	if err != nil {
 		log.Fatal("failed to migrate database", err)
@@ -42,7 +47,23 @@ func main() {
 	// Set db for gorm-gen
 	query.SetDefault(db)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		EnableTrustedProxyCheck: true,
+		TrustedProxies:          appConfig.TrustedProxies,
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			return c.Status(code).JSON(fiber.Map{
+				"error":   err.Error(),
+				"success": false,
+			})
+		},
+	})
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
 	apiCtrl := apiController.NewApiController(mailRepo)

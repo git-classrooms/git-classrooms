@@ -8,12 +8,10 @@ import (
 type OAuthConfig struct {
 	ClientID     string   `env:"CLIENT_ID"`
 	ClientSecret string   `env:"CLIENT_SECRET"`
-	RedirectURL  *url.URL `env:"REDIRECT_URL,expand" envDefault:"$PUBLIC_URL/auth/gitlab/callback"`
+	RedirectURL  *url.URL `env:"REDIRECT_URL,expand" envDefault:"$PUBLIC_URL/api/v1/auth/gitlab/callback"`
 	AuthURL      *url.URL `env:"AUTH_URL"`
 	TokenURL     *url.URL `env:"TOKEN_URL"`
 	Scopes       []string `env:"SCOPES" envSeparator:"," envDefault:"api"`
-
-	config *oauth2.Config
 }
 
 func (c *OAuthConfig) GetRedirectUrl() *url.URL {
@@ -21,17 +19,14 @@ func (c *OAuthConfig) GetRedirectUrl() *url.URL {
 }
 
 func (c *OAuthConfig) GetOAuthConfig() *oauth2.Config {
-	if c.config == nil {
-		c.config = &oauth2.Config{
-			ClientID:     c.ClientID,
-			ClientSecret: c.ClientSecret,
-			RedirectURL:  c.RedirectURL.String(),
-			Scopes:       c.Scopes,
-			Endpoint: oauth2.Endpoint{
-				AuthURL:  c.AuthURL.String(),
-				TokenURL: c.TokenURL.String(),
-			},
-		}
+	return &oauth2.Config{
+		ClientID:     c.ClientID,
+		ClientSecret: c.ClientSecret,
+		RedirectURL:  c.RedirectURL.String(),
+		Scopes:       c.Scopes,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  c.AuthURL.String(),
+			TokenURL: c.TokenURL.String(),
+		},
 	}
-	return c.config
 }

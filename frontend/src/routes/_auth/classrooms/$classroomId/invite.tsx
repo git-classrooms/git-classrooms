@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ClassroomInvitation, GetStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { classroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classrooms.ts";
+import { ownedClassroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classrooms.ts";
 import { Loader } from "@/components/loader.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
@@ -18,14 +18,14 @@ import { formatDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(classroomInvitationsQueryOptions(params.classroomId)),
+    context.queryClient.ensureQueryData(ownedClassroomInvitationsQueryOptions(params.classroomId)),
   pendingComponent: Loader,
   component: ClassroomsForm,
 });
 
 function ClassroomsForm() {
   const { classroomId } = Route.useParams();
-  const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
+  const { data: invitations } = useSuspenseQuery(ownedClassroomInvitationsQueryOptions(classroomId));
 
   const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
 

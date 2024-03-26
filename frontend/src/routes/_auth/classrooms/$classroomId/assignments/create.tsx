@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { templateProjectQueryOptions, useCreateAssignment } from "@/api/assignments.ts";
+import { ownedTemplateProjectQueryOptions, useCreateAssignment } from "@/api/assignments.ts";
 import {
   Form,
   FormControl,
@@ -27,7 +27,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(templateProjectQueryOptions(params.classroomId)),
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(ownedTemplateProjectQueryOptions(params.classroomId)),
   component: CreateAssignment,
   pendingComponent: Loader,
 });
@@ -37,7 +38,7 @@ function CreateAssignment() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
-  const { data: templateProjects } = useSuspenseQuery(templateProjectQueryOptions(classroomId));
+  const { data: templateProjects } = useSuspenseQuery(ownedTemplateProjectQueryOptions(classroomId));
 
   const { mutateAsync, isError, isPending } = useCreateAssignment(classroomId);
   const form = useForm<CreateAssignmentForm>({

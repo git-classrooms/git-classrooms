@@ -1,27 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import {
-  assignmentProjectsQueryOptions,
-  assignmentQueryOptions,
+  ownedAssignmentProjectsQueryOptions,
+  ownedAssignmentQueryOptions,
   useInviteAssignmentMembers,
 } from "@/api/assignments.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { format } from "date-fns";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { AssignmentProject } from "@/types/assignments.ts";
 import { Header } from "@/components/header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Code, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
+import { formatDate } from "@/lib/utils.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context, params }) => {
     const assignment = await context.queryClient.ensureQueryData(
-      assignmentQueryOptions(params.classroomId, params.assignmentId),
+      ownedAssignmentQueryOptions(params.classroomId, params.assignmentId),
     );
     const assignmentProjects = await context.queryClient.ensureQueryData(
-      assignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
+      ownedAssignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
     );
     return { assignment, assignmentProjects };
   },
@@ -31,8 +31,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 
 function AssignmentDetail() {
   const { classroomId, assignmentId } = Route.useParams();
-  const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
-  const { data: assignmentProjects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
+  const { data: assignment } = useSuspenseQuery(ownedAssignmentQueryOptions(classroomId, assignmentId));
+  const { data: assignmentProjects } = useSuspenseQuery(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
 
   const { mutateAsync, isError, isPending } = useInviteAssignmentMembers(classroomId, assignmentId);
 
@@ -46,7 +46,7 @@ function AssignmentDetail() {
         <CardHeader>
           <CardTitle>{assignment.name}</CardTitle>
           <CardDescription>{assignment.description}</CardDescription>
-          <CardFooter>Due date: {format(assignment.dueDate, "PPP")}</CardFooter>
+          <CardFooter>Due date: {assignment.dueDate ? formatDate(assignment.dueDate) : "No Due Date"}</CardFooter>
         </CardHeader>
       </Card>
 

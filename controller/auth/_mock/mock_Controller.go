@@ -20,52 +20,6 @@ func (_m *MockController) EXPECT() *MockController_Expecter {
 	return &MockController_Expecter{mock: &_m.Mock}
 }
 
-// Auth provides a mock function with given fields: c
-func (_m *MockController) Auth(c *fiber.Ctx) error {
-	ret := _m.Called(c)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Auth")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
-		r0 = rf(c)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockController_Auth_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Auth'
-type MockController_Auth_Call struct {
-	*mock.Call
-}
-
-// Auth is a helper method to define mock.On call
-//   - c *fiber.Ctx
-func (_e *MockController_Expecter) Auth(c interface{}) *MockController_Auth_Call {
-	return &MockController_Auth_Call{Call: _e.mock.On("Auth", c)}
-}
-
-func (_c *MockController_Auth_Call) Run(run func(c *fiber.Ctx)) *MockController_Auth_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*fiber.Ctx))
-	})
-	return _c
-}
-
-func (_c *MockController_Auth_Call) Return(_a0 error) *MockController_Auth_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockController_Auth_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_Auth_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // AuthMiddleware provides a mock function with given fields: c
 func (_m *MockController) AuthMiddleware(c *fiber.Ctx) error {
 	ret := _m.Called(c)
@@ -154,6 +108,144 @@ func (_c *MockController_Callback_Call) Return(_a0 error) *MockController_Callba
 }
 
 func (_c *MockController_Callback_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_Callback_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuth provides a mock function with given fields: c
+func (_m *MockController) GetAuth(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuth")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetAuth_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuth'
+type MockController_GetAuth_Call struct {
+	*mock.Call
+}
+
+// GetAuth is a helper method to define mock.On call
+//   - c *fiber.Ctx
+func (_e *MockController_Expecter) GetAuth(c interface{}) *MockController_GetAuth_Call {
+	return &MockController_GetAuth_Call{Call: _e.mock.On("GetAuth", c)}
+}
+
+func (_c *MockController_GetAuth_Call) Run(run func(c *fiber.Ctx)) *MockController_GetAuth_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetAuth_Call) Return(_a0 error) *MockController_GetAuth_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetAuth_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetAuth_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SignIn provides a mock function with given fields: c
+func (_m *MockController) SignIn(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignIn")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_SignIn_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SignIn'
+type MockController_SignIn_Call struct {
+	*mock.Call
+}
+
+// SignIn is a helper method to define mock.On call
+//   - c *fiber.Ctx
+func (_e *MockController_Expecter) SignIn(c interface{}) *MockController_SignIn_Call {
+	return &MockController_SignIn_Call{Call: _e.mock.On("SignIn", c)}
+}
+
+func (_c *MockController_SignIn_Call) Run(run func(c *fiber.Ctx)) *MockController_SignIn_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_SignIn_Call) Return(_a0 error) *MockController_SignIn_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_SignIn_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_SignIn_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SignOut provides a mock function with given fields: c
+func (_m *MockController) SignOut(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignOut")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_SignOut_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SignOut'
+type MockController_SignOut_Call struct {
+	*mock.Call
+}
+
+// SignOut is a helper method to define mock.On call
+//   - c *fiber.Ctx
+func (_e *MockController_Expecter) SignOut(c interface{}) *MockController_SignOut_Call {
+	return &MockController_SignOut_Call{Call: _e.mock.On("SignOut", c)}
+}
+
+func (_c *MockController_SignOut_Call) Run(run func(c *fiber.Ctx)) *MockController_SignOut_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_SignOut_Call) Return(_a0 error) *MockController_SignOut_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_SignOut_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_SignOut_Call {
 	_c.Call.Return(run)
 	return _c
 }

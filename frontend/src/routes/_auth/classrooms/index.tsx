@@ -1,21 +1,29 @@
-import { classroomsQueryOptions } from "@/api/classrooms";
+import { joinedClassroomsQueryOptions, ownedClassroomsQueryOptions } from "@/api/classrooms";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Classroom } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
+import { JoinedClassroom, OwnedClassroom } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
-  loader: ({ context }) => context.queryClient.ensureQueryData(classroomsQueryOptions),
+  loader: ({ context }) => {
+    const ownClassrooms = context.queryClient.ensureQueryData(ownedClassroomsQueryOptions);
+    const joinedClassrooms = context.queryClient.ensureQueryData(joinedClassroomsQueryOptions);
+    return {
+      ownClassrooms,
+      joinedClassrooms,
+    };
+  },
   pendingComponent: Loader,
 });
 
 function Classrooms() {
-  const { data } = useSuspenseQuery(classroomsQueryOptions);
+  const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
+  const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
   return (
     <div className="p-2">
       <Header title="Own Classrooms">
@@ -23,14 +31,14 @@ function Classrooms() {
           <Link to="/classrooms/create">Create</Link>
         </Button>
       </Header>
-      <ClassroomTable classrooms={data.ownClassrooms} />
+      <OwnedClassroomTable classrooms={ownClassrooms} />
       <Header title="Joined Classrooms" />
-      <JoinedClassroomTable classrooms={data.joinedClassrooms} />
+      <JoinedClassroomTable classrooms={joinedClassrooms} />
     </div>
   );
 }
 
-function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
+function OwnedClassroomTable({ classrooms }: { classrooms: OwnedClassroom[] }) {
   return (
     <Table>
       <TableCaption>Own Classrooms</TableCaption>
@@ -43,8 +51,8 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
       </TableHeader>
       <TableBody>
         {classrooms.map((c) => (
-          <TableRow key={c.classroom.id}>
-            <TableCell>{c.classroom.name}</TableCell>
+          <TableRow key={c.id}>
+            <TableCell>{c.name}</TableCell>
             <TableCell>
               <a href={c.gitlabUrl} target="_blank" rel="noreferrer">
                 <Code />
@@ -52,7 +60,7 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
             </TableCell>
             <TableCell className="text-right">
               <Button asChild variant="outline">
-                <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
+                <Link to="/classrooms/$classroomId" params={{ classroomId: c.id }}>
                   Show classroom
                 </Link>
               </Button>
@@ -64,7 +72,7 @@ function ClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
   );
 }
 
-function JoinedClassroomTable({ classrooms }: { classrooms: Classroom[] }) {
+function JoinedClassroomTable({ classrooms }: { classrooms: JoinedClassroom[] }) {
   return (
     <Table>
       <TableCaption>Joined Classrooms</TableCaption>
