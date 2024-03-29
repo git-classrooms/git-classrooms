@@ -1,9 +1,0 @@
-#!/usr/bin/env /bin/sh
-
-air -c .air.toml &
-
-cd frontend
-
-yarn
-yarn dev
-
