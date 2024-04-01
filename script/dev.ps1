@@ -1,23 +1,17 @@
-
 docker compose -f docker-compose.local.yml up -d
 
-$airid=Start-Process -NoNewWindow -PassThru air -c .air.toml
+$airid=Start-Process -NoNewWindow -PassThru air -ArgumentList "-c .air.toml" 
 
 cd frontend
 yarn
 
-$yarnid=Start-Process -NoNewWindow -PassThru yarn dev
-cd ..
-
 try
 {
-    while(1) {
-        Start-Sleep -Seconds 1
-    }
+    yarn dev
 }
 finally
 {
+    cd ..
     $airid | Stop-Process
-    $yarnid | Stop-Process
     docker compose -f docker-compose.local.yml stop
 }
