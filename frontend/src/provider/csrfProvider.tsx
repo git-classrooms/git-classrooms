@@ -4,8 +4,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import React, { createContext, useMemo } from "react";
 
-type CsrfProps = React.PropsWithChildren<{}>;
-
 type CsrfState = {
   apiClient: AxiosInstance;
   csrfToken: string;
@@ -18,7 +16,7 @@ const initialState: CsrfState = {
 
 const CsrfContext = createContext<CsrfState>(initialState);
 
-export const CsrfProvider: React.FC<CsrfProps> = ({ children }) => {
+export const CsrfProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data } = useSuspenseQuery(authCsrfQueryOptions);
   const apiClient = useMemo(
     () =>
