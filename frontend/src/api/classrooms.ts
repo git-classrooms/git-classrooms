@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/utils";
 import { ClassroomForm, ClassroomInvitation, InviteForm, JoinedClassroom, OwnedClassroom } from "@/types/classroom";
 import { User } from "@/types/user";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import { authCsrfQueryOptions } from "@/api/auth.ts";
+import { useCsrf } from "@/provider/csrfProvider";
 
 export const ownedClassroomsQueryOptions = queryOptions({
   queryKey: ["ownedClassrooms"],
@@ -48,17 +50,24 @@ export const ownedClassroomInvitationsQueryOptions = (classroomId: string) =>
 
 export const useCreateClassroom = () => {
   const queryClient = useQueryClient();
+  const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async (values: ClassroomForm) => {
       const res = await apiClient.post<void>("/classrooms/owned", values);
       return res.headers.location as string;
     },
-    onSuccess: () => queryClient.invalidateQueries(ownedClassroomsQueryOptions),
+    onSuccess: () => {
+      queryClient.invalidateQueries(ownedClassroomsQueryOptions);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
   });
 };
 
 export const useInviteClassroomMembers = (classroomId: string) => {
   const queryClient = useQueryClient();
+  const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async (values: InviteForm) => {
       const res = await apiClient.post<void>(`/classrooms/owned/${classroomId}/invitations`, {
@@ -66,15 +75,25 @@ export const useInviteClassroomMembers = (classroomId: string) => {
       });
       return res.data;
     },
-    onSuccess: () => queryClient.invalidateQueries(ownedClassroomInvitationsQueryOptions(classroomId)),
+    onSuccess: () => {
+      queryClient.invalidateQueries(ownedClassroomInvitationsQueryOptions(classroomId));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
   });
 };
 
 export const useJoinClassroom = (invitationId: string) => {
+  const queryClient = useQueryClient();
+  const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async () => {
       const res = await apiClient.post<void>("/classrooms/joined", { invitationId });
       return res.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
     },
   });
 };

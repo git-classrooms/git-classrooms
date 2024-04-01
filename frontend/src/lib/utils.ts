@@ -20,4 +20,6 @@ export async function isAuthenticated() {
   }
 }
 
-export const apiClient = axios.create({ baseURL: "/api/v1", withCredentials: true });
+export const apiClientOptions = { baseURL: "/api/v1", withCredentials: true };
+
+export const apiClient = axios.create(apiClientOptions);
