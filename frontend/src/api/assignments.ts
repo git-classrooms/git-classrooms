@@ -70,7 +70,7 @@ export const useInviteAssignmentMembers = (classroomId: string, assignmentId: st
   const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async () => {
-      await apiClient.post(`/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`, undefined);
+      await apiClient.post(`/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
@@ -85,10 +85,7 @@ export const useAcceptAssignment = (classroomId: string, assignmentId: string) =
   const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async () => {
-      const res = await apiClient.post<void>(
-        `/classrooms/joined/${classroomId}/assignments/${assignmentId}/accept`,
-        undefined,
-      );
+      const res = await apiClient.post<void>(`/classrooms/joined/${classroomId}/assignments/${assignmentId}/accept`);
       return res.data;
     },
     onSettled: () => {
