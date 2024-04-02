@@ -1,6 +1,8 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/utils.ts";
 import { Assignment, AssignmentProject, CreateAssignmentForm, TemplateProject } from "@/types/assignments.ts";
+import { authCsrfQueryOptions } from "@/api/auth.ts";
+import { useCsrf } from "@/provider/csrfProvider";
 
 export const ownedAssignmentsQueryOptions = (classroomId: string) =>
   queryOptions({
@@ -48,6 +50,7 @@ export const ownedTemplateProjectQueryOptions = (classroomId: string) =>
 
 export const useCreateAssignment = (classroomId: string) => {
   const queryClient = useQueryClient();
+  const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async (values: CreateAssignmentForm) => {
       const res = await apiClient.post<void>(`/classrooms/owned/${classroomId}/assignments`, values);
@@ -56,11 +59,15 @@ export const useCreateAssignment = (classroomId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries(ownedAssignmentsQueryOptions(classroomId));
     },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
   });
 };
 
 export const useInviteAssignmentMembers = (classroomId: string, assignmentId: string) => {
   const queryClient = useQueryClient();
+  const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async () => {
       await apiClient.post(`/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`);
@@ -68,13 +75,21 @@ export const useInviteAssignmentMembers = (classroomId: string, assignmentId: st
     onSuccess: () => {
       queryClient.invalidateQueries(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
     },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
   });
 };
 export const useAcceptAssignment = (classroomId: string, assignmentId: string) => {
+  const queryClient = useQueryClient();
+  const { apiClient } = useCsrf();
   return useMutation({
     mutationFn: async () => {
       const res = await apiClient.post<void>(`/classrooms/joined/${classroomId}/assignments/${assignmentId}/accept`);
       return res.data;
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
     },
   });
 };

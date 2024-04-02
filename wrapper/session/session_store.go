@@ -56,6 +56,7 @@ func InitSessionStore(dsn string) {
 			CookieHTTPOnly:    true,
 			Expiration:        1 * time.Hour,
 			KeyGenerator:      utils.UUIDv4,
+			SingleUseToken:    true,
 			ErrorHandler: func(c *fiber.Ctx, err error) error {
 				return fiber.NewError(fiber.StatusForbidden, err.Error())
 			},

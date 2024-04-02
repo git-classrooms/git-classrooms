@@ -33,6 +33,8 @@ func Routes(
 		return c.Next()
 	})
 
+	app.Use(csrf.New(session.CsrfConfig))
+
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 	setupV1Routes(&api, config, authController, apiController)
 
@@ -44,7 +46,6 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v1 := (*api).Group("/v1")
 
-	v1.Use("/auth", csrf.New(session.CsrfConfig))
 	v1.Post("/auth/sign-in", authController.SignIn)
 	v1.Post("/auth/sign-out", authController.SignOut)
 	v1.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)

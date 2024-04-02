@@ -158,6 +158,52 @@ func (_c *MockController_GetAuth_Call) RunAndReturn(run func(*fiber.Ctx) error) 
 	return _c
 }
 
+// GetCsrf provides a mock function with given fields: c
+func (_m *MockController) GetCsrf(c *fiber.Ctx) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCsrf")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockController_GetCsrf_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCsrf'
+type MockController_GetCsrf_Call struct {
+	*mock.Call
+}
+
+// GetCsrf is a helper method to define mock.On call
+//   - c *fiber.Ctx
+func (_e *MockController_Expecter) GetCsrf(c interface{}) *MockController_GetCsrf_Call {
+	return &MockController_GetCsrf_Call{Call: _e.mock.On("GetCsrf", c)}
+}
+
+func (_c *MockController_GetCsrf_Call) Run(run func(c *fiber.Ctx)) *MockController_GetCsrf_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *MockController_GetCsrf_Call) Return(_a0 error) *MockController_GetCsrf_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockController_GetCsrf_Call) RunAndReturn(run func(*fiber.Ctx) error) *MockController_GetCsrf_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SignIn provides a mock function with given fields: c
 func (_m *MockController) SignIn(c *fiber.Ctx) error {
 	ret := _m.Called(c)
