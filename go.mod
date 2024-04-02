@@ -15,6 +15,7 @@ require (
 
 require (
 	github.com/getsentry/sentry-go v0.27.0
+	github.com/gofiber/storage/postgres v1.3.4
 	github.com/gofiber/swagger v1.0.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/hashicorp/go-retryablehttp v0.7.2
@@ -60,6 +61,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/lib/pq v1.10.7 // indirect
 	github.com/lufia/plan9stats v0.0.0-20231016141302-07b5767bb0ed // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

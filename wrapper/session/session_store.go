@@ -1,6 +1,7 @@
 package session
 
 import (
+	"github.com/gofiber/storage/postgres"
 	"sync"
 	"time"
 
@@ -31,14 +32,14 @@ func InitSessionStore(dsn string) {
 			Expiration:     time.Hour * 24 * 7,
 			CookieHTTPOnly: true,
 			CookieSecure:   true,
-			//Storage: postgres.New(postgres.Config{
-			//	ConnectionURI: dsn,
-			//	Table:         "fiber_storage",
-			//	Reset:         false,
-			//	GCInterval:    10 * time.Second,
-			//}),
+			Storage: postgres.New(postgres.Config{
+				ConnectionURI: dsn,
+				Table:         "fiber_storage",
+				Reset:         false,
+				GCInterval:    10 * time.Second,
+			}),
 		})
-
+		
 		// Wir können typen registrieren, die in der Session gespeichert werden sollen
 		// Damit sparen wir uns das aufteilen der structs in einzelne Felder
 		store.RegisterType(time.Time{})
@@ -56,7 +57,7 @@ func InitSessionStore(dsn string) {
 			CookieHTTPOnly:    true,
 			Expiration:        1 * time.Hour,
 			KeyGenerator:      utils.UUIDv4,
-			SingleUseToken:    true,
+			// SingleUseToken:    true,
 			ErrorHandler: func(c *fiber.Ctx, err error) error {
 				return fiber.NewError(fiber.StatusForbidden, err.Error())
 			},

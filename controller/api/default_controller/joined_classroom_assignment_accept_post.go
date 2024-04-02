@@ -13,7 +13,8 @@ import (
 func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()
-	userID := ctx.GetUserID()
+	// userID := ctx.GetUserID()
+	team := ctx.GetJoinedTeam()
 	// TODO: assignnment := ctx.GetJoinedClassroomAssignment()
 
 	assignmentId, err := uuid.Parse(c.Params("assignmentId"))
@@ -37,15 +38,17 @@ func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
 	assignmentProject, err := queryAssignmentProjects.
 		WithContext(c.Context()).
 		Preload(queryAssignmentProjects.Assignment).
+		Join(query.Team).
+		Where(queryAssignmentProjects.TeamID.EqCol(query.Team.ID)).
 		Where(queryAssignmentProjects.AssignmentID.Eq(assignmentId)).
-		Where(queryAssignmentProjects.UserID.Eq(userID)).
+		Where(queryAssignmentProjects.TeamID.Eq(team.ID)).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	if assignmentProject.AssignmentAccepted {
-		return fiber.NewError(fiber.StatusBadRequest, "You have already joined this assignment")
+		return c.SendStatus(fiber.StatusNoContent) // You or your teammate have already accepted the assignment
 	}
 
 	repo := context.Get(c).GetGitlabRepository()

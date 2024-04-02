@@ -35,6 +35,18 @@ func (ctrl *DefaultController) JoinedClassroomMiddleware(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
+	queryTeam := query.Team
+	team, err := queryTeam.
+		WithContext(c.Context()).
+		FindByUserIDAndClassroomID(userID, classroom.ClassroomID)
+	if err != nil {
+		team = nil
+		// The user is not a member of a team
+		// log.Println(err)
+		// return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	ctx.SetJoinedTeam(team)
 	ctx.SetJoinedClassroom(classroom)
 	return ctx.Next()
 }

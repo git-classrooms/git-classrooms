@@ -24,14 +24,17 @@ type Assignment struct {
 
 // AssignmentProjects is a struct that represents an assignment-projects in the database
 type AssignmentProjects struct {
-	ID                 uuid.UUID      `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	CreatedAt          time.Time      `json:"createdAt"`
-	UpdatedAt          time.Time      `json:"updatedAt"`
-	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
-	AssignmentID       uuid.UUID      `gorm:"<-:create;not null" json:"assignmentId"`
-	Assignment         Assignment     `json:"-"`
-	UserID             int            `gorm:"<-:create;not null" json:"userId"`
-	User               User           `json:"user"`
-	AssignmentAccepted bool           `gorm:"not null" json:"assignmentAccepted"`
-	ProjectID          int            `json:"projectId"`
+	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+
+	TeamID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"teamId"`
+	Team   Team      `json:"team"`
+
+	AssignmentID uuid.UUID  `gorm:"<-:create;not null" json:"assignmentId"`
+	Assignment   Assignment `json:"-"`
+
+	AssignmentAccepted bool `gorm:"not null" json:"assignmentAccepted"`
+	ProjectID          int  `json:"projectId"`
 }

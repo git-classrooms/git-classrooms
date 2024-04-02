@@ -53,7 +53,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	err = repo.AddUserToGroup(invitation.Classroom.GroupID, currentUser.ID, gitlabModel.MaintainerPermissions)
+	err = repo.AddUserToGroup(invitation.Classroom.GroupID, currentUser.ID, gitlabModel.ReporterPermissions)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

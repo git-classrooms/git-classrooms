@@ -14,10 +14,17 @@ import (
 type CreateClassroomRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	CreateTeams *bool  `json:"createTeams"`
+	MaxTeams    *int   `json:"maxTeams"`
+	MaxTeamSize int    `json:"maxTeamSize"`
 }
 
 func (r CreateClassroomRequest) isValid() bool {
-	return r.Name != "" && r.Description != ""
+	return r.Name != "" &&
+		r.Description != "" &&
+		r.CreateTeams != nil &&
+		r.MaxTeamSize > 0 &&
+		r.MaxTeams != nil && *r.MaxTeams >= 0
 }
 
 // @Summary		Create a new classroom
@@ -66,8 +73,11 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	classroomQuery := query.Classroom
 	classRoom := &database.Classroom{
 		Name:               requestBody.Name,
-		OwnerID:            userID,
 		Description:        requestBody.Description,
+		OwnerID:            userID,
+		CreateTeams:        *requestBody.CreateTeams,
+		MaxTeamSize:        requestBody.MaxTeamSize,
+		MaxTeams:           *requestBody.MaxTeams,
 		GroupID:            group.ID,
 		GroupAccessTokenID: accessToken.ID,
 		GroupAccessToken:   accessToken.Token,

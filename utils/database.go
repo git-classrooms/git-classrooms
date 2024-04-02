@@ -15,7 +15,6 @@ func MigrateDatabase(db *gorm.DB) error {
 		&dbModel.User{},
 		&dbModel.Classroom{},
 		&dbModel.Team{},
-		&dbModel.TeamMember{},
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},

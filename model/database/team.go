@@ -16,15 +16,10 @@ type Team struct {
 	Name    string `gorm:"not null" json:"name"`
 	GroupID int    `gorm:"<-:create;not null" json:"groupId"`
 
-	ClassroomID uuid.UUID `gorm:"type:uuid;not null" json:"-"`
+	ClassroomID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"-"`
 	Classroom   Classroom `json:"classroom"`
 
-	Member []*TeamMember `gorm:"foreignKey:TeamID" json:"members"`
-}
+	Member []*User `gorm:"many2many:team_member;"`
 
-type TeamMember struct {
-	UserID int       `gorm:"primaryKey;autoIncrement:false;not null" json:"-"`
-	User   User      `json:"user"`
-	TeamID uuid.UUID `gorm:"type:uuid;primaryKey;not null" json:"-"`
-	Team   Team      `json:"team"`
+	AssignmentProjects []*AssignmentProjects `json:"-"`
 }
