@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"log"
+
 	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gorm.io/gorm"
-	"log"
 )
 
 func MigrateDatabase(db *gorm.DB) error {
@@ -13,6 +14,8 @@ func MigrateDatabase(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&dbModel.User{},
 		&dbModel.Classroom{},
+		&dbModel.Team{},
+		&dbModel.TeamMember{},
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
