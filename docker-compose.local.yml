@@ -1,26 +1,6 @@
 version: "3.7"
 
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: .docker/Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-
-  frontend:
-    build:
-      context: frontend
-      dockerfile: ./Dockerfile
-    environment:
-      docker: True
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-
   postgres:
     image: postgres:13-alpine
     environment:

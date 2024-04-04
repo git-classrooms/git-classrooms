@@ -8,8 +8,7 @@ export default defineConfig({
   server: {
     host: true,
     proxy: {
-      "/api": "http://backend:3000",
-      "/auth": "http://backend:3000",
+      "/api": `http://${process.env.docker === "True" ? "backend" : "127.0.0.1"}:3000`,
     },
   },
   resolve: {
