@@ -188,6 +188,10 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		}
 		// sess.Save does save the session, which invalidates the pointer and we must get a new one
 		sess = session.Get(c)
+		token, err = sess.GetGitlabOauth2Token()
+		if err != nil {
+			return fiber.NewError(fiber.StatusUnauthorized, err.Error())
+		}
 	}
 
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
