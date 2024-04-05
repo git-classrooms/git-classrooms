@@ -36,6 +36,11 @@ type Controller interface {
 	JoinedClassroomAssignmentMiddleware(*fiber.Ctx) error
 	GetJoinedClassroomAssignment(*fiber.Ctx) error
 
+	GetJoinedClassroomTeams(*fiber.Ctx) error
+	CreateJoinedClassroomTeam(*fiber.Ctx) error
+	JoinedClassroomTeamMiddleware(*fiber.Ctx) error
+	JoinJoinedClassroomTeam(*fiber.Ctx) error
+
 	JoinClassroom(*fiber.Ctx) error
 	JoinAssignment(*fiber.Ctx) error
 
