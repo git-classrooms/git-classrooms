@@ -22,10 +22,14 @@ type Controller interface {
 	InviteToAssignmentProject(*fiber.Ctx) error
 
 	GetOwnedClassroomMembers(*fiber.Ctx) error
+	OwnedClassroomMemberMiddleware(*fiber.Ctx) error
+	ChangeOwnedClassroomMember(*fiber.Ctx) error
 
 	GetOwnedClassroomInvitations(*fiber.Ctx) error
 
 	GetOwnedClassroomTemplates(*fiber.Ctx) error
+
+	CreateOwnedClassroomTeam(*fiber.Ctx) error
 
 	GetJoinedClassrooms(*fiber.Ctx) error
 	JoinedClassroomMiddleware(*fiber.Ctx) error
