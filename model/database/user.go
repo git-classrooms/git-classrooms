@@ -2,8 +2,9 @@
 package database
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // User is the representation of the user in database
@@ -16,6 +17,4 @@ type User struct {
 	DeletedAt       gorm.DeletedAt    `gorm:"index" json:"-"`
 	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID" json:"-"`
 	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID" json:"-"`
-
-	Teams []*Team `gorm:"many2many:team_member;"`
 }

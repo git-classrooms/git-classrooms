@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -72,23 +73,33 @@ func (ctrl *DefaultController) CreateJoinedClassroomTeam(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	if err := repo.AddUserToGroup(group.ID, userID, model.DeveloperPermissions); err != nil {
-		if err := repo.DeleteGroup(group.ID); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
+	queryUserClassrooms := query.UserClassrooms
+	user, err := queryUserClassrooms.
+		WithContext(c.Context()).
+		Where(queryUserClassrooms.UserID.Eq(userID)).
+		Where(queryUserClassrooms.ClassroomID.Eq(classroom.ClassroomID)).
+		First()
+	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	user, err := query.User.WithContext(c.Context()).Where(query.User.ID.Eq(userID)).First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	member := make([]*database.UserClassrooms, 0)
+
+	if classroom.Role == database.Student {
+		if err := repo.AddUserToGroup(group.ID, userID, model.DeveloperPermissions); err != nil {
+			if err := repo.DeleteGroup(group.ID); err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		member = append(member, user)
 	}
 
 	newTeam := &database.Team{
 		Name:        requestBody.Name,
 		GroupID:     group.ID,
 		ClassroomID: classroom.ClassroomID,
-		Member:      []*database.User{user},
+		Member:      member,
 	}
 
 	err = queryTeam.WithContext(c.Context()).Create(newTeam)

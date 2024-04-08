@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -20,6 +21,10 @@ func (ctrl *DefaultController) JoinJoinedClassroomTeam(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusForbidden, "You are already a member of a team.")
 	}
 
+	if len(team.Member) >= classroom.Classroom.MaxTeamSize {
+		return fiber.NewError(fiber.StatusForbidden, "The team is full.")
+	}
+
 	// reauthenticate the repo with the group access token
 	err := repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken)
 	if err != nil {
@@ -30,16 +35,16 @@ func (ctrl *DefaultController) JoinJoinedClassroomTeam(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	user, err := query.User.WithContext(c.Context()).Where(query.User.ID.Eq(userID)).First()
+	queryUserClassrooms := query.UserClassrooms
+	_, err = queryUserClassrooms.
+		WithContext(c.Context()).
+		Where(queryUserClassrooms.UserID.Eq(userID)).
+		Where(queryUserClassrooms.ClassroomID.Eq(classroom.ClassroomID)).
+		Update(queryUserClassrooms.TeamID, team.ID)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	queryTeam := query.Team
-	err = queryTeam.
-		Member.Model(team).
-		Append(user)
-	if err != nil {
+		if err := repo.RemoveUserFromGroup(team.GroupID, userID); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
