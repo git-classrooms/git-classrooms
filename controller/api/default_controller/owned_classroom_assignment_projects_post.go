@@ -2,13 +2,14 @@ package default_controller
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"log"
 )
 
 func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
@@ -36,6 +37,7 @@ func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 	invitableTeams, err := queryTeam.
 		WithContext(c.Context()).
 		Preload(queryTeam.Member).
+		Preload(queryTeam.Member.User).
 		FindByClassroomIDAndNotInTeamIDs(classroom.ID, ids)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -66,16 +68,16 @@ func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 
 	for _, team := range invitableTeams {
 		for _, member := range team.Member {
-			log.Println("Sending invitation to", member.GitlabEmail)
+			log.Println("Sending invitation to", member.User.GitlabEmail)
 
 			joinPath := fmt.Sprintf("/classrooms/%s/assignments/%s/accept", classroom.ID.String(), assignment.ID.String())
-			err = ctrl.mailRepo.SendAssignmentNotification(member.GitlabEmail,
+			err = ctrl.mailRepo.SendAssignmentNotification(member.User.GitlabEmail,
 				fmt.Sprintf(`You were invited to a new Assigment "%s"`,
 					classroom.Name),
 				mailRepo.AssignmentNotificationData{
 					ClassroomName:      classroom.Name,
 					ClassroomOwnerName: owner.Name,
-					RecipientName:      member.Name,
+					RecipientName:      member.User.Name,
 					AssignmentName:     assignment.Name,
 					JoinPath:           joinPath,
 				})
