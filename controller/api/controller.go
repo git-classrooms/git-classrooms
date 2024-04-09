@@ -29,6 +29,10 @@ type Controller interface {
 
 	GetOwnedClassroomTemplates(*fiber.Ctx) error
 
+	GetOwnedClassroomTeams(*fiber.Ctx) error
+	OwnedClassroomTeamMiddleware(*fiber.Ctx) error
+	GetOwnedClassroomTeam(*fiber.Ctx) error
+	GetOwnedClassroomTeamGitlab(*fiber.Ctx) error
 	CreateOwnedClassroomTeam(*fiber.Ctx) error
 
 	GetJoinedClassrooms(*fiber.Ctx) error

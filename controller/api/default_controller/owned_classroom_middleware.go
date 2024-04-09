@@ -28,6 +28,7 @@ func (ctrl *DefaultController) OwnedClassroomMiddleware(c *fiber.Ctx) error {
 	classroom, err := ownedClassroomQuery(userID, c).
 		Preload(queryClassroom.Member).
 		Preload(queryClassroom.Invitations).
+		Preload(queryClassroom.Teams).
 		Where(queryClassroom.ID.Eq(param.ClassroomID)).
 		First()
 	if err != nil {
