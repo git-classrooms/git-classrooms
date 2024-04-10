@@ -100,6 +100,9 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Get("/classrooms/owned/:classroomId/teams/:teamId", apiController.GetOwnedClassroomTeam)
 	v1.Get("/classrooms/owned/:classroomId/teams/:teamId/gitlab", apiController.GetOwnedClassroomTeamGitlab)
 
+	v1.Get("/classrooms/owned/:classroomId/teams/:teamId/members", apiController.GetOwnedClassroomTeamMembers)
+	v1.Get("/classrooms/owned/:classroomId/teams/:teamId/projects", apiController.GetOwnedClassroomTeamProjects)
+
 	v1.Get("/classrooms/joined", apiController.GetJoinedClassrooms)
 	v1.Post("/classrooms/joined", apiController.JoinClassroom) // with invitation id in the body
 	v1.Use("/classrooms/joined/:classroomId", apiController.JoinedClassroomMiddleware)

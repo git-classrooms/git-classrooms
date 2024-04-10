@@ -20,6 +20,8 @@ func (ctrl *DefaultController) OwnedClassroomTeamMiddleware(c *fiber.Ctx) error 
 		WithContext(c.Context()).
 		Preload(queryTeam.Classroom).
 		Preload(queryTeam.Member).
+		Preload(queryTeam.Member.User).
+		Preload(queryTeam.AssignmentProjects).
 		Where(queryTeam.ID.Eq(param.TeamID)).
 		Where(queryTeam.ClassroomID.Eq(param.ClassroomID)).
 		First()
