@@ -29,24 +29,14 @@ func (ctrl *DefaultController) JoinedClassroomMiddleware(c *fiber.Ctx) error {
 	queryUserClassrooms := query.UserClassrooms
 	classroom, err := joinedClassroomQuery(userID, c).
 		Preload(queryUserClassrooms.Classroom).
+		Preload(queryUserClassrooms.Team).
 		Where(queryUserClassrooms.ClassroomID.Eq(param.ClassroomID)).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	queryTeam := query.Team
-	team, err := queryTeam.
-		WithContext(c.Context()).
-		FindByUserIDAndClassroomID(userID, classroom.ClassroomID)
-	if err != nil {
-		team = nil
-		// The user is not a member of a team
-		// log.Println(err)
-		// return fiber.NewError(fiber.StatusNotFound, err.Error())
-	}
-
-	ctx.SetJoinedTeam(team)
+	ctx.SetJoinedTeam(classroom.Team)
 	ctx.SetJoinedClassroom(classroom)
 	return ctx.Next()
 }

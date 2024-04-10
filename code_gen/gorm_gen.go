@@ -7,11 +7,14 @@ import (
 )
 
 type Querier interface {
-	// SELECT * FROM @@table WHERE classroom_id=@classroomID AND id NOT IN @teamIDs
+	// SELECT * FROM @@table
+	//   {{where}}
+	//     classroom_id = @classroomID
+	//     {{if len(teamIDs) != 0}}
+	//       AND id NOT IN @teamIDs
+	//     {{end}}
+	//   {{end}}
 	FindByClassroomIDAndNotInTeamIDs(classroomID uuid.UUID, teamIDs ...uuid.UUID) ([]*gen.T, error)
-
-	// SELECT * FROM @@table INNER JOIN team_member AS tm ON teams.id = tm.team_id WHERE classroom_id=@classroomID AND tm.user_id = @userID
-	FindByUserIDAndClassroomID(userID int, classroomID uuid.UUID) (*gen.T, error)
 }
 
 func main() {
