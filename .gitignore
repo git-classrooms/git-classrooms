@@ -183,7 +183,6 @@ fabric.properties
 
 
 ## Ignore certificates for mailpit
-.docker/mail/*
 
 public/*
 !frontend/public/*
