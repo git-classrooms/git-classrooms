@@ -10,6 +10,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
 import { formatDate } from "@/lib/utils.ts";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   component: ClassroomDetail,
@@ -28,6 +29,8 @@ function ClassroomDetail() {
   const { data: classroom } = useSuspenseQuery(ownedClassroomQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(ownedAssignmentsQueryOptions(classroomId));
   const { data: members } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
+
+  const users = useMemo(() => members.map((m) => m.user), [members]);
 
   return (
     <div className="p-2 space-y-6">
@@ -58,7 +61,7 @@ function ClassroomDetail() {
           </Link>
         </Button>
       </Header>
-      <MemberTable members={members} />
+      <MemberTable members={users} />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
-import { JoinedClassroom, OwnedClassroom } from "@/types/classroom.ts";
+import { UserClassroom, OwnedClassroom } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms")({
   component: Classrooms,
@@ -73,7 +73,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: OwnedClassroom[] }) {
   );
 }
 
-function JoinedClassroomTable({ classrooms }: { classrooms: JoinedClassroom[] }) {
+function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroom[] }) {
   return (
     <Table>
       <TableCaption>Joined Classrooms</TableCaption>
