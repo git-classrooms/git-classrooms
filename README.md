@@ -21,6 +21,16 @@ The Setup for development is documented in the the following file
 
 To generate up to date mock files and database code you can use the command `go generate` in projects root dir.
 
+### Run Staging|Production image locally
+
+To test the completly build image locally you can use the following command:
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+And access the application via `http://localhost:3000`
+
 ### Postman testing
 
 1. Login via gitlab in the browser

@@ -104,7 +104,7 @@ Since we use Gitlab as an OAuth provider, add this application in your Gitlab.
     * Needed Scopes: "api"
     * Save the application and copy the displayed Application ID (AUTH_CLIENT_ID) and Secret (AUTH_CLIENT_SECRET) to your local .env file.
 
-### For encrypted connections, generate a self-signed certificate
+### For the mail-server, generate a self-signed certificate
 ```
 openssl req -x509 -newkey rsa:4096 -nodes -keyout .docker/mail/privkey.pem -out .docker/mail/cert.pem -sha256 -days 3650
 ```
