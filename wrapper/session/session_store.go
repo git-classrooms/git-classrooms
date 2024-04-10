@@ -39,7 +39,7 @@ func InitSessionStore(dsn string) {
 				GCInterval:    10 * time.Second,
 			}),
 		})
-		
+
 		// Wir können typen registrieren, die in der Session gespeichert werden sollen
 		// Damit sparen wir uns das aufteilen der structs in einzelne Felder
 		store.RegisterType(time.Time{})

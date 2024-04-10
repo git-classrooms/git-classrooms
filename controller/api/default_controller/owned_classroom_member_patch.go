@@ -47,6 +47,7 @@ func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) error {
 
 	if member.TeamID != nil {
 		if newTeam != nil && *member.TeamID != newTeam.ID {
+			oldTeam = member.Team
 			if err = repo.RemoveUserFromGroup(member.Team.GroupID, member.UserID); err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}

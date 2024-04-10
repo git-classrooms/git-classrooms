@@ -2,12 +2,13 @@ package default_controller
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"log"
 )
 
 func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
@@ -75,8 +76,7 @@ func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
 	assignmentProject.AssignmentAccepted = true
 	err = queryAssignmentProjects.WithContext(c.Context()).Save(assignmentProject)
 	if err != nil {
-		err := repo.DeleteProject(project.ID)
-		if err != nil {
+		if err := repo.DeleteProject(project.ID); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
