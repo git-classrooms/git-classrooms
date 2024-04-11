@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	databaseConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
@@ -35,20 +34,9 @@ func TestGetClassrooms(t *testing.T) {
 		pq.Terminate(context.Background())
 	})
 
-	port, err := pq.MappedPort(context.Background(), "5432")
-	if err != nil {
-		t.Fatalf("could not get database container port: %s", err.Error())
-	}
+	dbURL, err := pq.ConnectionString(context.Background())
 
-	dbConfig := databaseConfig.PsqlConfig{
-		Host:     "0.0.0.0",
-		Port:     port.Int(),
-		Username: "postgres",
-		Password: "postgres",
-		Database: "postgres",
-	}
-
-	db, err := gorm.Open(postgres.Open(dbConfig.Dsn()), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
@@ -86,7 +74,7 @@ func TestGetClassrooms(t *testing.T) {
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(dbConfig.Dsn())
+	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 

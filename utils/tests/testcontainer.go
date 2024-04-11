@@ -9,7 +9,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func StartPostgres() (testcontainers.Container, error) {
+func StartPostgres() (*postgres.PostgresContainer, error) {
 	return postgres.RunContainer(context.Background(),
 		testcontainers.WithImage("docker.io/postgres:13-alpine"),
 		postgres.WithDatabase("postgres"),
