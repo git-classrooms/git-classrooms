@@ -13,6 +13,7 @@ RUN yarn build
 #############################################
 # Builder go
 #############################################
+ARG APP_VERSION="v0.0.0"
 FROM golang:1.21-alpine as builder-go
 
 RUN go install github.com/vektra/mockery/v2@v2.40.1
@@ -24,7 +25,7 @@ RUN go mod download
 COPY ./ ./
 
 RUN go generate
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/build/app
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$APP_VERSION" -o /app/build/app
 
 #############################################
 # Runtime image
