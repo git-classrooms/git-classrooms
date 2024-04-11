@@ -89,7 +89,7 @@ build:
     DOCKER_TLS_CERTDIR: ""
   script:
     - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_TOKEN $DOCKER_REGISTRY
-    - docker build -t --build-arg="APP_VERSION=$CI_COMMIT_REF_NAME" $IMAGE_NAME:$CI_COMMIT_BRANCH -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
+    - docker build -t  $IMAGE_NAME:$CI_COMMIT_BRANCH --build-arg="APP_VERSION=$CI_COMMIT_REF_NAME" -f $DOCKERFILE $BUILD_CONTEXT --no-cache --target $TARGET
     - docker push $IMAGE_NAME:$CI_COMMIT_BRANCH
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
