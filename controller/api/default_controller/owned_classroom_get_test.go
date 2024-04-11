@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetClassrooms(t *testing.T) {
+func TestGetClassroomById(t *testing.T) {
 	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pq, err := tests.StartPostgres()
