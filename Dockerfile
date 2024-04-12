@@ -19,6 +19,9 @@ RUN go install github.com/vektra/mockery/v2@v2.40.1
 
 WORKDIR /app/build
 
+# Install swag
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 COPY ./go.mod ./go.sum ./
 RUN go mod download
 COPY ./ ./
