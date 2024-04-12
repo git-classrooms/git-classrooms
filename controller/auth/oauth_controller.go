@@ -43,10 +43,10 @@ type authState struct {
 }
 
 type signInRequest struct {
-	Redirect string `form:"redirect"`
+	Csrf     string `json:"csrf_token"`
+	Redirect string `form:"redirect" example:"http://localhost:3000/swagger/index.html#/auth/post_auth_sign_in"`
 }
 
-// Auth fiber handler
 func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 	body := &signInRequest{}
 	c.BodyParser(body)
@@ -135,12 +135,20 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 }
 
 func (ctrl *OAuthController) SignOut(c *fiber.Ctx) error {
+	body := &signInRequest{}
+	c.BodyParser(body)
+
+	redirect := "/"
+	if body.Redirect != "" {
+		redirect = body.Redirect
+	}
+
 	err := session.Get(c).Destroy()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.Redirect("/", fiber.StatusSeeOther)
+	return c.Redirect(redirect, fiber.StatusSeeOther)
 }
 
 func (ctrl *OAuthController) GetAuth(c *fiber.Ctx) error {
@@ -196,12 +204,24 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 }
 
 // GetCsrf returns a csrf token
+//
+//	@Summary		Show your csrf-Token
+//	@Description	Get your csrf-Token
+//	@Tags			auth
+//	@Produce		json
+//	@Success		200	{object}	auth.GetCsrf.response
+//	@Failure		401	{object}	httputil.HTTPError
+//	@Failure		500	{object}	httputil.HTTPError
+//	@Router			/auth/csrf [get]
 func (ctrl *OAuthController) GetCsrf(c *fiber.Ctx) error {
+	type response struct {
+		Csrf string `json:"csrf"`
+	}
 	token, ok := c.Locals("csrf").(string)
 	if !ok {
 		return fiber.NewError(fiber.StatusInternalServerError, "There is no csrf token in the context")
 	}
-	return c.JSON(fiber.Map{"csrf": token})
+	return c.JSON(response{Csrf: token})
 }
 
 func (ctrl *OAuthController) refreshSession(c context.Context, sess *session.ClassroomSession) error {

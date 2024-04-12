@@ -2,12 +2,13 @@ package default_controller
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"time"
 )
 
 type CreateClassroomRequest struct {
@@ -19,6 +20,17 @@ func (r CreateClassroomRequest) isValid() bool {
 	return r.Name != "" && r.Description != ""
 }
 
+// @Summary		Create a new classroom
+// @Description	Create a new classroom
+// @Tags			classroom
+// @Accept			json
+// @Param			classroom		body	default_controller.CreateClassroomRequest	true	"Classroom Info"
+// @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
+// @Success		201
+// @Failure		401	{object}	httputil.HTTPError
+// @Failure		400	{object}	httputil.HTTPError
+// @Failure		500	{object}	httputil.HTTPError
+// @Router			/classrooms/owned [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()

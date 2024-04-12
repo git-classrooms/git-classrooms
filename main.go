@@ -1,5 +1,6 @@
 //go:generate go run ./code_gen/gorm_gen.go
 //go:generate mockery
+//go:generate swag init
 package main
 
 import (
@@ -12,6 +13,7 @@ import (
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/httputil"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
@@ -19,6 +21,20 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+//	@title			Gitlab Classroom API
+//	@version		1.0
+//	@description	This is the API for our Gitlab Classroom Webapp
+//	@termsOfService	http://swagger.io/terms/
+
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
+
+//	@license.name	GPL 3.0 | MIT | Apache 2.0 | 3-BSD
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+
+//	@BasePath	/api/v1
 
 func main() {
 	appConfig, err := config.LoadApplicationConfig()
@@ -58,9 +74,9 @@ func main() {
 				code = e.Code
 			}
 
-			return c.Status(code).JSON(fiber.Map{
-				"error":   err.Error(),
-				"success": false,
+			return c.Status(code).JSON(httputil.HTTPError{
+				Error:   err.Error(),
+				Success: false,
 			})
 		},
 	})
