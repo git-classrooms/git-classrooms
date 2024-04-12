@@ -7,7 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
@@ -21,6 +23,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+var version string = "development"
 
 //	@title			Gitlab Classroom API
 //	@version		1.0
@@ -40,6 +44,25 @@ func main() {
 	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {
 		log.Fatal("failed to get application configuration", err)
+	}
+
+	log.Println("SentryEnabled", appConfig.Sentry.IsEnabled())
+	if appConfig.Sentry.IsEnabled() {
+		err = sentry.Init(sentry.ClientOptions{
+			Dsn:         appConfig.Sentry.GetDSN(),
+			Environment: appConfig.Sentry.GetEnv(),
+			Release:     version,
+
+			// Enable printing of SDK debug messages.
+			// Useful when getting started or trying to figure something out.
+			Debug: true,
+		})
+
+		if err != nil {
+			log.Fatalf("failed to init sentry: %s", err)
+		}
+
+		defer sentry.Flush(2 * time.Second)
 	}
 
 	mailRepo, err := mail.NewMailRepository(appConfig.PublicURL, appConfig.Mail)
