@@ -181,6 +181,9 @@ fabric.properties
 !.env.example
 .env*
 
+### mockery ###
+_mock
+
 ### Swag ignores ###
 docs/docs.go
 docs/swagger.json
