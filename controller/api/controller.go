@@ -50,6 +50,8 @@ type Controller interface {
 	GetJoinedClassroomTeams(*fiber.Ctx) error
 	CreateJoinedClassroomTeam(*fiber.Ctx) error
 	JoinedClassroomTeamMiddleware(*fiber.Ctx) error
+	GetJoinedClassroomTeam(*fiber.Ctx) error
+	GetJoinedClassroomTeamGitlab(*fiber.Ctx) error
 	JoinJoinedClassroomTeam(*fiber.Ctx) error
 
 	JoinClassroom(*fiber.Ctx) error

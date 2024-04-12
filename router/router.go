@@ -117,6 +117,8 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Get("/classrooms/joined/:classroomId/teams", apiController.GetJoinedClassroomTeams)
 	v1.Post("/classrooms/joined/:classroomId/teams", apiController.CreateJoinedClassroomTeam)
 	v1.Use("/classrooms/joined/:classroomId/teams/:teamId", apiController.JoinedClassroomTeamMiddleware)
+	v1.Get("/classrooms/joined/:classroomId/teams/:teamId", apiController.GetJoinedClassroomTeam)
+	v1.Get("/classrooms/joined/:classroomId/teams/:teamId/giltab", apiController.GetJoinedClassroomTeamGitlab)
 	v1.Post("/classrooms/joined/:classroomId/teams/:teamId/join", apiController.JoinJoinedClassroomTeam)
 
 	// api.Get("/classrooms/owned/:classroomId/members/:memberId", apiController.GetOwnedClassroomMember)
