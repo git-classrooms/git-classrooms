@@ -7,7 +7,7 @@ import (
 
 // @Summary		Show your user account
 // @Description	Get your user account
-// @Tags			user
+// @Tags			auth
 // @Accept			json
 // @Produce		json
 // @Success		200	{object}	database.User

@@ -34,8 +34,9 @@ func (r CreateClassroomRequest) isValid() bool {
 // @Param			classroom		body	default_controller.CreateClassroomRequest	true	"Classroom Info"
 // @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
 // @Success		201
-// @Failure		401	{object}	httputil.HTTPError
+// @Header			201	{string}	Location	"/api/v1/classroom/owned/{classroomId}"
 // @Failure		400	{object}	httputil.HTTPError
+// @Failure		401	{object}	httputil.HTTPError
 // @Failure		500	{object}	httputil.HTTPError
 // @Router			/classrooms/owned [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
