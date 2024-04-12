@@ -12,6 +12,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/swagger"
+
+	_ "gitlab.hs-flensburg.de/gitlab-classroom/docs"
 )
 
 func Routes(
@@ -37,6 +40,8 @@ func Routes(
 
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 	setupV1Routes(&api, config, authController, apiController)
+
+	api.Get("/swagger/*", swagger.HandlerDefault) // default
 
 	setupFrontend(app, frontendPath)
 }
