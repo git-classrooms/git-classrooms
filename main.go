@@ -1,6 +1,6 @@
 //go:generate go run ./code_gen/gorm_gen.go
-//go:generate mockery
 //go:generate swag init
+//go:generate mockery
 package main
 
 import (
