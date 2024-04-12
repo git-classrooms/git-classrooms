@@ -43,8 +43,7 @@ type authState struct {
 }
 
 type authRequest struct {
-	Csrf     string `json:"csrf_token"`
-	Redirect string `form:"redirect" example:"http://localhost:3000/swagger/index.html#/auth/post_auth_sign_in"`
+	Redirect string `form:"redirect"`
 }
 
 func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
