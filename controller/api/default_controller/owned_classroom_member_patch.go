@@ -9,12 +9,24 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-// TODO: Should we implement that the owner could clear the team of a member?
 type changeOwnedClassroomMemberRequest struct {
 	Role   *database.Role `json:"role"`
 	TeamID *uuid.UUID     `json:"teamId"`
 }
 
+//	@Summary		Update Classroom Members team and or role
+//	@Description	Update Classroom Members team and or role
+//	@Tags			team, member
+//	@Accept			json
+//	@Param			classroomId		path	string													true	"Classroom ID"	Format(uuid)
+//	@Param			memberId		path	string													true	"Member ID"		Format(uuid)
+//	@Param			changeClassroom	body	default_controller.changeOwnedClassroomMemberRequest	true	"Update ClassroomMemberRequest"
+//	@Success		204
+//	@Failure		400	{object}	httputil.HTTPError
+//	@Failure		401	{object}	httputil.HTTPError
+//	@Failure		404	{object}	httputil.HTTPError
+//	@Failure		500	{object}	httputil.HTTPError
+//	@Router			/classrooms/owned/{classroomId}/members/{memberId} [patch]
 func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

@@ -16,6 +16,7 @@ const (
 	ownedClassroomAssignmentProjectKey contextKey = "owned-classroom-assignment-project"
 	ownedClassroomMemberKey            contextKey = "owned-classroom-member"
 	ownedClassroomTeamKey              contextKey = "owned-classroom-team"
+	ownedClassroomTeamMemberKey        contextKey = "owned-classroom-team-member"
 	joinedClassroomKey                 contextKey = "joined-classroom"
 	joinedClassroomAssignmentKey       contextKey = "joined-classroom-assignment"
 	joinedClassroomTeamKey             contextKey = "joined-classroom-team"
@@ -116,9 +117,17 @@ func (c *FiberContext) SetOwnedClassroomMember(member *database.UserClassrooms) 
 }
 
 func (c *FiberContext) GetOwnedClassroomTeam() *database.Team {
-	return c.Locals(ownedClassroomKey).(*database.Team)
+	return c.Locals(ownedClassroomTeamKey).(*database.Team)
 }
 
 func (c *FiberContext) SetOwnedClassroomTeam(team *database.Team) {
-	c.Locals(ownedClassroomKey, team)
+	c.Locals(ownedClassroomTeamKey, team)
+}
+
+func (c *FiberContext) GetOwnedClassroomTeamMember() *database.UserClassrooms {
+	return c.Locals(ownedClassroomTeamMemberKey).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) SetOwnedClassroomTeamMember(member *database.UserClassrooms) {
+	c.Locals(ownedClassroomTeamMemberKey, member)
 }

@@ -36,6 +36,9 @@ type Controller interface {
 	CreateOwnedClassroomTeam(*fiber.Ctx) error
 
 	GetOwnedClassroomTeamMembers(*fiber.Ctx) error
+	OwnedClassroomTeamMemberMiddleware(*fiber.Ctx) error
+	RemoveMemberFromTeam(*fiber.Ctx) error
+
 	GetOwnedClassroomTeamProjects(*fiber.Ctx) error
 
 	GetJoinedClassrooms(*fiber.Ctx) error
