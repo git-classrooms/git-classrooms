@@ -181,6 +181,9 @@ fabric.properties
 !.env.example
 .env*
 
+### Gorm Gen ###
+model/database/query
+
 ### mockery ###
 _mock
 
