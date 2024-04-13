@@ -3,6 +3,31 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createRouteMask, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as Sentry from "@sentry/react";
+
+// Set sentry
+if (import.meta.env.MODE === "production") {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    integrations: [
+      // See docs for support of different versions of variation of react router
+      // https://docs.sentry.io/platforms/javascript/guides/react/configuration/integrations/react-router/
+      Sentry.replayIntegration()
+    ],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    tracesSampleRate: 1.0,
+
+    // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
+    tracePropagationTargets: ["localhost", /^https:\/\/staging\.hs-flensburg\.dev\/api/],
+
+    // Capture Replay for 10% of all sessions,
+    // plus for 100% of sessions with an error
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+  });
+}
 
 const queryClient = new QueryClient();
 
