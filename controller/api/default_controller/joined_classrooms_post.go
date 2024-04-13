@@ -1,14 +1,17 @@
 package default_controller
 
 import (
+	"fmt"
+	"log"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"log"
-	"time"
 )
 
 type joinClassroomRequest struct {
@@ -53,22 +56,17 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	err = repo.AddUserToGroup(invitation.Classroom.GroupID, currentUser.ID, gitlabModel.ReporterPermissions)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	err = query.Q.Transaction(func(tx *query.Query) error {
-		err = tx.UserClassrooms.WithContext(c.Context()).Create(&database.UserClassrooms{
+	err = query.Q.Transaction(func(tx *query.Query) (err error) {
+		member := &database.UserClassrooms{
 			UserID:    currentUser.ID,
 			Classroom: invitation.Classroom,
 			Role:      database.Student,
-		})
+		}
+		err = tx.UserClassrooms.
+			WithContext(c.Context()).
+			Preload(query.UserClassrooms.User).
+			Create(member)
 		if err != nil {
-			newErr := repo.RemoveUserFromGroup(invitation.Classroom.GroupID, currentUser.ID)
-			if newErr != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, newErr.Error())
-			}
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
@@ -78,6 +76,51 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
+
+		err = repo.AddUserToGroup(invitation.Classroom.GroupID, currentUser.ID, gitlabModel.ReporterPermissions)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		defer func() {
+			if recover() != nil || err != nil {
+				repo.RemoveUserFromGroup(invitation.Classroom.GroupID, currentUser.ID)
+			}
+		}()
+
+		if invitation.Classroom.MaxTeamSize == 1 {
+			var subgroup *gitlabModel.Group
+			subgroup, err = repo.CreateSubGroup(
+				member.User.Name,
+				invitation.Classroom.GroupID,
+				model.Private,
+				fmt.Sprintf("Team %s of classroom %s", member.User.Name, invitation.Classroom.Name),
+			)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+			defer func() {
+				if recover() != nil || err != nil {
+					repo.DeleteGroup(subgroup.ID)
+				}
+			}()
+
+			team := &database.Team{
+				ClassroomID: invitation.Classroom.ID,
+				Name:        currentUser.Username,
+				GroupID:     subgroup.ID,
+				Member:      []*database.UserClassrooms{member},
+			}
+			err = tx.Team.WithContext(c.Context()).Create(team)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+
+			err = repo.AddUserToGroup(subgroup.ID, currentUser.ID, model.DeveloperPermissions)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+		}
+
 		return nil
 	})
 	if err != nil {
