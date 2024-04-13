@@ -6,14 +6,15 @@ import { Route as rootRoute } from "./routes/__root"
 import { Route as LoginImport } from "./routes/login"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
-import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/index"
-import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/create"
-import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/index"
-import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
-import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from "./routes/_auth/classrooms/$classroomId/invitations/$invitationId"
-import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
-import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
-import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/accept"
+import { Route as AuthClassroomsRouteImport } from "./routes/_auth/classrooms/route"
+import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms_/create"
+import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms_/$classroomId/index"
+import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms_/$classroomId/invite"
+import { Route as AuthClassroomsCreateModalImport } from "./routes/_auth/classrooms/create.modal"
+import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from "./routes/_auth/classrooms_/$classroomId/invitations/$invitationId"
+import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms_/$classroomId/assignments/create"
+import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms_/$classroomId/assignments/$assignmentId/index"
+import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdAcceptImport } from "./routes/_auth/classrooms_/$classroomId/assignments/$assignmentId/accept"
 
 // Create/Update Routes
 
@@ -32,8 +33,8 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthClassroomsIndexRoute = AuthClassroomsIndexImport.update({
-  path: "/classrooms/",
+const AuthClassroomsRouteRoute = AuthClassroomsRouteImport.update({
+  path: "/classrooms",
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -53,6 +54,11 @@ const AuthClassroomsClassroomIdInviteRoute =
     path: "/classrooms/$classroomId/invite",
     getParentRoute: () => AuthRoute,
   } as any)
+
+const AuthClassroomsCreateModalRoute = AuthClassroomsCreateModalImport.update({
+  path: "/create/modal",
+  getParentRoute: () => AuthClassroomsRouteRoute,
+} as any)
 
 const AuthClassroomsClassroomIdInvitationsInvitationIdRoute =
   AuthClassroomsClassroomIdInvitationsInvitationIdImport.update({
@@ -94,13 +100,17 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    "/_auth/classrooms": {
+      preLoaderRoute: typeof AuthClassroomsRouteImport
+      parentRoute: typeof AuthImport
+    }
     "/_auth/classrooms/create": {
       preLoaderRoute: typeof AuthClassroomsCreateImport
       parentRoute: typeof AuthImport
     }
-    "/_auth/classrooms/": {
-      preLoaderRoute: typeof AuthClassroomsIndexImport
-      parentRoute: typeof AuthImport
+    "/_auth/classrooms/create/modal": {
+      preLoaderRoute: typeof AuthClassroomsCreateModalImport
+      parentRoute: typeof AuthClassroomsRouteImport
     }
     "/_auth/classrooms/$classroomId/invite": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdInviteImport
@@ -134,8 +144,8 @@ declare module "@tanstack/react-router" {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   AuthRoute.addChildren([
+    AuthClassroomsRouteRoute.addChildren([AuthClassroomsCreateModalRoute]),
     AuthClassroomsCreateRoute,
-    AuthClassroomsIndexRoute,
     AuthClassroomsClassroomIdInviteRoute,
     AuthClassroomsClassroomIdIndexRoute,
     AuthClassroomsClassroomIdAssignmentsCreateRoute,

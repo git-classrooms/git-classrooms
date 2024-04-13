@@ -3,12 +3,12 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
 import { JoinedClassroom, OwnedClassroom } from "@/types/classroom.ts";
 
-export const Route = createFileRoute("/_auth/classrooms/")({
+export const Route = createFileRoute("/_auth/classrooms")({
   component: Classrooms,
   loader: ({ context }) => {
     const ownClassrooms = context.queryClient.ensureQueryData(ownedClassroomsQueryOptions);
@@ -28,12 +28,13 @@ function Classrooms() {
     <div className="p-2">
       <Header title="Own Classrooms">
         <Button asChild variant="default">
-          <Link to="/classrooms/create">Create</Link>
+          <Link to="/classrooms/create/modal">Create</Link>
         </Button>
       </Header>
       <OwnedClassroomTable classrooms={ownClassrooms} />
       <Header title="Joined Classrooms" />
       <JoinedClassroomTable classrooms={joinedClassrooms} />
+      <Outlet />
     </div>
   );
 }

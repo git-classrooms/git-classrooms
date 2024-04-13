@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -13,11 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
 
-export const Route = createFileRoute("/_auth/classrooms/create")({
-  component: ClassroomsForm,
-});
-
-function ClassroomsForm() {
+export const ClassroomsForm = () => {
   const navigate = useNavigate();
   const { mutateAsync, isError, isPending } = useCreateClassroom();
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -85,4 +81,4 @@ function ClassroomsForm() {
       </Form>
     </div>
   );
-}
+};
