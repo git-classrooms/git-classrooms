@@ -28,7 +28,7 @@ type Classroom struct {
 	OwnerID     int    `gorm:"not null" json:"ownerId"`
 	Owner       User   `json:"owner"`
 
-	CreateTeams bool `gorm:"not null;default:true" json:"createTeams"`
+	CreateTeams bool `gorm:"not null" json:"createTeams"`
 	MaxTeamSize int  `gorm:"not null;default:1" json:"maxTeamSize"`
 	MaxTeams    int  `gorm:"not null;default:0" json:"maxTeams"`
 
