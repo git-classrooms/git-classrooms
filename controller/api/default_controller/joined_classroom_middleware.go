@@ -12,6 +12,7 @@ func joinedClassroomQuery(userID int, c *fiber.Ctx) query.IUserClassroomsDo {
 	return queryUserClassrooms.
 		WithContext(c.Context()).
 		Preload(queryUserClassrooms.Classroom).
+		Preload(queryUserClassrooms.Team).
 		Preload(field.NewRelation("Classroom.Owner", "")).
 		Where(queryUserClassrooms.UserID.Eq(userID))
 }

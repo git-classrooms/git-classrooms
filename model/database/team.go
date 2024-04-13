@@ -17,9 +17,9 @@ type Team struct {
 	GroupID int    `gorm:"<-:create;not null" json:"groupId"`
 
 	ClassroomID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"-"`
-	Classroom   Classroom `json:"classroom"`
+	Classroom   Classroom `json:"-"`
 
 	Member []*UserClassrooms `gorm:"foreignKey:TeamID" json:"-"`
 
-	AssignmentProjects []*AssignmentProjects `json:"assignmentProjects"`
+	AssignmentProjects []*AssignmentProjects `json:"-"`
 }
