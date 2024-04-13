@@ -17,7 +17,7 @@ import (
 // @Failure		401	{object}	httputil.HTTPError
 // @Failure		404	{object}	httputil.HTTPError
 // @Failure		500	{object}	httputil.HTTPError
-// @Router			/classrooms/joined/{classroomId}/teams/{teamdId}/gitlab [get]
+// @Router			/classrooms/joined/{classroomId}/teams/{teamId}/gitlab [get]
 func (ctrl *DefaultController) GetJoinedClassroomTeamGitlab(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	team := ctx.GetJoinedClassroomTeam()
