@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { User } from "@/types/user.ts";
+import { Team } from "@/types/team";
 
 export type Assignment = {
   id: string;
@@ -11,7 +11,7 @@ export type Assignment = {
 export type AssignmentProject = {
   id: string;
   assignmentId: string;
-  user: User;
+  team: Team;
   assignmentAccepted: boolean;
   projectId: number;
   projectPath: string;

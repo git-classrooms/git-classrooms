@@ -81,8 +81,8 @@ function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: As
       </TableHeader>
       <TableBody>
         {assignmentProjects.map((a) => (
-          <TableRow key={`${a.assignmentId}-${a.user.id}`}>
-            <TableHead>{a.user.name}</TableHead>
+          <TableRow key={`${a.assignmentId}-${a.team.id}`}>
+            <TableHead>{a.team.name}</TableHead>
             <TableCell>{a.assignmentAccepted ? "Accepted" : "Pending"}</TableCell>
             <TableCell>
               {a.assignmentAccepted ? (
