@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/team
   loader: async ({ context, params }) => {
     const joinedClassroom = await context.queryClient.ensureQueryData(joinedClassroomQueryOptions(params.classroomId));
 
-    if (!!joinedClassroom.team) {
+    if (joinedClassroom.team) {
       throw redirect({
         to: "/classrooms/joined/$classroomId/",
         params,
