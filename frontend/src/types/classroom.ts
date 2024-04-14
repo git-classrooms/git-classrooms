@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { reversed } from "@/types/utils.ts";
-import { User } from "@/types/user.ts";
+import { reversed } from "@/types/utils";
+import { User } from "@/types/user";
+import { Team } from "@/types/team";
 
 export const Role = {
   Owner: 0,
@@ -16,6 +17,7 @@ export type UserClassroom = {
   classroom: Omit<OwnedClassroom, "gitlabUrl">;
   user: User;
   role: Role;
+  team?: Team;
   gitlabUrl: string;
 };
 
@@ -27,6 +29,9 @@ export type OwnedClassroom = {
   description: string;
   groupId: number;
   gitlabUrl: string;
+  maxTeamSize: number;
+  maxTeams: number;
+  createTeams: boolean;
 };
 
 export const createFormSchema = z.object({

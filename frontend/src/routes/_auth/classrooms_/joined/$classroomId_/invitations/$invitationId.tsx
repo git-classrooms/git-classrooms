@@ -4,20 +4,20 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useJoinClassroom } from "@/api/classrooms.ts";
 import { Header } from "@/components/header.tsx";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
+import { getUUIDFromLocation } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/invitations/$invitationId")({
   component: JoinClassroom,
 });
 
 function JoinClassroom() {
-  const navigate = useNavigate({
-    from: "/_auth/classrooms/$classroomId/invitations/$invitationId/",
-  });
+  const navigate = useNavigate();
   const { invitationId } = Route.useParams();
   const { mutateAsync, isError, isPending } = useJoinClassroom(invitationId);
   const onClick = async () => {
-    await mutateAsync();
-    await navigate({ to: "/classrooms" });
+    const location = await mutateAsync();
+    const classroomId = getUUIDFromLocation(location);
+    await navigate({ to: "/classrooms/joined/$classroomId", params: { classroomId } });
   };
 
   return (

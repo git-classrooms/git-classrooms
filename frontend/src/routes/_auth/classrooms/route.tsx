@@ -96,7 +96,11 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroom[] }) {
               </a>
             </TableCell>
             <TableCell className="text-right">
-              <Button variant="outline">TBD</Button>
+              <Button variant="outline">
+                <Link to="/classrooms/joined/$classroomId" params={{ classroomId: c.classroom.id }}>
+                  Show classroom
+                </Link>
+              </Button>
             </TableCell>
           </TableRow>
         ))}
