@@ -20,6 +20,15 @@ export const joinedClassroomsQueryOptions = queryOptions({
   },
 });
 
+export const joinedClassroomQueryOptions = (classroomId: string) =>
+  queryOptions({
+    queryKey: ["joinedClassrooms", classroomId],
+    queryFn: async () => {
+      const res = await apiClient.get<UserClassroom>(`/classrooms/joined/${classroomId}`);
+      return res.data;
+    },
+  });
+
 export const ownedClassroomQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`],
@@ -89,7 +98,7 @@ export const useJoinClassroom = (invitationId: string) => {
   return useMutation({
     mutationFn: async () => {
       const res = await apiClient.post<void>("/classrooms/joined", { invitationId });
-      return res.data;
+      return res.headers.location as string;
     },
     onSettled: () => {
       queryClient.invalidateQueries(authCsrfQueryOptions);
