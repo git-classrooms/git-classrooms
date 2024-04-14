@@ -1,6 +1,7 @@
-//go:generate go run ./code_gen/gorm_gen.go
+//go:generate go run ./code_gen/gorm/main.go
 //go:generate swag fmt
 //go:generate swag init
+//go:generate go run ./code_gen/swagger/main.go
 //go:generate mockery
 package main
 
