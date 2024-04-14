@@ -11,8 +11,6 @@ import (
 func main() {
 	var cmd *exec.Cmd
 
-	log.Println("MAAAAAAAAAAAAIIIIIIIIIIIIIINNNNNNNNNNNN")
-
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("powershell", "./script/swagger-codegen.ps1")
 	} else {
