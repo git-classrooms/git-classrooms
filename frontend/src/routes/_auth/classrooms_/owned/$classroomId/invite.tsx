@@ -16,7 +16,7 @@ import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils.ts";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
+export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/invite")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(ownedClassroomInvitationsQueryOptions(params.classroomId)),
   pendingComponent: Loader,

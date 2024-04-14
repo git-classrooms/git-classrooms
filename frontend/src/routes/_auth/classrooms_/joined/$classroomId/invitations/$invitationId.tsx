@@ -5,7 +5,7 @@ import { useJoinClassroom } from "@/api/classrooms.ts";
 import { Header } from "@/components/header.tsx";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
+export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/invitations/$invitationId")({
   component: JoinClassroom,
 });
 

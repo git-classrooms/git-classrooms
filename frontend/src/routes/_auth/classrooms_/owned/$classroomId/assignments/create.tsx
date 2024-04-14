@@ -26,7 +26,7 @@ import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
+export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assignments/create")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(ownedTemplateProjectQueryOptions(params.classroomId)),
   component: CreateAssignment,
@@ -53,7 +53,10 @@ function CreateAssignment() {
   async function onSubmit(values: CreateAssignmentForm) {
     const location = await mutateAsync(values);
     const assignmentId = getUUIDFromLocation(location);
-    await navigate({ to: "/classrooms/$classroomId/assignments/$assignmentId", params: { classroomId, assignmentId } });
+    await navigate({
+      to: "/classrooms/owned/$classroomId/assignments/$assignmentId",
+      params: { classroomId, assignmentId },
+    });
   }
 
   return (

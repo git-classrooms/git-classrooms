@@ -15,7 +15,7 @@ import { AlertCircle, Code, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { formatDate } from "@/lib/utils.ts";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
+export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context, params }) => {
     const assignment = await context.queryClient.ensureQueryData(
       ownedAssignmentQueryOptions(params.classroomId, params.assignmentId),

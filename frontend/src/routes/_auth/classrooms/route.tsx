@@ -61,7 +61,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: OwnedClassroom[] }) {
             </TableCell>
             <TableCell className="text-right">
               <Button asChild variant="outline">
-                <Link to="/classrooms/$classroomId" params={{ classroomId: c.id }}>
+                <Link to="/classrooms/owned/$classroomId" params={{ classroomId: c.id }}>
                   Show classroom
                 </Link>
               </Button>

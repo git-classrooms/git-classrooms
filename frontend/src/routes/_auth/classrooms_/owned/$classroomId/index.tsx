@@ -12,7 +12,7 @@ import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
 import { formatDate } from "@/lib/utils.ts";
 import { useMemo } from "react";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
+export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/")({
   component: ClassroomDetail,
   loader: ({ context, params }) => {
     const classroom = context.queryClient.ensureQueryData(ownedClassroomQueryOptions(params.classroomId));
@@ -47,7 +47,7 @@ function ClassroomDetail() {
 
       <Header title="Assignments">
         <Button variant="default" asChild>
-          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
+          <Link to="/classrooms/owned/$classroomId/assignments/create" params={{ classroomId }}>
             Create assignment
           </Link>
         </Button>
@@ -56,7 +56,7 @@ function ClassroomDetail() {
 
       <Header title="Members">
         <Button variant="default" asChild>
-          <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+          <Link to="/classrooms/owned/$classroomId/invite" params={{ classroomId }}>
             Invite members
           </Link>
         </Button>
@@ -85,7 +85,7 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
             <TableCell className="text-right">
               <Button asChild>
                 <Link
-                  to="/classrooms/$classroomId/assignments/$assignmentId"
+                  to="/classrooms/owned/$classroomId/assignments/$assignmentId"
                   params={{ classroomId, assignmentId: a.id }}
                 >
                   Show Assignment

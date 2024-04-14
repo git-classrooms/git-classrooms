@@ -70,7 +70,7 @@ func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 		for _, member := range team.Member {
 			log.Println("Sending invitation to", member.User.GitlabEmail)
 
-			joinPath := fmt.Sprintf("/classrooms/%s/assignments/%s/accept", classroom.ID.String(), assignment.ID.String())
+			joinPath := fmt.Sprintf("/classrooms/joined/%s/assignments/%s/accept", classroom.ID.String(), assignment.ID.String())
 			err = ctrl.mailRepo.SendAssignmentNotification(member.User.GitlabEmail,
 				fmt.Sprintf(`You were invited to a new Assigment "%s"`,
 					classroom.Name),

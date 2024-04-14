@@ -5,7 +5,7 @@ import { Header } from "@/components/header.tsx";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { useAcceptAssignment } from "@/api/assignments.ts";
 
-export const Route = createFileRoute('/_auth/classrooms/$classroomId/assignments/$assignmentId/accept')({
+export const Route = createFileRoute('/_auth/classrooms/joined/$classroomId/assignments/$assignmentId/accept')({
   component: AcceptAssignment
 })
 
