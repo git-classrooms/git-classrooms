@@ -12,6 +12,7 @@ import { useCreateClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const ClassroomsForm = () => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ export const ClassroomsForm = () => {
     defaultValues: {
       name: "",
       description: "",
+      maxTeams: 0,
+      maxTeamSize: 1,
+      createTeams: true,
     },
   });
 
@@ -66,6 +70,50 @@ export const ClassroomsForm = () => {
               </FormItem>
             )}
           />
+
+          <div className="flex flex-row">
+            <FormField
+              control={form.control}
+              name="maxTeamSize"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Team Size</FormLabel>
+                  <FormControl>
+                    <Input type="number" step={1} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="maxTeams"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Teams</FormLabel>
+                  <FormControl>
+                    <Input type="number" step={1} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="createTeams"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel>Users can create Teams</FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <Button type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
           </Button>
