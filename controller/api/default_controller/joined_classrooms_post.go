@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
@@ -42,7 +41,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 	}
 
 	if time.Now().After(invitation.ExpiryDate) {
-		return fiber.NewError(fiber.StatusForbidden, err.Error())
+		return fiber.NewError(fiber.StatusForbidden, "The link to this classroom expired. Please ask the owner for a new invitation link.")
 	}
 
 	currentUser, err := repo.GetCurrentUser()
@@ -92,7 +91,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 			subgroup, err = repo.CreateSubGroup(
 				member.User.Name,
 				invitation.Classroom.GroupID,
-				model.Private,
+				gitlabModel.Private,
 				fmt.Sprintf("Team %s of classroom %s", member.User.Name, invitation.Classroom.Name),
 			)
 			if err != nil {
@@ -115,7 +114,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 
-			err = repo.AddUserToGroup(subgroup.ID, currentUser.ID, model.DeveloperPermissions)
+			err = repo.AddUserToGroup(subgroup.ID, currentUser.ID, gitlabModel.DeveloperPermissions)
 			if err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
