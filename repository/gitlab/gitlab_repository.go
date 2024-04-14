@@ -2,7 +2,13 @@ package gitlab
 
 import (
 	"fmt"
+	"github.com/hashicorp/go-retryablehttp"
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"image"
+	"io"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -54,7 +60,9 @@ func (repo *GitlabRepo) GetCurrentUser() (*model.User, error) {
 		return nil, err
 	}
 
-	return UserFromGoGitlab(*gitlabUser), nil
+	classroomUser := UserFromGoGitlab(*gitlabUser)
+	classroomUser.AvatarURL = repo.getValidatedUserAvatarURL(gitlabUser)
+	return classroomUser, nil
 }
 
 func (repo *GitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
@@ -271,7 +279,7 @@ func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) 
 	return repo.convertGitlabProjects(gitlabProjects)
 }
 
-func (repo *GitlabRepo) GetPublicAvatarByMail(mail string) (*string, error) {
+func (repo *GitlabRepo) GetPublicAvatarByMail(mail string) (url *string, err error) {
 	repo.assertIsConnected()
 
 	avatar, response, err := repo.client.Avatar.GetAvatar(&goGitlab.GetAvatarOptions{Email: &mail})
@@ -656,4 +664,44 @@ func convertToGitLabPath(s string) string {
 	}
 
 	return s
+}
+
+func (repo *GitlabRepo) getValidatedUserAvatarURL(user *goGitlab.User) (validatedAvatarURL *string) {
+	resp, err := http.Get(user.AvatarURL)
+	if err != nil {
+		log.Printf("Failed to fetch avatar for user %s: %v\n", user.Username, err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		if isValidImage(resp.Body) {
+			return &user.AvatarURL
+		}
+	} else if resp.StatusCode == http.StatusUnauthorized {
+		// Attempt to fetch a public avatar if unauthorized
+		if publicAvatarURL, err := repo.GetPublicAvatarByMail(user.Email); err == nil {
+			resp, err := http.Get(*publicAvatarURL)
+			if err != nil || publicAvatarURL == nil {
+				log.Printf("Failed to fetch public avatar for user %s: %v\n", user.Username, err)
+				return nil
+			}
+			defer resp.Body.Close()
+
+			if isValidImage(resp.Body) {
+				return publicAvatarURL
+			}
+		} else {
+			log.Printf("Error retrieving public avatar for user %s: %v\n", user.Username, err)
+		}
+	} else {
+		log.Printf("Unexpected status code %d for user %s\n", resp.StatusCode, user.Username)
+	}
+
+	return nil
+}
+
+func isValidImage(body io.Reader) bool {
+	img, _, err := image.Decode(body)
+	return err == nil && img != nil
 }
