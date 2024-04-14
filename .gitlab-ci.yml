@@ -7,6 +7,18 @@ stages:
 variables:
   GOLANG_IMAGE: golang:1.22-alpine
   NODE_IMAGE: node:lts-alpine
+  TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+  # Instruct Testcontainers to use the daemon of DinD, use port 2375 for non-tls connections.
+  DOCKER_HOST: "tcp://docker:2375"
+  # Instruct Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  # Improve performance with overlayfs.
+  DOCKER_DRIVER: overlay2
+
+default:
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
 
 cache:
   - key:
@@ -32,7 +44,6 @@ test-frontend:
 test-backend:
   stage: test
   image: $GOLANG_IMAGE
-
   before_script:
     # - apk add --no-cache gcc musl-dev
     - sh script/prepare_backend_ci.sh
