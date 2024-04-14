@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/")({
 function JoinedClassroom() {
   const { classroomId } = Route.useParams();
   const { data: joinedClassroom } = useSuspenseQuery(joinedClassroomQueryOptions(classroomId));
+  joinedClassroom;
 
   return <div>Joined Classroom</div>;
 }
