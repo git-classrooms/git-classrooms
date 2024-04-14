@@ -15,6 +15,7 @@ require (
 
 require (
 	github.com/getsentry/sentry-go v0.27.0
+	github.com/gofiber/storage/memory v1.3.4
 	github.com/gofiber/storage/postgres v1.3.4
 	github.com/gofiber/swagger v1.0.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da

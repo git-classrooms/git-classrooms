@@ -35,6 +35,9 @@ func TestGetClassroomById(t *testing.T) {
 	})
 
 	dbURL, err := pq.ConnectionString(context.Background())
+	if err != nil {
+		t.Fatalf("could not get connection string of db: %s", err.Error())
+	}
 
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
@@ -74,7 +77,7 @@ func TestGetClassroomById(t *testing.T) {
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(dbURL)
+	session.InitSessionStore(nil)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 

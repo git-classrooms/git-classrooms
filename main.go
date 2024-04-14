@@ -77,7 +77,7 @@ func main() {
 		log.Fatal("failed to connect database", err)
 	}
 
-	session.InitSessionStore(appConfig.Database.Dsn())
+	session.InitSessionStore(utils.Ptr(appConfig.Database.Dsn()))
 
 	err = utils.MigrateDatabase(db)
 	if err != nil {
