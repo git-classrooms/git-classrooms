@@ -12,11 +12,13 @@ import (
 
 type getJoinedClassroomTeamResponse struct {
 	database.Team
-	GitlabUrl string `json:"gitlabUrl"`
-}
+	UserMember []*database.User `json:"member" extensions:"!x-nullable"`
+	GitlabUrl  string           `json:"gitlabUrl"`
+} //@Name Team
 
 // @Summary		Get all teams of the current classroom
 // @Description	Get all teams of the current classroom
+// @Id				getJoinedClassroom
 // @Tags			team
 // @Accept			json
 // @Produces		json
@@ -43,9 +45,14 @@ func (ctrl *DefaultController) GetJoinedClassroomTeams(c *fiber.Ctx) error {
 	}
 
 	response := utils.Map(teams, func(team *database.Team) *getJoinedClassroomTeamResponse {
+		member := utils.Map(team.Member, func(u *database.UserClassrooms) *database.User {
+			return &u.User
+		})
+
 		return &getJoinedClassroomTeamResponse{
-			Team:      *team,
-			GitlabUrl: fmt.Sprintf("/api/v1/classrooms/joined/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
+			Team:       *team,
+			UserMember: member,
+			GitlabUrl:  fmt.Sprintf("/api/v1/classrooms/joined/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
 		}
 	})
 

@@ -11,6 +11,7 @@ import (
 
 // @Summary		Get all teams of the current classroom
 // @Description	Get all teams of the current classroom
+// @Id 			getOwnedClassroomTeams
 // @Tags			team
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
