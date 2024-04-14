@@ -63,11 +63,18 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		}
 		err = tx.UserClassrooms.
 			WithContext(c.Context()).
-			Preload(query.UserClassrooms.User).
 			Create(member)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
+
+		queryUserClassrooms := tx.UserClassrooms
+		member, err = queryUserClassrooms.
+			WithContext(c.Context()).
+			Preload(queryUserClassrooms.User).
+			Where(queryUserClassrooms.ClassroomID.Eq(member.ClassroomID)).
+			Where(queryUserClassrooms.UserID.Eq(member.UserID)).
+			First()
 
 		invitation.Status = database.ClassroomInvitationAccepted
 		invitation.Email = currentUser.Email
@@ -126,5 +133,6 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/joined/%s", invitation.ClassroomID.String()))
 	return c.SendStatus(fiber.StatusAccepted)
 }
