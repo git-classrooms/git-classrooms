@@ -83,32 +83,6 @@ func getOAuthToken(username, password string) (*string, error) {
 	return &token.AccessToken, nil
 }
 
-func getOAuthToken(username, password string) (*string, error) {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Print(err.Error())
-	}
-
-	clientID := os.Getenv("AUTH_CLIENT_ID")
-	clientSecret := os.Getenv("AUTH_CLIENT_SECRET")
-	authURL := os.Getenv("AUTH_AUTH_URL")
-	tokenURL := os.Getenv("AUTH_TOKEN_URL")
-
-	conf := &oauth2.Config{
-		ClientID:     clientID,
-		Scopes:       []string{"api"},
-		ClientSecret: clientSecret,
-		Endpoint:     oauth2.Endpoint{AuthURL: authURL, TokenURL: tokenURL},
-	}
-
-	token, err := conf.PasswordCredentialsToken(context.Background(), username, password)
-	if err != nil {
-		return nil, err
-	}
-
-	return &token.AccessToken, nil
-}
-
 func TestGoGitlabRepo(t *testing.T) {
 	credentials, err := SetupTestCredentials()
 	if err != nil {
