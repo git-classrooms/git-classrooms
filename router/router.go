@@ -1,7 +1,8 @@
 package router
 
 import (
-	"fmt"
+	"path"
+	"strings"
 
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
