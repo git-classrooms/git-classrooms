@@ -7,7 +7,7 @@ export function Navbar() {
     <nav className="flex justify-between px-8 py-2.5">
       <div className="flex items-center">
         <a  href="/" className="">
-          <img className="h-14" src={GitlabLogo} alt="Logo" />
+          <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
         </a>
         <ul className="flex">
           <li className="content-center">
@@ -25,7 +25,7 @@ export function Navbar() {
         <div className="px-4 py-2">
           <ModeToggle />
         </div>
-        <img className="h-10 mr-2" src={ReactLogo} alt="Image 1" />
+        <img className="h-10 mr-2" src={ReactLogo} alt="User Image" />
       </div>
     </nav>
   );
