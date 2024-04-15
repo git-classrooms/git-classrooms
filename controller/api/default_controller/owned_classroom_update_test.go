@@ -31,7 +31,7 @@ func TestUpdateClassroom(t *testing.T) {
 		Name:        "Test",
 		Description: "test",
 		OwnerID:     user.ID,
-		GroupID:     2,
+		GroupID:     228,
 	}
 	testDb.InsertClassroom(&classroom)
 
