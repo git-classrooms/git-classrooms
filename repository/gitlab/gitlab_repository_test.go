@@ -1,16 +1,17 @@
-//go:build integration
-// +build integration
-
 // TODO: Is this an integration test?
 package gitlab
 
 import (
+	"context"
 	"fmt"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
 	"os"
 	"strconv"
 	"testing"
+
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"golang.org/x/oauth2"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -59,25 +60,21 @@ func TestGoGitlabRepo(t *testing.T) {
 	}
 
 	//	TODO: Fill these out for the integration tests
-	//	redirectURL, err := url.Parse("")
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//	conf := &oauth2.Config{
-	//		ClientID:     "",
-	//		Scopes:       []string{"api"},
-	//		ClientSecret: "",
-	//		Endpoints:    &oauth2.Endpoint{AuthURL: "", TokenURL: ""},
-	//	}
-	//	token, err := conf.PasswordCredentialsToken(context.Background(), "", "")
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//
-	//	credentials.Token = token.AccessToken
+	conf := &oauth2.Config{
+		ClientID:     "fb192a686336f17c69c875c38d75f1f622f406c4f1486777dd7bc95f9f93d530",
+		Scopes:       []string{"api"},
+		ClientSecret: "gloas-6cdbc80d50d9d01c80af6af5508638ae6f4b6c95f1515d72010c04c72ebf3831",
+		Endpoint:     oauth2.Endpoint{AuthURL: "https://hs-flensburg.dev/oauth/authorize", TokenURL: "https://hs-flensburg.dev/oauth/token"},
+	}
+	token, err := conf.PasswordCredentialsToken(context.Background(), "IntegrationTestsUser2", "p8HA@v!CpqCA*WkHD4.D_D4hv9@FQa9r")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	credentials.Token = token.AccessToken
 
 	// TODO: use mock instead of this
-	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{})
+	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{URL: "https://hs-flensburg.dev"})
 
 	t.Run("LoginByToken", func(t *testing.T) {
 		err := repo.Login(credentials.Token)
@@ -162,7 +159,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	userId := 9   // You can use the ID from credentials or another user's ID
 
 	t.Run("AddUserToGroup", func(t *testing.T) {
-		err := repo.AddUserToGroup(groupId, userId)
+		err := repo.AddUserToGroup(groupId, userId, model.DeveloperPermissions)
 
 		assert.NoError(t, err)
 
@@ -202,7 +199,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetAllProjects", func(t *testing.T) {
-		projects, err := repo.GetAllProjects()
+		projects, err := repo.GetAllProjects("")
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(projects), 1)
