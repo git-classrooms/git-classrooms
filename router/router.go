@@ -1,8 +1,12 @@
 package router
 
 import (
+<<<<<<< HEAD
 	"path"
 	"strings"
+=======
+	"fmt"
+>>>>>>> 635a206 (update api_handler)
 
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
