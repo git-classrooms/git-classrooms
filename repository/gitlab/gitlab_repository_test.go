@@ -432,6 +432,38 @@ func TestGoGitlabRepo(t *testing.T) {
 		assert.Equal(t, "integrationstestgroup11", *namespace)
 	})
 
+	t.Run("ChangeGroupName", func(t *testing.T) {
+		originName := "IntegrationsTestGroup1"
+		newName := originName + "_New"
+
+		group, err := repo.ChangeGroupName(15, newName)
+
+		assert.NoError(t, err)
+		assert.Equal(t, newName, group.Name)
+
+		// Revert the name back to the original
+		if err != nil {
+			_, err = repo.ChangeGroupName(15, originName)
+			assert.NoError(t, err)
+		}
+	})
+
+	t.Run("ChangeGroupDescription", func(t *testing.T) {
+		descriptionA := "DescriptionA"
+		descriptionB := "DescriptionB"
+
+		group, err := repo.ChangeGroupDescription(15, descriptionA)
+
+		assert.NoError(t, err)
+		assert.Equal(t, descriptionA, group.Description)
+
+		// prepare different description for next execution
+		if err != nil {
+			_, err = repo.ChangeGroupDescription(15, descriptionB)
+			assert.NoError(t, err)
+		}
+	})
+
 	/*
 		Test schmeisst Error, dont know why
 		t.Run("GetPendingProjectInvitations", func(t *testing.T) {

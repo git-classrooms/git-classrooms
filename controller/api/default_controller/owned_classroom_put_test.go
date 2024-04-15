@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
@@ -21,11 +20,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateClassroom(t *testing.T) {
+func TestUpdateClassroom(t *testing.T) {
 	testDb := tests.NewTestDB(t)
 
 	user := database.User{ID: 1}
 	testDb.InsertUser(&user)
+
+	classroom := database.Classroom{
+		ID:          tests.UUID("00000000-0000-0000-0000-000000000001"),
+		Name:        "Test",
+		Description: "test",
+		OwnerID:     user.ID,
+		GroupID:     2,
+	}
+	testDb.InsertClassroom(&classroom)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -35,63 +43,59 @@ func TestCreateClassroom(t *testing.T) {
 		fiberContext.SetGitlabRepository(c, gitlabRepo)
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
-		s.SetUserID(user.ID)
+		s.SetUserID(createdUser.ID)
 		s.Save()
 		return c.Next()
 	})
 
 	handler := NewApiController(mailRepo)
 
-	t.Run("CreateClassroom", func(t *testing.T) {
-		app.Post("/api/classrooms", handler.CreateClassroom)
+	t.Run("UpdateClassroom", func(t *testing.T) {
+		app.Post("/api/classrooms", handler.UpdateClassroom)
 
-		requestBody := CreateClassroomRequest{
-			Name:         "Test",
-			MemberEmails: []string{},
-			Description:  "test",
+		requestBody := UpdateClassroomRequest{
+			Name:        classroom.Name + "_New",
+			Description: classroom.Name + "_new",
 		}
 
 		gitlabRepo.
 			EXPECT().
-			CreateGroup(
+			ChangeGroupName(
+				classroom.GroupID,
 				requestBody.Name,
-				model.Private,
-				requestBody.Description,
 			).
 			Return(
-				&model.Group{ID: 1},
+				&model.Group{
+					Name: requestBody.Name,
+				},
 				nil,
 			).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			CreateGroupAccessToken(
-				1,
-				"Gitlab Classrooms",
-				model.OwnerPermissions,
-				mock.AnythingOfType("time.Time"),
-				"api",
+			ChangeGroupDescription(
+				classroom.GroupID,
+				requestBody.Description,
 			).
 			Return(
-				&model.GroupAccessToken{ID: 20, Token: "token"},
+				&model.Group{
+					Description: requestBody.Description,
+				},
 				nil,
 			).
 			Times(1)
 
-		req := newPostJsonRequest("/api/classrooms", requestBody)
+		req := newPutJsonRequest("/api/classrooms/owned/:classroomId", requestBody)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
+		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 		assert.NoError(t, err)
 
 		classRoom, err := query.Classroom.Where(query.Classroom.OwnerID.Eq(user.ID)).First()
 		assert.NoError(t, err)
-		assert.Equal(t, "Test", classRoom.Name)
-		assert.Equal(t, "test", classRoom.Description)
-		assert.Equal(t, 1, classRoom.GroupID)
-		assert.Equal(t, 20, classRoom.GroupAccessTokenID)
-		assert.Equal(t, "token", classRoom.GroupAccessToken)
+		assert.Equal(t, requestBody.Name, classRoom.Name)
+		assert.Equal(t, requestBody.Description, classRoom.Description)
 
-		assert.Equal(t, fmt.Sprintf("/api/v1/classrooms/%s", classRoom.ID.String()), resp.Header.Get("Location"))
+		assert.Equal(t, fmt.Sprintf("/api/v1/classrooms/owned/%s", classRoom.ID.String()), resp.Header.Get("Location"))
 	})
 }
