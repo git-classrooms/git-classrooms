@@ -15,5 +15,5 @@ type Project struct {
 	WebUrl      string
 	Description string
 	Owner       *User
-	Members     []User
+	Members      []User
 }
