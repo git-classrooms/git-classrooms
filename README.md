@@ -13,60 +13,32 @@ The frontend proxies the requests for the path `/api/*` to the backend server.
 
 For development, we use the git flow branching model for simplicity.
 
-### Requirements
-
-- [Mockery](https://vektra.github.io/mockery/latest/)
-
 ### Setup
-
-Copy the `.env.example` file and make your changes:
-
-```
-cp .env.example .env
-```
+The Setup for development is documented in the the following file
+[dev_setup.md](dev_setup.md)
 
 #### Code generation
 
 To generate up to date mock files and database code you can use the command `go generate` in projects root dir.
 
-#### OAuth with Gitlab
-1. We use Gitlab as an OAuth provider, so you have to add this application in your Gitlab.
-   * The Redirect URI is for example: https//staging.hs-flensburg.dev/api/auth/gitlab/callback
-   * Uncheck Confidential
-   * Needed Scopes: api
-2. Click on Save application and copy the shown Application ID and Secret to your local .env file
+### Run Staging|Production image locally
 
-### Setup without docker
+To test the completly build image locally you can use the following command:
 
-Install air [cosmtrek/air](https://github.com/cosmtrek/air) and run the following:
-
-```
-./script/start
+```bash
+docker compose -f docker-compose.dev.yml up --build
 ```
 
-- Frontend Dev server is listening at (localhost:5173)[http://localhost:5173]
-- Backend server is listening at (localhost:3000)[http://localhost:3000]
+And access the application via `http://localhost:3000`
 
-**NOTE:** You need to setup a postgres db on your machine.
+### Postman testing
 
-### Setup with docker
-
-**Make sure you have docker-compose installed on your machine.**
-
-```
-docker-compose up
-```
-
-### Mail
-
-For local development we use [mailpit](https://mailpit.axllent.org/), running on [localhost:8025](http://localhost:8025).
-**This requires the docker setup.**
-
-For encrypted connections we need to create a self-signed certificate
-
-```
-openssl req -x509 -newkey rsa:4096 -nodes -keyout .docker/mail/privkey.pem -out .docker/mail/cert.pem -sha256 -days 3650
-```
+1. Login via gitlab in the browser
+2. Copy the session_id cookie from the browser to your postman environment
+3. Copy the csrf_ cookie from the browser to your postman environment
+4. Add the following header to your `POST|PUT|PATCH|DELETE` requests:
+    - `X-CSRF-Token: {{csrf_}}`
+ 
 
 ## Environments
 

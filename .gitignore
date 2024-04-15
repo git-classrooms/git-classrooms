@@ -193,7 +193,6 @@ docs/swagger.json
 docs/swagger.yaml
 
 ## Ignore certificates for mailpit
-.docker/mail/*
 
 public/*
 !frontend/public/*

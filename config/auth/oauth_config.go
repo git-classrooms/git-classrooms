@@ -1,16 +1,17 @@
 package auth
 
 import (
-	"golang.org/x/oauth2"
 	"net/url"
+
+	"golang.org/x/oauth2"
 )
 
 type OAuthConfig struct {
 	ClientID     string   `env:"CLIENT_ID"`
 	ClientSecret string   `env:"CLIENT_SECRET"`
 	RedirectURL  *url.URL `env:"REDIRECT_URL,expand" envDefault:"$PUBLIC_URL/api/v1/auth/gitlab/callback"`
-	AuthURL      *url.URL `env:"AUTH_URL"`
-	TokenURL     *url.URL `env:"TOKEN_URL"`
+	AuthURL      *url.URL `env:"AUTH_URL,expand" envDefault:"$GITLAB_URL/oauth/authorize"`
+	TokenURL     *url.URL `env:"TOKEN_URL,expand" envDefault:"$GITLAB_URL/oauth/token"`
 	Scopes       []string `env:"SCOPES" envSeparator:"," envDefault:"api"`
 }
 
