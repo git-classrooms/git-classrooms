@@ -1,23 +1,23 @@
-//go:build integration
-// +build integration
-
-// TODO: Is this an integration test?
 package gitlab
 
 import (
+	"context"
 	"fmt"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
 	"os"
 	"strconv"
 	"testing"
+
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"golang.org/x/oauth2"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/xanzy/go-gitlab"
 )
 
-type GitlabCredentials struct {
+type TestCredentials struct {
 	Username string
 	Password string
 	ID       int
@@ -27,7 +27,7 @@ type GitlabCredentials struct {
 	Token    string
 }
 
-func LoadCredentialsFromEnv() (*GitlabCredentials, error) {
+func SetupTestCredentials() (*TestCredentials, error) {
 	err := godotenv.Load(".env.test")
 	if err != nil {
 		log.Print(err.Error())
@@ -39,45 +39,57 @@ func LoadCredentialsFromEnv() (*GitlabCredentials, error) {
 		return nil, err
 	}
 
-	credentials := GitlabCredentials{
+	token, err := getOAuthToken(os.Getenv("GO_GITLAB_TEST_USERNAME"), os.Getenv("GO_GITLAB_TEST_PASSWORD"))
+	if err != nil {
+		return nil, err
+	}
+
+	credentials := TestCredentials{
 		Username: os.Getenv("GO_GITLAB_TEST_USERNAME"),
 		Password: os.Getenv("GO_GITLAB_TEST_PASSWORD"),
 		ID:       id,
 		Email:    os.Getenv("GO_GITLAB_TEST_EMAIL"),
 		WebUrl:   os.Getenv("GO_GITLAB_TEST_WEB_URL"),
 		Name:     os.Getenv("GO_GITLAB_TEST_NAME"),
-		Token:    os.Getenv("GO_GITLAB_TEST_TOKEN"),
+		Token:    *token,
 	}
 
 	return &credentials, nil
 }
 
+func getOAuthToken(username, password string) (*string, error) {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Print(err.Error())
+	}
+
+	clientID := os.Getenv("AUTH_CLIENT_ID")
+	clientSecret := os.Getenv("AUTH_CLIENT_SECRET")
+	authURL := os.Getenv("AUTH_AUTH_URL")
+	tokenURL := os.Getenv("AUTH_TOKEN_URL")
+
+	conf := &oauth2.Config{
+		ClientID:     clientID,
+		Scopes:       []string{"api"},
+		ClientSecret: clientSecret,
+		Endpoint:     oauth2.Endpoint{AuthURL: authURL, TokenURL: tokenURL},
+	}
+
+	token, err := conf.PasswordCredentialsToken(context.Background(), username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &token.AccessToken, nil
+}
+
 func TestGoGitlabRepo(t *testing.T) {
-	credentials, err := LoadCredentialsFromEnv()
+	credentials, err := SetupTestCredentials()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	//	TODO: Fill these out for the integration tests
-	//	redirectURL, err := url.Parse("")
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//	conf := &oauth2.Config{
-	//		ClientID:     "",
-	//		Scopes:       []string{"api"},
-	//		ClientSecret: "",
-	//		Endpoints:    &oauth2.Endpoint{AuthURL: "", TokenURL: ""},
-	//	}
-	//	token, err := conf.PasswordCredentialsToken(context.Background(), "", "")
-	//	if err != nil {
-	//		t.Fatal(err)
-	//	}
-	//
-	//	credentials.Token = token.AccessToken
-
-	// TODO: use mock instead of this
-	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{})
+	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{URL: "https://hs-flensburg.dev"})
 
 	t.Run("LoginByToken", func(t *testing.T) {
 		err := repo.Login(credentials.Token)
@@ -162,7 +174,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	userId := 9   // You can use the ID from credentials or another user's ID
 
 	t.Run("AddUserToGroup", func(t *testing.T) {
-		err := repo.AddUserToGroup(groupId, userId)
+		err := repo.AddUserToGroup(groupId, userId, model.DeveloperPermissions)
 
 		assert.NoError(t, err)
 
@@ -202,7 +214,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetAllProjects", func(t *testing.T) {
-		projects, err := repo.GetAllProjects()
+		projects, err := repo.GetAllProjects("")
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(projects), 1)

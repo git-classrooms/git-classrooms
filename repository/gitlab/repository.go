@@ -1,8 +1,9 @@
 package gitlab
 
 import (
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"time"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 type Repository interface {
@@ -45,4 +46,5 @@ type Repository interface {
 
 	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) //F,D,Ph
 	RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error)                                                       //F,D,Ph
+	FindUserIDByEmail(email string) (int, error)
 }
