@@ -83,27 +83,38 @@ func getOAuthToken(username, password string) (*string, error) {
 	return &token.AccessToken, nil
 }
 
+func getOAuthToken(username, password string) (*string, error) {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Print(err.Error())
+	}
+
+	clientID := os.Getenv("AUTH_CLIENT_ID")
+	clientSecret := os.Getenv("AUTH_CLIENT_SECRET")
+	authURL := os.Getenv("AUTH_AUTH_URL")
+	tokenURL := os.Getenv("AUTH_TOKEN_URL")
+
+	conf := &oauth2.Config{
+		ClientID:     clientID,
+		Scopes:       []string{"api"},
+		ClientSecret: clientSecret,
+		Endpoint:     oauth2.Endpoint{AuthURL: authURL, TokenURL: tokenURL},
+	}
+
+	token, err := conf.PasswordCredentialsToken(context.Background(), username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &token.AccessToken, nil
+}
+
 func TestGoGitlabRepo(t *testing.T) {
 	credentials, err := SetupTestCredentials()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	//	TODO: Fill these out for the integration tests
-	conf := &oauth2.Config{
-		ClientID:     "fb192a686336f17c69c875c38d75f1f622f406c4f1486777dd7bc95f9f93d530",
-		Scopes:       []string{"api"},
-		ClientSecret: "gloas-6cdbc80d50d9d01c80af6af5508638ae6f4b6c95f1515d72010c04c72ebf3831",
-		Endpoint:     oauth2.Endpoint{AuthURL: "https://hs-flensburg.dev/oauth/authorize", TokenURL: "https://hs-flensburg.dev/oauth/token"},
-	}
-	token, err := conf.PasswordCredentialsToken(context.Background(), "IntegrationTestsUser2", "p8HA@v!CpqCA*WkHD4.D_D4hv9@FQa9r")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	credentials.Token = token.AccessToken
-
-	// TODO: use mock instead of this
 	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{URL: "https://hs-flensburg.dev"})
 
 	t.Run("LoginByToken", func(t *testing.T) {
