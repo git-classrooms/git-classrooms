@@ -1,11 +1,12 @@
 package context
 
 import (
+	"testing"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
-	"testing"
 )
 
 func TestClassroomSession_Delete(t *testing.T) {
