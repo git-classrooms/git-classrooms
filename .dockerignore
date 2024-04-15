@@ -6,3 +6,7 @@
 **/build
 **/coverage
 **/dist
+
+**/_mocks
+docs
+model/database/query

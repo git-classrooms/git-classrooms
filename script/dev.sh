@@ -2,7 +2,7 @@
 
 docker compose -f docker-compose.local.yml up -d
 
-air &
+air -c .air.toml &
 AIR_PID=$!
 
 cd frontend
