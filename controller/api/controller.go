@@ -9,6 +9,7 @@ type Controller interface {
 	OwnedClassroomMiddleware(*fiber.Ctx) error
 	GetOwnedClassroom(*fiber.Ctx) error
 	GetOwnedClassroomGitlab(*fiber.Ctx) error
+	UpdateClassroom(*fiber.Ctx) error
 
 	GetOwnedClassroomAssignments(*fiber.Ctx) error
 	OwnedClassroomAssignmentMiddleware(*fiber.Ctx) error
