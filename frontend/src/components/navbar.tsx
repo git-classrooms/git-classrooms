@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 
 export function Navbar() {
   return (
-    <nav className="flex justify-between px-8 py-2.5">
+    <nav className="flex justify-between px-8 py-2.5 mb-8 border-b">
       <div className="flex items-center">
         <a href="/" className="">
           <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
