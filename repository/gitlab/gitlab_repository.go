@@ -2,9 +2,6 @@ package gitlab
 
 import (
 	"fmt"
-	"github.com/hashicorp/go-retryablehttp"
-	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"log"
 	"regexp"
 	"strings"
