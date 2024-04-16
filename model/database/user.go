@@ -11,11 +11,20 @@ import (
 type User struct {
 	ID              int               `gorm:"primary_key;autoIncrement:false" json:"id"`
 	GitlabEmail     string            `gorm:"unique;not null" json:"gitlabEmail"`
-	GitLabAvatarURL *string           `json:"gitlabAvatarURL"`
+	GitLabAvatar    UserAvatar        `json:"gitlabAvatar"`
 	Name            string            `gorm:"not null" json:"name"`
 	CreatedAt       time.Time         `json:"-"`
 	UpdatedAt       time.Time         `json:"-"`
 	DeletedAt       gorm.DeletedAt    `gorm:"index" json:"-"`
 	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID" json:"-"`
 	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID" json:"-"`
+}
+
+type UserAvatar struct {
+	UserID            int            `gorm:"primary_key" json:"userId"`
+	CreatedAt         time.Time      `json:"-"`
+	UpdatedAt         time.Time      `json:"-"`
+	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
+	AvatarURL         *string        `json:"avatarURL"`
+	FallbackAvatarURL *string        `json:"fallbackAvatarURL"`
 }

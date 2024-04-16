@@ -144,6 +144,7 @@ func UserFromGoGitlab(input goGitlab.User) *model.User {
 		Name:     input.Name,
 		WebUrl:   input.WebURL,
 		Email:    input.Email,
+		Avatar:   model.UserAvatar{AvatarURL: &input.AvatarURL},
 	}
 }
 
