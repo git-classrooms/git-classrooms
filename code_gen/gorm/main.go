@@ -27,7 +27,7 @@ func main() {
 	g.ApplyBasic(
 		&dbModel.User{},
 		&dbModel.Classroom{},
-		// 	&dbModel.Team{},
+		&dbModel.Team{},
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},
 		&dbModel.AssignmentProjects{},
