@@ -14,17 +14,29 @@
     </style>
   </head>
   <body>
-    <div style="display: flex; justify-content: flex-end">
-      <form id="sign-in-form" method="post" action="/api/v1/auth/sign-in">
-        <input id="sign-in-csrf" type="hidden" name="csrf_token" value="" />
-        <input type="hidden" name="redirect" value="/docs.html" />
-        <button type="submit" id="sign-in-btn" disabled>Sign-In</button>
-      </form>
-      <form id="sign-out-form" style="display: none" method="post" action="/api/v1/auth/sign-out">
-        <input id="sign-out-csrf" type="hidden" name="csrf_token" value="" />
-        <input type="hidden" name="redirect" value="/docs.html" />
-        <button type="submit" id="sign-out-btn" disabled>Sign-Out</button>
-      </form>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        padding-top: 1rem;
+        max-width: 1450px;
+        margin-left: auto;
+        margin-right: auto;
+      "
+    >
+      <a style="padding-left: 1rem" href="/">Link to Normal Dashboard</a>
+      <div style="padding-right: 1rem">
+        <form id="sign-in-form" method="post" action="/api/v1/auth/sign-in">
+          <input id="sign-in-csrf" type="hidden" name="csrf_token" value="" />
+          <input type="hidden" name="redirect" value="/docs.html" />
+          <button type="submit" id="sign-in-btn" disabled>Sign-In</button>
+        </form>
+        <form id="sign-out-form" style="display: none" method="post" action="/api/v1/auth/sign-out">
+          <input id="sign-out-csrf" type="hidden" name="csrf_token" value="" />
+          <input type="hidden" name="redirect" value="/docs.html" />
+          <button type="submit" id="sign-out-btn" disabled>Sign-Out</button>
+        </form>
+      </div>
     </div>
     <div id="swagger-ui"></div>
     <script src="/js/swagger-ui-bundle.js"></script>
