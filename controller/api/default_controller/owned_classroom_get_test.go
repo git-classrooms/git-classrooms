@@ -15,27 +15,31 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"gorm.io/driver/postgres"
+	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func TestGetClassroomById(t *testing.T) {
+func TestGetOwnedClassroom(t *testing.T) {
 	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 	pq, err := tests.StartPostgres()
 
 	if err != nil {
-		t.Fatalf("could not start database container: %s", err.Error())
+		t.Fatal(err)
 	}
 
 	t.Cleanup(func() {
-		pq.Terminate(context.Background())
+		err = pg.Restore(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
+	dbURL, err := pg.ConnectionString(context.Background())
 
-	dbURL, err := pq.ConnectionString(context.Background())
 	if err != nil {
 		t.Fatalf("could not get connection string of db: %s", err.Error())
 	}
@@ -48,6 +52,11 @@ func TestGetClassroomById(t *testing.T) {
 	err = utils.MigrateDatabase(db)
 	if err != nil {
 		t.Fatalf("could not migrate database: %s", err.Error())
+	}
+
+	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	query.SetDefault(db)

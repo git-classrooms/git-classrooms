@@ -15,30 +15,34 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"gorm.io/driver/postgres"
+	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
 func TestGetJoinedClassroom(t *testing.T) {
 	// --------------- DB SETUP -----------------
+	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pq, err := tests.StartPostgres()
+	pg, err := tests.StartPostgres()
 
 	if err != nil {
-		t.Fatalf("could not start database container: %s", err.Error())
+		t.Fatal(err)
 	}
 
 	t.Cleanup(func() {
-		pq.Terminate(context.Background())
+		err = pg.Restore(context.Background())
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
+	dbURL, err := pg.ConnectionString(context.Background())
 
-	dbURL, err := pq.ConnectionString(context.Background())
-
-	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
+	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
@@ -48,14 +52,19 @@ func TestGetJoinedClassroom(t *testing.T) {
 		t.Fatalf("could not migrate database: %s", err.Error())
 	}
 
+	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	query.SetDefault(db)
 
 	// ------------ END OF DB SETUP -----------------
 
-	owner := &database.User{ID: 1}
+	owner := &database.User{ID: 1, GitlabEmail: "owner@example.com"}
 	err = query.User.WithContext(context.Background()).Create(owner)
 
-	member := &database.User{ID: 2}
+	member := &database.User{ID: 2, GitlabEmail: "member@example.com"}
 	err = query.User.WithContext(context.Background()).Create(member)
 
 	if err != nil {
