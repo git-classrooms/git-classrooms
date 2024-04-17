@@ -50,6 +50,13 @@ const joinedClassroomTeamCreateMask = createRouteMask({
 
 const ownedClassroomTeamCreateMask = createRouteMask({
   routeTree,
+  from: "/classrooms/owned/$classroomId/team/create/modal",
+  to: "/classrooms/owned/$classroomId/teams/create",
+  params: true,
+});
+
+const ownedClassroomTeamsCreateMask = createRouteMask({
+  routeTree,
   from: "/classrooms/owned/$classroomId/teams/create/modal",
   to: "/classrooms/owned/$classroomId/teams/create",
   params: true,
@@ -61,7 +68,12 @@ const router = createRouter({
   context: {
     queryClient,
   },
-  routeMasks: [classroomCreateModalToClassroomCreateMask, ownedClassroomTeamCreateMask, joinedClassroomTeamCreateMask],
+  routeMasks: [
+    classroomCreateModalToClassroomCreateMask,
+    ownedClassroomTeamCreateMask,
+    ownedClassroomTeamsCreateMask,
+    joinedClassroomTeamCreateMask,
+  ],
   defaultPreload: "intent",
   unmaskOnReload: true,
   // Since we're using React Query, we don't want loader calls to ever be stale

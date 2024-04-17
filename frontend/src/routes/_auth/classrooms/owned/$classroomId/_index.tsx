@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId")({
+export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
   loader: async ({ context, params }) => {
     const classroom = await context.queryClient.ensureQueryData(ownedClassroomQueryOptions(params.classroomId));
@@ -78,7 +78,7 @@ function ClassroomDetail() {
         <>
           <Header title="Teams">
             <Button variant="default" asChild>
-              <Link to="/classrooms/owned/$classroomId/teams/create/modal" params={{ classroomId }}>
+              <Link to="/classrooms/owned/$classroomId/team/create/modal" replace params={{ classroomId }}>
                 Create Teams
               </Link>
             </Button>

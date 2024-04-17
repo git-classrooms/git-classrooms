@@ -4,12 +4,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Role } from "@/types/classroom";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams/create/modal")({
+export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams/_index/create/modal")({
   loader: async ({ context, params }) => {
     const classroom = await context.queryClient.ensureQueryData(joinedClassroomQueryOptions(params.classroomId));
-    if (!classroom.classroom.createTeams) {
-      throw new Error("This classroom does not allow creating teams");
-    }
     if (classroom.role !== Role.Moderator) {
       throw redirect({
         to: "/classrooms/joined/$classroomId/teams",
@@ -32,6 +29,7 @@ function CreateTeamModal() {
           navigate({
             to: "/classrooms/joined/$classroomId/teams",
             params: { classroomId },
+            replace: true,
           });
         }
       }}

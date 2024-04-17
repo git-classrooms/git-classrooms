@@ -8,7 +8,7 @@ import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
 import { UserClassroom, OwnedClassroom } from "@/types/classroom.ts";
 
-export const Route = createFileRoute("/_auth/classrooms")({
+export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
   loader: ({ context }) => {
     const ownClassrooms = context.queryClient.ensureQueryData(ownedClassroomsQueryOptions);
@@ -28,7 +28,9 @@ function Classrooms() {
     <div className="p-2">
       <Header title="Own Classrooms">
         <Button asChild variant="default">
-          <Link to="/classrooms/create/modal">Create</Link>
+          <Link to="/classrooms/create/modal" replace>
+            Create
+          </Link>
         </Button>
       </Header>
       <OwnedClassroomTable classrooms={ownClassrooms} />

@@ -2,7 +2,7 @@ import { ClassroomsForm } from "@/components/classroomsForm";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_auth/classrooms/create/modal")({
+export const Route = createFileRoute("/_auth/classrooms/_index/create/modal")({
   component: CreateModal,
 });
 
@@ -15,6 +15,7 @@ function CreateModal() {
         if (!open) {
           navigate({
             to: "/classrooms",
+            replace: true,
           });
         }
       }}

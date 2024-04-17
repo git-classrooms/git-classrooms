@@ -12,15 +12,11 @@ import {
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Role } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams")({
+export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams/_index")({
   loader: async ({ context, params }) => {
-    const classroom = await context.queryClient.ensureQueryData(joinedClassroomQueryOptions(params.classroomId));
     const teams = await context.queryClient.ensureQueryData(joinedClassroomTeamsQueryOptions(params.classroomId));
-    if (classroom.classroom.maxTeamSize === 1) {
-      throw redirect({ to: "/classrooms/joined/$classroomId/", params });
-    }
     return { teams };
   },
   pendingComponent: Loader,
@@ -37,7 +33,7 @@ function Teams() {
       <Header title="Teams">
         {classroom.role === Role.Moderator && (
           <Button variant="default" asChild>
-            <Link to="/classrooms/owned/$classroomId/teams/create/modal" params={{ classroomId }}>
+            <Link to="/classrooms/owned/$classroomId/teams/create/modal" replace params={{ classroomId }}>
               Create Teams
             </Link>
           </Button>
