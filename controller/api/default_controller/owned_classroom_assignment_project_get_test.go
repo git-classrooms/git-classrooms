@@ -145,7 +145,6 @@ func TestGetOwnedClassroomAssignmentProject(t *testing.T) {
 			UpdatedAt          time.Time `json:"updatedAt"`
 			AssignmentID       uuid.UUID `json:"assignmentId"`
 			UserID             int       `json:"userId"`
-			User               User      `json:"user"`
 			AssignmentAccepted bool      `json:"assignmentAccepted"`
 			ProjectID          int       `json:"projectId"`
 		}
