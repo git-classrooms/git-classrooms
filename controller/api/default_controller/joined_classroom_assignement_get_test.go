@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -88,7 +89,7 @@ func TestGetJoinedClassroomAssignment(t *testing.T) {
 	userClassroomQuery := query.UserClassrooms
 	testUserClassroom := &database.UserClassrooms{
 		UserID:      member.ID,
-		ClassroomID: testClassRoom.ID,
+		ClassroomID: testClassroom.ID,
 		Role:        database.Student,
 	}
 
@@ -119,7 +120,7 @@ func TestGetJoinedClassroomAssignment(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(testClassRoom)
+		ctx.SetOwnedClassroom(testClassroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
@@ -133,7 +134,7 @@ func TestGetJoinedClassroomAssignment(t *testing.T) {
 
 	t.Run("GetJoinedClassroomAssignment", func(t *testing.T) {
 		app.Get("classrooms/joined/:classroomId/assignments/:assignmentId", handler.GetJoinedClassroomAssignment)
-		route := fmt.Sprintf("/api/classrooms/joined/%d/assignments/%d", testClassRoom.ID, testClassroomAssignment.ID)
+		route := fmt.Sprintf("/api/classrooms/joined/%d/assignments/%d", testClassroom.ID, testClassroomAssignment.ID)
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
