@@ -1,5 +1,5 @@
 //go:generate go run ./code_gen/gorm_gen.go
-//go:generate swag fmt
+//go:generate swag fmt --exclude frontend
 //go:generate swag init --exclude frontend
 //go:generate mockery
 package main
