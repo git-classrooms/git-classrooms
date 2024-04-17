@@ -82,18 +82,6 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 		t.Fatalf("could not create test classroom: %s", err.Error())
 	}
 
-	userClassroomQuery := query.UserClassrooms
-	testUserClassroom := &database.UserClassrooms{
-		UserID:      owner.ID,
-		ClassroomID: testClassRoom.ID,
-		Role:        database.Student,
-	}
-
-	err = userClassroomQuery.WithContext(context.Background()).Create(testUserClassroom)
-	if err != nil {
-		t.Fatalf("could not create user test classroom: %s", err.Error())
-	}
-
 	classroomAssignmentQuery := query.Assignment
 	testClassroomAssignment := &database.Assignment{
 		ClassroomID:       testClassroom.ID,
