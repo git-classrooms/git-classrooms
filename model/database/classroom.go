@@ -8,14 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Role uint8
-
-const (
-	Owner Role = iota
-	Moderator
-	Student
-)
-
 // Classroom is a struct that represents a classroom in the database
 type Classroom struct {
 	ID        uuid.UUID      `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
@@ -40,15 +32,4 @@ type Classroom struct {
 	Teams       []*Team                `gorm:"foreignKey:ClassroomID" json:"-"`
 	Assignments []*Assignment          `json:"-"`
 	Invitations []*ClassroomInvitation `json:"-"`
-}
-
-// UserClassrooms is a struct that represents the relationship between a user and a classroom
-type UserClassrooms struct {
-	UserID      int        `gorm:"primaryKey;autoIncrement:false;not null" json:"-"`
-	User        User       `json:"user"`
-	ClassroomID uuid.UUID  `gorm:"type:uuid;primaryKey;not null" json:"-"`
-	Classroom   Classroom  `json:"classroom"`
-	TeamID      *uuid.UUID `gorm:"type:uuid;index" json:"-"`
-	Team        *Team      `json:"team"`
-	Role        Role       `gorm:"not null" json:"role"`
 }
