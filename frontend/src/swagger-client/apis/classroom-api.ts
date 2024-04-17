@@ -20,7 +20,6 @@ import { Configuration } from '../configuration';
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 import { DatabaseUser } from '../models';
 import { DefaultControllerCreateClassroomRequest } from '../models';
-import { DefaultControllerGetJoinedClassroomResponse } from '../models';
 import { DefaultControllerGetOwnedClassroomResponse } from '../models';
 import { HttputilHTTPError } from '../models';
 /**
@@ -29,46 +28,6 @@ import { HttputilHTTPError } from '../models';
  */
 export const ClassroomApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Get your Classroom
-         * @summary Get your Classroom Information
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        classroomsJoinedClassroomIdGet: async (classroomId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling classroomsJoinedClassroomIdGet.');
-            }
-            const localVarPath = `/classrooms/joined/{classroomId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * Get all gitlab projects of the current team
          * @summary Get all Projects of current team
@@ -245,20 +204,6 @@ export const ClassroomApiAxiosParamCreator = function (configuration?: Configura
 export const ClassroomApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Get your Classroom
-         * @summary Get your Classroom Information
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async classroomsJoinedClassroomIdGet(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<DefaultControllerGetJoinedClassroomResponse>>> {
-            const localVarAxiosArgs = await ClassroomApiAxiosParamCreator(configuration).classroomsJoinedClassroomIdGet(classroomId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * Get all gitlab projects of the current team
          * @summary Get all Projects of current team
          * @param {string} classroomId Classroom ID
@@ -324,16 +269,6 @@ export const ClassroomApiFp = function(configuration?: Configuration) {
 export const ClassroomApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * Get your Classroom
-         * @summary Get your Classroom Information
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async classroomsJoinedClassroomIdGet(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<DefaultControllerGetJoinedClassroomResponse>> {
-            return ClassroomApiFp(configuration).classroomsJoinedClassroomIdGet(classroomId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * Get all gitlab projects of the current team
          * @summary Get all Projects of current team
          * @param {string} classroomId Classroom ID
@@ -383,17 +318,6 @@ export const ClassroomApiFactory = function (configuration?: Configuration, base
  * @extends {BaseAPI}
  */
 export class ClassroomApi extends BaseAPI {
-    /**
-     * Get your Classroom
-     * @summary Get your Classroom Information
-     * @param {string} classroomId Classroom ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ClassroomApi
-     */
-    public async classroomsJoinedClassroomIdGet(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<DefaultControllerGetJoinedClassroomResponse>> {
-        return ClassroomApiFp(this.configuration).classroomsJoinedClassroomIdGet(classroomId, options).then((request) => request(this.axios, this.basePath));
-    }
     /**
      * Get all gitlab projects of the current team
      * @summary Get all Projects of current team

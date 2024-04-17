@@ -5,20 +5,19 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type getJoinedClassroomTeamResponse struct {
 	database.Team
-	UserMember []*database.User `json:"member" extensions:"!x-nullable"`
+	UserMember []*database.User `json:"member"`
 	GitlabUrl  string           `json:"gitlabUrl"`
 } //@Name Team
 
 // @Summary		Get all teams of the current classroom
 // @Description	Get all teams of the current classroom
-// @Id				getJoinedClassroom
+// @Id				getJoinedClassroomTeams
 // @Tags			team
 // @Accept			json
 // @Produces		json
@@ -34,11 +33,7 @@ func (ctrl *DefaultController) GetJoinedClassroomTeams(c *fiber.Ctx) error {
 
 	classroom := ctx.GetJoinedClassroom()
 
-	queryTeam := query.Team
-	teams, err := queryTeam.
-		WithContext(c.Context()).
-		Preload(queryTeam.Member).
-		Where(queryTeam.ClassroomID.Eq(classroom.ClassroomID)).
+	teams, err := joinedClassroomTeamQuery(c, classroom.ClassroomID).
 		Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

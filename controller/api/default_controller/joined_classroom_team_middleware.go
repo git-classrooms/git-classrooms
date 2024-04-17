@@ -7,11 +7,12 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-func joinedClassroomTeamQuery(classroomId uuid.UUID, c *fiber.Ctx) query.ITeamDo {
+func joinedClassroomTeamQuery(c *fiber.Ctx, classroomId uuid.UUID) query.ITeamDo {
 	queryTeam := query.Team
 	return queryTeam.
 		WithContext(c.Context()).
 		Preload(queryTeam.Member).
+		Preload(queryTeam.Member.User).
 		Where(queryTeam.ClassroomID.Eq(classroomId))
 }
 
@@ -22,7 +23,7 @@ func (ctrl *DefaultController) JoinedClassroomTeamMiddleware(c *fiber.Ctx) error
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	team, err := joinedClassroomTeamQuery(*param.ClassroomID, c).
+	team, err := joinedClassroomTeamQuery(c, *param.ClassroomID).
 		Where(query.Team.ID.Eq(*param.TeamID)).
 		First()
 	if err != nil {

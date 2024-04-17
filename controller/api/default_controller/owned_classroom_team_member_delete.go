@@ -6,20 +6,21 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-// @Summary		Remove current Member from the current team
-// @Description	Remove current Member from the current team
-// @Tags			team, member
-// @Accept			json
-// @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
-// @Param			teamId			path	string	true	"Team ID"		Format(uuid)
-// @Param			memberId		path	int		true	"Member ID"
-// @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
-// @Success		204
-// @Failure		400	{object}	httputil.HTTPError
-// @Failure		401	{object}	httputil.HTTPError
-// @Failure		404	{object}	httputil.HTTPError
-// @Failure		500	{object}	httputil.HTTPError
-// @Router			/classrooms/owned/{classroomId}/teams/{teamId}/members/{memberId} [delete]
+//	@Summary		Remove current Member from the current team
+//	@Description	Remove current Member from the current team
+//	@Id				RemoveMemberFromTeam
+//	@Tags			team, member
+//	@Accept			json
+//	@Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
+//	@Param			teamId			path	string	true	"Team ID"		Format(uuid)
+//	@Param			memberId		path	int		true	"Member ID"
+//	@Param			X-Csrf-Token	header	string	true	"Csrf-Token"
+//	@Success		204
+//	@Failure		400	{object}	httputil.HTTPError
+//	@Failure		401	{object}	httputil.HTTPError
+//	@Failure		404	{object}	httputil.HTTPError
+//	@Failure		500	{object}	httputil.HTTPError
+//	@Router			/classrooms/owned/{classroomId}/teams/{teamId}/members/{memberId} [delete]
 func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	member := ctx.GetOwnedClassroomTeamMember()

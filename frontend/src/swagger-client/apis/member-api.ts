@@ -99,14 +99,14 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        classroomsOwnedClassroomIdTeamsTeamIdMembersGet: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getOwnedClassroomTeamMembers: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdMembersGet.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomTeamMembers.');
             }
             // verify required parameter 'teamId' is not null or undefined
             if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdMembersGet.');
+                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeamMembers.');
             }
             const localVarPath = `/classrooms/owned/{classroomId}/teams/{teamId}/members`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
@@ -147,22 +147,22 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete: async (classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        removeMemberFromTeam: async (classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling removeMemberFromTeam.');
             }
             // verify required parameter 'teamId' is not null or undefined
             if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete.');
+                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling removeMemberFromTeam.');
             }
             // verify required parameter 'memberId' is not null or undefined
             if (memberId === null || memberId === undefined) {
-                throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete.');
+                throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling removeMemberFromTeam.');
             }
             // verify required parameter 'xCsrfToken' is not null or undefined
             if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete.');
+                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling removeMemberFromTeam.');
             }
             const localVarPath = `/classrooms/owned/{classroomId}/teams/{teamId}/members/{memberId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
@@ -232,8 +232,8 @@ export const MemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdTeamsTeamIdMembersGet(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<DatabaseUserClassrooms>>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).classroomsOwnedClassroomIdTeamsTeamIdMembersGet(classroomId, teamId, options);
+        async getOwnedClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<DatabaseUserClassrooms>>>> {
+            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).getOwnedClassroomTeamMembers(classroomId, teamId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -249,8 +249,8 @@ export const MemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete(classroomId, teamId, memberId, xCsrfToken, options);
+        async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
+            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -286,8 +286,8 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdTeamsTeamIdMembersGet(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<DatabaseUserClassrooms>>> {
-            return MemberApiFp(configuration).classroomsOwnedClassroomIdTeamsTeamIdMembersGet(classroomId, teamId, options).then((request) => request(axios, basePath));
+        async getOwnedClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<DatabaseUserClassrooms>>> {
+            return MemberApiFp(configuration).getOwnedClassroomTeamMembers(classroomId, teamId, options).then((request) => request(axios, basePath));
         },
         /**
          * Remove current Member from the current team
@@ -299,8 +299,8 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return MemberApiFp(configuration).classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(axios, basePath));
+        async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
+            return MemberApiFp(configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -335,8 +335,8 @@ export class MemberApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof MemberApi
      */
-    public async classroomsOwnedClassroomIdTeamsTeamIdMembersGet(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<DatabaseUserClassrooms>>> {
-        return MemberApiFp(this.configuration).classroomsOwnedClassroomIdTeamsTeamIdMembersGet(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
+    public async getOwnedClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<DatabaseUserClassrooms>>> {
+        return MemberApiFp(this.configuration).getOwnedClassroomTeamMembers(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * Remove current Member from the current team
@@ -349,7 +349,7 @@ export class MemberApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof MemberApi
      */
-    public async classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return MemberApiFp(this.configuration).classroomsOwnedClassroomIdTeamsTeamIdMembersMemberIdDelete(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
+    public async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        return MemberApiFp(this.configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
     }
 }

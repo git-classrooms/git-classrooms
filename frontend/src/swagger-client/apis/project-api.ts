@@ -34,14 +34,14 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        classroomsOwnedClassroomIdTeamsTeamIdProjectsGet: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getOwnedClassroomTeamProjects: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdProjectsGet.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomTeamProjects.');
             }
             // verify required parameter 'teamId' is not null or undefined
             if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling classroomsOwnedClassroomIdTeamsTeamIdProjectsGet.');
+                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeamProjects.');
             }
             const localVarPath = `/classrooms/owned/{classroomId}/teams/{teamId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
@@ -89,8 +89,8 @@ export const ProjectApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdTeamsTeamIdProjectsGet(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomTeamProjectResponse>>>> {
-            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).classroomsOwnedClassroomIdTeamsTeamIdProjectsGet(classroomId, teamId, options);
+        async getOwnedClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomTeamProjectResponse>>>> {
+            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).getOwnedClassroomTeamProjects(classroomId, teamId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -113,8 +113,8 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdTeamsTeamIdProjectsGet(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomTeamProjectResponse>>> {
-            return ProjectApiFp(configuration).classroomsOwnedClassroomIdTeamsTeamIdProjectsGet(classroomId, teamId, options).then((request) => request(axios, basePath));
+        async getOwnedClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomTeamProjectResponse>>> {
+            return ProjectApiFp(configuration).getOwnedClassroomTeamProjects(classroomId, teamId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -135,7 +135,7 @@ export class ProjectApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ProjectApi
      */
-    public async classroomsOwnedClassroomIdTeamsTeamIdProjectsGet(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomTeamProjectResponse>>> {
-        return ProjectApiFp(this.configuration).classroomsOwnedClassroomIdTeamsTeamIdProjectsGet(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
+    public async getOwnedClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomTeamProjectResponse>>> {
+        return ProjectApiFp(this.configuration).getOwnedClassroomTeamProjects(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
     }
 }

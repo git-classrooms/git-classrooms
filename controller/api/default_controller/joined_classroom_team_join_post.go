@@ -11,6 +11,7 @@ import (
 
 //	@Summary		Join the current team
 //	@Description	Join the current Team if we aren't in another team
+//	@Id				JoinJoinedClassroomTeam
 //	@Tags			team
 //	@Accept			json
 //	@Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)

@@ -186,9 +186,6 @@ model/database/query
 
 ### mockery ###
 _mock
-# SwaggerClient
-
-swagger-client
 
 ### Swag ignores ###
 docs/docs.go

@@ -8,7 +8,6 @@ export * from './default-controller-change-owned-classroom-member-request';
 export * from './default-controller-create-classroom-request';
 export * from './default-controller-create-joined-team-request';
 export * from './default-controller-create-owned-team-request';
-export * from './default-controller-get-joined-classroom-response';
 export * from './default-controller-get-owned-classroom-response';
 export * from './default-controller-get-owned-classroom-team-project-response';
 export * from './default-controller-get-owned-classroom-team-response';
