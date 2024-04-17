@@ -159,8 +159,8 @@ func TestGetOwnedClassroomAssignmentProject(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, testClassroomAssignmentProject.ID, classroomAssignmentProject.ID)
-		assert.Equal(t, testClassroomAssignmentProject.AssignmentID, classroomAssignmentProject.ClassroomID)
-		assert.Equal(t, testClassroomAssignmentProject.UserID, classroomAssignmentProject.TemplateProjectID)
+		assert.Equal(t, testClassroomAssignmentProject.AssignmentID, classroomAssignmentProject.AssignmentID)
+		assert.Equal(t, testClassroomAssignmentProject.UserID, classroomAssignmentProject.UserID)
 		assert.Equal(t, testClassroomAssignmentProject.AssignmentAccepted, classroomAssignmentProject.AssignmentAccepted)
 		assert.Equal(t, testClassroomAssignmentProject.ProjectID, classroomAssignmentProject.ProjectID)
 	})
