@@ -10,8 +10,7 @@ import (
 func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()
-	// userID := ctx.GetUserID()
-	team := ctx.GetJoinedTeam()
+	team := classroom.Team
 	assignmentProject := ctx.GetJoinedClassroomAssignment()
 
 	if assignmentProject.AssignmentAccepted {

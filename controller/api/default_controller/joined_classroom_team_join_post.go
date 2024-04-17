@@ -9,27 +9,27 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-//	@Summary		Join the current team
-//	@Description	Join the current Team if we aren't in another team
-//	@Id				JoinJoinedClassroomTeam
-//	@Tags			team
-//	@Accept			json
-//	@Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
-//	@Param			teamId			path	string	true	"Team ID"		Format(uuid)
-//	@Param			X-Csrf-Token	header	string	true	"Csrf-Token"
-//	@Success		201
-//	@Header			201	{string}	Location	"/api/v1/classroom/joined/{classroomId}/teams/{teamId}"
-//	@Failure		400	{object}	httputil.HTTPError
-//	@Failure		401	{object}	httputil.HTTPError
-//	@Failure		403	{object}	httputil.HTTPError
-//	@Failure		404	{object}	httputil.HTTPError
-//	@Failure		500	{object}	httputil.HTTPError
-//	@Router			/classrooms/joined/{classroomId}/teams/{teamId}/join [post]
+// @Summary		Join the current team
+// @Description	Join the current Team if we aren't in another team
+// @Id				JoinJoinedClassroomTeam
+// @Tags			team
+// @Accept			json
+// @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
+// @Param			teamId			path	string	true	"Team ID"		Format(uuid)
+// @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
+// @Success		201
+// @Header			201	{string}	Location	"/api/v1/classroom/joined/{classroomId}/teams/{teamId}"
+// @Failure		400	{object}	httputil.HTTPError
+// @Failure		401	{object}	httputil.HTTPError
+// @Failure		403	{object}	httputil.HTTPError
+// @Failure		404	{object}	httputil.HTTPError
+// @Failure		500	{object}	httputil.HTTPError
+// @Router			/classrooms/joined/{classroomId}/teams/{teamId}/join [post]
 func (ctrl *DefaultController) JoinJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
 	classroom := ctx.GetJoinedClassroom()
-	ownTeam := ctx.GetJoinedTeam()
+	ownTeam := classroom.Team
 	team := ctx.GetJoinedClassroomTeam()
 	repo := ctx.GetGitlabRepository()
 

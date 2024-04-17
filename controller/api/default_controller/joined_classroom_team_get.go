@@ -26,8 +26,7 @@ import (
 // @Router			/classrooms/joined/{classroomId}/teams/{teamId} [get]
 func (ctrl *DefaultController) GetJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
-
-	team := ctx.GetJoinedTeam()
+	team := ctx.GetJoinedClassroom().Team
 
 	member := utils.Map(team.Member, func(u *database.UserClassrooms) *database.User {
 		return &u.User

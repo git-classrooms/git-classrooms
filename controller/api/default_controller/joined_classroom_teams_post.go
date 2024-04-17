@@ -18,27 +18,27 @@ func (r createJoinedTeamRequest) isValid() bool {
 	return r.Name != ""
 }
 
-//	@Summary		Create new Team
-//	@Description	Create a new Team for the given classroom and join it if you are not a moderator
-//	@Id				CreateJoinedClassroomTeam
-//	@Tags			team
-//	@Accept			json
-//	@Param			classroomId		path	string										true	"Classroom ID"	Format(uuid)
-//	@Param			team			body	default_controller.createJoinedTeamRequest	true	"Classroom Info"
-//	@Param			X-Csrf-Token	header	string										true	"Csrf-Token"
-//	@Success		201
-//	@Header			201	{string}	Location	"/api/v1/classroom/joined/{classroomId}/teams/{teamId}"
-//	@Failure		400	{object}	httputil.HTTPError
-//	@Failure		401	{object}	httputil.HTTPError
-//	@Failure		403	{object}	httputil.HTTPError
-//	@Failure		404	{object}	httputil.HTTPError
-//	@Failure		500	{object}	httputil.HTTPError
-//	@Router			/classrooms/joined/{classroomId}/teams [post]
+// @Summary		Create new Team
+// @Description	Create a new Team for the given classroom and join it if you are not a moderator
+// @Id				CreateJoinedClassroomTeam
+// @Tags			team
+// @Accept			json
+// @Param			classroomId		path	string										true	"Classroom ID"	Format(uuid)
+// @Param			team			body	default_controller.createJoinedTeamRequest	true	"Classroom Info"
+// @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
+// @Success		201
+// @Header			201	{string}	Location	"/api/v1/classroom/joined/{classroomId}/teams/{teamId}"
+// @Failure		400	{object}	httputil.HTTPError
+// @Failure		401	{object}	httputil.HTTPError
+// @Failure		403	{object}	httputil.HTTPError
+// @Failure		404	{object}	httputil.HTTPError
+// @Failure		500	{object}	httputil.HTTPError
+// @Router			/classrooms/joined/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
 	classroom := ctx.GetJoinedClassroom()
-	team := ctx.GetJoinedTeam()
+	team := classroom.Team
 	repo := ctx.GetGitlabRepository()
 
 	if team != nil && classroom.Role != database.Moderator {

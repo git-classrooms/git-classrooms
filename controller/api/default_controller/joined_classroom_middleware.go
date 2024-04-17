@@ -37,7 +37,6 @@ func (ctrl *DefaultController) JoinedClassroomMiddleware(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	ctx.SetJoinedTeam(classroom.Team)
 	ctx.SetJoinedClassroom(classroom)
 	return ctx.Next()
 }
