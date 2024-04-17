@@ -25,7 +25,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func TestGetOwnedClassroomAssignment(t *testing.T) {
+func TestGetOwnedClassroomAssignmentProject(t *testing.T) {
 	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
@@ -96,6 +96,19 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 		t.Fatalf("could not create test classroom assignment: %s", err.Error())
 	}
 
+	classroomAssignmentProjectQuery := query.AssignmentProjects
+	testClassroomAssignmentProject := &database.AssignmentProjects{
+		AssignmentID:       testClassroomAssignment.ID,
+		UserID:             owner.ID,
+		AssignmentAccepted: true,
+		ProjectID:          1,
+	}
+
+	err = classroomAssignmentProjectQuery.WithContext(context.Background()).Create(testClassroomAssignmentProject)
+	if err != nil {
+		t.Fatalf("could not create test classroom assignment project: %s", err.Error())
+	}
+
 	// ------------ END OF SEEDING DATA -----------------
 
 	session.InitSessionStore(dbURL)
@@ -117,38 +130,38 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 
 	handler := NewApiController(mailRepo)
 
-	t.Run("GetOwnedClassroomAssignment", func(t *testing.T) {
-		app.Get("classrooms/owned/:classroomId/assignments/:assignmentId", handler.GetOwnedClassroomAssignment)
-		route := fmt.Sprintf("/api/classrooms/owned/%d/assignments/%d", testClassroom.ID, testClassroomAssignment.ID)
+	t.Run("GetOwnedClassroomAssignmentProject", func(t *testing.T) {
+		app.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects/:projectId", handler.GetOwnedClassroomAssignment)
+		route := fmt.Sprintf("/api/classrooms/owned/%d/assignments/%d/projects/%d", testClassroom.ID, testClassroomAssignment.ID, testClassroomAssignmentProject.ID)
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
 
-		type ClassroomAssignmentResponse struct {
-			ID                uuid.UUID  `json:"id"`
-			CreatedAt         time.Time  `json:"createdAt"`
-			UpdatedAt         time.Time  `json:"updatedAt"`
-			ClassroomID       uuid.UUID  `json:"classroomId"`
-			TemplateProjectID int        `json:"templateProjectId"`
-			Name              string     `json:"name"`
-			Description       string     `json:"description"`
-			DueDate           *time.Time `json:"dueDate"`
+		type ClassroomAssignmentProjectResponse struct {
+			ID                 uuid.UUID `json:"id"`
+			CreatedAt          time.Time `json:"createdAt"`
+			UpdatedAt          time.Time `json:"updatedAt"`
+			AssignmentID       uuid.UUID `json:"assignmentId"`
+			UserID             int       `json:"userId"`
+			User               User      `json:"user"`
+			AssignmentAccepted bool      `json:"assignmentAccepted"`
+			ProjectID          int       `json:"projectId"`
 		}
 
-		var classroomAssignment *ClassroomAssignmentResponse
+		var classroomAssignmentProject *ClassroomAssignmentProjectResponse
 
-		err = json.NewDecoder(resp.Body).Decode(&classroomAssignment)
+		err = json.NewDecoder(resp.Body).Decode(&classroomAssignmentProject)
 		assert.NoError(t, err)
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		assert.Equal(t, testClassroomAssignment.ID, classroomAssignment.ID)
-		assert.Equal(t, testClassroomAssignment.ClassroomID, classroomAssignment.ClassroomID)
-		assert.Equal(t, testClassroomAssignment.TemplateProjectID, classroomAssignment.TemplateProjectID)
-		assert.Equal(t, testClassroomAssignment.Name, classroomAssignment.Name)
-		assert.Equal(t, testClassroomAssignment.Description, classroomAssignment.Description)
+		assert.Equal(t, testClassroomAssignmentProject.ID, classroomAssignmentProject.ID)
+		assert.Equal(t, testClassroomAssignmentProject.AssignmentID, classroomAssignmentProject.ClassroomID)
+		assert.Equal(t, testClassroomAssignmentProject.UserID, classroomAssignmentProject.TemplateProjectID)
+		assert.Equal(t, testClassroomAssignmentProject.AssignmentAccepted, classroomAssignmentProject.AssignmentAccepted)
+		assert.Equal(t, testClassroomAssignmentProject.ProjectID, classroomAssignmentProject.ProjectID)
 	})
 }
