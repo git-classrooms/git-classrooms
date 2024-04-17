@@ -12,7 +12,7 @@ if (import.meta.env.MODE === "production") {
     integrations: [
       // See docs for support of different versions of variation of react router
       // https://docs.sentry.io/platforms/javascript/guides/react/configuration/integrations/react-router/
-      Sentry.replayIntegration()
+      Sentry.replayIntegration(),
     ],
 
     // Set tracesSampleRate to 1.0 to capture 100%
@@ -41,13 +41,27 @@ const classroomCreateModalToClassroomCreateMask = createRouteMask({
   params: true,
 });
 
+const joinedClassroomTeamCreateMask = createRouteMask({
+  routeTree,
+  from: "/classrooms/joined/$classroomId/teams/create/modal",
+  to: "/classrooms/joined/$classroomId/teams/create",
+  params: true,
+});
+
+const ownedClassroomTeamCreateMask = createRouteMask({
+  routeTree,
+  from: "/classrooms/owned/$classroomId/teams/create/modal",
+  to: "/classrooms/owned/$classroomId/teams/create",
+  params: true,
+});
+
 // Create a new router instance
 const router = createRouter({
   routeTree,
   context: {
     queryClient,
   },
-  routeMasks: [classroomCreateModalToClassroomCreateMask],
+  routeMasks: [classroomCreateModalToClassroomCreateMask, ownedClassroomTeamCreateMask, joinedClassroomTeamCreateMask],
   defaultPreload: "intent",
   unmaskOnReload: true,
   // Since we're using React Query, we don't want loader calls to ever be stale

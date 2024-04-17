@@ -8,11 +8,11 @@ import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useCreateTeamJoinedClassroom } from "@/api/teams";
+import { useCreateTeamOwnedClassroom } from "@/api/teams";
 
-export const CreateTeamForm = ({ classroomId }: { classroomId: string }) => {
+export const CreateOwnedTeamForm = ({ classroomId }: { classroomId: string }) => {
   const navigate = useNavigate();
-  const { mutateAsync, isError, isPending } = useCreateTeamJoinedClassroom(classroomId);
+  const { mutateAsync, isError, isPending } = useCreateTeamOwnedClassroom(classroomId);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
@@ -23,9 +23,7 @@ export const CreateTeamForm = ({ classroomId }: { classroomId: string }) => {
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     await mutateAsync(values);
-    console.log("Created team");
-    console.log(navigate({ to: "/classrooms/joined/$classroomId/", params: { classroomId } }));
-    console.log("navigate away");
+    navigate({ to: "/classrooms/owned/$classroomId", params: { classroomId } });
   }
 
   return (
@@ -57,7 +55,7 @@ export const CreateTeamForm = ({ classroomId }: { classroomId: string }) => {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>The classroom could not be created!</AlertDescription>
+              <AlertDescription>The team could not be created!</AlertDescription>
             </Alert>
           )}
         </form>

@@ -1,6 +1,6 @@
 import { joinedClassroomQueryOptions } from "@/api/classrooms";
 import { joinedClassroomTeamsQueryOptions, useJoinTeam } from "@/api/teams";
-import { CreateTeamForm } from "@/components/createTeamForm";
+import { CreateJoinedTeamForm } from "@/components/createJoinedTeamForm";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
@@ -12,6 +12,7 @@ import { Code } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams/join/")({
   loader: async ({ context, params }) => {
+    const teams = await context.queryClient.ensureQueryData(joinedClassroomTeamsQueryOptions(params.classroomId));
     const joinedClassroom = await context.queryClient.ensureQueryData(joinedClassroomQueryOptions(params.classroomId));
 
     if (joinedClassroom.team) {
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/team
       });
     }
 
-    return { joinedClassroom };
+    return { teams, joinedClassroom };
   },
   component: JoinTeam,
 });
@@ -53,7 +54,7 @@ function JoinTeam() {
             </DialogTrigger>
             <DialogHeader>Create a new Team</DialogHeader>
             <DialogContent>
-              <CreateTeamForm classroomId={classroomId} />
+              <CreateJoinedTeamForm classroomId={classroomId} />
             </DialogContent>
           </Dialog>
         )}
