@@ -99,8 +99,7 @@ func main() {
 			}
 
 			return c.Status(code).JSON(httputil.HTTPError{
-				Error:   err.Error(),
-				Success: false,
+				Error: err.Error(),
 			})
 		},
 	})

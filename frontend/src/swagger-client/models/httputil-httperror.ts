@@ -25,11 +25,4 @@ export interface HttputilHTTPError {
      * @memberof HttputilHTTPError
      */
     error?: string;
-
-    /**
-     * @type {boolean}
-     * @memberof HttputilHTTPError
-     * @example false
-     */
-    success?: boolean;
 }
