@@ -2,6 +2,29 @@ import GitlabLogo from "@/assets/gitlab_logo.svg";
 import ReactLogo from "@/assets/react.svg";
 import { ModeToggle } from "@/components/modeToggle.tsx";
 import { Link } from "@tanstack/react-router";
+import { useCsrf } from "@/provider/csrfProvider.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+
+export const LogoutButton = () => {
+  const { csrfToken } = useCsrf();
+
+  return (
+    <form method="POST" action="/api/v1/auth/sign-out">
+      <input type="hidden" name="csrf_token" value={csrfToken} />
+      <button type="submit" className="text-white font-bold">
+        Log out
+      </button>
+    </form>
+  );
+};
 
 export function Navbar() {
   return (
@@ -29,7 +52,25 @@ export function Navbar() {
         <div className="px-4 py-2">
           <ModeToggle />
         </div>
-        <img className="h-10 mr-2" src={ReactLogo} alt="User Image" />
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <img className="h-10 mr-2" src={ReactLogo} alt="User Image" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>User Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <LogoutButton />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );
