@@ -7,9 +7,11 @@ import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { Loader } from "@/components/loader.tsx";
 import { CsrfProvider } from "@/provider/csrfProvider";
 import { Navbar } from "@/components/navbar.tsx";
+import { User } from "@/types/user";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
+  auth: User | null;
 }>()({
   component: RootComponent,
   loader: ({ context }) => context.queryClient.ensureQueryData(authCsrfQueryOptions),
@@ -29,11 +31,12 @@ const TanStackRouterDevtools =
       );
 
 function RootComponent() {
+  const { auth } = Route.useRouteContext();
   return (
     <CsrfProvider>
       <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
         <div className="w-screen h-screen overflow-scroll">
-          <Navbar />
+          <Navbar auth={auth} />
           <div className="max-w-2xl m-auto">
             <Outlet />
             <ReactQueryDevtools initialIsOpen={false} />
