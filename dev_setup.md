@@ -122,11 +122,12 @@ Run the app directly on your machine and not within docker
 - Docker Compose
 - go
 
-##### Install air for hot reloading of the backend
+##### Install air and other tools for hot reloading of the backend
 
 ```bash
 go install github.com/cosmtrek/air@latest
-go install github.com/vektra/mockery/v3@latest
+go install github.com/vektra/mockery/v2@v2.42.2
+go install github.com/swaggo/swag/cmd/swag@latest
 ```
 
 #### Start the Application via Script

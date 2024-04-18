@@ -17,9 +17,25 @@ For development, we use the git flow branching model for simplicity.
 The Setup for development is documented in the the following file
 [dev_setup.md](dev_setup.md)
 
-#### Code generation
 
-To generate up to date mock files and database code you can use the command `go generate` in projects root dir.
+#### Code Generation
+
+The following file-types in our repo are auto-generated:
+- mocks
+- gorm-gen queries
+- swagger documentation
+- swagger-client
+
+The first three types are generated when running `go generate` which is automatically executed before each build when running the app through air.
+
+To generate the frontend `swagger-client` after some changes to the docs the following script needs to be executed:
+
+```bash
+# Linux / Mac / WSL
+./script/swagger-codegen.sh
+# Windows
+./script/swagger-codegen.ps1
+```
 
 ### Run Staging|Production image locally
 
@@ -31,14 +47,37 @@ docker compose -f docker-compose.dev.yml up --build
 
 And access the application via `http://localhost:3000`
 
-### Postman testing
+### Swagger-UI testing (recommended)
+
+1. Run the app described in [Dev-Setup](dev_setup.md#start-the-application)
+2. Add [Swag](https://github.com/swaggo/swag/?tab=readme-ov-file#api-operation) comments directly above your endpoint
+3. Visit the page `http://localhost:5173/docs.html`
+4. Click on the `Sign-In`-Button on the top-right
+5. Get your csrf-token
+6. Test your endpoints
+7. Refresh page after swag-comments were edited
+
+### Postman testing (not recommended)
 
 1. Login via gitlab in the browser
 2. Copy the session_id cookie from the browser to your postman environment
 3. Copy the csrf_ cookie from the browser to your postman environment
 4. Add the following header to your `POST|PUT|PATCH|DELETE` requests:
     - `X-CSRF-Token: {{csrf_}}`
- 
+
+### Writing Tests
+
+...
+
+To run the test simply exec the following script:
+```bash
+# Linux / Mac / WSL
+./script/test_backend.sh one|air
+./script/test_frontend.sh
+# Windows
+./script/test_backend.ps1 one|air
+./script/test_frontend.ps1
+```
 
 ## Environments
 
