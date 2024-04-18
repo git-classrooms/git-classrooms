@@ -13,9 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Avatar as AvatarRadix } from "@radix-ui/react-avatar";
 import { User } from "@/types/user";
+import { Avatar } from "./avatar";
 
 export function Navbar(props: { auth: User | null }) {
   const { csrfToken } = useCsrf();
@@ -63,15 +62,7 @@ export function Navbar(props: { auth: User | null }) {
         {props.auth ? (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Avatar>
-                <AvatarImage src="Avatar-url" />
-                <AvatarFallback>
-                  <AvatarRadix>
-                    <AvatarImage src={ReactLogo} />
-                    <AvatarFallback>TT</AvatarFallback>
-                  </AvatarRadix>
-                </AvatarFallback>
-              </Avatar>
+              <Avatar avatarUrl="avatarurl" fallbackUrl={ReactLogo} name="Toni Tester" />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>User Account</DropdownMenuLabel>
