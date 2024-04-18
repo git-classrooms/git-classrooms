@@ -31,10 +31,4 @@ export interface DatabaseUserAvatar {
      * @memberof DatabaseUserAvatar
      */
     fallbackAvatarURL?: string;
-
-    /**
-     * @type {number}
-     * @memberof DatabaseUserAvatar
-     */
-    userId?: number;
 }

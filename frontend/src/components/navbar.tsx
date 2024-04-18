@@ -1,5 +1,4 @@
 import GitlabLogo from "@/assets/gitlab_logo.svg";
-import ReactLogo from "@/assets/react.svg";
 import { ModeToggle } from "@/components/modeToggle.tsx";
 import { Link } from "@tanstack/react-router";
 import { useCsrf } from "@/provider/csrfProvider.tsx";
@@ -13,10 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
-import { User } from "@/types/user";
 import { Avatar } from "./avatar";
+import { GetMe } from "@/swagger-client";
 
-export function Navbar(props: { auth: User | null }) {
+export function Navbar(props: { auth: GetMe | null }) {
   const { csrfToken } = useCsrf();
 
   return (
@@ -62,7 +61,11 @@ export function Navbar(props: { auth: User | null }) {
         {props.auth ? (
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Avatar avatarUrl="avatarurl" fallbackUrl={ReactLogo} name="Toni Tester" />
+              <Avatar
+                avatarUrl={props.auth.gitlabAvatar?.avatarURL}
+                fallbackUrl={props.auth.gitlabAvatar?.fallbackAvatarURL}
+                name={props.auth.name!}
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>User Account</DropdownMenuLabel>

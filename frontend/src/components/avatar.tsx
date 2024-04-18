@@ -3,8 +3,8 @@ import { AvatarFallback, AvatarImage, Avatar as AvatarShad } from "@/components/
 import { Avatar as AvatarRadix } from "@radix-ui/react-avatar";
 
 interface AvatarProps {
-  avatarUrl: string;
-  fallbackUrl: string;
+  avatarUrl: string | undefined;
+  fallbackUrl: string | undefined;
   name: string;
 }
 
@@ -20,10 +20,10 @@ export const Avatar: React.FC<AvatarProps> = ({ avatarUrl, fallbackUrl, name }) 
 
   return (
     <AvatarShad>
-      <AvatarImage src={avatarUrl} />
+      <AvatarImage src={avatarUrl ?? ""} />
       <AvatarFallback>
         <AvatarRadix>
-          <AvatarImage src={fallbackUrl} />
+          <AvatarImage src={fallbackUrl ?? ""} />
           <AvatarFallback>{fallbackInitials}</AvatarFallback>
         </AvatarRadix>
       </AvatarFallback>

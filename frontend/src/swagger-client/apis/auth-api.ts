@@ -19,7 +19,7 @@ import { Configuration } from '../configuration';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 import { AuthGetCsrfResponse } from '../models';
-import { DatabaseUser } from '../models';
+import { GetMe } from '../models';
 import { HttputilHTTPError } from '../models';
 /**
  * AuthApi - axios parameter creator
@@ -123,7 +123,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async meGet(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<DatabaseUser>>> {
+        async meGet(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetMe>>> {
             const localVarAxiosArgs = await AuthApiAxiosParamCreator(configuration).meGet(options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -154,7 +154,7 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async meGet(options?: AxiosRequestConfig): Promise<AxiosResponse<DatabaseUser>> {
+        async meGet(options?: AxiosRequestConfig): Promise<AxiosResponse<GetMe>> {
             return AuthApiFp(configuration).meGet(options).then((request) => request(axios, basePath));
         },
     };
@@ -184,7 +184,7 @@ export class AuthApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AuthApi
      */
-    public async meGet(options?: AxiosRequestConfig) : Promise<AxiosResponse<DatabaseUser>> {
+    public async meGet(options?: AxiosRequestConfig) : Promise<AxiosResponse<GetMe>> {
         return AuthApiFp(this.configuration).meGet(options).then((request) => request(this.axios, this.basePath));
     }
 }

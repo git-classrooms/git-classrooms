@@ -7,11 +7,11 @@ import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { Loader } from "@/components/loader.tsx";
 import { CsrfProvider } from "@/provider/csrfProvider";
 import { Navbar } from "@/components/navbar.tsx";
-import { User } from "@/types/user";
+import { GetMe } from "@/swagger-client";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
-  auth: User | null;
+  auth: GetMe | null;
 }>()({
   component: RootComponent,
   loader: ({ context }) => context.queryClient.ensureQueryData(authCsrfQueryOptions),
