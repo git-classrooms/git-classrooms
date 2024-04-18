@@ -18,22 +18,22 @@ func (r createOwnedTeamRequest) isValid() bool {
 	return r.Name != ""
 }
 
-//	@Summary		Create new Team
-//	@Description	Create a new Team for the given classroom for users to join
-//	@Id				CreateOwnedClassroomTeam
-//	@Tags			team
-//	@Accept			json
-//	@Param			classroomId		path	string										true	"Classroom ID"	Format(uuid)
-//	@Param			team			body	default_controller.createOwnedTeamRequest	true	"Classroom Info"
-//	@Param			X-Csrf-Token	header	string										true	"Csrf-Token"
-//	@Success		201
-//	@Header			201	{string}	Location	"/api/v1/classroom/owned/{classroomId}/teams/{teamId}"
-//	@Failure		400	{object}	httputil.HTTPError
-//	@Failure		401	{object}	httputil.HTTPError
-//	@Failure		403	{object}	httputil.HTTPError
-//	@Failure		404	{object}	httputil.HTTPError
-//	@Failure		500	{object}	httputil.HTTPError
-//	@Router			/classrooms/owned/{classroomId}/teams [post]
+// @Summary		Create new Team
+// @Description	Create a new Team for the given classroom for users to join
+// @Id				CreateOwnedClassroomTeam
+// @Tags			team
+// @Accept			json
+// @Param			classroomId		path	string										true	"Classroom ID"	Format(uuid)
+// @Param			team			body	default_controller.createOwnedTeamRequest	true	"Classroom Info"
+// @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
+// @Success		201
+// @Header			201	{string}	Location	"/api/v1/classroom/owned/{classroomId}/teams/{teamId}"
+// @Failure		400	{object}	httputil.HTTPError
+// @Failure		401	{object}	httputil.HTTPError
+// @Failure		403	{object}	httputil.HTTPError
+// @Failure		404	{object}	httputil.HTTPError
+// @Failure		500	{object}	httputil.HTTPError
+// @Router			/classrooms/owned/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateOwnedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

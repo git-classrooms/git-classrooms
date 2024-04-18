@@ -9,19 +9,19 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-//	@Summary		Get all teams of the current classroom
-//	@Description	Get all teams of the current classroom
-//	@Id				GetOwnedClassroomTeams
-//	@Id				getOwnedClassroomTeams
-//	@Tags			team
-//	@Produce		json
-//	@Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
-//	@Success		200			{array}		default_controller.getOwnedClassroomTeamResponse
-//	@Failure		400			{object}	httputil.HTTPError
-//	@Failure		401			{object}	httputil.HTTPError
-//	@Failure		404			{object}	httputil.HTTPError
-//	@Failure		500			{object}	httputil.HTTPError
-//	@Router			/classrooms/owned/{classroomId}/teams [get]
+// @Summary		Get all teams of the current classroom
+// @Description	Get all teams of the current classroom
+// @Id				GetOwnedClassroomTeams
+// @Id				getOwnedClassroomTeams
+// @Tags			team
+// @Produce		json
+// @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
+// @Success		200			{array}		default_controller.getOwnedClassroomTeamResponse
+// @Failure		400			{object}	httputil.HTTPError
+// @Failure		401			{object}	httputil.HTTPError
+// @Failure		404			{object}	httputil.HTTPError
+// @Failure		500			{object}	httputil.HTTPError
+// @Router			/classrooms/owned/{classroomId}/teams [get]
 func (ctrl *DefaultController) GetOwnedClassroomTeams(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

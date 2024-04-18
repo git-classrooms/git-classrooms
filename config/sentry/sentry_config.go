@@ -14,7 +14,6 @@ func (c *SentryConfig) IsEnabled() bool {
 	return c.Enabled
 }
 
-func (c *SentryConfig) GetEnv() string{
+func (c *SentryConfig) GetEnv() string {
 	return c.Env
 }
-

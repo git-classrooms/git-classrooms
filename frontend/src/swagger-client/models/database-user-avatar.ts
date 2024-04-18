@@ -12,36 +12,29 @@
  * Do not edit the class manually.
  */
 
-import { DatabaseUserAvatar } from './database-user-avatar';
  /**
  * 
  *
  * @export
- * @interface DatabaseUser
+ * @interface DatabaseUserAvatar
  */
-export interface DatabaseUser {
-
-    /**
-     * @type {DatabaseUserAvatar}
-     * @memberof DatabaseUser
-     */
-    gitlabAvatar?: DatabaseUserAvatar;
+export interface DatabaseUserAvatar {
 
     /**
      * @type {string}
-     * @memberof DatabaseUser
+     * @memberof DatabaseUserAvatar
      */
-    gitlabEmail?: string;
+    avatarURL?: string;
+
+    /**
+     * @type {string}
+     * @memberof DatabaseUserAvatar
+     */
+    fallbackAvatarURL?: string;
 
     /**
      * @type {number}
-     * @memberof DatabaseUser
+     * @memberof DatabaseUserAvatar
      */
-    id?: number;
-
-    /**
-     * @type {string}
-     * @memberof DatabaseUser
-     */
-    name?: string;
+    userId?: number;
 }

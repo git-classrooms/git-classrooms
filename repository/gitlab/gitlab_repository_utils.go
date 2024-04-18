@@ -41,7 +41,7 @@ func ProjectFromGoGitlabWithProjectMembers(gitlabProject goGitlab.Project, gitla
 		WebUrl:      gitlabProject.WebURL,
 		Description: gitlabProject.Description,
 		Owner:       owner,
-		Members:      members,
+		Members:     members,
 	}
 }
 
@@ -63,7 +63,7 @@ func ProjectFromGoGitlabWithGroupMembers(gitlabProject goGitlab.Project, gitlabM
 		WebUrl:      gitlabProject.WebURL,
 		Description: gitlabProject.Description,
 		Owner:       owner,
-		Members:      members,
+		Members:     members,
 	}
 }
 
