@@ -267,6 +267,36 @@ func TestGoGitlabRepo(t *testing.T) {
 		assertContainProject(t, model.Project{ID: 3, Name: "IntegrationTestsProject3", WebUrl: "https://hs-flensburg.dev/integrationstestgroup11/integrationtestsproject3", Description: ""}, Group.Projects)
 	})
 
+	t.Run("ChangeGroupName", func(t *testing.T) {
+		originName := "IntegrationsTestGroup_Edit"
+		newName := originName + "_New"
+
+		group, err := repo.ChangeGroupName(228, newName)
+
+		assert.NoError(t, err)
+		assert.Equal(t, newName, group.Name)
+
+		defer func() {
+			_, err = repo.ChangeGroupName(228, originName)
+			assert.NoError(t, err)
+		}()
+	})
+
+	t.Run("ChangeGroupDescription", func(t *testing.T) {
+		descriptionA := "DescriptionA"
+		descriptionB := "DescriptionB"
+
+		group, err := repo.ChangeGroupDescription(228, descriptionA)
+
+		assert.NoError(t, err)
+		assert.Equal(t, descriptionA, group.Description)
+
+		defer func() {
+			_, err = repo.ChangeGroupDescription(228, descriptionB)
+			assert.NoError(t, err)
+		}()
+	})
+
 	t.Run("GetAllUsers", func(t *testing.T) {
 		users, err := repo.GetAllUsers()
 
@@ -430,38 +460,6 @@ func TestGoGitlabRepo(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, "integrationstestgroup11", *namespace)
-	})
-
-	t.Run("ChangeGroupName", func(t *testing.T) {
-		originName := "IntegrationsTestGroup1"
-		newName := originName + "_New"
-
-		group, err := repo.ChangeGroupName(15, newName)
-
-		assert.NoError(t, err)
-		assert.Equal(t, newName, group.Name)
-
-		// Revert the name back to the original
-		if err != nil {
-			_, err = repo.ChangeGroupName(15, originName)
-			assert.NoError(t, err)
-		}
-	})
-
-	t.Run("ChangeGroupDescription", func(t *testing.T) {
-		descriptionA := "DescriptionA"
-		descriptionB := "DescriptionB"
-
-		group, err := repo.ChangeGroupDescription(15, descriptionA)
-
-		assert.NoError(t, err)
-		assert.Equal(t, descriptionA, group.Description)
-
-		// prepare different description for next execution
-		if err != nil {
-			_, err = repo.ChangeGroupDescription(15, descriptionB)
-			assert.NoError(t, err)
-		}
 	})
 
 	/*
