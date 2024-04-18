@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/team
 
     if (joinedClassroom.team) {
       throw redirect({
-        to: "/classrooms/joined/$classroomId/",
+        to: "/classrooms/joined/$classroomId",
         params,
         replace: true,
       });
@@ -39,7 +39,7 @@ function JoinTeam() {
   const joinTeam = async (teamId: string) => {
     await mutateAsync(teamId);
     await navigate({
-      to: "/classrooms/joined/$classroomId/",
+      to: "/classrooms/joined/$classroomId",
       params: { classroomId },
     });
   };
