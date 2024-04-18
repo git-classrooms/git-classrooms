@@ -185,48 +185,4 @@ func TestPutOwnedClassroom(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	})
-
-	t.Run("database rejects update and throws error", func(t *testing.T) {
-		// TODO: No option found to let the query reject the update / throw an errror
-		/*
-			requestBody := UpdateClassroomRequest{
-				Name:        classroom.Name + "_New",
-				Description: classroom.Name + "_new",
-			}
-
-			gitlabRepo.
-				EXPECT().
-				ChangeGroupName(
-					classroom.GroupID,
-					requestBody.Name,
-				).
-				Return(
-					&model.Group{
-						Name: requestBody.Name,
-					},
-					nil,
-				).
-				Times(1)
-
-			gitlabRepo.
-				EXPECT().
-				ChangeGroupDescription(
-					classroom.GroupID,
-					requestBody.Description,
-				).
-				Return(
-					&model.Group{
-						Description: requestBody.Description,
-					},
-					nil,
-				).
-				Times(1)
-
-			req := newPutJsonRequest(targetRoute, requestBody)
-			resp, err := app.Test(req)
-
-			assert.NoError(t, err)
-			assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
-		*/
-	})
 }
