@@ -1,7 +1,6 @@
 package default_controller
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -10,8 +9,8 @@ import (
 
 type getMeResponse struct {
 	*database.User
-	GitlabWebURL string
-}
+	GitlabWebURL string `json:"gitlabWeburl"`
+} //@Name GetMe
 
 // @Summary		Show your user account
 // @Description	Get your user account
@@ -34,7 +33,7 @@ func (ctrl *DefaultController) GetMe(c *fiber.Ctx) error {
 
 	response := getMeResponse{
 		User:         user,
-		GitlabWebURL: fmt.Sprintf("/api/v1/me/gitlab"),
+		GitlabWebURL: "/api/v1/me/gitlab",
 	}
 	return c.JSON(response)
 }

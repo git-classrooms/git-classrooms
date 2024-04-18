@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import GitlabLogo from "./../assets/gitlab_logo.svg";
 import { Button } from "@/components/ui/button";
-import { isAuthenticated } from "@/lib/utils";
 import { useCsrf } from "@/provider/csrfProvider";
 
 export const Route = createFileRoute("/login")({
@@ -10,8 +9,8 @@ export const Route = createFileRoute("/login")({
       redirect: (search.redirect as string) || "",
     };
   },
-  beforeLoad: async () => {
-    if (await isAuthenticated()) {
+  beforeLoad: async ({ context }) => {
+    if (context.auth) {
       throw redirect({
         to: "/classrooms",
       });

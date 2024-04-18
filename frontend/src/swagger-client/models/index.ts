@@ -12,5 +12,6 @@ export * from './default-controller-create-owned-team-request';
 export * from './default-controller-get-owned-classroom-response';
 export * from './default-controller-get-owned-classroom-team-project-response';
 export * from './default-controller-get-owned-classroom-team-response';
+export * from './get-me';
 export * from './httputil-httperror';
 export * from './team';

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createRouteMask, createRouter } from "@tanstack/react-router";
@@ -33,6 +33,8 @@ const queryClient = new QueryClient();
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
+import { useAuth } from "./api/auth";
+import { Loader } from "./components/loader";
 
 const classroomCreateModalToClassroomCreateMask = createRouteMask({
   routeTree,
@@ -67,6 +69,7 @@ const router = createRouter({
   routeTree,
   context: {
     queryClient,
+    auth: undefined!,
   },
   routeMasks: [
     classroomCreateModalToClassroomCreateMask,
@@ -88,10 +91,21 @@ declare module "@tanstack/react-router" {
   }
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  </React.StrictMode>,
-);
+function InnerApp() {
+  const { data: auth } = useAuth();
+  return <RouterProvider router={router} context={{ auth }} />;
+}
+
+function App() {
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={<Loader />}>
+          <InnerApp />
+        </Suspense>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
