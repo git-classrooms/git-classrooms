@@ -143,6 +143,29 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 	return GroupFromGoGitlab(*gitlabGroup), nil
 }
 
+func (repo *GitlabRepo) CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error) {
+	repo.assertIsConnected()
+
+	gitlabVisibility := VisibilityFromModel(visibility)
+
+	path := convertToGitLabPath(strings.ToLower(name))
+
+	createOpts := &goGitlab.CreateGroupOptions{
+		Name:        goGitlab.String(name),
+		Path:        goGitlab.String(path),
+		Description: goGitlab.String(description),
+		Visibility:  &gitlabVisibility,
+		ParentID:    goGitlab.Int(parentId),
+	}
+
+	gitlabGroup, _, err := repo.client.Groups.CreateGroup(createOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return GroupFromGoGitlab(*gitlabGroup), nil
+}
+
 func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) {
 	repo.assertIsConnected()
 

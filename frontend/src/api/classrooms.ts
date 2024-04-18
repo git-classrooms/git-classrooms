@@ -1,6 +1,5 @@
 import { apiClient } from "@/lib/utils";
-import { ClassroomForm, ClassroomInvitation, InviteForm, JoinedClassroom, OwnedClassroom } from "@/types/classroom";
-import { User } from "@/types/user";
+import { ClassroomForm, ClassroomInvitation, InviteForm, UserClassroom, OwnedClassroom } from "@/types/classroom";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
@@ -16,10 +15,19 @@ export const ownedClassroomsQueryOptions = queryOptions({
 export const joinedClassroomsQueryOptions = queryOptions({
   queryKey: ["joinedClassrooms"],
   queryFn: async () => {
-    const res = await apiClient.get<JoinedClassroom[]>("/classrooms/joined");
+    const res = await apiClient.get<UserClassroom[]>("/classrooms/joined");
     return res.data;
   },
 });
+
+export const joinedClassroomQueryOptions = (classroomId: string) =>
+  queryOptions({
+    queryKey: ["joinedClassrooms", classroomId],
+    queryFn: async () => {
+      const res = await apiClient.get<UserClassroom>(`/classrooms/joined/${classroomId}`);
+      return res.data;
+    },
+  });
 
 export const ownedClassroomQueryOptions = (classroomId: string) =>
   queryOptions({
@@ -34,7 +42,7 @@ export const ownedClassroomMemberQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "members"],
     queryFn: async () => {
-      const res = await apiClient.get<User[]>(`/classrooms/owned/${classroomId}/members`);
+      const res = await apiClient.get<UserClassroom[]>(`/classrooms/owned/${classroomId}/members`);
       return res.data;
     },
   });
@@ -90,7 +98,7 @@ export const useJoinClassroom = (invitationId: string) => {
   return useMutation({
     mutationFn: async () => {
       const res = await apiClient.post<void>("/classrooms/joined", { invitationId });
-      return res.data;
+      return res.headers.location as string;
     },
     onSettled: () => {
       queryClient.invalidateQueries(authCsrfQueryOptions);

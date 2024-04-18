@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/oauth2"
@@ -12,7 +13,7 @@ import (
 
 func TestClassroomSession_GetGitlabOauth2Token(t *testing.T) {
 	// Mock a fiber context
-	InitSessionStore("")
+	store = session.New()
 	app := fiber.New()
 	req := new(fasthttp.RequestCtx)
 	ctx := app.AcquireCtx(req)

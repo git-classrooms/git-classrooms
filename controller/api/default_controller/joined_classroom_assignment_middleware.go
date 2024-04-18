@@ -13,7 +13,8 @@ func joinedClassroomAssignmentQuery(classroomId uuid.UUID, c *fiber.Ctx) query.I
 	return queryAssignmentProjects.
 		WithContext(c.Context()).
 		Preload(queryAssignmentProjects.Assignment).
-		Preload(queryAssignmentProjects.User).
+		Preload(queryAssignmentProjects.Team).
+		Preload(queryAssignmentProjects.Team.Member).
 		Join(queryAssignment, queryAssignment.ID.EqCol(queryAssignmentProjects.AssignmentID)).
 		Where(queryAssignment.ClassroomID.Eq(classroomId))
 }

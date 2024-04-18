@@ -12,6 +12,7 @@ func joinedClassroomQuery(userID int, c *fiber.Ctx) query.IUserClassroomsDo {
 	return queryUserClassrooms.
 		WithContext(c.Context()).
 		Preload(queryUserClassrooms.Classroom).
+		Preload(queryUserClassrooms.Team).
 		Preload(field.NewRelation("Classroom.Owner", "")).
 		Where(queryUserClassrooms.UserID.Eq(userID))
 }
@@ -29,6 +30,7 @@ func (ctrl *DefaultController) JoinedClassroomMiddleware(c *fiber.Ctx) error {
 	queryUserClassrooms := query.UserClassrooms
 	classroom, err := joinedClassroomQuery(userID, c).
 		Preload(queryUserClassrooms.Classroom).
+		Preload(queryUserClassrooms.Team).
 		Where(queryUserClassrooms.ClassroomID.Eq(param.ClassroomID)).
 		First()
 	if err != nil {

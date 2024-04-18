@@ -5,6 +5,18 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+// @Summary		Get all Projects of current team
+// @Description	Get all gitlab projects of the current team
+// @Tags			classroom
+// @Accept			json
+// @Param			classroomId	path	string	true	"Classroom ID"	Format(uuid)
+// @Success		302
+// @Header			302	{string}	Location	"<Gitlab Group url>"
+// @Failure		400	{object}	httputil.HTTPError
+// @Failure		401	{object}	httputil.HTTPError
+// @Failure		404	{object}	httputil.HTTPError
+// @Failure		500	{object}	httputil.HTTPError
+// @Router			/classrooms/owned/{classroomId}/gitlab [get]
 func (ctrl *DefaultController) GetOwnedClassroomGitlab(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

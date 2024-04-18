@@ -14,8 +14,12 @@ const (
 	ownedClassroomKey                  contextKey = "owned-classroom"
 	ownedClassroomAssignmentKey        contextKey = "owned-classroom-assignment"
 	ownedClassroomAssignmentProjectKey contextKey = "owned-classroom-assignment-project"
+	ownedClassroomMemberKey            contextKey = "owned-classroom-member"
+	ownedClassroomTeamKey              contextKey = "owned-classroom-team"
+	ownedClassroomTeamMemberKey        contextKey = "owned-classroom-team-member"
 	joinedClassroomKey                 contextKey = "joined-classroom"
 	joinedClassroomAssignmentKey       contextKey = "joined-classroom-assignment"
+	joinedClassroomTeamKey             contextKey = "joined-classroom-team"
 )
 
 type FiberContext struct {
@@ -84,4 +88,36 @@ func (c *FiberContext) GetJoinedClassroomAssignment() *database.AssignmentProjec
 
 func (c *FiberContext) SetJoinedClassroomAssignment(assignment *database.AssignmentProjects) {
 	c.Locals(joinedClassroomAssignmentKey, assignment)
+}
+
+func (c *FiberContext) GetJoinedClassroomTeam() *database.Team {
+	return c.Locals(joinedClassroomTeamKey).(*database.Team)
+}
+
+func (c *FiberContext) SetJoinedClassroomTeam(team *database.Team) {
+	c.Locals(joinedClassroomTeamKey, team)
+}
+
+func (c *FiberContext) GetOwnedClassroomMember() *database.UserClassrooms {
+	return c.Locals(ownedClassroomMemberKey).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) SetOwnedClassroomMember(member *database.UserClassrooms) {
+	c.Locals(ownedClassroomMemberKey, member)
+}
+
+func (c *FiberContext) GetOwnedClassroomTeam() *database.Team {
+	return c.Locals(ownedClassroomTeamKey).(*database.Team)
+}
+
+func (c *FiberContext) SetOwnedClassroomTeam(team *database.Team) {
+	c.Locals(ownedClassroomTeamKey, team)
+}
+
+func (c *FiberContext) GetOwnedClassroomTeamMember() *database.UserClassrooms {
+	return c.Locals(ownedClassroomTeamMemberKey).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) SetOwnedClassroomTeamMember(member *database.UserClassrooms) {
+	c.Locals(ownedClassroomTeamMemberKey, member)
 }

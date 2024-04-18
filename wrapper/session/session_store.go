@@ -4,10 +4,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gofiber/storage/postgres"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/fiber/v2/utils"
+	"github.com/gofiber/storage/memory"
 	"golang.org/x/oauth2"
 )
 
@@ -25,18 +28,26 @@ var store *session.Store
 var CsrfConfig csrf.Config
 var once sync.Once
 
-func InitSessionStore(dsn string) {
+func InitSessionStore(dsn *string) {
 	once.Do(func() {
+		var storage fiber.Storage
+		if dsn == nil {
+			storage = memory.New()
+		} else {
+			storage = postgres.New(postgres.Config{
+				SslMode:       "disable",
+				ConnectionURI: *dsn,
+				Table:         "fiber_storage",
+				Reset:         false,
+				GCInterval:    10 * time.Second,
+			})
+		}
+
 		store = session.New(session.Config{
 			Expiration:     time.Hour * 24 * 7,
 			CookieHTTPOnly: true,
 			CookieSecure:   true,
-			//Storage: postgres.New(postgres.Config{
-			//	ConnectionURI: dsn,
-			//	Table:         "fiber_storage",
-			//	Reset:         false,
-			//	GCInterval:    10 * time.Second,
-			//}),
+			Storage:        storage,
 		})
 
 		// Wir können typen registrieren, die in der Session gespeichert werden sollen
@@ -56,7 +67,8 @@ func InitSessionStore(dsn string) {
 			CookieHTTPOnly:    true,
 			Expiration:        1 * time.Hour,
 			KeyGenerator:      utils.UUIDv4,
-			SingleUseToken:    true,
+			// TODO: Discuss if we reactivate this in the future
+			// SingleUseToken:    true,
 			ErrorHandler: func(c *fiber.Ctx, err error) error {
 				return fiber.NewError(fiber.StatusForbidden, err.Error())
 			},

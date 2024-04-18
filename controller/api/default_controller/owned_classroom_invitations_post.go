@@ -2,14 +2,15 @@ package default_controller
 
 import (
 	"fmt"
+	"log"
+	"net/mail"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"log"
-	"net/mail"
-	"time"
 )
 
 type inviteToClassroomRequest struct {
@@ -94,7 +95,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	for i, email := range invitableEmails {
 		log.Println("Sending invitation to", email.Address)
 
-		invitePath := fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ID.String(), invitations[i].ID.String())
+		invitePath := fmt.Sprintf("/classrooms/joined/%s/invitations/%s", classroom.ID.String(), invitations[i].ID.String())
 		err = ctrl.mailRepo.SendClassroomInvitation(email.Address,
 			fmt.Sprintf(`New Invitation for Classroom "%s"`,
 				classroom.Name),

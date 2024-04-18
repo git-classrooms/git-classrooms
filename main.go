@@ -1,4 +1,4 @@
-//go:generate go run ./code_gen/gorm_gen.go
+//go:generate go run ./code_gen/gorm/main.go
 //go:generate swag fmt --exclude frontend
 //go:generate swag init --exclude frontend
 //go:generate mockery
@@ -76,7 +76,7 @@ func main() {
 		log.Fatal("failed to connect database", err)
 	}
 
-	session.InitSessionStore(appConfig.Database.Dsn())
+	session.InitSessionStore(utils.Ptr(appConfig.Database.Dsn()))
 
 	err = utils.MigrateDatabase(db)
 	if err != nil {
@@ -99,8 +99,7 @@ func main() {
 			}
 
 			return c.Status(code).JSON(httputil.HTTPError{
-				Error:   err.Error(),
-				Success: false,
+				Error: err.Error(),
 			})
 		},
 	})
