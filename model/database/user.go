@@ -11,6 +11,7 @@ import (
 type User struct {
 	ID              int               `gorm:"primary_key;autoIncrement:false" json:"id"`
 	GitlabEmail     string            `gorm:"unique;not null" json:"gitlabEmail"`
+	GitLabAvatar    UserAvatar        `json:"gitlabAvatar"`
 	Name            string            `gorm:"not null" json:"name"`
 	CreatedAt       time.Time         `json:"-"`
 	UpdatedAt       time.Time         `json:"-"`

@@ -114,6 +114,15 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
 
+	ua := query.UserAvatar
+	_, err = ua.WithContext(c.Context()).
+		Where(ua.UserID.Eq(user.ID)).
+		Assign(field.Attrs(&database.UserAvatar{
+			UserID:            user.ID,
+			AvatarURL:         gitlabUser.Avatar.AvatarURL,
+			FallbackAvatarURL: gitlabUser.Avatar.FallbackAvatarURL,
+		})).FirstOrCreate()
+
 	s := session.Get(c)
 
 	// Save GitLab session in local user session

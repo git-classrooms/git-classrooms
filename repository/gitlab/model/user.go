@@ -6,4 +6,10 @@ type User struct {
 	Name     string
 	WebUrl   string
 	Email    string
+	Avatar   UserAvatar
+}
+
+type UserAvatar struct {
+	AvatarURL         *string
+	FallbackAvatarURL *string
 }

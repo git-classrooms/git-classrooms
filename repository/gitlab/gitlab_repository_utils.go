@@ -41,7 +41,7 @@ func ProjectFromGoGitlabWithProjectMembers(gitlabProject goGitlab.Project, gitla
 		WebUrl:      gitlabProject.WebURL,
 		Description: gitlabProject.Description,
 		Owner:       owner,
-		Members:      members,
+		Members:     members,
 	}
 }
 
@@ -63,7 +63,7 @@ func ProjectFromGoGitlabWithGroupMembers(gitlabProject goGitlab.Project, gitlabM
 		WebUrl:      gitlabProject.WebURL,
 		Description: gitlabProject.Description,
 		Owner:       owner,
-		Members:      members,
+		Members:     members,
 	}
 }
 
@@ -144,6 +144,7 @@ func UserFromGoGitlab(input goGitlab.User) *model.User {
 		Name:     input.Name,
 		WebUrl:   input.WebURL,
 		Email:    input.Email,
+		Avatar:   model.UserAvatar{AvatarURL: &input.AvatarURL},
 	}
 }
 

@@ -54,7 +54,9 @@ func (repo *GitlabRepo) GetCurrentUser() (*model.User, error) {
 		return nil, err
 	}
 
-	return UserFromGoGitlab(*gitlabUser), nil
+	classroomUser := UserFromGoGitlab(*gitlabUser)
+	classroomUser.Avatar.FallbackAvatarURL, _ = repo.GetPublicAvatarByMail(classroomUser.Email)
+	return classroomUser, nil
 }
 
 func (repo *GitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
@@ -269,6 +271,21 @@ func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) 
 	}
 
 	return repo.convertGitlabProjects(gitlabProjects)
+}
+
+func (repo *GitlabRepo) GetPublicAvatarByMail(mail string) (url *string, err error) {
+	repo.assertIsConnected()
+
+	avatar, response, err := repo.client.Avatar.GetAvatar(&goGitlab.GetAvatarOptions{Email: &mail})
+	if err != nil {
+		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		return nil, fmt.Errorf("avatar is not available, status code: %d", response.StatusCode)
+	}
+
+	return &avatar.AvatarURL, nil
 }
 
 func (repo *GitlabRepo) GetProjectById(id int) (*model.Project, error) {

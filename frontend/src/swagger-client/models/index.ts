@@ -3,6 +3,7 @@ export * from './database-classroom';
 export * from './database-role';
 export * from './database-team';
 export * from './database-user';
+export * from './database-user-avatar';
 export * from './database-user-classrooms';
 export * from './default-controller-change-owned-classroom-member-request';
 export * from './default-controller-create-classroom-request';
