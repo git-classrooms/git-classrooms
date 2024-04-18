@@ -159,3 +159,7 @@ run:
     - internal/renameio # extracted from Go code
     - internal/robustio # extracted from Go code
 
+output:
+  formats:
+    - format: colored-line-number
+      path: stderr
