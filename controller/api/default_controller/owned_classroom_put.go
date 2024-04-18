@@ -12,14 +12,14 @@ type UpdateClassroomRequest struct {
 }
 
 func (r UpdateClassroomRequest) isValid() bool {
-	return r.Name != "" || r.Description != ""
+	return r.Name != "" && r.Description != ""
 }
 
-func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) error {
+func (ctrl *DefaultController) PutOwnedClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()
-	oldClassroom := *classroom
-	classroomQuery := query.Classroom
+	oldName := classroom.Name
+	oldDescription := classroom.Description
 
 	repo := ctx.GetGitlabRepository()
 
@@ -30,20 +30,19 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) error {
 	}
 
 	if !requestBody.isValid() {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+		return fiber.NewError(fiber.StatusBadRequest, "request requires name and description")
 	}
 
-	if requestBody.Name != "" {
+	if requestBody.Name != oldName {
 		group, err := repo.ChangeGroupName(classroom.GroupID, requestBody.Name)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
 		classroom.Name = group.Name
-
 	}
 
-	if requestBody.Description != "" {
+	if requestBody.Description != oldDescription {
 		group, err := repo.ChangeGroupDescription(classroom.GroupID, requestBody.Description)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
@@ -52,24 +51,21 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) error {
 		classroom.Description = group.Description
 	}
 
-	if requestBody.Name != "" || requestBody.Description != "" {
-		info, err := classroomQuery.WithContext(c.Context()).Updates(classroom)
-		if err != nil || info.Error != nil {
-			if requestBody.Name != "" {
-				_, newErr := repo.ChangeGroupName(oldClassroom.GroupID, oldClassroom.Name)
-				if newErr != nil {
-					return fiber.NewError(fiber.StatusInternalServerError, newErr.Error())
-				}
+	err = query.Q.Transaction(func(tx *query.Query) error {
+		defer func() {
+			if recover() != nil || err != nil {
+				repo.ChangeGroupName(classroom.GroupID, oldName)
+				repo.ChangeGroupDescription(classroom.GroupID, oldDescription)
 			}
-			if requestBody.Description != "" {
-				_, newErr := repo.ChangeGroupDescription(oldClassroom.GroupID, oldClassroom.Description)
-				if newErr != nil {
-					return fiber.NewError(fiber.StatusInternalServerError, newErr.Error())
-				}
-			}
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
+		}()
+
+		_, err := query.Classroom.WithContext(c.Context()).Updates(classroom)
+		return err
+	})
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	c.SendStatus(fiber.StatusAccepted)
 	return c.JSON(classroom)
 }

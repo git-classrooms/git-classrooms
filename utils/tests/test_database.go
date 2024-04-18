@@ -1,56 +1,55 @@
-package utils
+package tests
 
 import (
 	"context"
 	"testing"
 
-	databaseConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type TestDB struct {
-	db *gorm.DB
-	t  *testing.T
+	db    *gorm.DB
+	t     *testing.T
+	dbUrl string
 }
 
 func NewTestDB(t *testing.T) *TestDB {
 	db := TestDB{t: t}
 
 	db.Setup()
+
 	query.SetDefault(db.db)
+	session.InitSessionStore(db.dbUrl)
 
 	return &db
 }
 
 func (testDb *TestDB) Setup() {
 	testDb.t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pq, err := tests.StartPostgres()
+	pq, err := StartPostgres()
 	if err != nil {
 		testDb.t.Fatalf("could not start database container: %s", err.Error())
 	}
 	testDb.t.Cleanup(func() {
 		pq.Terminate(context.Background())
 	})
-	port, err := pq.MappedPort(context.Background(), "5432")
+
+	testDb.dbUrl, err = pq.ConnectionString(context.Background())
 	if err != nil {
-		testDb.t.Fatalf("could not get database container port: %s", err.Error())
+		testDb.t.Fatalf("could not get database connection string: %s", err.Error())
 	}
-	dbConfig := databaseConfig.PsqlConfig{
-		Host:     "0.0.0.0",
-		Port:     port.Int(),
-		Username: "postgres",
-		Password: "postgres",
-		Database: "postgres",
-	}
-	testDb.db, err = gorm.Open(postgres.Open(dbConfig.Dsn()), &gorm.Config{})
+
+	testDb.db, err = gorm.Open(postgres.Open(testDb.dbUrl), &gorm.Config{})
 	if err != nil {
 		testDb.t.Fatalf("could not connect to database: %s", err.Error())
 	}
-	err = MigrateDatabase(testDb.db)
+
+	err = utils.MigrateDatabase(testDb.db)
 	if err != nil {
 		testDb.t.Fatalf("could not migrate database: %s", err.Error())
 	}
