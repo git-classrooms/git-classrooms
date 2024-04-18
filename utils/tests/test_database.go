@@ -36,7 +36,10 @@ func (testDb *TestDB) Setup() {
 		testDb.t.Fatalf("could not start database container: %s", err.Error())
 	}
 	testDb.t.Cleanup(func() {
-		pq.Terminate(context.Background())
+		err = pq.Restore(context.Background())
+		if err != nil {
+			testDb.t.Fatal(err)
+		}
 	})
 
 	testDb.dbUrl, err = pq.ConnectionString(context.Background())
