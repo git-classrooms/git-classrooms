@@ -4,6 +4,7 @@ import "github.com/gofiber/fiber/v2"
 
 type Controller interface {
 	GetMe(*fiber.Ctx) error
+	GetMeGitlab(*fiber.Ctx) error
 
 	GetOwnedClassrooms(*fiber.Ctx) error
 	OwnedClassroomMiddleware(*fiber.Ctx) error
