@@ -1,8 +1,9 @@
 package gitlab
 
 import (
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"time"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 
 	goGitlab "github.com/xanzy/go-gitlab"
 )
@@ -64,6 +65,15 @@ func ProjectFromGoGitlabWithGroupMembers(gitlabProject goGitlab.Project, gitlabM
 		Description: gitlabProject.Description,
 		Owner:       owner,
 		Members:     members,
+	}
+}
+
+func BranchFromGoGitlab(input *goGitlab.Branch) *model.Branch {
+	return &model.Branch{
+		Name:      input.Name,
+		Protected: input.Protected,
+		Default:   input.Default,
+		WebURL:    input.WebURL,
 	}
 }
 

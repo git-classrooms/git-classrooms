@@ -96,6 +96,60 @@ func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, 
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+func (repo *GitlabRepo) CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error) {
+	repo.assertIsConnected()
+
+	opts := &goGitlab.CreateBranchOptions{
+		Branch: goGitlab.String(branchName),
+		Ref:    goGitlab.String(fromBranch),
+	}
+
+	branch, _, err := repo.client.Branches.CreateBranch(projectId, opts)
+	if err != nil {
+		return nil, err
+	}
+	return BranchFromGoGitlab(branch), nil
+}
+
+func (repo *GitlabRepo) ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error {
+	repo.assertIsConnected()
+
+	opts := &goGitlab.ProtectRepositoryBranchesOptions{
+		Name:             goGitlab.String(branchName),
+		AllowForcePush:   goGitlab.Bool(false),
+		PushAccessLevel:  goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
+		MergeAccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
+	}
+
+	_, _, err := repo.client.ProtectedBranches.ProtectRepositoryBranches(projectId, opts)
+	return err
+}
+
+func (repo *GitlabRepo) UnprotectBranch(projectId int, branchName string) error {
+	repo.assertIsConnected()
+
+	_, err := repo.client.ProtectedBranches.UnprotectRepositoryBranches(projectId, branchName)
+	return err
+}
+
+func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error {
+	repo.assertIsConnected()
+
+	reviewers := []int{recviewerId}
+
+	opts := &goGitlab.CreateMergeRequestOptions{
+		Title:        goGitlab.String(title),
+		SourceBranch: goGitlab.String(sourceBranch),
+		TargetBranch: goGitlab.String(targetBranch),
+		Description:  goGitlab.String(description),
+		AssigneeID:   goGitlab.Int(assigneeId),
+		ReviewerIDs:  &reviewers,
+	}
+
+	_, _, err := repo.client.MergeRequests.CreateMergeRequest(projectId, opts)
+	return err
+}
+
 func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
