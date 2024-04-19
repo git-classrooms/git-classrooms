@@ -27,8 +27,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assignments/create")({
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(ownedTemplateProjectQueryOptions(params.classroomId)),
+  loader: async ({ context, params }) => {
+    const templateProjects = await context.queryClient.ensureQueryData(
+      ownedTemplateProjectQueryOptions(params.classroomId),
+    );
+    return { templateProjects };
+  },
   component: CreateAssignment,
   pendingComponent: Loader,
 });
