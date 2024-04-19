@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/getsentry/sentry-go v0.27.0
 	github.com/gofiber/storage/memory v1.3.4
 	github.com/gofiber/storage/postgres v1.3.4
