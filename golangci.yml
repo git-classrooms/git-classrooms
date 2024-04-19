@@ -1,0 +1,33 @@
+run:
+  timeout: 5m
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - dogsled
+    - gci
+    - gocritic
+    - goimports
+    - goprintffuncname
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - rowserrcheck
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+
+linters-settings:
+  goimports:
+    local-prefixes: gitlab.hs-flensburg.de/gitlab-classroom
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(gitlab.hs-flensburg.de/gitlab-classroom)

@@ -67,7 +67,7 @@ lint-frontend:
     - if: $CI_COMMIT_BRANCH
 
 lint-backend:
-  image: golangci/golangci-lint:v1.57-alpine
+  image: golangci/golangci-lint:v1.57.2-alpine
   stage: lint
   before_script:
     # - apk add --no-cache gcc musl-dev
