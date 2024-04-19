@@ -37,6 +37,12 @@ export interface GetMe {
      * @type {string}
      * @memberof GetMe
      */
+    gitlabUsername?: string;
+
+    /**
+     * @type {string}
+     * @memberof GetMe
+     */
     gitlabWeburl?: string;
 
     /**
