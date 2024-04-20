@@ -2,23 +2,25 @@ import { ownedClassroomMemberQueryOptions, ownedClassroomQueryOptions } from "@/
 import { Header } from "@/components/header";
 import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Assignment } from "@/types/assignments";
-import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
 import { formatDate } from "@/lib/utils.ts";
-import { useMemo } from "react";
 import { ownedClassroomTeamsQueryOptions } from "@/api/teams";
 import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
+import { Separator } from "@/components/ui/separator"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { UserClassroom } from "@/types/classroom.ts";
+import { Gitlab, Clipboard } from 'lucide-react';
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
@@ -39,8 +41,6 @@ function ClassroomDetail() {
   const { data: assignments } = useSuspenseQuery(ownedAssignmentsQueryOptions(classroomId));
   const { data: members } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(ownedClassroomTeamsQueryOptions(classroomId));
-
-  const users = useMemo(() => members.map((m) => m.user), [members]);
 
   return (
     <div className="p-2 space-y-6">
@@ -65,14 +65,7 @@ function ClassroomDetail() {
       </Header>
       <AssignmentTable assignments={assignments} classroomId={classroomId} />
 
-      <Header title="Members">
-        <Button variant="default" asChild>
-          <Link to="/classrooms/owned/$classroomId/invite" params={{ classroomId }}>
-            Invite members
-          </Link>
-        </Button>
-      </Header>
-      <MemberTable members={users} />
+      <MemberListCard classroomMembers={members} classroomId={classroomId} />
 
       {classroom.maxTeamSize > 1 && (
         <>
@@ -110,9 +103,7 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
               <Button asChild>
                 <Link
                   to="/classrooms/owned/$classroomId/assignments/$assignmentId"
-                  params={{ classroomId, assignmentId: a.id }}
-                >
-                  Show Assignment
+                  params={{ classroomId, assignmentId: a.id }}> Show Assignment
                 </Link>
               </Button>
             </TableCell>
@@ -123,27 +114,79 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
   );
 }
 
-function MemberTable({ members }: { members: User[] }) {
+function MemberListCard({ classroomMembers, classroomId }: { classroomMembers: UserClassroom[], classroomId: string }) {
+  return (
+    <Card className="p-2">
+      <CardHeader>
+        <CardTitle>Members</CardTitle>
+        <CardDescription>Every person in this classroom</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <MemberTable members={classroomMembers} />
+      </CardContent>
+      <CardFooter className="flex justify-end">
+        <Button variant="default" asChild>
+          <Link to="/classrooms/owned/$classroomId/invite" params={{ classroomId }}>
+            Invite members
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function MemberTable({ members }: { members: UserClassroom[] }) {
   return (
     <Table>
-      <TableCaption>Members</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>E-Mail</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
       <TableBody>
         {members.map((m) => (
-          <TableRow key={m.id}>
-            <TableCell>{m.name}</TableCell>
-            <TableCell>{m.gitlabEmail}</TableCell>
-            <TableCell className="text-right"></TableCell>
+          <TableRow key={m.user.id}>
+            <TableCell className="p-2">
+              <MemberListElement member={m} />
+            </TableCell>
+            <TableCell className="text-right p-2">
+              <Button variant="ghost" size="icon" onClick={ () => location.href = `https://hs-flensburg.dev/${m.user.gitlabUsername}`}>
+                <Gitlab color="#666" className="h-6 w-6" />
+              </Button>
+              <Button variant="ghost" size="icon"> {/* Should open a popup listing all assignments from that specific user('s team) */}
+                <Clipboard color="#666" className="h-6 w-6" />
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+function MemberListElement({ member }: { member: UserClassroom }) {
+  return (
+    <HoverCard>
+      <HoverCardTrigger className="cursor-default">
+        {/* Here should be the avatar */}
+        <div className="font-medium">{member.user.name}</div>
+        <div className="hidden text-sm text-muted-foreground md:inline">
+          {member.role === 0 ? "Owner" : member.role === 1 ? "Moderator" : "Member"} {member.team ? `- ${member.team.name}` : ""}
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80">
+        <div className="flex justify-between space-x-4">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold">{member.user.name}</p>
+            <p className="hidden text-sm text-muted-foreground md:inline">@{member.user.gitlabUsername}</p>
+            <Separator className="my-4" />
+            <p className="text-sm text-muted-foreground">{member.user.gitlabEmail}</p>
+            <Separator className="my-4" />
+            <div className="text-sm text-muted-foreground">
+              <p className="font-bold md:inline">
+                {member.role === 0 ? "Owner" : member.role === 1 ? "Moderator" : "Member"}</p> of
+              this classroom {member.team ?
+              <div className="md:inline">in team <p className="font-bold md:inline">${member.team.name}</p></div> : ""}
+            </div>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
