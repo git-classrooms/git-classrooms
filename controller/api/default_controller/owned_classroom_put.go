@@ -18,8 +18,7 @@ func (r UpdateClassroomRequest) isValid() bool {
 func (ctrl *DefaultController) PutOwnedClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()
-	oldName := classroom.Name
-	oldDescription := classroom.Description
+	oldclassroom := classroom
 
 	repo := ctx.GetGitlabRepository()
 
@@ -33,38 +32,44 @@ func (ctrl *DefaultController) PutOwnedClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "request requires name and description")
 	}
 
-	if requestBody.Name != oldName {
+	if requestBody.Name != oldclassroom.Name {
 		group, err := repo.ChangeGroupName(classroom.GroupID, requestBody.Name)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
+		defer func() {
+			if recover() != nil || err != nil {
+				repo.ChangeGroupName(classroom.GroupID, oldclassroom.Name)
+			}
+		}()
+
 		classroom.Name = group.Name
 	}
 
-	if requestBody.Description != oldDescription {
+	if requestBody.Description != oldclassroom.Description {
 		group, err := repo.ChangeGroupDescription(classroom.GroupID, requestBody.Description)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
+		defer func() {
+			if recover() != nil || err != nil {
+				repo.ChangeGroupDescription(classroom.GroupID, oldclassroom.Description)
+			}
+		}()
+
 		classroom.Description = group.Description
 	}
 
 	err = query.Q.Transaction(func(tx *query.Query) error {
-		defer func() {
-			if recover() != nil || err != nil {
-				repo.ChangeGroupName(classroom.GroupID, oldName)
-				repo.ChangeGroupDescription(classroom.GroupID, oldDescription)
-			}
-		}()
-
 		_, err := query.Classroom.WithContext(c.Context()).Updates(classroom)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+
 		return err
 	})
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
 
 	c.SendStatus(fiber.StatusAccepted)
 	return c.JSON(classroom)
