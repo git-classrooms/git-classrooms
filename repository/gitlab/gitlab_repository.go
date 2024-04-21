@@ -224,6 +224,19 @@ func (repo *GitlabRepo) ChangeGroupName(id int, name string) (*model.Group, erro
 	return repo.GetGroupById(id)
 }
 
+func (repo *GitlabRepo) ChangeGroupDescription(id int, description string) (*model.Group, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.Groups.UpdateGroup(id, &goGitlab.UpdateGroupOptions{
+		Description: goGitlab.String(description),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.GetGroupById(id)
+}
+
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 

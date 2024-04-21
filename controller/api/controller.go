@@ -13,6 +13,7 @@ type Controller interface {
 	GetOwnedClassrooms(*fiber.Ctx) error
 	OwnedClassroomMiddleware(*fiber.Ctx) error
 	GetOwnedClassroom(*fiber.Ctx) error
+	PutOwnedClassroom(*fiber.Ctx) error
 
 	GetOwnedClassroomAssignments(*fiber.Ctx) error
 	OwnedClassroomAssignmentMiddleware(*fiber.Ctx) error
