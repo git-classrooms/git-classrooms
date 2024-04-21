@@ -38,5 +38,6 @@ func (ctrl *DefaultController) JoinedClassroomMiddleware(c *fiber.Ctx) error {
 	}
 
 	ctx.SetJoinedClassroom(classroom)
+	ctx.SetGitlabGroupID(classroom.Classroom.GroupID)
 	return ctx.Next()
 }

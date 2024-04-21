@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Assignment } from "@/types/assignments";
-import { User } from "@/types/user";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
 import { formatDate } from "@/lib/utils.ts";
-import { useMemo } from "react";
 import { ownedClassroomTeamsQueryOptions } from "@/api/teams";
 import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
 import {
@@ -19,6 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MemberListCard } from "@/components/classroomMembers.tsx";
+import { Role } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
@@ -37,11 +37,8 @@ function ClassroomDetail() {
   const { classroomId } = Route.useParams();
   const { data: classroom } = useSuspenseQuery(ownedClassroomQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(ownedAssignmentsQueryOptions(classroomId));
-  const { data: members } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
+  const { data: classroomMembers } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(ownedClassroomTeamsQueryOptions(classroomId));
-
-  const users = useMemo(() => members.map((m) => m.user), [members]);
-
   return (
     <div className="p-2 space-y-6">
       <Outlet />
@@ -65,15 +62,9 @@ function ClassroomDetail() {
       </Header>
       <AssignmentTable assignments={assignments} classroomId={classroomId} />
 
-      <Header title="Members">
-        <Button variant="default" asChild>
-          <Link to="/classrooms/owned/$classroomId/invite" params={{ classroomId }}>
-            Invite members
-          </Link>
-        </Button>
-      </Header>
-      <MemberTable members={users} />
-
+      <MemberListCard classroomMembers={classroomMembers} classroomId={classroomId}
+                      userRole={Role.Owner} showTeams={classroom.maxTeamSize > 1}
+      />{/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
       {classroom.maxTeamSize > 1 && (
         <>
           <Header title="Teams">
@@ -110,9 +101,7 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
               <Button asChild>
                 <Link
                   to="/classrooms/owned/$classroomId/assignments/$assignmentId"
-                  params={{ classroomId, assignmentId: a.id }}
-                >
-                  Show Assignment
+                  params={{ classroomId, assignmentId: a.id }}> Show Assignment
                 </Link>
               </Button>
             </TableCell>
@@ -123,29 +112,6 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
   );
 }
 
-function MemberTable({ members }: { members: User[] }) {
-  return (
-    <Table>
-      <TableCaption>Members</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>E-Mail</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((m) => (
-          <TableRow key={m.id}>
-            <TableCell>{m.name}</TableCell>
-            <TableCell>{m.gitlabEmail}</TableCell>
-            <TableCell className="text-right"></TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
 
 function TeamTable({ teams }: { teams: DefaultControllerGetOwnedClassroomTeamResponse[] }) {
   return (

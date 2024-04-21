@@ -259,52 +259,6 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getJoinedClassroomTeamGitlab: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getJoinedClassroomTeamGitlab.');
-            }
-            // verify required parameter 'teamId' is not null or undefined
-            if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getJoinedClassroomTeamGitlab.');
-            }
-            const localVarPath = `/classrooms/joined/{classroomId}/teams/{teamId}/gitlab`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * Get all teams of the current classroom
          * @summary Get all teams of the current classroom
          * @param {string} classroomId Classroom ID
@@ -362,52 +316,6 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeam.');
             }
             const localVarPath = `/classrooms/owned/{classroomId}/teams/{teamId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomTeamGitlab: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomTeamGitlab.');
-            }
-            // verify required parameter 'teamId' is not null or undefined
-            if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeamGitlab.');
-            }
-            const localVarPath = `/classrooms/owned/{classroomId}/teams/{teamId}/gitlab`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -758,21 +666,6 @@ export const TeamApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getJoinedClassroomTeamGitlab(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).getJoinedClassroomTeamGitlab(classroomId, teamId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * Get all teams of the current classroom
          * @summary Get all teams of the current classroom
          * @param {string} classroomId Classroom ID
@@ -796,21 +689,6 @@ export const TeamApiFp = function(configuration?: Configuration) {
          */
         async getOwnedClassroomTeam(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<DefaultControllerGetOwnedClassroomTeamResponse>>> {
             const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).getOwnedClassroomTeam(classroomId, teamId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomTeamGitlab(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await TeamApiAxiosParamCreator(configuration).getOwnedClassroomTeamGitlab(classroomId, teamId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -951,17 +829,6 @@ export const TeamApiFactory = function (configuration?: Configuration, basePath?
             return TeamApiFp(configuration).getJoinedClassroomTeam(classroomId, teamId, options).then((request) => request(axios, basePath));
         },
         /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getJoinedClassroomTeamGitlab(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return TeamApiFp(configuration).getJoinedClassroomTeamGitlab(classroomId, teamId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * Get all teams of the current classroom
          * @summary Get all teams of the current classroom
          * @param {string} classroomId Classroom ID
@@ -981,17 +848,6 @@ export const TeamApiFactory = function (configuration?: Configuration, basePath?
          */
         async getOwnedClassroomTeam(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<DefaultControllerGetOwnedClassroomTeamResponse>> {
             return TeamApiFp(configuration).getOwnedClassroomTeam(classroomId, teamId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomTeamGitlab(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return TeamApiFp(configuration).getOwnedClassroomTeamGitlab(classroomId, teamId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get all Members of the current Team
@@ -1113,18 +969,6 @@ export class TeamApi extends BaseAPI {
         return TeamApiFp(this.configuration).getJoinedClassroomTeam(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
-     * Get all gitlab projects of the current team
-     * @summary Get all Projects of current team
-     * @param {string} classroomId Classroom ID
-     * @param {string} teamId Team ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TeamApi
-     */
-    public async getJoinedClassroomTeamGitlab(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return TeamApiFp(this.configuration).getJoinedClassroomTeamGitlab(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
      * Get all teams of the current classroom
      * @summary Get all teams of the current classroom
      * @param {string} classroomId Classroom ID
@@ -1146,18 +990,6 @@ export class TeamApi extends BaseAPI {
      */
     public async getOwnedClassroomTeam(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<DefaultControllerGetOwnedClassroomTeamResponse>> {
         return TeamApiFp(this.configuration).getOwnedClassroomTeam(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Get all gitlab projects of the current team
-     * @summary Get all Projects of current team
-     * @param {string} classroomId Classroom ID
-     * @param {string} teamId Team ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TeamApi
-     */
-    public async getOwnedClassroomTeamGitlab(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return TeamApiFp(this.configuration).getOwnedClassroomTeamGitlab(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * Get all Members of the current Team

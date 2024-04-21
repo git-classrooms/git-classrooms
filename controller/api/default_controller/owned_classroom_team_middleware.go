@@ -30,6 +30,6 @@ func (ctrl *DefaultController) OwnedClassroomTeamMiddleware(c *fiber.Ctx) error 
 	}
 
 	ctx.SetOwnedClassroomTeam(team)
-
+	ctx.SetGitlabGroupID(team.GroupID)
 	return ctx.Next()
 }
