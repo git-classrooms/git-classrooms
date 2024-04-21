@@ -1,4 +1,4 @@
-import { Role, UserClassroom } from "@/types/classroom.ts";
+import { GetRole, Role, UserClassroom } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
@@ -18,11 +18,11 @@ import { Separator } from "@/components/ui/separator.tsx";
  * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
-export function MemberListCard({ classroomMembers, classroomId, userRole, gitlabUserUrl }: {
-  classroomMembers: UserClassroom[],
+export function MemberListCard({ classroomMembers, classroomId, userRole, showTeams }: {
+  classroomMembers: UserClassroom[]
   classroomId: string,
   userRole: Role
-  gitlabUserUrl: string
+  showTeams: boolean
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -31,7 +31,7 @@ export function MemberListCard({ classroomMembers, classroomId, userRole, gitlab
         <CardDescription>Every person in this classroom</CardDescription>
       </CardHeader>
       <CardContent>
-        <MemberTable members={classroomMembers} userRole={userRole} gitlabUserUrl={gitlabUserUrl} />
+        <MemberTable members={classroomMembers} userRole={userRole} showTeams={showTeams} />
       </CardContent>
       {userRole != 2 &&
         <CardFooter className="flex justify-end">
@@ -45,10 +45,10 @@ export function MemberListCard({ classroomMembers, classroomId, userRole, gitlab
   );
 }
 
-function MemberTable({ members, userRole, gitlabUserUrl }: {
+function MemberTable({ members, userRole, showTeams }: {
   members: UserClassroom[],
   userRole: Role,
-  gitlabUserUrl: string
+  showTeams: boolean
 }) {
   return (
     <Table>
@@ -56,16 +56,18 @@ function MemberTable({ members, userRole, gitlabUserUrl }: {
         {members.map((m) => (
           <TableRow key={m.user.id}>
             <TableCell className="p-2">
-              <MemberListElement member={m} />
+              <MemberListElement member={m} showTeams={showTeams} />
             </TableCell>
             <TableCell className="p-2 flex justify-end align-middle">
-              <Button variant="ghost" size="icon" onClick={ () => location.href = (gitlabUserUrl.replace(":userId", m.user.id.toString()))}>
-                <Gitlab color="#666" className="h-6 w-6" />
+              <Button variant="ghost" size="icon" asChild>
+                <a href={m.gitlabUrl} target="_blank" rel="noreferrer">
+                  <Gitlab className="h-6 w-6 text-gray-600" />
+                </a>
               </Button>
               {userRole != 2 &&
                 <Button variant="ghost"
                         size="icon"> {/* Should open a popup listing all assignments from that specific user('s team) */}
-                  <Clipboard color="#666" className="h-6 w-6" />
+                  <Clipboard className="h-6 w-6 text-gray-600" />
                 </Button>}
             </TableCell>
           </TableRow>
@@ -75,39 +77,39 @@ function MemberTable({ members, userRole, gitlabUserUrl }: {
   );
 }
 
-function MemberListElement({ member }: { member: UserClassroom }) {
+function MemberListElement({ member, showTeams }: { member: UserClassroom, showTeams: boolean }) {
   return (
-    <HoverCard>
-      <HoverCardTrigger className="cursor-default flex">
-        <div className="pr-2"><Avatar
-          avatarUrl={member.user.gitlabAvatar?.avatarURL}
-          fallbackUrl={member.user.gitlabAvatar?.fallbackAvatarURL}
-          name={member.user.name!}
-        /></div>
-        <div>
-          <div className="font-medium">{member.user.name}</div>
-          <div className="hidden text-sm text-muted-foreground md:inline">
-            {member.role === 0 ? "Owner" : member.role === 1 ? "Moderator" : "Student"} {member.team ? `- ${member.team.name}` : ""}
+    <>
+
+      <HoverCard>
+        <HoverCardTrigger className="cursor-default flex">
+          <div className="pr-2">
+            <Avatar
+              avatarUrl={member.user.gitlabAvatar?.avatarURL}
+              fallbackUrl={member.user.gitlabAvatar?.fallbackAvatarURL}
+              name={member.user.name!}
+            />
           </div>
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-80">
-        <div className="flex justify-between space-x-4">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold">{member.user.name}</p>
-            <p className="hidden text-sm text-muted-foreground md:inline">@{member.user.gitlabUsername}</p>
-            <Separator className="my-4" />
-            <p className="text-sm text-muted-foreground">{member.user.gitlabEmail}</p>
-            <Separator className="my-4" />
-            <div className="text-sm text-muted-foreground">
-              <p className="font-bold md:inline">
-                {member.role === 0 ? "Owner" : member.role === 1 ? "Moderator" : "Student"}</p> of
-              this classroom {member.team ?
-              <div className="md:inline">in team <p className="font-bold md:inline">${member.team.name}</p></div> : ""}
+          <div>
+            <div className="font-medium">{member.user.name}</div>
+            <div className="text-sm text-muted-foreground md:inline">
+              {GetRole[member.role]} {showTeams && member.team ? `- ${member.team.name}` : ""}
             </div>
           </div>
-        </div>
-      </HoverCardContent>
-    </HoverCard>
+        </HoverCardTrigger>
+        <HoverCardContent className="w-100">
+            <p className="text-lg font-semibold">{member.user.name}</p>
+            <p className="text-sm text-muted-foreground mt-[-0.3rem]">@{member.user.gitlabUsername}</p>
+            <Separator className="my-1" />
+            <p className="text-muted-foreground">{member.user.gitlabEmail}</p>
+            <Separator className="my-1" />
+            <div className="text-muted-foreground">
+              <span className="font-bold">{GetRole[member.role]}</span> of this
+              classroom {(showTeams && member.team) ?
+              <> in team <span className="font-bold">{member.team?.name ?? ""}</span></> : ""}
+            </div>
+        </HoverCardContent>
+      </HoverCard>
+    </>
   );
 }

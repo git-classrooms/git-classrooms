@@ -37,9 +37,8 @@ function ClassroomDetail() {
   const { classroomId } = Route.useParams();
   const { data: classroom } = useSuspenseQuery(ownedClassroomQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(ownedAssignmentsQueryOptions(classroomId));
-  const { data: userClassroomResponse } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
+  const { data: classroomMembers } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(ownedClassroomTeamsQueryOptions(classroomId));
-  const members = userClassroomResponse.classroomMembers;
   return (
     <div className="p-2 space-y-6">
       <Outlet />
@@ -63,9 +62,8 @@ function ClassroomDetail() {
       </Header>
       <AssignmentTable assignments={assignments} classroomId={classroomId} />
 
-      <MemberListCard classroomMembers={members} classroomId={classroomId}
-                      userRole={Role.Owner}
-                      gitlabUserUrl={userClassroomResponse.gitlabWebUrl}
+      <MemberListCard classroomMembers={classroomMembers} classroomId={classroomId}
+                      userRole={Role.Owner} showTeams={classroom.maxTeamSize > 1}
       />{/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
       {classroom.maxTeamSize > 1 && (
         <>

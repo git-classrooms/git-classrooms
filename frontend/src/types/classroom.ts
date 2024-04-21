@@ -13,10 +13,6 @@ export type Role = (typeof Role)[keyof typeof Role];
 
 export const GetRole = reversed(Role);
 
-export type UserClassroomResponse = {
-  classroomMembers: UserClassroom[];
-  gitlabWebUrl: string;
-}
 export type UserClassroom = {
   classroom: Omit<OwnedClassroom, "gitlabUrl">;
   user: User;
