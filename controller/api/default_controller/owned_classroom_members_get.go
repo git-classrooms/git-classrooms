@@ -2,8 +2,14 @@ package default_controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
+
+type getOwnedClassroomMembersResponse struct {
+	UserClassrooms []*database.UserClassrooms `json:"classroomMembers"`
+	GitlabWebURL   string                     `json:"gitlabWebUrl"`
+}
 
 // @Summary		Get classroom Members
 // @Description	Create a new classroom
@@ -18,5 +24,9 @@ func (ctrl *DefaultController) GetOwnedClassroomMembers(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()
 
-	return c.JSON(classroom.Member)
+	response := getOwnedClassroomMembersResponse{
+		UserClassrooms: classroom.Member,
+		GitlabWebURL:   "/api/v1/user/:userId/gitlab",
+	}
+	return c.JSON(response)
 }

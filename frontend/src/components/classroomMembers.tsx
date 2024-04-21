@@ -18,10 +18,11 @@ import { Separator } from "@/components/ui/separator.tsx";
  * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
-export function MemberListCard({ classroomMembers, classroomId, userRole }: {
+export function MemberListCard({ classroomMembers, classroomId, userRole, gitlabUserUrl }: {
   classroomMembers: UserClassroom[],
   classroomId: string,
   userRole: Role
+  gitlabUserUrl: string
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -30,11 +31,10 @@ export function MemberListCard({ classroomMembers, classroomId, userRole }: {
         <CardDescription>Every person in this classroom</CardDescription>
       </CardHeader>
       <CardContent>
-        <MemberTable members={classroomMembers} userRole={userRole} />
+        <MemberTable members={classroomMembers} userRole={userRole} gitlabUserUrl={gitlabUserUrl} />
       </CardContent>
       {userRole != 2 &&
         <CardFooter className="flex justify-end">
-
           <Button variant="default" asChild>
             <Link to="/classrooms/owned/$classroomId/invite" params={{ classroomId }}>
               Invite members
@@ -45,7 +45,11 @@ export function MemberListCard({ classroomMembers, classroomId, userRole }: {
   );
 }
 
-function MemberTable({ members, userRole }: { members: UserClassroom[], userRole: Role }) {
+function MemberTable({ members, userRole, gitlabUserUrl }: {
+  members: UserClassroom[],
+  userRole: Role,
+  gitlabUserUrl: string
+}) {
   return (
     <Table>
       <TableBody>
@@ -54,9 +58,8 @@ function MemberTable({ members, userRole }: { members: UserClassroom[], userRole
             <TableCell className="p-2">
               <MemberListElement member={m} />
             </TableCell>
-            <TableCell className="text-right p-2">
-              <Button variant="ghost" size="icon"
-                      onClick={() => location.href = `https://hs-flensburg.dev/${m.user.gitlabUsername}`}>
+            <TableCell className="p-2 flex justify-end align-middle">
+              <Button variant="ghost" size="icon" onClick={ () => location.href = (gitlabUserUrl.replace(":userId", m.user.id.toString()))}>
                 <Gitlab color="#666" className="h-6 w-6" />
               </Button>
               {userRole != 2 &&

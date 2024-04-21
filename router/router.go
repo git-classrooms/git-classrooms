@@ -68,6 +68,7 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v1.Get("/me", apiController.GetMe)
 	v1.Get("/me/gitlab", apiController.GetMeGitlab)
+	v1.Get("/user/:userId/gitlab", apiController.GetUserGitlab)
 
 	v1.Get("/classrooms/owned", apiController.GetOwnedClassrooms)
 	v1.Post("/classrooms/owned", apiController.CreateClassroom)

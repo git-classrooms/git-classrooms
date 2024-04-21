@@ -1,5 +1,12 @@
 import { apiClient } from "@/lib/utils";
-import { ClassroomForm, ClassroomInvitation, InviteForm, UserClassroom, OwnedClassroom } from "@/types/classroom";
+import {
+  ClassroomForm,
+  ClassroomInvitation,
+  InviteForm,
+  UserClassroom,
+  OwnedClassroom,
+  UserClassroomResponse,
+} from "@/types/classroom";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
@@ -42,7 +49,7 @@ export const ownedClassroomMemberQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "members"],
     queryFn: async () => {
-      const res = await apiClient.get<UserClassroom[]>(`/classrooms/owned/${classroomId}/members`);
+      const res = await apiClient.get<UserClassroomResponse>(`/classrooms/owned/${classroomId}/members`);
       return res.data;
     },
   });
