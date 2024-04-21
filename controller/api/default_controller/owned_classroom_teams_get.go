@@ -29,7 +29,7 @@ func (ctrl *DefaultController) GetOwnedClassroomTeams(c *fiber.Ctx) error {
 	response := utils.Map(classroom.Teams, func(team *database.Team) *getOwnedClassroomTeamResponse {
 		return &getOwnedClassroomTeamResponse{
 			Team:      *team,
-			GitlabUrl: fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", classroom.ID.String(), team.ID.String()),
+			GitlabURL: fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", classroom.ID.String(), team.ID.String()),
 		}
 	})
 

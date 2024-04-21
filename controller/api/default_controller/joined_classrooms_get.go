@@ -20,7 +20,7 @@ func (ctrl *DefaultController) GetJoinedClassrooms(c *fiber.Ctx) error {
 	for i, classroom := range joinedClassrooms {
 		joinedClassroomResponses[i] = &getJoinedClassroomResponse{
 			UserClassrooms: *classroom,
-			GitlabUrl:      fmt.Sprintf("/api/v1/classrooms/joined/%s/gitlab", classroom.ClassroomID.String()),
+			GitlabURL:      fmt.Sprintf("/api/v1/classrooms/joined/%s/gitlab", classroom.ClassroomID.String()),
 		}
 	}
 

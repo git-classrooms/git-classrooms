@@ -29,7 +29,7 @@ func (ctrl *DefaultController) GetOwnedClassrooms(c *fiber.Ctx) error {
 	for i, classroom := range ownedClassrooms {
 		ownedClassroomResponses[i] = &getOwnedClassroomResponse{
 			Classroom: *classroom,
-			GitlabUrl: fmt.Sprintf("/api/v1/classrooms/owned/%s/gitlab", classroom.ID.String()),
+			GitlabURL: fmt.Sprintf("/api/v1/classrooms/owned/%s/gitlab", classroom.ID.String()),
 		}
 	}
 

@@ -10,6 +10,9 @@ type contextKey string
 
 const (
 	gitlabRepoKey                      contextKey = "gitlab-repo"
+	gitlabUserIDKey                    contextKey = "gitlab-user-id"
+	gitlabGroupIDKey                   contextKey = "gitlab-group-id"
+	gitlabProjectIDKey                 contextKey = "gitlab-project-id"
 	userIDKey                          contextKey = "user-id"
 	ownedClassroomKey                  contextKey = "owned-classroom"
 	ownedClassroomAssignmentKey        contextKey = "owned-classroom-assignment"
@@ -48,6 +51,30 @@ func (c *FiberContext) GetGitlabRepository() gitlab.Repository {
 		return nil
 	}
 	return value
+}
+
+func (c *FiberContext) SetGitlabUserID(userID int) {
+	c.Locals(gitlabUserIDKey, userID)
+}
+
+func (c *FiberContext) GetGitlabUserID() int {
+	return c.Locals(gitlabUserIDKey).(int)
+}
+
+func (c *FiberContext) SetGitlabGroupID(groupID int) {
+	c.Locals(gitlabGroupIDKey, groupID)
+}
+
+func (c *FiberContext) GetGitlabGroupID() int {
+	return c.Locals(gitlabGroupIDKey).(int)
+}
+
+func (c *FiberContext) SetGitlabProjectID(projectID int) {
+	c.Locals(gitlabProjectIDKey, projectID)
+}
+
+func (c *FiberContext) GetGitlabProjectID() int {
+	return c.Locals(gitlabProjectIDKey).(int)
 }
 
 func (c *FiberContext) SetOwnedClassroom(classroom *database.Classroom) {

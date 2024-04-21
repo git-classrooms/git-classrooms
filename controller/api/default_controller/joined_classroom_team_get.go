@@ -37,7 +37,7 @@ func (ctrl *DefaultController) GetJoinedClassroomTeam(c *fiber.Ctx) error {
 	response := &getJoinedClassroomTeamResponse{
 		Team:       *team,
 		UserMember: member,
-		GitlabUrl:  fmt.Sprintf("/api/v1/classrooms/joined/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
+		GitlabURL:  fmt.Sprintf("/api/v1/classrooms/joined/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
 	}
 
 	return c.JSON(response)

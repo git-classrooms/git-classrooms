@@ -18,8 +18,8 @@ import { Configuration } from '../configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
-import { DatabaseUser } from '../models';
 import { DefaultControllerCreateClassroomRequest } from '../models';
+import { DefaultControllerGetOwnedClassroomMemberResponse } from '../models';
 import { DefaultControllerGetOwnedClassroomResponse } from '../models';
 import { HttputilHTTPError } from '../models';
 /**
@@ -28,46 +28,6 @@ import { HttputilHTTPError } from '../models';
  */
 export const ClassroomApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        classroomsOwnedClassroomIdGitlabGet: async (classroomId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling classroomsOwnedClassroomIdGitlabGet.');
-            }
-            const localVarPath = `/classrooms/owned/{classroomId}/gitlab`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * Create a new classroom
          * @summary Get classroom Members
@@ -204,27 +164,13 @@ export const ClassroomApiAxiosParamCreator = function (configuration?: Configura
 export const ClassroomApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async classroomsOwnedClassroomIdGitlabGet(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await ClassroomApiAxiosParamCreator(configuration).classroomsOwnedClassroomIdGitlabGet(classroomId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * Create a new classroom
          * @summary Get classroom Members
          * @param {string} classroomId Classroom ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdMembersGet(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<DatabaseUser>>>> {
+        async classroomsOwnedClassroomIdMembersGet(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomMemberResponse>>>> {
             const localVarAxiosArgs = await ClassroomApiAxiosParamCreator(configuration).classroomsOwnedClassroomIdMembersGet(classroomId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -269,23 +215,13 @@ export const ClassroomApiFp = function(configuration?: Configuration) {
 export const ClassroomApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async classroomsOwnedClassroomIdGitlabGet(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return ClassroomApiFp(configuration).classroomsOwnedClassroomIdGitlabGet(classroomId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * Create a new classroom
          * @summary Get classroom Members
          * @param {string} classroomId Classroom ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async classroomsOwnedClassroomIdMembersGet(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<DatabaseUser>>> {
+        async classroomsOwnedClassroomIdMembersGet(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomMemberResponse>>> {
             return ClassroomApiFp(configuration).classroomsOwnedClassroomIdMembersGet(classroomId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -319,17 +255,6 @@ export const ClassroomApiFactory = function (configuration?: Configuration, base
  */
 export class ClassroomApi extends BaseAPI {
     /**
-     * Get all gitlab projects of the current team
-     * @summary Get all Projects of current team
-     * @param {string} classroomId Classroom ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ClassroomApi
-     */
-    public async classroomsOwnedClassroomIdGitlabGet(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return ClassroomApiFp(this.configuration).classroomsOwnedClassroomIdGitlabGet(classroomId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
      * Create a new classroom
      * @summary Get classroom Members
      * @param {string} classroomId Classroom ID
@@ -337,7 +262,7 @@ export class ClassroomApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ClassroomApi
      */
-    public async classroomsOwnedClassroomIdMembersGet(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<DatabaseUser>>> {
+    public async classroomsOwnedClassroomIdMembersGet(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<DefaultControllerGetOwnedClassroomMemberResponse>>> {
         return ClassroomApiFp(this.configuration).classroomsOwnedClassroomIdMembersGet(classroomId, options).then((request) => request(this.axios, this.basePath));
     }
     /**

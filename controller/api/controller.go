@@ -5,12 +5,14 @@ import "github.com/gofiber/fiber/v2"
 type Controller interface {
 	GetMe(*fiber.Ctx) error
 	GetMeGitlab(*fiber.Ctx) error
-	GetUserGitlab(*fiber.Ctx) error
+
+	RedirectGroupGitlab(*fiber.Ctx) error
+	RedirectUserGitlab(*fiber.Ctx) error
+	RedirectProjectGitlab(*fiber.Ctx) error
 
 	GetOwnedClassrooms(*fiber.Ctx) error
 	OwnedClassroomMiddleware(*fiber.Ctx) error
 	GetOwnedClassroom(*fiber.Ctx) error
-	GetOwnedClassroomGitlab(*fiber.Ctx) error
 
 	GetOwnedClassroomAssignments(*fiber.Ctx) error
 	OwnedClassroomAssignmentMiddleware(*fiber.Ctx) error
@@ -19,12 +21,12 @@ type Controller interface {
 	GetOwnedClassroomAssignmentProjects(*fiber.Ctx) error
 	OwnedClassroomAssignmentProjectMiddleware(*fiber.Ctx) error
 	GetOwnedClassroomAssignmentProject(*fiber.Ctx) error
-	GetOwnedClassroomAssignmentProjectGitlab(*fiber.Ctx) error
 
 	InviteToAssignmentProject(*fiber.Ctx) error
 
 	GetOwnedClassroomMembers(*fiber.Ctx) error
 	OwnedClassroomMemberMiddleware(*fiber.Ctx) error
+	GetOwnedClassroomMember(*fiber.Ctx) error
 	ChangeOwnedClassroomMember(*fiber.Ctx) error
 
 	GetOwnedClassroomInvitations(*fiber.Ctx) error
@@ -34,7 +36,6 @@ type Controller interface {
 	GetOwnedClassroomTeams(*fiber.Ctx) error
 	OwnedClassroomTeamMiddleware(*fiber.Ctx) error
 	GetOwnedClassroomTeam(*fiber.Ctx) error
-	GetOwnedClassroomTeamGitlab(*fiber.Ctx) error
 	CreateOwnedClassroomTeam(*fiber.Ctx) error
 
 	GetOwnedClassroomTeamMembers(*fiber.Ctx) error
@@ -46,7 +47,6 @@ type Controller interface {
 	GetJoinedClassrooms(*fiber.Ctx) error
 	JoinedClassroomMiddleware(*fiber.Ctx) error
 	GetJoinedClassroom(*fiber.Ctx) error
-	GetJoinedClassroomGitlab(*fiber.Ctx) error
 
 	GetJoinedClassroomAssignments(*fiber.Ctx) error
 	JoinedClassroomAssignmentMiddleware(*fiber.Ctx) error
@@ -56,7 +56,6 @@ type Controller interface {
 	CreateJoinedClassroomTeam(*fiber.Ctx) error
 	JoinedClassroomTeamMiddleware(*fiber.Ctx) error
 	GetJoinedClassroomTeam(*fiber.Ctx) error
-	GetJoinedClassroomTeamGitlab(*fiber.Ctx) error
 	JoinJoinedClassroomTeam(*fiber.Ctx) error
 
 	JoinClassroom(*fiber.Ctx) error
