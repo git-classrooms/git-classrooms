@@ -21,7 +21,7 @@ import {
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { UserClassroom } from "@/types/classroom.ts";
 import { Gitlab, Clipboard } from 'lucide-react';
-
+import { Avatar } from "@/components/avatar";
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
   loader: async ({ context, params }) => {
@@ -162,11 +162,17 @@ function MemberTable({ members }: { members: UserClassroom[] }) {
 function MemberListElement({ member }: { member: UserClassroom }) {
   return (
     <HoverCard>
-      <HoverCardTrigger className="cursor-default">
-        {/* Here should be the avatar */}
+      <HoverCardTrigger className="cursor-default flex">
+        <div className="pr-2"><Avatar
+          avatarUrl={member.user.gitlabAvatar?.avatarURL}
+          fallbackUrl={member.user.gitlabAvatar?.fallbackAvatarURL}
+          name={member.user.name!}
+        /></div>
+        <div>
         <div className="font-medium">{member.user.name}</div>
         <div className="hidden text-sm text-muted-foreground md:inline">
           {member.role === 0 ? "Owner" : member.role === 1 ? "Moderator" : "Member"} {member.team ? `- ${member.team.name}` : ""}
+        </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
