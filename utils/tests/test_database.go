@@ -24,7 +24,7 @@ func NewTestDB(t *testing.T) *TestDB {
 	db.Setup()
 
 	query.SetDefault(db.db)
-	session.InitSessionStore(db.dbUrl)
+	session.InitSessionStore(nil)
 
 	return &db
 }
