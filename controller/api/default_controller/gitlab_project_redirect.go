@@ -5,14 +5,15 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-func (ctrl *DefaultController) GetJoinedClassroomGitlab(c *fiber.Ctx) error {
+func (ctrl *DefaultController) RedirectProjectGitlab(c *fiber.Ctx) error {
 	ctx := context.Get(c)
-	classroom := ctx.GetJoinedClassroom()
+	projectId := ctx.GetGitlabProjectID()
 	repo := ctx.GetGitlabRepository()
 
-	group, err := repo.GetGroupById(classroom.Classroom.GroupID)
+	project, err := repo.GetProjectById(projectId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.Redirect(group.WebUrl)
+
+	return c.Redirect(project.WebUrl)
 }

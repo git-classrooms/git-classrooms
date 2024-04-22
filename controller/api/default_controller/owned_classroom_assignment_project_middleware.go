@@ -31,5 +31,6 @@ func (ctrl *DefaultController) OwnedClassroomAssignmentProjectMiddleware(c *fibe
 
 	ctx := context.Get(c)
 	ctx.SetOwnedClassroomAssignmentProject(assignmentProject)
+	ctx.SetGitlabProjectID(assignmentProject.ProjectID)
 	return ctx.Next()
 }

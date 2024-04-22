@@ -1,5 +1,11 @@
 import { apiClient } from "@/lib/utils";
-import { ClassroomForm, ClassroomInvitation, InviteForm, UserClassroom, OwnedClassroom } from "@/types/classroom";
+import {
+  ClassroomForm,
+  ClassroomInvitation,
+  InviteForm,
+  UserClassroom,
+  OwnedClassroom
+} from "@/types/classroom";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";

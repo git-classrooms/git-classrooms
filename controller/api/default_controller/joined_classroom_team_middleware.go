@@ -32,5 +32,6 @@ func (ctrl *DefaultController) JoinedClassroomTeamMiddleware(c *fiber.Ctx) error
 
 	ctx := context.Get(c)
 	ctx.SetJoinedClassroomTeam(team)
+	ctx.SetGitlabGroupID(team.GroupID)
 	return ctx.Next()
 }

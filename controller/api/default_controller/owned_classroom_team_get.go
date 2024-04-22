@@ -10,7 +10,7 @@ import (
 
 type getOwnedClassroomTeamResponse struct {
 	database.Team
-	GitlabUrl string `json:"gitlabUrl"`
+	GitlabURL string `json:"gitlabUrl"`
 }
 
 // @Summary		Get current Team
@@ -32,7 +32,7 @@ func (ctrl *DefaultController) GetOwnedClassroomTeam(c *fiber.Ctx) error {
 
 	response := &getOwnedClassroomTeamResponse{
 		Team:      *team,
-		GitlabUrl: fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
+		GitlabURL: fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
 	}
 
 	return c.JSON(response)

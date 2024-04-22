@@ -9,7 +9,7 @@ import (
 
 type getJoinedClassroomResponse struct {
 	database.UserClassrooms
-	GitlabUrl string `json:"gitlabUrl"`
+	GitlabURL string `json:"gitlabUrl"`
 }
 
 func (ctrl *DefaultController) GetJoinedClassroom(c *fiber.Ctx) error {
@@ -18,7 +18,7 @@ func (ctrl *DefaultController) GetJoinedClassroom(c *fiber.Ctx) error {
 
 	response := &getJoinedClassroomResponse{
 		UserClassrooms: *classroom,
-		GitlabUrl:      fmt.Sprintf("/api/v1/classrooms/joined/%s/gitlab", classroom.ClassroomID.String()),
+		GitlabURL:      fmt.Sprintf("/api/v1/classrooms/joined/%s/gitlab", classroom.ClassroomID.String()),
 	}
 
 	return c.JSON(response)

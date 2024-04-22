@@ -12,7 +12,7 @@ import (
 type getJoinedClassroomTeamResponse struct {
 	database.Team
 	UserMember []*database.User `json:"member"`
-	GitlabUrl  string           `json:"gitlabUrl"`
+	GitlabURL  string           `json:"gitlabUrl"`
 } //@Name Team
 
 // @Summary		Get all teams of the current classroom
@@ -47,7 +47,7 @@ func (ctrl *DefaultController) GetJoinedClassroomTeams(c *fiber.Ctx) error {
 		return &getJoinedClassroomTeamResponse{
 			Team:       *team,
 			UserMember: member,
-			GitlabUrl:  fmt.Sprintf("/api/v1/classrooms/joined/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
+			GitlabURL:  fmt.Sprintf("/api/v1/classrooms/joined/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
 		}
 	})
 

@@ -14,9 +14,10 @@ type Repository interface {
 	CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error)                          //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
 	CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error)         //f
 
-	DeleteProject(id int) error                                                              //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L1110
-	DeleteGroup(id int) error                                                                //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L566
-	ChangeGroupName(id int, name string) (*model.Group, error)                               //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L495
+	DeleteProject(id int) error                                //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L1110
+	DeleteGroup(id int) error                                  //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L566
+	ChangeGroupName(id int, name string) (*model.Group, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L495
+	ChangeGroupDescription(id int, description string) (*model.Group, error)
 	AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error        //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L237
 	RemoveUserFromGroup(groupId int, userId int) error                                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L349
 	GetAllProjects(search string) ([]*model.Project, error)                                  //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L373

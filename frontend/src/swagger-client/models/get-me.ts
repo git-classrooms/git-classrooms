@@ -43,7 +43,7 @@ export interface GetMe {
      * @type {string}
      * @memberof GetMe
      */
-    gitlabWeburl?: string;
+    gitlabUrl?: string;
 
     /**
      * @type {number}

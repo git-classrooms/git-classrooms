@@ -9,7 +9,7 @@ import (
 
 type getOwnedClassroomResponse struct {
 	database.Classroom
-	GitlabUrl string `json:"gitlabUrl"`
+	GitlabURL string `json:"gitlabUrl"`
 }
 
 func (ctrl *DefaultController) GetOwnedClassroom(c *fiber.Ctx) error {
@@ -17,7 +17,7 @@ func (ctrl *DefaultController) GetOwnedClassroom(c *fiber.Ctx) error {
 	classroom := ctx.GetOwnedClassroom()
 	response := &getOwnedClassroomResponse{
 		Classroom: *classroom,
-		GitlabUrl: fmt.Sprintf("/api/v1/classrooms/owned/%s/gitlab", classroom.ID.String()),
+		GitlabURL: fmt.Sprintf("/api/v1/classrooms/owned/%s/gitlab", classroom.ID.String()),
 	}
 
 	return c.JSON(response)
