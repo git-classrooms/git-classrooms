@@ -34,6 +34,12 @@ export interface DatabaseUser {
     gitlabEmail?: string;
 
     /**
+     * @type {string}
+     * @memberof DatabaseUser
+     */
+    gitlabUsername?: string;
+
+    /**
      * @type {number}
      * @memberof DatabaseUser
      */

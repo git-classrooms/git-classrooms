@@ -20,9 +20,6 @@ export type AssignmentProject = {
 export type TemplateProject = {
   name: string;
   id: number;
-  visibility: number;
-  webUrl: string;
-  description: string;
 };
 
 export const createAssignmentFormSchema = z.object({

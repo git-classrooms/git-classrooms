@@ -106,7 +106,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	u := query.User
 	user, err := u.WithContext(c.Context()).
 		Where(u.ID.Eq(gitlabUser.ID)).
-		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name})).
+		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name, GitlabUsername: gitlabUser.Username})).
 		FirstOrCreate()
 	if err != nil {
 		// TODO: Use sentry to log errors

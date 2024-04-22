@@ -42,6 +42,11 @@ type Repository interface {
 
 	ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
 
+	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
+	ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error
+	UnprotectBranch(projectId int, branchName string) error
+	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
+
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
 
 	GetNamespaceOfProject(projectId int) (*string, error)
