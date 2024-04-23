@@ -23,7 +23,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func TestGetOwnedClassrooms(t *testing.T) {
+func TestGetOwnedClassroomAssignments(t *testing.T) {
 	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
@@ -59,35 +59,27 @@ func TestGetOwnedClassrooms(t *testing.T) {
 
 	// ------------ END OF DB SETUP -----------------
 
-	user := &database.User{ID: 1}
-	err = query.User.WithContext(context.Background()).Create(user)
+	classroom := &database.Classroom{
+		Name:               "Test classroom",
+		OwnerID:            1,
+		Description:        "A classroom for testing assignments",
+		GroupID:            1,
+		GroupAccessTokenID: 20,
+		GroupAccessToken:   "token",
+	}
+	err := query.Classroom.WithContext(context.Background()).Create(classroom)
 	if err != nil {
-		t.Fatalf("could not create test user: %s", err.Error())
+		t.Fatalf("could not create test classroom: %s", err.Error())
 	}
 
-	classrooms := []*database.Classroom{
-		{
-			Name:               "Classroom One",
-			OwnerID:            1,
-			Description:        "Description One",
-			GroupID:            10,
-			GroupAccessTokenID: 30,
-			GroupAccessToken:   "token30",
-		},
-		{
-			Name:               "Classroom Two",
-			OwnerID:            1,
-			Description:        "Description Two",
-			GroupID:            20,
-			GroupAccessTokenID: 40,
-			GroupAccessToken:   "token40",
-		},
+	assignments := []*database.Assignment{
+		{Title: "Assignment 1", Description: "First test assignment", ClassroomID: classroom.ID},
+		{Title: "Assignment 2", Description: "Second test assignment", ClassroomID: classroom.ID},
 	}
-	
-	for _, classroom := range classrooms {
-		err = query.Classroom.WithContext(context.Background()).Create(classroom)
+	for _, assignment := range assignments {
+		err = query.Assignment.WithContext(context.Background()).Create(assignment)
 		if err != nil {
-			t.Fatalf("could not create test classroom: %s", err.Error())
+			t.Fatalf("could not create test assignment: %s", err.Error())
 		}
 	}
 
@@ -100,34 +92,34 @@ func TestGetOwnedClassrooms(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetUserID(1)
+		ctx.SetOwnedClassroom(classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
+		s.SetUserID(1)
 		s.Save()
 		return c.Next()
 	})
 
 	handler := NewApiController(mailRepo)
 
-	t.Run("GetOwnedClassrooms", func(t *testing.T) {
-		app.Get("/api/classrooms/owned", handler.GetOwnedClassrooms)
-		req := httptest.NewRequest("GET", "/api/classrooms/owned", nil)
+	t.Run("GetOwnedClassroomAssignments", func(t *testing.T) {
+		app.Get("/api/classrooms/owned/:classroomId/assignments", handler.GetOwnedClassroomAssignments)
+		route := fmt.Sprintf("/api/classrooms/owned/%d/assignments", classroom.ID)
+
+		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		classrooms, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.OwnerID.Eq(1)).Find()
+		retrievedAssignments, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ClassroomID.Eq(classroom.ID)).Find()
 		assert.NoError(t, err)
-		assert.Len(t, classrooms, len(classrooms))
-		for i, classroom := range classrooms {
-			assert.Equal(t, classrooms[i].Name, classroom.Name)
-			assert.Equal(t, classrooms[i].Description, classroom.Description)
-			assert.Equal(t, classrooms[i].GroupID, classroom.GroupID)
-			assert.Equal(t, classrooms[i].GroupAccessTokenID, classroom.GroupAccessTokenID)
-			assert.Equal(t, classrooms[i].GroupAccessToken, classroom.GroupAccessToken)
+		assert.Len(t, retrievedAssignments, len(assignments))
+		for i, retrievedAssignment := range retrievedAssignments {
+			assert.Equal(t, assignments[i].Title, retrievedAssignment.Title)
+			assert.Equal(t, assignments[i].Description, retrievedAssignment.Description)
 		}
 	})
 }
