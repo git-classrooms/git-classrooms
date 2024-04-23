@@ -105,22 +105,34 @@ func TestGetJoinedClassrooms(t *testing.T) {
 
 	t.Run("GetJoinedClassrooms", func(t *testing.T) {
 		app.Get("/api/classrooms/joined", handler.GetJoinedClassrooms)
-		req := httptest.NewRequest("GET", "/api/classrooms/joined", nil)
+		route := fmt.Sprintf("/api/classrooms/joined", nil)
+
+		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
+
+		type ClassRoomResponse struct {
+			ID          uuid.UUID `json:"id"`
+			Name        string    `json:"name"`
+			OwnerID     int       `json:"ownerId"`
+			Description string    `json:"description"`
+			GroupID     int       `json:"groupId"`
+		}
+
+		var classrooms []*ClassRoomResponse
+
+		err = json.NewDecoder(resp.Body).Decode(&classrooms)
+		assert.NoError(t, err)
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		var responses []*getJoinedClassroomResponse
-		err = json.NewDecoder(resp.Body).Decode(&responses)
-		assert.NoError(t, err)
-		assert.Len(t, responses, len(joinedClassrooms))
-		for i, response := range responses {
-			assert.Equal(t, joinedClassrooms[i].Name, response.UserClassrooms.Name)
-			assert.Equal(t, joinedClassrooms[i].Description, response.UserClassrooms.Description)
-			assert.Equal(t, joinedClassrooms[i].GroupID, response.UserClassrooms.GroupID)
-			assert.Equal(t, joinedClassrooms[i].GroupAccessTokenID, response.UserClassrooms.GroupAccessTokenID)
-			assert.Equal(t, joinedClassrooms[i].GroupAccessToken, response.UserClassrooms.GroupAccessToken)
+		assert.Len(t, classrooms, len(joinedClassrooms))
+		for i, classroom := range classrooms {
+			assert.Equal(t, joinedClassrooms[i].Name, classroom.Name)
+			assert.Equal(t, joinedClassrooms[i].Description, classroom.Description)
+			assert.Equal(t, joinedClassrooms[i].GroupID, classroom.GroupID)
+			assert.Equal(t, joinedClassrooms[i].GroupAccessTokenID, classroom.GroupAccessTokenID)
+			assert.Equal(t, joinedClassrooms[i].GroupAccessToken, classroom.GroupAccessToken)
 		}
 	})
 }
