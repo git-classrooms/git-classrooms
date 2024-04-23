@@ -119,7 +119,7 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 
 	t.Run("GetOwnedClassroomAssignment", func(t *testing.T) {
 		app.Get("classrooms/owned/:classroomId/assignments/:assignmentId", handler.GetOwnedClassroomAssignment)
-		route := fmt.Sprintf("/api/classrooms/owned/%d/assignments/%d", testClassroom.ID, testClassroomAssignment.ID)
+		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s", testClassroom.ID.String(), testClassroomAssignment.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
