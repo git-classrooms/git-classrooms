@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"testing"
@@ -22,7 +23,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-func TestGetOwnedClassroom(t *testing.T) {
+func TestGetOwnedClassrooms(t *testing.T) {
 	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
@@ -58,42 +59,37 @@ func TestGetOwnedClassroom(t *testing.T) {
 
 	// ------------ END OF DB SETUP -----------------
 
-	classroomsQuery := query.Classrooms
-	testClassrooms := []*database.Classroom{
-		{
-			Name:                  "Test Classroom 1",
-			Description:           "This is test classroom 1",
-			OwnerID:               1,
-			GroupID:               1,
-			GroupAccessTokenID:    1,
-			GroupAccessToken:      "test-token-1",
-		},
-		{
-			Name:                  "Test Classroom 2",
-			Description:           "This is test classroom 2",
-			OwnerID:               1,
-			GroupID:               2,
-			GroupAccessTokenID:    2,
-			GroupAccessToken:      "test-token-2",
-		},
-		{
-			Name:                  "Test Classroom 3",
-			Description:           "This is test classroom 3",
-			OwnerID:               1,
-			GroupID:               3,
-			GroupAccessTokenID:    3,
-			GroupAccessToken:      "test-token-3",
-		},
+	user := &database.User{ID: 1}
+	err = query.User.WithContext(context.Background()).Create(user)
+	if err != nil {
+		t.Fatalf("could not create test user: %s", err.Error())
 	}
 
-	for _, classroom := range testClassrooms {
-		err = classroomQuery.WithContext(context.Background()).Create(testClassRoom)
+	classrooms := []*database.Classroom{
+		{
+			Name: "Classroom One", 
+			OwnerID: 1, 
+			Description: "Description One", 
+			GroupID: 10, 
+			GroupAccessTokenID: 30, 
+			GroupAccessToken: "token30"
+		},
+		{
+			Name: "Classroom Two", 
+			OwnerID: 1, 
+			Description: "Description Two",
+			GroupID: 20, 
+			GroupAccessTokenID: 40, 
+			GroupAccessToken: "token40"
+		},
+	}
+	
+	for _, classroom := range classrooms {
+		err = query.Classroom.WithContext(context.Background()).Create(classroom)
 		if err != nil {
 			t.Fatalf("could not create test classroom: %s", err.Error())
 		}
 	}
-
-	// ------------ END OF SEEDING DATA -----------------
 
 	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
@@ -102,12 +98,11 @@ func TestGetOwnedClassroom(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassrooms(testClassrooms)
+		ctx.SetUserID(1)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
-		s.SetUserID(1)
 		s.Save()
 		return c.Next()
 	})
@@ -116,19 +111,21 @@ func TestGetOwnedClassroom(t *testing.T) {
 
 	t.Run("GetOwnedClassrooms", func(t *testing.T) {
 		app.Get("/api/classrooms/owned", handler.GetOwnedClassrooms)
-		route := fmt.Sprintf("/api/classrooms/owned")
-
-		req := httptest.NewRequest("GET", route, nil)
+		req := httptest.NewRequest("GET", "/api/classrooms/owned", nil)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		var classrooms []*database.Classroom
-		err = json.NewDecoder(resp.Body).Decode(&classrooms)
+		classrooms, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.OwnerID.Eq(1)).Find()
 		assert.NoError(t, err)
-
-		assert.NotNil(t, classrooms)
-		assert.NotEmpty(t, classrooms)
+		assert.Len(t, classrooms, len(classrooms))
+		for i, classroom := range classrooms {
+			assert.Equal(t, classrooms[i].Name, classroom.Name)
+			assert.Equal(t, classrooms[i].Description, classroom.Description)
+			assert.Equal(t, classrooms[i].GroupID, classroom.GroupID)
+			assert.Equal(t, classrooms[i].GroupAccessTokenID, classroom.GroupAccessTokenID)
+			assert.Equal(t, classrooms[i].GroupAccessToken, classroom.GroupAccessToken)
+		}
 	})
 }
