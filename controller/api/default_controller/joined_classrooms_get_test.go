@@ -2,6 +2,8 @@ package default_controller
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -17,6 +19,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
@@ -128,11 +131,11 @@ func TestGetJoinedClassrooms(t *testing.T) {
 
 		assert.Len(t, classrooms, len(joinedClassrooms))
 		for i, classroom := range classrooms {
+			assert.Equal(t, joinedClassrooms[i].ID, classroom.ID)
 			assert.Equal(t, joinedClassrooms[i].Name, classroom.Name)
+			assert.Equal(t, joinedClassrooms[i].OwnerID, classroom.OwnerID)
 			assert.Equal(t, joinedClassrooms[i].Description, classroom.Description)
 			assert.Equal(t, joinedClassrooms[i].GroupID, classroom.GroupID)
-			assert.Equal(t, joinedClassrooms[i].GroupAccessTokenID, classroom.GroupAccessTokenID)
-			assert.Equal(t, joinedClassrooms[i].GroupAccessToken, classroom.GroupAccessToken)
 		}
 	})
 }
