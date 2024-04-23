@@ -2,8 +2,6 @@ package default_controller
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -19,7 +17,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
@@ -28,11 +25,9 @@ func TestGetJoinedClassrooms(t *testing.T) {
 	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
-
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	t.Cleanup(func() {
 		err = pg.Restore(context.Background())
 		if err != nil {
@@ -40,47 +35,49 @@ func TestGetJoinedClassrooms(t *testing.T) {
 		}
 	})
 	dbURL, err := pg.ConnectionString(context.Background())
-
 	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
-
 	err = utils.MigrateDatabase(db)
 	if err != nil {
 		t.Fatalf("could not migrate database: %s", err.Error())
 	}
-
 	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	query.SetDefault(db)
 
 	// ------------ END OF DB SETUP -----------------
 
-	user := &database.User{ID: 1}
-	err = query.User.WithContext(context.Background()).Create(user)
+	owner := &database.User{ID: 1}
+	err = query.User.WithContext(context.Background()).Create(owner)
 	if err != nil {
-		t.Fatalf("could not create test user: %s", err.Error())
+		t.Fatalf("could not create test owner: %s", err.Error())
 	}
 
-	testClassrooms := []*database.Classroom{
+	joinedClassrooms := []*database.Classroom{
 		{
 			Name:               "Joined Classroom One",
-			OwnerID:            2,
+			OwnerID:            1,
 			Description:        "Description One",
+			GroupID:            15,
+			GroupAccessTokenID: 35,
+			GroupAccessToken:   "token35",
 		},
 		{
 			Name:               "Joined Classroom Two",
-			OwnerID:            2,
+			OwnerID:            1,
 			Description:        "Description Two",
+			GroupID:            25,
+			GroupAccessTokenID: 45,
+			GroupAccessToken:   "token45",
 		},
 	}
 
-	for _, testClassroom := range testClassrooms {
-		err = query.Classroom.WithContext(context.Background()).Create(testClassroom)
+	for _, classroom := range joinedClassrooms {
+		err = query.Classroom.WithContext(context.Background()).Create(classroom)
 		if err != nil {
 			t.Fatalf("could not create test classroom: %s", err.Error())
 		}
@@ -96,6 +93,7 @@ func TestGetJoinedClassrooms(t *testing.T) {
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
 		ctx.SetUserID(1)
+
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
@@ -113,15 +111,16 @@ func TestGetJoinedClassrooms(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		joinedClassrooms, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.OwnerID.NotEq(1)).Find()
+		var responses []*getJoinedClassroomResponse
+		err = json.NewDecoder(resp.Body).Decode(&responses)
 		assert.NoError(t, err)
-		assert.Len(t, joinedClassrooms, len(joinedClassrooms))
-		for i, testJoinedClassroom := range joinedClassrooms {
-			assert.Equal(t, joinedClassrooms[i].ID, testJoinedClassroom.ID)
-			assert.Equal(t, joinedClassrooms[i].Name, testJoinedClassroom.Name)
-			assert.Equal(t, joinedClassrooms[i].OwnerID, testJoinedClassroom.OwnerID)
-			assert.Equal(t, joinedClassrooms[i].Description, testJoinedClassroom.Description)
-			assert.Equal(t, joinedClassrooms[i].GroupID, testJoinedClassroom.GroupID)
+		assert.Len(t, responses, len(joinedClassrooms))
+		for i, response := range responses {
+			assert.Equal(t, joinedClassrooms[i].Name, response.UserClassrooms.Name)
+			assert.Equal(t, joinedClassrooms[i].Description, response.UserClassrooms.Description)
+			assert.Equal(t, joinedClassrooms[i].GroupID, response.UserClassrooms.GroupID)
+			assert.Equal(t, joinedClassrooms[i].GroupAccessTokenID, response.UserClassrooms.GroupAccessTokenID)
+			assert.Equal(t, joinedClassrooms[i].GroupAccessToken, response.UserClassrooms.GroupAccessToken)
 		}
 	})
 }

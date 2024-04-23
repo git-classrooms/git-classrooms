@@ -26,7 +26,6 @@ import (
 
 func TestGetJoinedClassroom(t *testing.T) {
 	// --------------- DB SETUP -----------------
-	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
 
