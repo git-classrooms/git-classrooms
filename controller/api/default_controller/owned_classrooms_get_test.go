@@ -2,8 +2,6 @@ package default_controller
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 
