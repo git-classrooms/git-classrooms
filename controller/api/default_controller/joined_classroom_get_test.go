@@ -121,7 +121,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 
 	t.Run("GetJoinedClassroom", func(t *testing.T) {
 		app.Get("/api/classrooms/joined/:classroomId", handler.GetJoinedClassroom)
-		route := fmt.Sprintf("/api/classrooms/joined/%d", testClassRoom.ID)
+		route := fmt.Sprintf("/api/classrooms/joined/%s", testClassRoom.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
