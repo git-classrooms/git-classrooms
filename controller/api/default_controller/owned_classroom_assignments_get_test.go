@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -19,6 +20,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
@@ -59,32 +61,50 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 
 	// ------------ END OF DB SETUP -----------------
 
-	classroom := &database.Classroom{
+	owner := &database.User{ID: 1, GitlabEmail: "owner@example.com"}
+	err = query.User.WithContext(context.Background()).Create(owner)
+	if err != nil {
+		t.Fatalf("could not create test user: %s", err.Error())
+	}
+
+	testClassroom := &database.Classroom{
 		Name:               "Test classroom",
-		OwnerID:            1,
-		Description:        "A classroom for testing assignments",
+		OwnerID:            owner.ID,
+		Description:        "Classroom description",
 		GroupID:            1,
 		GroupAccessTokenID: 20,
 		GroupAccessToken:   "token",
 	}
-	err := query.Classroom.WithContext(context.Background()).Create(classroom)
+
+	err = query.Classroom.WithContext(context.Background()).Create(testClassroom)
 	if err != nil {
 		t.Fatalf("could not create test classroom: %s", err.Error())
 	}
 
-	assignments := []*database.Assignment{
-		{Title: "Assignment 1", Description: "First test assignment", ClassroomID: classroom.ID},
-		{Title: "Assignment 2", Description: "Second test assignment", ClassroomID: classroom.ID},
+	testAssignments := []*database.Assignment{
+		{
+			ClassroomID:       testClassroom.ID,
+			TemplateProjectID: 1,
+			Name:              "Test Assignment 1",
+			Description:       "Description 1",
+		},
+		{
+			ClassroomID:       testClassroom.ID,
+			TemplateProjectID: 2,
+			Name:              "Test Assignment 2",
+			Description:       "Description 2",
+		},
 	}
-	for _, assignment := range assignments {
-		err = query.Assignment.WithContext(context.Background()).Create(assignment)
+
+	for _, a := range testAssignments {
+		err = query.Assignment.WithContext(context.Background()).Create(a)
 		if err != nil {
 			t.Fatalf("could not create test assignment: %s", err.Error())
 		}
 	}
 
 	// ------------ END OF SEEDING DATA -----------------
-
+	
 	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -92,12 +112,12 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(testClassroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
-		s.SetUserID(1)
+		s.SetUserID(owner.ID)
 		s.Save()
 		return c.Next()
 	})
@@ -105,21 +125,23 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 	handler := NewApiController(mailRepo)
 
 	t.Run("GetOwnedClassroomAssignments", func(t *testing.T) {
-		app.Get("/api/classrooms/owned/:classroomId/assignments", handler.GetOwnedClassroomAssignments)
-		route := fmt.Sprintf("/api/classrooms/owned/%d/assignments", classroom.ID)
+		app.Get("/classrooms/owned/:classroomId/assignments", handler.GetOwnedClassroomAssignments)
+		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments", testClassroom.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
+		assert.NoError(t, err)
 
+		var assignments []*database.Assignment
+		err = json.NewDecoder(resp.Body).Decode(&assignments)
+		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
-		assert.NoError(t, err)
+		assert.Len(t, assignments, len(testAssignments))
 
-		retrievedAssignments, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ClassroomID.Eq(classroom.ID)).Find()
-		assert.NoError(t, err)
-		assert.Len(t, retrievedAssignments, len(assignments))
-		for i, retrievedAssignment := range retrievedAssignments {
-			assert.Equal(t, assignments[i].Title, retrievedAssignment.Title)
-			assert.Equal(t, assignments[i].Description, retrievedAssignment.Description)
+		for i, assignment := range assignments {
+			assert.Equal(t, testAssignments[i].ID, assignment.ID)
+			assert.Equal(t, testAssignments[i].Name, assignment.Name)
+			assert.Equal(t, testAssignments[i].Description, assignment.Description)
 		}
 	})
 }
