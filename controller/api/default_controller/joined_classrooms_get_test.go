@@ -2,6 +2,8 @@ package default_controller
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -17,7 +19,9 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
 func TestGetJoinedClassrooms(t *testing.T) {
@@ -64,13 +68,11 @@ func TestGetJoinedClassrooms(t *testing.T) {
 
 	testClassrooms := []*database.Classroom{
 		{
-			ID:                 1,
 			Name:               "Joined Classroom One",
 			OwnerID:            2,
 			Description:        "Description One",
 		},
 		{
-			ID:                 2,
 			Name:               "Joined Classroom Two",
 			OwnerID:            2,
 			Description:        "Description Two",
