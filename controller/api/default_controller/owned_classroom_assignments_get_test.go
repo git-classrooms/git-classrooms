@@ -2,11 +2,8 @@ package default_controller
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -20,7 +17,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
@@ -81,7 +77,7 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 		t.Fatalf("could not create test classroom: %s", err.Error())
 	}
 
-	testAssignments := []*database.Assignment{
+	testClassroomAssignments := []*database.Assignment{
 		{
 			ClassroomID:       testClassroom.ID,
 			TemplateProjectID: 1,
@@ -96,7 +92,7 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 		},
 	}
 
-	for _, a := range testAssignments {
+	for _, a := range testClassroomAssignments {
 		err = query.Assignment.WithContext(context.Background()).Create(a)
 		if err != nil {
 			t.Fatalf("could not create test assignment: %s", err.Error())
@@ -132,16 +128,18 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 		resp, err := app.Test(req)
 		assert.NoError(t, err)
 
-		var assignments []*database.Assignment
-		err = json.NewDecoder(resp.Body).Decode(&assignments)
+		var classroomAssignments []*database.Assignment
+		err = json.NewDecoder(resp.Body).Decode(&classroomAssignments)
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
-		assert.Len(t, assignments, len(testAssignments))
+		assert.Len(t, classroomAssignments, len(testClassroomAssignments))
 
-		for i, assignment := range assignments {
-			assert.Equal(t, testAssignments[i].ID, assignment.ID)
-			assert.Equal(t, testAssignments[i].Name, assignment.Name)
-			assert.Equal(t, testAssignments[i].Description, assignment.Description)
+		for i, assignment := range classroomAssignments {
+			assert.Equal(t, testClassroomAssignments[i].ID, assignment.ID)
+			assert.Equal(t, testClassroomAssignments[i].ClassroomID, assignment.ClassroomID)
+			assert.Equal(t, testClassroomAssignments[i].TemplateProjectID, assignment.TemplateProjectID)
+			assert.Equal(t, testClassroomAssignments[i].Name, assignment.Name)
+			assert.Equal(t, testClassroomAssignments[i].Description, assignment.Description)
 		}
 	})
 }
