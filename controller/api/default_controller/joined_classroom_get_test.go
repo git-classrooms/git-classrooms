@@ -72,7 +72,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 	}
 
 	classroomQuery := query.Classroom
-	testClassRoom := &database.Classroom{
+	testClassroom := &database.Classroom{
 		Name:               "Test classroom",
 		OwnerID:            owner.ID,
 		Description:        "Classroom description",
@@ -81,7 +81,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 		GroupAccessToken:   "token",
 	}
 
-	err = classroomQuery.WithContext(context.Background()).Create(testClassRoom)
+	err = classroomQuery.WithContext(context.Background()).Create(testClassroom)
 	if err != nil {
 		t.Fatalf("could not create test classroom: %s", err.Error())
 	}
@@ -89,7 +89,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 	userClassroomQuery := query.UserClassrooms
 	testUserClassroom := &database.UserClassrooms{
 		UserID:      member.ID,
-		ClassroomID: testClassRoom.ID,
+		ClassroomID: testClassroom.ID,
 		Role:        database.Student,
 	}
 
@@ -107,7 +107,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(testClassRoom)
+		ctx.SetOwnedClassroom(testClassroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
@@ -121,7 +121,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 
 	t.Run("GetJoinedClassroom", func(t *testing.T) {
 		app.Get("/api/classrooms/joined/:classroomId", handler.GetJoinedClassroom)
-		route := fmt.Sprintf("/api/classrooms/joined/%s", testClassRoom.ID.String())
+		route := fmt.Sprintf("/api/classrooms/joined/%s", testClassroom.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
@@ -144,10 +144,10 @@ func TestGetJoinedClassroom(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		assert.Equal(t, testClassRoom.ID, classRoom.ID)
-		assert.Equal(t, testClassRoom.Name, classRoom.Name)
-		assert.Equal(t, testClassRoom.OwnerID, classRoom.OwnerID)
-		assert.Equal(t, testClassRoom.Description, classRoom.Description)
-		assert.Equal(t, testClassRoom.GroupID, classRoom.GroupID)
+		assert.Equal(t, testClassroom.ID, classRoom.ID)
+		assert.Equal(t, testClassroom.Name, classRoom.Name)
+		assert.Equal(t, testClassroom.OwnerID, classRoom.OwnerID)
+		assert.Equal(t, testClassroom.Description, classRoom.Description)
+		assert.Equal(t, testClassroom.GroupID, classRoom.GroupID)
 	})
 }
