@@ -14,8 +14,8 @@ The frontend proxies the requests for the path `/api/*` to the backend server.
 For development, we use the git flow branching model for simplicity.
 
 ### Setup
-The Setup for development is documented in the the following file
-[dev_setup.md](dev_setup.md)
+The Setup for development is documented in the following file
+[dev_setup.md](docs/dev_setup.md)
 
 
 #### Code Generation
@@ -49,7 +49,7 @@ And access the application via `http://localhost:3000`
 
 ### Swagger-UI testing (recommended)
 
-1. Run the app described in [Dev-Setup](dev_setup.md#start-the-application)
+1. Run the app described in [Dev-Setup](docs/dev_setup.md#start-the-application)
 2. Add [Swag](https://github.com/swaggo/swag/?tab=readme-ov-file#api-operation) comments directly above your endpoint
 3. Visit the page `http://localhost:5173/docs.html`
 4. Click on the `Sign-In`-Button on the top-right

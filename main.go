@@ -27,17 +27,16 @@ import (
 
 var version string = "development"
 
-//	@title			Gitlab Classroom API
-//	@version		1.0
+//	@title			GitLab Classrooms – Backend API
+//	@version		1.0.0
 //	@description	This is the API for our Gitlab Classroom Webapp
 //	@termsOfService	http://swagger.io/terms/
 
-//	@contact.name	API Support
-//	@contact.url	http://www.swagger.io/support
-//	@contact.email	support@swagger.io
+//	@contact.name	Hochschule Flensburg – Applied Computer Science (Master)
+//	@contact.url	https://hs-flensburg.de
 
-//	@license.name	GPL 3.0 | MIT | Apache 2.0 | 3-BSD
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	Proprietary
+//	@license.url	https://gitlab.hs-flensburg.de/fb3-masterprojekt-gitlab-classroom/gitlab-classroom/-/raw/develop/LICENSE.md
 
 //	@BasePath	/api/v1
 
