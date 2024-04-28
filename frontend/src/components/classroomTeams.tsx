@@ -36,7 +36,7 @@ export function TeamListCard({ teams, classroomId, userRole }: {
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
             <Link to="/classrooms/owned/$classroomId/team/create/modal" replace params={{ classroomId }}>
-              Create Teams
+              Create a team
             </Link>
           </Button>
         </CardFooter>}
@@ -90,12 +90,15 @@ function TeamListElement({ team }: { team: Team }) {
         <p className="text-lg font-semibold">{team.name}</p>
         <p
           className="text-sm text-muted-foreground mt-[-0.3rem]">{team.members.length} member{team.members.length != 1 ? "s" : ""}</p>
-        <Separator className="my-1" />
-        <div className="text-muted-foreground">
-          {team.members.map((m) => (
-            <div key={m.id}>{m.gitlabUsername} - {m.name}</div>
-          ))}
-        </div>
+        {team.members.length >= 1 &&
+          <>
+            <Separator className="my-1" />
+            <div className="text-muted-foreground">
+              {team.members.map((m) => (
+                <div key={m.id}>{m.gitlabUsername} - {m.name}</div>
+              ))}
+            </div>
+          </>}
       </HoverCardContent>
     </HoverCard>
   );
