@@ -37,13 +37,13 @@ export interface GetMe {
      * @type {string}
      * @memberof GetMe
      */
-    gitlabUsername?: string;
+    gitlabUrl?: string;
 
     /**
      * @type {string}
      * @memberof GetMe
      */
-    gitlabUrl?: string;
+    gitlabUsername?: string;
 
     /**
      * @type {number}

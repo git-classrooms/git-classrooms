@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Clipboard, Gitlab } from "lucide-react";
-import { Team } from "@/types/team.ts";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-
+import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
+type Team = DefaultControllerGetOwnedClassroomTeamResponse
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -76,6 +76,7 @@ function TeamTable({ teams, userRole }: {
 }
 
 function TeamListElement({ team }: { team: Team }) {
+  if(team.name == null || team.members == null) return (<>Error loading this team, team data is faulty</>);
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">

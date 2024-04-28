@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { DatabaseUser } from './database-user';
  /**
  * 
  *
@@ -43,6 +44,12 @@ export interface DefaultControllerGetOwnedClassroomTeamResponse {
      * @memberof DefaultControllerGetOwnedClassroomTeamResponse
      */
     id?: string;
+
+    /**
+     * @type {Array<DatabaseUser>}
+     * @memberof DefaultControllerGetOwnedClassroomTeamResponse
+     */
+    members?: Array<DatabaseUser>;
 
     /**
      * @type {string}

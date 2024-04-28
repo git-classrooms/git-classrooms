@@ -21,7 +21,6 @@ export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_inde
     const assignments = await context.queryClient.ensureQueryData(ownedAssignmentsQueryOptions(params.classroomId));
     const members = await context.queryClient.ensureQueryData(ownedClassroomMemberQueryOptions(params.classroomId));
     const teams = await context.queryClient.ensureQueryData(ownedClassroomTeamsQueryOptions(params.classroomId));
-
     return { classroom, assignments, members, teams };
   },
   pendingComponent: Loader,
