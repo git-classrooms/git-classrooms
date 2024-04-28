@@ -79,8 +79,6 @@ function MemberTable({ members, userRole, showTeams }: {
 
 function MemberListElement({ member, showTeams }: { member: UserClassroom, showTeams: boolean }) {
   return (
-    <>
-
       <HoverCard>
         <HoverCardTrigger className="cursor-default flex">
           <div className="pr-2">
@@ -110,6 +108,5 @@ function MemberListElement({ member, showTeams }: { member: UserClassroom, showT
             </div>
         </HoverCardContent>
       </HoverCard>
-    </>
   );
 }

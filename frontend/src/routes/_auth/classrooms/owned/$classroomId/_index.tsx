@@ -10,15 +10,9 @@ import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
 import { formatDate } from "@/lib/utils.ts";
 import { ownedClassroomTeamsQueryOptions } from "@/api/teams";
-import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { Role } from "@/types/classroom.ts";
+import { TeamListCard } from "@/components/classroomTeams.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
@@ -66,16 +60,7 @@ function ClassroomDetail() {
                       userRole={Role.Owner} showTeams={classroom.maxTeamSize > 1}
       />{/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
       {classroom.maxTeamSize > 1 && (
-        <>
-          <Header title="Teams">
-            <Button variant="default" asChild>
-              <Link to="/classrooms/owned/$classroomId/team/create/modal" replace params={{ classroomId }}>
-                Create Teams
-              </Link>
-            </Button>
-          </Header>
-          <TeamTable teams={teams} />
-        </>
+        <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner}/>
       )}
     </div>
   );
@@ -104,38 +89,6 @@ function AssignmentTable({ assignments, classroomId }: { assignments: Assignment
                   params={{ classroomId, assignmentId: a.id }}> Show Assignment
                 </Link>
               </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-
-function TeamTable({ teams }: { teams: DefaultControllerGetOwnedClassroomTeamResponse[] }) {
-  return (
-    <Table>
-      <TableCaption>Teams</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {teams.map((t) => (
-          <TableRow key={t.id}>
-            <TableCell>{t.name}</TableCell>
-            <TableCell className="text-right">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button>Actions</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>Test</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </TableCell>
           </TableRow>
         ))}
