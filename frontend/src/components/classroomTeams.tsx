@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Clipboard, Gitlab } from "lucide-react";
-import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
+import { Team } from "@/types/team.ts";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
+import { Separator } from "@/components/ui/separator.tsx";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -17,7 +19,7 @@ import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
 export function TeamListCard({ teams, classroomId, userRole }: {
-  teams: DefaultControllerGetOwnedClassroomTeamResponse[];
+  teams: Team[];
   classroomId: string,
   userRole: Role
 }): JSX.Element {
@@ -43,7 +45,7 @@ export function TeamListCard({ teams, classroomId, userRole }: {
 }
 
 function TeamTable({ teams, userRole }: {
-  teams: DefaultControllerGetOwnedClassroomTeamResponse[];
+  teams: Team[];
   userRole: Role,
 }) {
   return (
@@ -73,11 +75,28 @@ function TeamTable({ teams, userRole }: {
   );
 }
 
-function TeamListElement({ team }: { team: DefaultControllerGetOwnedClassroomTeamResponse }) {
+function TeamListElement({ team }: { team: Team }) {
   return (
-    <div className="cursor-default">
-      <div className="font-medium">{team.name}</div>
-    </div>
-
+    <HoverCard>
+      <HoverCardTrigger className="cursor-default flex">
+        <div className="cursor-default">
+          <div className="font-medium">{team.name}</div>
+          <div className="text-sm text-muted-foreground md:inline">
+            {team.members.length} member{team.members.length != 1 ? "s" : ""}
+          </div>
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-100">
+        <p className="text-lg font-semibold">{team.name}</p>
+        <p
+          className="text-sm text-muted-foreground mt-[-0.3rem]">{team.members.length} member{team.members.length != 1 ? "s" : ""}</p>
+        <Separator className="my-1" />
+        <div className="text-muted-foreground">
+          {team.members.map((m) => (
+            <div key={m.id}>{m.gitlabUsername} - {m.name}</div>
+          ))}
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }

@@ -26,10 +26,20 @@ func (ctrl *DefaultController) GetOwnedClassroomTeams(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()
 
-	response := utils.Map(classroom.Teams, func(team *database.Team) *getOwnedClassroomTeamResponse {
+	teams, err := ownedClassroomTeamQuery(c, classroom.ID).
+		Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	response := utils.Map(teams, func(team *database.Team) *getOwnedClassroomTeamResponse {
+		member := utils.Map(team.Member, func(u *database.UserClassrooms) *database.User {
+			return &u.User
+		})
 		return &getOwnedClassroomTeamResponse{
-			Team:      *team,
-			GitlabURL: fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", classroom.ID.String(), team.ID.String()),
+			Team:       *team,
+			UserMember: member,
+			GitlabURL:  fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", classroom.ID.String(), team.ID.String()),
 		}
 	})
 

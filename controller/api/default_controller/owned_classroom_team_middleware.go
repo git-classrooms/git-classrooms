@@ -2,9 +2,19 @@ package default_controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
+
+func ownedClassroomTeamQuery(c *fiber.Ctx, classroomId uuid.UUID) query.ITeamDo {
+	queryTeam := query.Team
+	return queryTeam.
+		WithContext(c.Context()).
+		Preload(queryTeam.Member).
+		Preload(queryTeam.Member.User).
+		Where(queryTeam.ClassroomID.Eq(classroomId))
+}
 
 func (ctrl *DefaultController) OwnedClassroomTeamMiddleware(c *fiber.Ctx) error {
 	ctx := context.Get(c)
