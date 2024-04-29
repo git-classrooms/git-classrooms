@@ -10,7 +10,8 @@ import (
 
 type getOwnedClassroomTeamResponse struct {
 	database.Team
-	GitlabURL string `json:"gitlabUrl"`
+	UserMember []*database.User `json:"members"`
+	GitlabURL  string           `json:"gitlabUrl"`
 }
 
 // @Summary		Get current Team
