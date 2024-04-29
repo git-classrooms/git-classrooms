@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
 type Team = DefaultControllerGetOwnedClassroomTeamResponse
 /**
- * MemberListCard is a React component that displays a list of members in a classroom.
+ * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
  *
  * @param {Object} props - The properties passed to the component.
@@ -32,7 +32,7 @@ export function TeamListCard({ teams, classroomId, userRole }: {
       <CardContent>
         <TeamTable teams={teams} userRole={userRole} />
       </CardContent>
-      {userRole != 2 &&
+      {userRole != Role.Student &&
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
             <Link to="/classrooms/owned/$classroomId/team/create/modal" replace params={{ classroomId }}>
@@ -62,7 +62,7 @@ function TeamTable({ teams, userRole }: {
                   <Gitlab className="h-6 w-6 text-gray-600" />
                 </a>
               </Button>
-              {userRole != 2 &&
+              {userRole != Role.Student &&
                 <Button variant="ghost"
                         size="icon"> {/* Should open a popup listing all assignments from that specific (team) */}
                   <Clipboard className="h-6 w-6 text-gray-600" />
