@@ -57,7 +57,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	targetRoute := fmt.Sprintf("/api/classrooms/owned/%s", classroom.ID.String())
 
 	t.Run("updates classroom", func(t *testing.T) {
-		requestBody := UpdateClassroomRequest{
+		requestBody := updateClassroomRequest{
 			Name:        classroom.Name + "_New",
 			Description: classroom.Name + "_new",
 		}
@@ -104,7 +104,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	})
 
 	t.Run("request body is emtpy", func(t *testing.T) {
-		requestBody := UpdateClassroomRequest{}
+		requestBody := updateClassroomRequest{}
 
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
@@ -121,7 +121,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	})
 
 	t.Run("gitlab error on change group name", func(t *testing.T) {
-		requestBody := UpdateClassroomRequest{
+		requestBody := updateClassroomRequest{
 			Name:        classroom.Name + "_New",
 			Description: classroom.Name + "_new",
 		}
@@ -147,7 +147,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	})
 
 	t.Run("gitlab error on change group description", func(t *testing.T) {
-		requestBody := UpdateClassroomRequest{
+		requestBody := updateClassroomRequest{
 			Name:        classroom.Name + "_New",
 			Description: classroom.Name + "_new",
 		}

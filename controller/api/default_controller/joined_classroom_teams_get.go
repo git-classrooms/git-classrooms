@@ -9,17 +9,10 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-type getJoinedClassroomTeamResponse struct {
-	database.Team
-	UserMember []*database.User `json:"member"`
-	GitlabURL  string           `json:"gitlabUrl"`
-} //@Name Team
-
 // @Summary		Get all teams of the current classroom
 // @Description	Get all teams of the current classroom
-// @Id				getJoinedClassroomTeams
+// @Id				GetJoinedClassroomTeams
 // @Tags			team
-// @Accept			json
 // @Produces		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Success		200			{array}		default_controller.getJoinedClassroomTeamResponse

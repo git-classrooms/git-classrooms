@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
@@ -9,11 +10,13 @@ import (
 )
 
 // @Summary		Get classroom Members
-// @Description	Create a new classroom
-// @Tags			classroom
-// @Produces		json
-// @Param			classroomId	path		string	true	"Classroom ID" Format(uuid)
+// @Description	Get classroom Members
+// @Id				GetOwnedClassroomMembers
+// @Tags			member
+// @Produce		json
+// @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Success		200			{array}		default_controller.getOwnedClassroomMemberResponse
+// @Failure		400			{object}	httputil.HTTPError
 // @Failure		401			{object}	httputil.HTTPError
 // @Failure		500			{object}	httputil.HTTPError
 // @Router			/classrooms/owned/{classroomId}/members [get]

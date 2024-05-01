@@ -58,14 +58,6 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Use(authController.AuthMiddleware)
 	v1.Get("/auth", authController.GetAuth)
 
-	//	"/me"
-	//	"/users/:userId/classrooms/" -> middleware
-	//
-	//	"/classrooms/joined/:classroomId"
-	//
-	//	"/ownedClassrooms/members/assignment"
-	//	"/joinedClassrooms/members/assignments"
-
 	v1.Get("/me", apiController.GetMe)
 	v1.Get("/me/gitlab", apiController.GetMeGitlab)
 
@@ -106,6 +98,7 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v1.Get("/classrooms/owned/:classroomId/teams/:teamId/members", apiController.GetOwnedClassroomTeamMembers)
 	v1.Use("/classrooms/owned/:classroomId/teams/:teamId/members/:memberId", apiController.OwnedClassroomTeamMemberMiddleware)
+	v1.Use("/classrooms/owned/:classroomId/teams/:teamId/members/:memberId/gitlab", apiController.RedirectUserGitlab)
 	v1.Delete("/classrooms/owned/:classroomId/teams/:teamId/members/:memberId", apiController.RemoveMemberFromTeam)
 
 	v1.Get("/classrooms/owned/:classroomId/teams/:teamId/projects", apiController.GetOwnedClassroomTeamProjects)
@@ -119,7 +112,7 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Get("/classrooms/joined/:classroomId/assignments", apiController.GetJoinedClassroomAssignments)
 	v1.Use("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.JoinedClassroomAssignmentMiddleware)
 	v1.Get("/classrooms/joined/:classroomId/assignments/:assignmentId", apiController.GetJoinedClassroomAssignment)
-	v1.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/accept", apiController.JoinAssignment)
+	v1.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/accept", apiController.AcceptAssignment)
 
 	v1.Get("/classrooms/joined/:classroomId/teams", apiController.GetJoinedClassroomTeams)
 	v1.Post("/classrooms/joined/:classroomId/teams", apiController.CreateJoinedClassroomTeam)
@@ -128,9 +121,6 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Get("/classrooms/joined/:classroomId/teams/:teamId/giltab", apiController.RedirectGroupGitlab)
 	v1.Post("/classrooms/joined/:classroomId/teams/:teamId/join", apiController.JoinJoinedClassroomTeam)
 
-	// api.Get("/classrooms/owned/:classroomId/members/:memberId/assignments", apiController.GetOwnedClassroomMemberAssignments)
-	// api.Get("/classrooms/owned/:classroomId/members/:memberId/assignments/:assignmentId", apiController.GetOwnedClassroomMemberAssignment)
-	//
 	// api.Post("/classrooms/joined/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignment) // moderator only
 	// api.Post("/classrooms/joined/:classroomId/invitations", apiController.InviteToClassroom) // moderator only
 	//

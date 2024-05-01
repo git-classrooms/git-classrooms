@@ -12,6 +12,21 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+// @Summary		InviteToAssignment
+// @Description	InviteToAssignment
+// @Id				InviteToAssignment
+// @Tags			classroom
+// @Accept			json
+// @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
+// @Param			assignmentId	path	string	true	"Assignment ID"	Format(uuid)
+// @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
+// @Success		201
+// @Failure		400	{object}	httputil.HTTPError
+// @Failure		401	{object}	httputil.HTTPError
+// @Failure		403	{object}	httputil.HTTPError
+// @Failure		404	{object}	httputil.HTTPError
+// @Failure		500	{object}	httputil.HTTPError
+// @Router			/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects [post]
 func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

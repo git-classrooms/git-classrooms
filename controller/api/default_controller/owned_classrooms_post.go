@@ -11,7 +11,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-type CreateClassroomRequest struct {
+type createClassroomRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	CreateTeams *bool  `json:"createTeams"`
@@ -19,7 +19,7 @@ type CreateClassroomRequest struct {
 	MaxTeamSize int    `json:"maxTeamSize"`
 }
 
-func (r CreateClassroomRequest) isValid() bool {
+func (r createClassroomRequest) isValid() bool {
 	return r.Name != "" &&
 		r.Description != "" &&
 		r.CreateTeams != nil &&
@@ -29,9 +29,10 @@ func (r CreateClassroomRequest) isValid() bool {
 
 // @Summary		Create a new classroom
 // @Description	Create a new classroom
+// @Id				CreateClassroom
 // @Tags			classroom
 // @Accept			json
-// @Param			classroom		body	default_controller.CreateClassroomRequest	true	"Classroom Info"
+// @Param			classroom		body	default_controller.createClassroomRequest	true	"Classroom Info"
 // @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
 // @Success		201
 // @Header			201	{string}	Location	"/api/v1/classroom/owned/{classroomId}"
@@ -45,7 +46,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 
 	userID := ctx.GetUserID()
 
-	requestBody := &CreateClassroomRequest{}
+	requestBody := &createClassroomRequest{}
 	err := c.BodyParser(requestBody)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

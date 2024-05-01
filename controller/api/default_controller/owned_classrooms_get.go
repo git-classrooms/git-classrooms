@@ -9,9 +9,9 @@ import (
 
 // @Summary		Get your owned classrooms
 // @Description	Get your owned classrooms
+// @Id				GetOwnedClassrooms
 // @Tags			classroom
-// @Accept			json
-// @Produces		json
+// @Produce		json
 // @Success		200	{array}		default_controller.getOwnedClassroomResponse
 // @Failure		401	{object}	httputil.HTTPError
 // @Failure		500	{object}	httputil.HTTPError

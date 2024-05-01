@@ -18,7 +18,7 @@ type getOwnedClassroomTeamResponse struct {
 // @Description	Get current Team
 // @Id				GetOwnedClassroomTeam
 // @Tags			team
-// @Accept			json
+// @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId		path		string	true	"Team ID"		Format(uuid)
 // @Success		200			{object}	default_controller.getOwnedClassroomTeamResponse

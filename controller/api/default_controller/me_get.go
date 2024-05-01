@@ -14,8 +14,8 @@ type getMeResponse struct {
 
 // @Summary		Show your user account
 // @Description	Get your user account
+// @Id				GetMe
 // @Tags			auth
-// @Accept			json
 // @Produce		json
 // @Success		200	{object}	default_controller.getMeResponse
 // @Failure		401	{object}	httputil.HTTPError

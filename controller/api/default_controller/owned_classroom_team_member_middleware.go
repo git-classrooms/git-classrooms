@@ -27,6 +27,7 @@ func (ctrl *DefaultController) OwnedClassroomTeamMemberMiddleware(c *fiber.Ctx) 
 	}
 
 	ctx.SetOwnedClassroomTeamMember(member)
+	ctx.SetGitlabUserID(member.UserID)
 
 	return ctx.Next()
 }

@@ -16,7 +16,7 @@ type changeOwnedClassroomMemberRequest struct {
 
 // @Summary		Update Classroom Members team and or role
 // @Description	Update Classroom Members team and or role
-// @Tags			team, member
+// @Tags			member
 // @Accept			json
 // @Param			classroomId		path	string													true	"Classroom ID"	Format(uuid)
 // @Param			memberId		path	int														true	"Member ID"
