@@ -16,37 +16,55 @@
  * 
  *
  * @export
- * @interface Team
+ * @interface Assignment
  */
-export interface Team {
+export interface Assignment {
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof Assignment
+     */
+    classroomId?: string;
+
+    /**
+     * @type {string}
+     * @memberof Assignment
      */
     createdAt?: string;
 
     /**
-     * @type {number}
-     * @memberof Team
+     * @type {string}
+     * @memberof Assignment
      */
-    groupId?: number;
+    description?: string;
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof Assignment
+     */
+    dueDate?: string;
+
+    /**
+     * @type {string}
+     * @memberof Assignment
      */
     id?: string;
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof Assignment
      */
     name?: string;
 
     /**
+     * @type {number}
+     * @memberof Assignment
+     */
+    templateProjectId?: number;
+
+    /**
      * @type {string}
-     * @memberof Team
+     * @memberof Assignment
      */
     updatedAt?: string;
 }

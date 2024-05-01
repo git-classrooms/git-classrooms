@@ -12,17 +12,24 @@
  * Do not edit the class manually.
  */
 
+import { Role } from './role';
  /**
  * 
  *
  * @export
- * @interface AuthGetCsrfResponse
+ * @interface ChangeOwnedClassroomMemberRequest
  */
-export interface AuthGetCsrfResponse {
+export interface ChangeOwnedClassroomMemberRequest {
+
+    /**
+     * @type {Role}
+     * @memberof ChangeOwnedClassroomMemberRequest
+     */
+    role?: Role;
 
     /**
      * @type {string}
-     * @memberof AuthGetCsrfResponse
+     * @memberof ChangeOwnedClassroomMemberRequest
      */
-    csrf?: string;
+    teamId?: string;
 }

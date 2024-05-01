@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
 import { Avatar } from "./avatar";
-import { GetMe } from "@/swagger-client";
+import { GetMeResponse } from "@/swagger-client";
 
-export function Navbar(props: { auth: GetMe | null }) {
+export function Navbar(props: { auth: GetMeResponse | null }) {
   const { csrfToken } = useCsrf();
 
   return (

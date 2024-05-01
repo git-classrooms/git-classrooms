@@ -12,41 +12,48 @@
  * Do not edit the class manually.
  */
 
+import { ClassroomInvitationStatus } from './classroom-invitation-status';
  /**
  * 
  *
  * @export
- * @interface Team
+ * @interface ClassroomInvitation
  */
-export interface Team {
+export interface ClassroomInvitation {
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof ClassroomInvitation
      */
     createdAt?: string;
 
     /**
-     * @type {number}
-     * @memberof Team
+     * @type {string}
+     * @memberof ClassroomInvitation
      */
-    groupId?: number;
+    email?: string;
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof ClassroomInvitation
+     */
+    expiryDate?: string;
+
+    /**
+     * @type {string}
+     * @memberof ClassroomInvitation
      */
     id?: string;
 
     /**
-     * @type {string}
-     * @memberof Team
+     * @type {ClassroomInvitationStatus}
+     * @memberof ClassroomInvitation
      */
-    name?: string;
+    status?: ClassroomInvitationStatus;
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof ClassroomInvitation
      */
     updatedAt?: string;
 }

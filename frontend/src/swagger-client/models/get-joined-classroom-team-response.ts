@@ -12,41 +12,54 @@
  * Do not edit the class manually.
  */
 
+import { User } from './user';
  /**
  * 
  *
  * @export
- * @interface Team
+ * @interface GetJoinedClassroomTeamResponse
  */
-export interface Team {
+export interface GetJoinedClassroomTeamResponse {
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof GetJoinedClassroomTeamResponse
      */
     createdAt?: string;
 
     /**
+     * @type {string}
+     * @memberof GetJoinedClassroomTeamResponse
+     */
+    gitlabUrl?: string;
+
+    /**
      * @type {number}
-     * @memberof Team
+     * @memberof GetJoinedClassroomTeamResponse
      */
     groupId?: number;
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof GetJoinedClassroomTeamResponse
      */
     id?: string;
 
     /**
+     * @type {Array<User>}
+     * @memberof GetJoinedClassroomTeamResponse
+     */
+    member?: Array<User>;
+
+    /**
      * @type {string}
-     * @memberof Team
+     * @memberof GetJoinedClassroomTeamResponse
      */
     name?: string;
 
     /**
      * @type {string}
-     * @memberof Team
+     * @memberof GetJoinedClassroomTeamResponse
      */
     updatedAt?: string;
 }
