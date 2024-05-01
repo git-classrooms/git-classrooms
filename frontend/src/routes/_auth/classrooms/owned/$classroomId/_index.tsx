@@ -3,16 +3,14 @@ import { Header } from "@/components/header";
 import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Assignment } from "@/types/assignments";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { ownedAssignmentsQueryOptions } from "@/api/assignments.ts";
-import { formatDate } from "@/lib/utils.ts";
 import { ownedClassroomTeamsQueryOptions } from "@/api/teams";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
+import { AssignmentListCard } from "@/components/classroomAssignments.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
@@ -53,45 +51,13 @@ function ClassroomDetail() {
           </Link>
         </Button>
       </Header>
-      <AssignmentTable assignments={assignments} classroomId={classroomId} />
-
+      <AssignmentListCard assignments={assignments} classroomId={classroomId} classroomName={classroom.name} />
       <MemberListCard classroomMembers={classroomMembers} classroomId={classroomId}
                       userRole={Role.Owner} showTeams={classroom.maxTeamSize > 1}
       />{/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
       {classroom.maxTeamSize > 1 && (
-        <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner}/>
+        <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} />
       )}
     </div>
-  );
-}
-
-function AssignmentTable({ assignments, classroomId }: { assignments: Assignment[]; classroomId: string }) {
-  return (
-    <Table>
-      <TableCaption>Assignments</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Due date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {assignments.map((a) => (
-          <TableRow key={a.id}>
-            <TableCell>{a.name}</TableCell>
-            <TableCell>{a.dueDate ? formatDate(a.dueDate) : "No Due Date"}</TableCell>
-            <TableCell className="text-right">
-              <Button asChild>
-                <Link
-                  to="/classrooms/owned/$classroomId/assignments/$assignmentId"
-                  params={{ classroomId, assignmentId: a.id }}> Show Assignment
-                </Link>
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 }
