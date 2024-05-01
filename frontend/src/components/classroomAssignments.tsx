@@ -6,6 +6,7 @@ import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Assignment } from "@/types/assignments.ts";
 import { Clipboard, Edit, Gitlab } from "lucide-react";
 import { formatDate } from "@/lib/utils.ts";
+import { Link } from "@tanstack/react-router";
 
 /**
  * AssignmentListCard is a React component that displays a list of assignments in a classroom.
@@ -34,9 +35,9 @@ export function AssignmentListCard({ assignments, classroomId, classroomName }: 
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button variant="default" asChild>
-          <a href={""}>
+          <Link to="" params={{}}>
             View all assignments
-          </a>
+          </Link>
         </Button>
       </CardFooter>
     </Card>
@@ -70,20 +71,19 @@ function AssignmentTable({ assignments, classroomId, classroomName }: {
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" asChild>
-                      <a href={""} target="_blank">
+                      <Link to="" params={{}}>
                         <Edit className="h-6 w-6 text-gray-600" />
-                      </a>
+                      </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <a href={`/classrooms/owned/${classroomId}/assignments/${a.id}`} target="_blank"
-                         rel="noreferrer">
+                      <Link to="/classrooms/owned/$classroomId/assignments/$assignmentId" params={{classroomId, assignmentId: a.id}}>
                         <Clipboard className="h-6 w-6 text-gray-600" />
-                      </a>
+                      </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <a href={""} target="_blank" rel="noreferrer">
+                      <Link to="" params={{}}>
                         <Gitlab className="h-6 w-6 text-gray-600" />
-                      </a>
+                      </Link>
                     </Button>
                   </div>
                 </HoverCardTrigger>
