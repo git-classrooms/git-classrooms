@@ -141,7 +141,7 @@ function CreateAssignment() {
                     </Button>
                   </div>
                 </FormControl>
-                <FormDescription>This is the Template Repository of your assignment.</FormDescription>
+                <FormDescription>This is the due date of your assignment.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -198,7 +198,7 @@ function CreateAssignment() {
                     </Popover>
                   </div>
                 </FormControl>
-                <FormDescription>This is the due date of your assignment.</FormDescription>
+                <FormDescription>This is the Template Repository of your assignment.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
