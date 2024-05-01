@@ -13,4 +13,4 @@ type UserAvatar struct {
 	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
 	AvatarURL         *string        `json:"avatarURL"`
 	FallbackAvatarURL *string        `json:"fallbackAvatarURL"`
-}
+} //@Name UserAvatar

@@ -12,11 +12,11 @@ import (
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
-// @Success		200				{object}	database.Assignment
-// @Failure		400				{object}	httputil.HTTPError
-// @Failure		401				{object}	httputil.HTTPError
-// @Failure		404				{object}	httputil.HTTPError
-// @Failure		500				{object}	httputil.HTTPError
+// @Success		200				{object}	Assignment
+// @Failure		400				{object}	HTTPError
+// @Failure		401				{object}	HTTPError
+// @Failure		404				{object}	HTTPError
+// @Failure		500				{object}	HTTPError
 // @Router			/classrooms/owned/{classroomId}/assignments/{assignmentId} [get]
 func (ctrl *DefaultController) GetOwnedClassroomAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)

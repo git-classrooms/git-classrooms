@@ -1,11 +1,12 @@
 package database
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-type ClassroomInvitationStatus uint8
+type ClassroomInvitationStatus uint8 //@Name ClassroomInvitationStatus
 
 const (
 	ClassroomInvitationPending ClassroomInvitationStatus = iota
@@ -23,4 +24,4 @@ type ClassroomInvitation struct {
 	Classroom   Classroom                 `json:"-"`
 	Email       string                    `gorm:"not null" json:"email"`
 	ExpiryDate  time.Time                 `gorm:"not null" json:"expiryDate"`
-}
+} //@Name ClassroomInvitation

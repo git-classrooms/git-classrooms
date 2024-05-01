@@ -15,10 +15,10 @@ import (
 // @Param			memberId		path	int		true	"Member ID"
 // @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
 // @Success		204
-// @Failure		400	{object}	httputil.HTTPError
-// @Failure		401	{object}	httputil.HTTPError
-// @Failure		404	{object}	httputil.HTTPError
-// @Failure		500	{object}	httputil.HTTPError
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
 // @Router			/classrooms/owned/{classroomId}/teams/{teamId}/members/{memberId} [delete]
 func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)

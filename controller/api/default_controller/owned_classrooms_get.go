@@ -13,8 +13,8 @@ import (
 // @Tags			classroom
 // @Produce		json
 // @Success		200	{array}		default_controller.getOwnedClassroomResponse
-// @Failure		401	{object}	httputil.HTTPError
-// @Failure		500	{object}	httputil.HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
 // @Router			/classrooms/owned [get]
 func (ctrl *DefaultController) GetOwnedClassrooms(c *fiber.Ctx) error {
 	ctx := context.Get(c)

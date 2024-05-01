@@ -16,10 +16,10 @@ import (
 // @Produces		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Success		200			{array}		default_controller.getJoinedClassroomTeamResponse
-// @Failure		400			{object}	httputil.HTTPError
-// @Failure		401			{object}	httputil.HTTPError
-// @Failure		404			{object}	httputil.HTTPError
-// @Failure		500			{object}	httputil.HTTPError
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		404			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
 // @Router			/classrooms/joined/{classroomId}/teams [get]
 func (ctrl *DefaultController) GetJoinedClassroomTeams(c *fiber.Ctx) error {
 	ctx := context.Get(c)

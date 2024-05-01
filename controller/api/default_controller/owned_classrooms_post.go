@@ -17,7 +17,7 @@ type createClassroomRequest struct {
 	CreateTeams *bool  `json:"createTeams"`
 	MaxTeams    *int   `json:"maxTeams"`
 	MaxTeamSize int    `json:"maxTeamSize"`
-}
+} //@Name CreateClassroomRequest
 
 func (r createClassroomRequest) isValid() bool {
 	return r.Name != "" &&
@@ -36,9 +36,9 @@ func (r createClassroomRequest) isValid() bool {
 // @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
 // @Success		201
 // @Header			201	{string}	Location	"/api/v1/classroom/owned/{classroomId}"
-// @Failure		400	{object}	httputil.HTTPError
-// @Failure		401	{object}	httputil.HTTPError
-// @Failure		500	{object}	httputil.HTTPError
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
 // @Router			/classrooms/owned [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)

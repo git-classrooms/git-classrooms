@@ -16,11 +16,11 @@ import (
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId		path		string	true	"Team ID"		Format(uuid)
-// @Success		200			{array}		database.UserClassrooms
-// @Failure		400			{object}	httputil.HTTPError
-// @Failure		401			{object}	httputil.HTTPError
-// @Failure		404			{object}	httputil.HTTPError
-// @Failure		500			{object}	httputil.HTTPError
+// @Success		200			{array}		UserClassrooms
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		404			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
 // @Router			/classrooms/owned/{classroomId}/teams/{teamId}/members [get]
 func (ctrl *DefaultController) GetOwnedClassroomTeamMembers(c *fiber.Ctx) error {
 	ctx := context.Get(c)

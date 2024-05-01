@@ -16,9 +16,9 @@ import (
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Success		200			{array}		default_controller.getOwnedClassroomMemberResponse
-// @Failure		400			{object}	httputil.HTTPError
-// @Failure		401			{object}	httputil.HTTPError
-// @Failure		500			{object}	httputil.HTTPError
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
 // @Router			/classrooms/owned/{classroomId}/members [get]
 func (ctrl *DefaultController) GetOwnedClassroomMembers(c *fiber.Ctx) error {
 	ctx := context.Get(c)

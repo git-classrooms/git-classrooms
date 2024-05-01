@@ -22,4 +22,4 @@ type Team struct {
 	Member []*UserClassrooms `gorm:"foreignKey:TeamID" json:"-"`
 
 	AssignmentProjects []*AssignmentProjects `json:"-"`
-}
+} //@Name Team

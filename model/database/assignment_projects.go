@@ -22,4 +22,4 @@ type AssignmentProjects struct {
 
 	AssignmentAccepted bool `gorm:"not null" json:"assignmentAccepted"`
 	ProjectID          int  `json:"projectId"`
-}
+} //@Name AssignmentProjects

@@ -2,7 +2,7 @@ package database
 
 import "github.com/google/uuid"
 
-type Role uint8
+type Role uint8 //@Name Role
 
 const (
 	Owner Role = iota
@@ -19,4 +19,4 @@ type UserClassrooms struct {
 	TeamID      *uuid.UUID `gorm:"type:uuid;index" json:"-"`
 	Team        *Team      `json:"team"`
 	Role        Role       `gorm:"not null" json:"role"`
-}
+} //@Name UserClassrooms

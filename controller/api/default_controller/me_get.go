@@ -10,7 +10,7 @@ import (
 type getMeResponse struct {
 	*database.User
 	GitlabURL string `json:"gitlabUrl"`
-} //@Name GetMe
+} //@Name GetMeResponse
 
 // @Summary		Show your user account
 // @Description	Get your user account
@@ -18,8 +18,8 @@ type getMeResponse struct {
 // @Tags			auth
 // @Produce		json
 // @Success		200	{object}	default_controller.getMeResponse
-// @Failure		401	{object}	httputil.HTTPError
-// @Failure		500	{object}	httputil.HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
 // @Router			/me [get]
 func (ctrl *DefaultController) GetMe(c *fiber.Ctx) error {
 	queryUser := query.User

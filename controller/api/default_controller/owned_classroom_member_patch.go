@@ -12,10 +12,11 @@ import (
 type changeOwnedClassroomMemberRequest struct {
 	Role   *database.Role `json:"role"`
 	TeamID *uuid.UUID     `json:"teamId"`
-}
+} //@Name ChangeOwnedClassroomMemberRequest
 
 // @Summary		Update Classroom Members team and or role
 // @Description	Update Classroom Members team and or role
+// @Id 			ChangeOwnedClassroomMember
 // @Tags			member
 // @Accept			json
 // @Param			classroomId		path	string													true	"Classroom ID"	Format(uuid)
@@ -23,10 +24,10 @@ type changeOwnedClassroomMemberRequest struct {
 // @Param			changeClassroom	body	default_controller.changeOwnedClassroomMemberRequest	true	"Update ClassroomMemberRequest"
 // @Param			X-Csrf-Token	header	string													true	"Csrf-Token"
 // @Success		204
-// @Failure		400	{object}	httputil.HTTPError
-// @Failure		401	{object}	httputil.HTTPError
-// @Failure		404	{object}	httputil.HTTPError
-// @Failure		500	{object}	httputil.HTTPError
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
 // @Router			/classrooms/owned/{classroomId}/members/{memberId} [patch]
 func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) error {
 	ctx := context.Get(c)
