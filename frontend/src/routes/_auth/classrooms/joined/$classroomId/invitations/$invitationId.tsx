@@ -22,7 +22,7 @@ function JoinClassroom() {
 
   return (
     <div className="p-6 rounded-lg  border">
-      <h1 className="text-5xl font-bold text-slate-900 text-center">Join Classroom</h1>
+      <h1 className="text-5xl font-bold text-center">Join Classroom</h1>
       <div className="divide-y divide-solid">
         <div className="py-6">
           <p className="text-slate-500 text-lg">
