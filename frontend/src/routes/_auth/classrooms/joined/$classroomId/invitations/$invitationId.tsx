@@ -4,7 +4,6 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useJoinClassroom } from "@/api/classrooms.ts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { getUUIDFromLocation } from "@/lib/utils";
-import { OwnedClassroom } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/invitations/$invitationId")({
   component: JoinClassroom,
