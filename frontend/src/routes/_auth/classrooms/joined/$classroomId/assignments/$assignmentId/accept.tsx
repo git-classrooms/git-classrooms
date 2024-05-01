@@ -22,12 +22,30 @@ function AcceptAssignment(){
 
 
   return(
-    <div className="p-2 space-y-6">
-      <Header title="Accept Assignment">
-        <Button onClick={onClick} disabled={isPending}>
-          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Accept Assignment"}
-        </Button>
-      </Header>
+    <div className="p-6 rounded-lg border">
+      <h1 className="text-5xl font-bold text-center">Accept Assignment</h1>
+      <div className="divide-y divide-solid">
+        <div className="py-6">
+          <p className="text-slate-500 text-lg">
+            You need to accept the assignment 01-monads-and-other-awesome-stuff in the classroom 2024-SS-FFWE.
+          </p>
+        </div>
+        <div className="py-6">
+          <p className="text-slate-500 text-lg">
+            Once you have accepted the assignment, you will get access to the repository monads-endboss. in the
+            2024-SS-FFWE group.
+          </p>
+        </div>
+        <div className="pt-6 flex justify-between">
+          <Button variant="destructive" disabled={isPending}>
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Reject"}
+          </Button>
+          <Button onClick={onClick} disabled={isPending}>
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Accept"}
+          </Button>
+        </div>
+      </div>
+
       {isError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
