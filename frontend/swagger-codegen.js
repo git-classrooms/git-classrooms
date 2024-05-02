@@ -8,6 +8,7 @@ const teamOptionChange = [
   "user-classrooms",
   "get-owned-classroom-member-response",
   "get-joined-classroom-member-response",
+  "get-joined-classroom-response",
 ];
 
 const modelsFile = path.join("models", "index.ts");

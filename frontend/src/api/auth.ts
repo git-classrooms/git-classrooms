@@ -1,11 +1,11 @@
-import { apiClient } from "@/lib/utils";
-import { AuthApi } from "@/swagger-client";
+import { createAuthApi } from "@/lib/utils";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 export const authCsrfQueryOptions = queryOptions({
   queryKey: ["csrf_auth"],
   queryFn: async () => {
-    const res = await apiClient.get<{ csrf: string }>("/auth/csrf");
+    const api = createAuthApi();
+    const res = await api.getCsrf();
     return res.data;
   },
 });
@@ -15,7 +15,7 @@ export const useAuth = () =>
     queryKey: ["auth"],
     queryFn: async () => {
       try {
-        const api = new AuthApi(undefined, "", apiClient);
+        const api = createAuthApi();
         const res = await api.getMe();
         return res.data;
       } catch (_) {

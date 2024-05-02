@@ -21,7 +21,7 @@ export type CreateOwnedTeamRequest = DeepRequired<OldCreateOwnedTeamRequest>;
 import { GetJoinedClassroomAssignmentResponse as OldGetJoinedClassroomAssignmentResponse } from "./get-joined-classroom-assignment-response";
 export type GetJoinedClassroomAssignmentResponse = DeepRequired<OldGetJoinedClassroomAssignmentResponse>;
 import { GetJoinedClassroomResponse as OldGetJoinedClassroomResponse } from "./get-joined-classroom-response";
-export type GetJoinedClassroomResponse = DeepRequired<OldGetJoinedClassroomResponse>;
+export type GetJoinedClassroomResponse = TeamPartial<DeepRequired<OldGetJoinedClassroomResponse>>;
 import { GetJoinedClassroomTeamResponse as OldGetJoinedClassroomTeamResponse } from "./get-joined-classroom-team-response";
 export type GetJoinedClassroomTeamResponse = DeepRequired<OldGetJoinedClassroomTeamResponse>;
 import { GetMeResponse as OldGetMeResponse } from "./get-me-response";

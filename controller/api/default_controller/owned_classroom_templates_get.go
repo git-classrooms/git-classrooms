@@ -19,7 +19,7 @@ import (
 // @Failure		403			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/templates [get]
+// @Router			/classrooms/owned/{classroomId}/templateProjects [get]
 func (ctrl *DefaultController) GetOwnedClassroomTemplates(c *fiber.Ctx) error {
 	type templateResponse struct {
 		ID   int    `json:"id"`

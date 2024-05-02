@@ -16,7 +16,7 @@ type getJoinedClassroomResponse struct {
 // @Summary		GetJoinedClassroom
 // @Description	GetJoinedClassroom
 // @Id				GetJoinedClassroom
-// @Tags			assignment
+// @Tags			classroom
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Success		200			{object}	default_controller.getJoinedClassroomResponse

@@ -18,7 +18,7 @@ import (
 // @Id				AcceptAssignment
 // @Tags			assignment
 // @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
-// @Param			assignemntId	path	string	true	"Assignment ID"	Format(uuid)
+// @Param			assignmentId	path	string	true	"Assignment ID"	Format(uuid)
 // @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
 // @Success		201
 // @Success		202
@@ -27,7 +27,7 @@ import (
 // @Failure		401	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/joined/{classroomId}/assignment/{assignmentId}/accept [post]
+// @Router			/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept [post]
 func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()

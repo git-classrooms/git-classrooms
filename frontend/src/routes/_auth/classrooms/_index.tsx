@@ -6,7 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
-import { UserClassroom, OwnedClassroom } from "@/types/classroom.ts";
+import { GetJoinedClassroomResponse, GetOwnedClassroomResponse } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -41,7 +41,7 @@ function Classrooms() {
   );
 }
 
-function OwnedClassroomTable({ classrooms }: { classrooms: OwnedClassroom[] }) {
+function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResponse[] }) {
   return (
     <Table>
       <TableCaption>Own Classrooms</TableCaption>
@@ -75,7 +75,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: OwnedClassroom[] }) {
   );
 }
 
-function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroom[] }) {
+function JoinedClassroomTable({ classrooms }: { classrooms: GetJoinedClassroomResponse[] }) {
   return (
     <Table>
       <TableCaption>Joined Classrooms</TableCaption>

@@ -1,14 +1,15 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/utils.ts";
-import { Assignment, AssignmentProject, CreateAssignmentForm, TemplateProject } from "@/types/assignments.ts";
+import { createAssignmentApi, createClassroomApi } from "@/lib/utils.ts";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
+import { CreateAssignmentRequest } from "@/swagger-client";
 
 export const ownedAssignmentsQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "assignments"],
     queryFn: async () => {
-      const res = await apiClient.get<Assignment[]>(`/classrooms/owned/${classroomId}/assignments`);
+      const api = createAssignmentApi();
+      const res = await api.getOwnedClassroomAssignments(classroomId);
       return res.data;
     },
   });
@@ -17,7 +18,8 @@ export const ownedAssignmentQueryOptions = (classroomId: string, assignmentId: s
   queryOptions({
     queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "assignments", `classroom-${assignmentId}`],
     queryFn: async () => {
-      const res = await apiClient.get<Assignment>(`/classrooms/owned/${classroomId}/assignments/${assignmentId}`);
+      const api = createAssignmentApi();
+      const res = await api.getOwnedClassroomAssignment(classroomId, assignmentId);
       return res.data;
     },
   });
@@ -32,9 +34,8 @@ export const ownedAssignmentProjectsQueryOptions = (classroomId: string, assignm
       "projects",
     ],
     queryFn: async () => {
-      const res = await apiClient.get<AssignmentProject[]>(
-        `/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`,
-      );
+      const api = createAssignmentApi();
+      const res = await api.getOwnedClassroomAssignmentProjects(classroomId, assignmentId);
       return res.data;
     },
   });
@@ -43,17 +44,19 @@ export const ownedTemplateProjectQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "templateProjects"],
     queryFn: async () => {
-      const res = await apiClient.get<TemplateProject[]>(`/classrooms/owned/${classroomId}/templateProjects`);
+      const api = createClassroomApi();
+      const res = await api.getOwnedClassroomTemplates(classroomId);
       return res.data;
     },
   });
 
 export const useCreateAssignment = (classroomId: string) => {
   const queryClient = useQueryClient();
-  const { apiClient } = useCsrf();
+  const { csrfToken } = useCsrf();
   return useMutation({
-    mutationFn: async (values: CreateAssignmentForm) => {
-      const res = await apiClient.post<void>(`/classrooms/owned/${classroomId}/assignments`, values);
+    mutationFn: async (values: CreateAssignmentRequest) => {
+      const api = createAssignmentApi();
+      const res = await api.createAssignment(values, csrfToken, classroomId);
       return res.headers.location as string;
     },
     onSuccess: () => {
@@ -67,10 +70,12 @@ export const useCreateAssignment = (classroomId: string) => {
 
 export const useInviteAssignmentMembers = (classroomId: string, assignmentId: string) => {
   const queryClient = useQueryClient();
-  const { apiClient } = useCsrf();
+  const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async () => {
-      await apiClient.post(`/classrooms/owned/${classroomId}/assignments/${assignmentId}/projects`);
+      const api = createAssignmentApi();
+      const res = await api.inviteToAssignment(classroomId, assignmentId, csrfToken);
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
@@ -82,10 +87,11 @@ export const useInviteAssignmentMembers = (classroomId: string, assignmentId: st
 };
 export const useAcceptAssignment = (classroomId: string, assignmentId: string) => {
   const queryClient = useQueryClient();
-  const { apiClient } = useCsrf();
+  const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async () => {
-      const res = await apiClient.post<void>(`/classrooms/joined/${classroomId}/assignments/${assignmentId}/accept`);
+      const api = createAssignmentApi();
+      const res = await api.acceptAssignment(classroomId, assignmentId, csrfToken);
       return res.data;
     },
     onSettled: () => {

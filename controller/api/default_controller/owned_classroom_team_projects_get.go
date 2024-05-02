@@ -16,7 +16,7 @@ type getOwnedClassroomTeamProjectResponse struct {
 // @Summary		Get all Projects of current team
 // @Description	Get all gitlab projects of the current team
 // @Id				GetOwnedClassroomTeamProjects
-// @Tags			project
+// @Tags			assignment
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId		path		string	true	"Team ID"		Format(uuid)

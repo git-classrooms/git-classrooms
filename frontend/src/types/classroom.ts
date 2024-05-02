@@ -1,7 +1,5 @@
 import { z } from "zod";
 import { reversed } from "@/types/utils";
-import { User } from "@/types/user";
-import { Team } from "@/types/team";
 
 export const Role = {
   Owner: 0,
@@ -12,27 +10,6 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role];
 
 export const GetRole = reversed(Role);
-
-export type UserClassroom = {
-  classroom: Omit<OwnedClassroom, "gitlabUrl">;
-  user: User;
-  role: Role;
-  team?: Team;
-  gitlabUrl: string;
-};
-
-export type OwnedClassroom = {
-  id: string;
-  name: string;
-  ownerId: number;
-  owner: User;
-  description: string;
-  groupId: number;
-  gitlabUrl: string;
-  maxTeamSize: number;
-  maxTeams: number;
-  createTeams: boolean;
-};
 
 export const createFormSchema = z.object({
   name: z.string().min(3),
@@ -72,11 +49,3 @@ export const Status = {
 export const GetStatus = reversed(Status);
 
 export type Status = (typeof Status)[keyof typeof Status];
-
-export type ClassroomInvitation = {
-  id: string;
-  status: Status;
-  createdAt: string;
-  email: string;
-  expiryDate: string;
-};
