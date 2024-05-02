@@ -15,12 +15,27 @@ import (
 
 type inviteToClassroomRequest struct {
 	MemberEmails []string `json:"memberEmails"`
-}
+} //@Name InviteToClassroomRequest
 
 func (r inviteToClassroomRequest) isValid() bool {
 	return len(r.MemberEmails) != 0
 }
 
+// @Summary		InviteToClassroom
+// @Description	InviteToClassroom
+// @Id				InviteToClassroom
+// @Tags			classroom
+// @Accept			json
+// @Param			classroomId		path	string										true	"Classroom ID"	Format(uuid)
+// @Param			memberEmails	body	default_controller.inviteToClassroomRequest	true	"Member Emails"
+// @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
+// @Success		201
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		403	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
+// @Router			/classrooms/owned/{classroomId}/invitations [post]
 func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

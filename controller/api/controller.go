@@ -60,7 +60,7 @@ type Controller interface {
 	JoinJoinedClassroomTeam(*fiber.Ctx) error
 
 	JoinClassroom(*fiber.Ctx) error
-	JoinAssignment(*fiber.Ctx) error
+	AcceptAssignment(*fiber.Ctx) error
 
 	CreateClassroom(*fiber.Ctx) error
 	CreateAssignment(*fiber.Ctx) error

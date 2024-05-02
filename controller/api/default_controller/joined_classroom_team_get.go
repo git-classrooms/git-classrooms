@@ -10,19 +10,24 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+type getJoinedClassroomTeamResponse struct {
+	database.Team
+	UserMember []*database.User `json:"members"`
+	GitlabURL  string           `json:"gitlabUrl"`
+} //@Name GetJoinedClassroomTeamResponse
+
 // @Summary		Get current Team
 // @Description	Get current Team
 // @Id				GetJoinedClassroomTeam
 // @Tags			team
-// @Accept			json
 // @Produces		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId		path		string	true	"Team ID"		Format(uuid)
 // @Success		200			{object}	default_controller.getJoinedClassroomTeamResponse
-// @Failure		400			{object}	httputil.HTTPError
-// @Failure		401			{object}	httputil.HTTPError
-// @Failure		404			{object}	httputil.HTTPError
-// @Failure		500			{object}	httputil.HTTPError
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		404			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
 // @Router			/classrooms/joined/{classroomId}/teams/{teamId} [get]
 func (ctrl *DefaultController) GetJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)

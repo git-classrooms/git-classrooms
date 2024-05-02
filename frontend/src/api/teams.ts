@@ -1,6 +1,5 @@
-import { apiClient } from "@/lib/utils";
+import { createTeamApi } from "@/lib/utils";
 import { useCsrf } from "@/provider/csrfProvider";
-import { TeamApi } from "@/swagger-client";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "./auth";
 import { TeamForm } from "@/types/team";
@@ -10,7 +9,7 @@ export const ownedClassroomTeamsQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["ownedClassrooms", classroomId, "teams"],
     queryFn: async () => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.getOwnedClassroomTeams(classroomId);
       return res.data;
     },
@@ -20,7 +19,7 @@ export const ownedClassroomTeamQueryOptions = (classroomId: string, teamId: stri
   queryOptions({
     queryKey: ["ownedClassrooms", classroomId, "teams", teamId],
     queryFn: async () => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.getOwnedClassroomTeam(classroomId, teamId);
       return res.data;
     },
@@ -30,7 +29,7 @@ export const joinedClassroomTeamsQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["joinedClassrooms", classroomId, "teams"],
     queryFn: async () => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.getJoinedClassroomTeams(classroomId);
       return res.data;
     },
@@ -40,7 +39,7 @@ export const joinedClassroomTeamQueryOptions = (classroomId: string, teamId: str
   queryOptions({
     queryKey: ["joinedClassrooms", classroomId, "teams", teamId],
     queryFn: async () => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.getJoinedClassroomTeam(classroomId, teamId);
       return res.data;
     },
@@ -51,7 +50,7 @@ export const useJoinTeam = (classroomId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (teamId: string) => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.joinJoinedClassroomTeam(classroomId, teamId, csrfToken);
       return res.data;
     },
@@ -68,7 +67,7 @@ export const useCreateTeamJoinedClassroom = (classroomId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: TeamForm) => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.createJoinedClassroomTeam(values, csrfToken, classroomId);
       return res.data;
     },
@@ -85,7 +84,7 @@ export const useCreateTeamOwnedClassroom = (classroomId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: TeamForm) => {
-      const api = new TeamApi(undefined, "", apiClient);
+      const api = createTeamApi();
       const res = await api.createOwnedClassroomTeam(values, csrfToken, classroomId);
       return res.data;
     },

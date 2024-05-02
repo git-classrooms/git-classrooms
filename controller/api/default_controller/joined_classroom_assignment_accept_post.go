@@ -13,7 +13,22 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) (err error) {
+// @Summary		Accept the assignment
+// @Description	Accept the assignment and work on your repository
+// @Id				AcceptAssignment
+// @Tags			assignment
+// @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
+// @Param			assignmentId	path	string	true	"Assignment ID"	Format(uuid)
+// @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
+// @Success		201
+// @Success		202
+// @Header			202	{string}	Location	"/api/v1/classroom/joined/{classroomId}/assignments/{assignmentId}"
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
+// @Router			/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept [post]
+func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()
 	userID := ctx.GetUserID()
@@ -60,31 +75,31 @@ func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the branch will be deleted when the project is deleted
+	// We don't need to clean up this step because the project will be deleted
 
 	_, err = repo.CreateBranch(project.ID, "feedback", "main")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the branch will be deleted when the project is deleted
+	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.UnprotectBranch(project.ID, "main")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the branch will be deleted when the project is deleted
+	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.ProtectBranch(project.ID, "main", gitlabModel.DeveloperPermissions)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the branch will be deleted when the project is deleted
+	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.ProtectBranch(project.ID, "feedback", gitlabModel.MaintainerPermissions)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the branch will be deleted when the project is deleted
+	// We don't need to clean up this step because the project will be deleted
 
 	queryUsers := query.User
 	members, err := queryUsers.
@@ -103,7 +118,7 @@ func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the branch will be deleted when the project is deleted
+	// We don't need to clean up this step because the project will be deleted
 
 	assignmentProject.ProjectID = project.ID
 	assignmentProject.AssignmentAccepted = true
@@ -113,6 +128,7 @@ func (ctrl *DefaultController) JoinAssignment(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/joined/%s/assignments/%s", classroom.ClassroomID.String(), assignmentProject.AssignmentID.String()))
 	return c.SendStatus(fiber.StatusAccepted)
 }
 

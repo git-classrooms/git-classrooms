@@ -8,12 +8,12 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { AssignmentProject } from "@/types/assignments.ts";
 import { Header } from "@/components/header.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Code, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { formatDate } from "@/lib/utils.ts";
+import { GetOwnedClassroomAssignmentProjectResponse } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context, params }) => {
@@ -67,7 +67,11 @@ function AssignmentDetail() {
   );
 }
 
-function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: AssignmentProject[] }) {
+function AssignmentProjectTable({
+  assignmentProjects,
+}: {
+  assignmentProjects: GetOwnedClassroomAssignmentProjectResponse[];
+}) {
   return (
     <Table>
       <TableCaption>AssignmentProjects</TableCaption>

@@ -32,4 +32,4 @@ type Classroom struct {
 	Teams       []*Team                `gorm:"foreignKey:ClassroomID" json:"-"`
 	Assignments []*Assignment          `json:"-"`
 	Invitations []*ClassroomInvitation `json:"-"`
-}
+} //@Name Classroom

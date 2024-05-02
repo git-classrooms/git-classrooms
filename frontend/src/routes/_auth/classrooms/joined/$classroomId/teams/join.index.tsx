@@ -5,7 +5,7 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
-import { Team } from "@/swagger-client";
+import { GetJoinedClassroomTeamResponse } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Code } from "lucide-react";
@@ -70,7 +70,7 @@ function JoinTeam() {
 }
 
 interface TeamsTableProps {
-  teams: Team[];
+  teams: GetJoinedClassroomTeamResponse[];
   isPending: boolean;
   joinTeam: (teamId: string) => Promise<void>;
   maxTeamSize: number;
@@ -92,7 +92,7 @@ function TeamsTable({ teams, isPending, joinTeam, maxTeamSize }: TeamsTableProps
         {teams.map((t) => (
           <TableRow key={t.id}>
             <TableCell>{t.name}</TableCell>
-            <TableCell>{t.member!.length}</TableCell>
+            <TableCell>{t.members!.length}</TableCell>
             <TableCell>
               <a href={t.gitlabUrl} target="_blank" rel="noreferrer">
                 <Code />
@@ -100,7 +100,7 @@ function TeamsTable({ teams, isPending, joinTeam, maxTeamSize }: TeamsTableProps
             </TableCell>
             <TableCell className="text-right">
               <Button
-                disabled={isPending || t.member!.length >= maxTeamSize}
+                disabled={isPending || t.members!.length >= maxTeamSize}
                 onClick={() => joinTeam(t.id!)}
                 variant="outline"
               >

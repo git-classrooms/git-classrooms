@@ -21,4 +21,4 @@ type Assignment struct {
 	Description       string                `json:"description"`
 	DueDate           *time.Time            `json:"dueDate"`
 	Projects          []*AssignmentProjects `json:"-"`
-}
+} //@Name Assignment

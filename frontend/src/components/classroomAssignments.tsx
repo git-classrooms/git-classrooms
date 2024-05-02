@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
-import { Assignment } from "@/types/assignments.ts";
 import { Clipboard, Edit, Gitlab } from "lucide-react";
 import { formatDate } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
+import { Assignment } from "@/swagger-client";
 
 /**
  * AssignmentListCard is a React component that displays a list of assignments in a classroom.
@@ -19,10 +19,14 @@ import { Link } from "@tanstack/react-router";
  * @returns {JSX.Element} A React component that displays a card with the list of assignments in a classroom.
  * @constructor
  */
-export function AssignmentListCard({ assignments, classroomId, classroomName }: {
-  assignments: Assignment[]
-  classroomId: string,
-  classroomName: string
+export function AssignmentListCard({
+  assignments,
+  classroomId,
+  classroomName,
+}: {
+  assignments: Assignment[];
+  classroomId: string;
+  classroomName: string;
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -44,10 +48,14 @@ export function AssignmentListCard({ assignments, classroomId, classroomName }: 
   );
 }
 
-function AssignmentTable({ assignments, classroomId, classroomName }: {
-  assignments: Assignment[],
-  classroomId: string,
-  classroomName: string
+function AssignmentTable({
+  assignments,
+  classroomId,
+  classroomName,
+}: {
+  assignments: Assignment[];
+  classroomId: string;
+  classroomName: string;
 }) {
   return (
     <Table>
@@ -59,9 +67,7 @@ function AssignmentTable({ assignments, classroomId, classroomName }: {
                 <HoverCardTrigger className="cursor-default flex justify-between">
                   <div>
                     <div className="font-medium">{a.name}</div>
-                    <div className="text-sm text-muted-foreground md:inline">
-                      {classroomName}
-                    </div>
+                    <div className="text-sm text-muted-foreground md:inline">{classroomName}</div>
                   </div>
                   <div className="flex items-end">
                     <div className="ml-auto">
@@ -76,7 +82,10 @@ function AssignmentTable({ assignments, classroomId, classroomName }: {
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
-                      <Link to="/classrooms/owned/$classroomId/assignments/$assignmentId" params={{classroomId, assignmentId: a.id}}>
+                      <Link
+                        to="/classrooms/owned/$classroomId/assignments/$assignmentId"
+                        params={{ classroomId, assignmentId: a.id }}
+                      >
                         <Clipboard className="h-6 w-6 text-gray-600" />
                       </Link>
                     </Button>
@@ -95,4 +104,3 @@ function AssignmentTable({ assignments, classroomId, classroomName }: {
     </Table>
   );
 }
-

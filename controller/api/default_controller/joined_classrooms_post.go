@@ -13,11 +13,25 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-type joinClassroomRequest struct {
-	InvitationID uuid.UUID `json:"invitationId"`
-}
-
+// @Summary		JoinClassroom
+// @Description	JoinClassroom
+// @Id				JoinClassroom
+// @Tags			classroom
+// @Accept			json
+// @Param			invitation		body	JoinClassroomRequest	true	"Invitation"
+// @Param			X-Csrf-Token	header	string					true	"Csrf-Token"
+// @Success		201
+// @Header			201	{string}	Location	"/api/v1/classroom/joined/{classroomId}"
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
+// @Router			/classrooms/joined [post]
 func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
+	type joinClassroomRequest struct {
+		InvitationID uuid.UUID `json:"invitationId"`
+	} //@Name JoinClassroomRequest
+
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
 

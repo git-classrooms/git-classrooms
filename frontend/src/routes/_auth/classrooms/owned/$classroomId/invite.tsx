@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { ClassroomInvitation, GetStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
+import { GetStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { ownedClassroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classrooms.ts";
@@ -15,6 +15,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils.ts";
+import { ClassroomInvitation } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/invite")({
   loader: ({ context, params }) =>

@@ -2,6 +2,7 @@ import axios from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format } from "date-fns";
+import { AssignmentApi, AuthApi, ClassroomApi, MemberApi, TeamApi } from "@/swagger-client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,15 +12,10 @@ export const getUUIDFromLocation = (location: string) => location.split("/").pop
 
 export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
 
-export async function isAuthenticated() {
-  try {
-    await axios.get("/api/v1/auth", { withCredentials: true });
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
+const apiClient = axios.create({ baseURL: "/api/v1", withCredentials: true });
 
-export const apiClientOptions = { baseURL: "/api/v1", withCredentials: true };
-
-export const apiClient = axios.create(apiClientOptions);
+export const createTeamApi = () => new TeamApi(undefined, "", apiClient);
+export const createClassroomApi = () => new ClassroomApi(undefined, "", apiClient);
+export const createMemberApi = () => new MemberApi(undefined, "", apiClient);
+export const createAssignmentApi = () => new AssignmentApi(undefined, "", apiClient);
+export const createAuthApi = () => new AuthApi(undefined, "", apiClient);

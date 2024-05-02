@@ -6,8 +6,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx
 import { Clipboard, Gitlab } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { DefaultControllerGetOwnedClassroomTeamResponse } from "@/swagger-client";
-type Team = DefaultControllerGetOwnedClassroomTeamResponse
+import { GetOwnedClassroomTeamResponse } from "@/swagger-client";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -18,10 +17,14 @@ type Team = DefaultControllerGetOwnedClassroomTeamResponse
  * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
-export function TeamListCard({ teams, classroomId, userRole }: {
-  teams: Team[];
-  classroomId: string,
-  userRole: Role
+export function TeamListCard({
+  teams,
+  classroomId,
+  userRole,
+}: {
+  teams: GetOwnedClassroomTeamResponse[];
+  classroomId: string;
+  userRole: Role;
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -32,22 +35,20 @@ export function TeamListCard({ teams, classroomId, userRole }: {
       <CardContent>
         <TeamTable teams={teams} userRole={userRole} />
       </CardContent>
-      {userRole != Role.Student &&
+      {userRole != Role.Student && (
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
             <Link to="/classrooms/owned/$classroomId/team/create/modal" replace params={{ classroomId }}>
               Create a team
             </Link>
           </Button>
-        </CardFooter>}
+        </CardFooter>
+      )}
     </Card>
   );
 }
 
-function TeamTable({ teams, userRole }: {
-  teams: Team[];
-  userRole: Role,
-}) {
+function TeamTable({ teams, userRole }: { teams: GetOwnedClassroomTeamResponse[]; userRole: Role }) {
   return (
     <Table>
       <TableBody>
@@ -62,11 +63,13 @@ function TeamTable({ teams, userRole }: {
                   <Gitlab className="h-6 w-6 text-gray-600" />
                 </a>
               </Button>
-              {userRole != Role.Student &&
-                <Button variant="ghost"
-                        size="icon"> {/* Should open a popup listing all assignments from that specific (team) */}
+              {userRole != Role.Student && (
+                <Button variant="ghost" size="icon">
+                  {" "}
+                  {/* Should open a popup listing all assignments from that specific (team) */}
                   <Clipboard className="h-6 w-6 text-gray-600" />
-                </Button>}
+                </Button>
+              )}
             </TableCell>
           </TableRow>
         ))}
@@ -75,8 +78,8 @@ function TeamTable({ teams, userRole }: {
   );
 }
 
-function TeamListElement({ team }: { team: Team }) {
-  if(team.name == null || team.members == null) return (<>Error loading this team, team data is faulty</>);
+function TeamListElement({ team }: { team: GetOwnedClassroomTeamResponse }) {
+  if (team.name == null || team.members == null) return <>Error loading this team, team data is faulty</>;
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">
@@ -89,17 +92,21 @@ function TeamListElement({ team }: { team: Team }) {
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{team.name}</p>
-        <p
-          className="text-sm text-muted-foreground mt-[-0.3rem]">{team.members.length} member{team.members.length != 1 ? "s" : ""}</p>
-        {team.members.length >= 1 &&
+        <p className="text-sm text-muted-foreground mt-[-0.3rem]">
+          {team.members.length} member{team.members.length != 1 ? "s" : ""}
+        </p>
+        {team.members.length >= 1 && (
           <>
             <Separator className="my-1" />
             <div className="text-muted-foreground">
               {team.members.map((m) => (
-                <div key={m.id}>{m.gitlabUsername} - {m.name}</div>
+                <div key={m.id}>
+                  {m.gitlabUsername} - {m.name}
+                </div>
               ))}
             </div>
-          </>}
+          </>
+        )}
       </HoverCardContent>
     </HoverCard>
   );

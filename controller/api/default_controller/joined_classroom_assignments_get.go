@@ -5,6 +5,18 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+// @Summary		GetJoinedClassroomAssignments
+// @Description	GetJoinedClassroomAssignments
+// @Id				GetJoinedClassroomAssignments
+// @Tags			assignment
+// @Produce		json
+// @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
+// @Success		200			{array}		default_controller.getJoinedClassroomAssignmentResponse
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		404			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
+// @Router			/classrooms/joined/{classroomId}/assignment [get]
 func (ctrl *DefaultController) GetJoinedClassroomAssignments(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()

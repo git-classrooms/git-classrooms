@@ -2,11 +2,12 @@ package default_controller
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"time"
 )
 
 type createAssignmentRequest struct {
@@ -14,12 +15,27 @@ type createAssignmentRequest struct {
 	Description       string     `json:"description"`
 	TemplateProjectId int        `json:"templateProjectId"`
 	DueDate           *time.Time `json:"dueDate"`
-}
+} //@Name CreateAssignmentRequest
 
 func (r createAssignmentRequest) isValid() bool {
 	return r.Name != "" && r.TemplateProjectId != 0
 }
 
+// @Summary		CreateAssignment
+// @Description	CreateAssignment
+// @Id				CreateAssignment
+// @Tags			assignment
+// @Accept			json
+// @Param			classroomId		path	string										true	"Classroom ID"	Format(uuid)
+// @Param			assignmentInfo	body	default_controller.createAssignmentRequest	true	"Assignment Info"
+// @Param			X-Csrf-Token	header	string										true	"Csrf-Token"
+// @Success		201
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		403	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
+// @Router			/classrooms/owned/{classroomId}/assignments [post]
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
