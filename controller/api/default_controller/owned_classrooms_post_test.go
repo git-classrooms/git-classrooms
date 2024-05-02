@@ -46,9 +46,10 @@ func TestCreateClassroom(t *testing.T) {
 		app.Post("/api/classrooms", handler.CreateClassroom)
 
 		requestBody := CreateClassroomRequest{
-			Name:         "Test",
-			MemberEmails: []string{},
-			Description:  "test",
+			Name:                    "Test",
+			MemberEmails:            []string{},
+			Description:             "test",
+			StudentsViewAllProjects: true,
 		}
 
 		gitlabRepo.
@@ -91,6 +92,7 @@ func TestCreateClassroom(t *testing.T) {
 		assert.Equal(t, 1, classRoom.GroupID)
 		assert.Equal(t, 20, classRoom.GroupAccessTokenID)
 		assert.Equal(t, "token", classRoom.GroupAccessToken)
+		assert.Equal(t, true, classRoom.StudentsViewAllProjects)
 
 		assert.Equal(t, fmt.Sprintf("/api/v1/classrooms/%s", classRoom.ID.String()), resp.Header.Get("Location"))
 	})

@@ -28,8 +28,9 @@ type Classroom struct {
 	GroupAccessTokenID int    `gorm:"not null" json:"-"`
 	GroupAccessToken   string `gorm:"not null" json:"-"`
 
-	Member      []*UserClassrooms      `gorm:"foreignKey:ClassroomID" json:"-"`
-	Teams       []*Team                `gorm:"foreignKey:ClassroomID" json:"-"`
-	Assignments []*Assignment          `json:"-"`
-	Invitations []*ClassroomInvitation `json:"-"`
+	Member                  []*UserClassrooms      `gorm:"foreignKey:ClassroomID" json:"-"`
+	Teams                   []*Team                `gorm:"foreignKey:ClassroomID" json:"-"`
+	Assignments             []*Assignment          `json:"-"`
+	Invitations             []*ClassroomInvitation `json:"-"`
+	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
 } //@Name Classroom

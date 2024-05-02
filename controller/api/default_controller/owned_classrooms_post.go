@@ -12,11 +12,12 @@ import (
 )
 
 type createClassroomRequest struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	CreateTeams *bool  `json:"createTeams"`
-	MaxTeams    *int   `json:"maxTeams"`
-	MaxTeamSize int    `json:"maxTeamSize"`
+	Name                    string `json:"name"`
+	Description             string `json:"description"`
+	CreateTeams             *bool  `json:"createTeams"`
+	MaxTeams                *int   `json:"maxTeams"`
+	MaxTeamSize             int    `json:"maxTeamSize"`
+	StudentsViewAllProjects *bool  `json:"studentsViewAllProjects"`
 } //@Name CreateClassroomRequest
 
 func (r createClassroomRequest) isValid() bool {
@@ -24,7 +25,8 @@ func (r createClassroomRequest) isValid() bool {
 		r.Description != "" &&
 		r.CreateTeams != nil &&
 		r.MaxTeamSize > 0 &&
-		r.MaxTeams != nil && *r.MaxTeams >= 0
+		r.MaxTeams != nil && *r.MaxTeams >= 0 &&
+		r.StudentsViewAllProjects != nil
 }
 
 // @Summary		Create a new classroom
@@ -74,15 +76,16 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 
 	classroomQuery := query.Classroom
 	classRoom := &database.Classroom{
-		Name:               requestBody.Name,
-		Description:        requestBody.Description,
-		OwnerID:            userID,
-		CreateTeams:        *requestBody.CreateTeams,
-		MaxTeamSize:        requestBody.MaxTeamSize,
-		MaxTeams:           *requestBody.MaxTeams,
-		GroupID:            group.ID,
-		GroupAccessTokenID: accessToken.ID,
-		GroupAccessToken:   accessToken.Token,
+		Name:                    requestBody.Name,
+		Description:             requestBody.Description,
+		OwnerID:                 userID,
+		CreateTeams:             *requestBody.CreateTeams,
+		MaxTeamSize:             requestBody.MaxTeamSize,
+		MaxTeams:                *requestBody.MaxTeams,
+		GroupID:                 group.ID,
+		GroupAccessTokenID:      accessToken.ID,
+		GroupAccessToken:        accessToken.Token,
+		StudentsViewAllProjects: *requestBody.StudentsViewAllProjects,
 	}
 
 	err = classroomQuery.WithContext(c.Context()).Create(classRoom)
