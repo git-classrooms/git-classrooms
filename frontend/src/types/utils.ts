@@ -7,4 +7,4 @@ export const reversed = <T extends Record<string | number, string | number>>(obj
 
 export type DeepRequired<T> = {
   [P in keyof T]-?: DeepRequired<T[P]>;
-};
+} & {};

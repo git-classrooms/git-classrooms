@@ -17,4 +17,6 @@ do
     sed -i '1s;^;\/\/ @ts-nocheck\n;' $file
 done
 
+node ../../swagger-codegen.js
+
 cd $BASE_PATH
