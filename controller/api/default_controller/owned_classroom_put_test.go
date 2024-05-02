@@ -93,7 +93,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
+		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
 		assert.NoError(t, err)
 
 		classRoom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.OwnerID.Eq(user.ID)).First()
