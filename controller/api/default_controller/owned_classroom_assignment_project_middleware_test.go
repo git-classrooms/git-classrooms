@@ -12,7 +12,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	postgresDriver "gorm.io/driver/postgres"
@@ -23,7 +22,7 @@ import (
 )
 
 func TestOwnedClassroomAssignmentProjectMiddleware(t *testing.T) {
-	// --------------- DB SETUP -----------------
+	// Database setup
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
 	if err != nil {
@@ -44,8 +43,7 @@ func TestOwnedClassroomAssignmentProjectMiddleware(t *testing.T) {
 	pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
 	query.SetDefault(db)
 
-	// ------------ END OF DB SETUP -----------------
-
+	// Seeding data
 	user := &database.User{ID: 1, GitlabEmail: "user@example.com", Name: "Test User"}
 	query.User.WithContext(context.Background()).Create(user)
 	classroom := &database.Classroom{
@@ -80,7 +78,7 @@ func TestOwnedClassroomAssignmentProjectMiddleware(t *testing.T) {
 		return c.Next()
 	})
 
-	ctrl := NewDefaultController()
+	app.Use("/api", ctrl.OwnedClassroomAssignmentProjectMiddleware)
 
 	t.Run("ValidAssignmentProjectMiddlewareCall", func(t *testing.T) {
 		route := fmt.Sprintf("/api/classrooms/%s/assignments/%s/projects/%s", classroom.ID, assignment.ID, assignmentProject.ID)

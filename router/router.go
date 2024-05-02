@@ -72,10 +72,10 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Put("/classrooms/owned/:classroomId", apiController.PutOwnedClassroom)
 	v1.Get("/classrooms/owned/:classroomId/gitlab", apiController.RedirectGroupGitlab)
 
-	v1.Get("/classrooms/owned/:classroomId/assignments", apiController.GetOwnedClassroomAssignments)
-	v1.Post("/classrooms/owned/:classroomId/assignments", apiController.CreateAssignment)
-	v1.Use("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.OwnedClassroomAssignmentMiddleware)
-	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.GetOwnedClassroomAssignment)
+	v1.Get("/classrooms/owned/:classroomId/assignments", apiController.GetOwnedClassroomAssignments) // test existing
+	v1.Post("/classrooms/owned/:classroomId/assignments", apiController.CreateAssignment) // test existing
+	v1.Use("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.OwnedClassroomAssignmentMiddleware) // test existing
+	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId", apiController.GetOwnedClassroomAssignment) // test existing
 
 	v1.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.GetOwnedClassroomAssignmentProjects)
 	v1.Post("/classrooms/owned/:classroomId/assignments/:assignmentId/projects", apiController.InviteToAssignmentProject)
@@ -89,7 +89,7 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	v1.Patch("/classrooms/owned/:classroomId/members/:memberId", apiController.ChangeOwnedClassroomMember)
 	v1.Get("/classrooms/owned/:classroomId/members/:memberId/gitlab", apiController.RedirectUserGitlab)
 
-	v1.Get("/classrooms/owned/:classroomId/invitations", apiController.GetOwnedClassroomInvitations)
+	v1.Get("/classrooms/owned/:classroomId/invitations", apiController.GetOwnedClassroomInvitations) // test existing
 	v1.Post("/classrooms/owned/:classroomId/invitations", apiController.InviteToClassroom)
 
 	v1.Get("/classrooms/owned/:classroomId/templateProjects", apiController.GetOwnedClassroomTemplates)

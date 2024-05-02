@@ -6,34 +6,36 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
+	"github.com/google/uuid"
 	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
-	// ----------------- DB SETUP -------------------
+	// --------------- DB SETUP -----------------
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
 	pg, err := tests.StartPostgres()
+
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	t.Cleanup(func() {
 		err = pg.Restore(context.Background())
 		if err != nil {
 			t.Fatal(err)
 		}
 	})
+
 	dbURL, err := pg.ConnectionString(context.Background())
 
 	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
@@ -53,15 +55,12 @@ func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
 
 	query.SetDefault(db)
 
-	// --------------- END OF DB SETUP ----------------
+	// ------------ END OF DB SETUP -----------------
 
+	// Seeding data
 	classroom := &database.Classroom{
-		ID:        uuid.New(),
-		Name:      "Test Classroom",
-		OwnerID:   1,
-		GroupID:   10,
-		GroupAccessTokenID: 30,
-		GroupAccessToken: "access-token",
+		ID: uuid.New(),
+		OwnerID: 1,
 	}
 	err = query.Classroom.WithContext(context.Background()).Create(classroom)
 	if err != nil {
@@ -69,23 +68,23 @@ func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
 	}
 
 	assignment := &database.Assignment{
-		ID:          uuid.New(),
+		ID: uuid.New(),
 		ClassroomID: classroom.ID,
-		Name:        "Sample Assignment",
-		Description: "A sample assignment for testing.",
+		Name: "Test Assignment",
 	}
 	err = query.Assignment.WithContext(context.Background()).Create(assignment)
 	if err != nil {
 		t.Fatalf("could not create test assignment: %s", err.Error())
 	}
 
-	// --------------- END OF SEEDING DATA ----------------
-	app := fiber.New()
-	session.InitSessionStore(dbURL)
+	// ------------ END OF SEEDING DATA -----------------
 
+	session.InitSessionStore(dbURL)
+	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
-		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		fctx := context.Get(c)
+		fctx.SetOwnedClassroom(classroom)
+
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
 		s.SetUserID(1)
@@ -96,15 +95,17 @@ func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
 	handler := NewDefaultController()
 
 	t.Run("OwnedClassroomAssignmentMiddleware", func(t *testing.T) {
-		app.Get("/api/classrooms/:classroomId/assignments/:assignmentId", handler.OwnedClassroomAssignmentMiddleware, func(c *fiber.Ctx) error {
-			return c.SendString("Assignment found")
-		})
+		app.Get("/api/classrooms/:classroomId/assignments/:assignmentId", handler.OwnedClassroomAssignmentMiddleware)
+		route := fmt.Sprintf("/api/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
 
-		route := fmt.Sprintf("/api/classrooms/%s/assignments/%s", classroom.ID, assignment.ID)
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
+
+		queriedAssignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ID.Eq(assignment.ID)).First()
+		assert.NoError(t, err)
+		assert.Equal(t, assignment.Name, queriedAssignment.Name)
 	})
 }
