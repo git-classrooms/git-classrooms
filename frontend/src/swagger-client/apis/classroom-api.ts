@@ -460,7 +460,7 @@ export const ClassroomApiAxiosParamCreator = function (configuration?: Configura
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling updateClassroom.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/teams`
+            const localVarPath = `/classrooms/owned/{classroomId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');

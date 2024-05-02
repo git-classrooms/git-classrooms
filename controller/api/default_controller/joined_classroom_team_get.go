@@ -12,7 +12,7 @@ import (
 
 type getJoinedClassroomTeamResponse struct {
 	database.Team
-	UserMember []*database.User `json:"member"`
+	UserMember []*database.User `json:"members"`
 	GitlabURL  string           `json:"gitlabUrl"`
 } //@Name GetJoinedClassroomTeamResponse
 

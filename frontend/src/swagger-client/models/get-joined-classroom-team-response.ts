@@ -49,7 +49,7 @@ export interface GetJoinedClassroomTeamResponse {
      * @type {Array<User>}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    member?: Array<User>;
+    members?: Array<User>;
 
     /**
      * @type {string}

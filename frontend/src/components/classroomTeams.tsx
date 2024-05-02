@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx
 import { Clipboard, Gitlab } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { GetJoinedClassroomTeamResponse } from "@/swagger-client";
+import { GetOwnedClassroomTeamResponse } from "@/swagger-client";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -22,7 +22,7 @@ export function TeamListCard({
   classroomId,
   userRole,
 }: {
-  teams: GetJoinedClassroomTeamResponse[];
+  teams: GetOwnedClassroomTeamResponse[];
   classroomId: string;
   userRole: Role;
 }): JSX.Element {
@@ -48,7 +48,7 @@ export function TeamListCard({
   );
 }
 
-function TeamTable({ teams, userRole }: { teams: GetJoinedClassroomTeamResponse[]; userRole: Role }) {
+function TeamTable({ teams, userRole }: { teams: GetOwnedClassroomTeamResponse[]; userRole: Role }) {
   return (
     <Table>
       <TableBody>
@@ -78,28 +78,28 @@ function TeamTable({ teams, userRole }: { teams: GetJoinedClassroomTeamResponse[
   );
 }
 
-function TeamListElement({ team }: { team: GetJoinedClassroomTeamResponse }) {
-  if (team.name == null || team.member == null) return <>Error loading this team, team data is faulty</>;
+function TeamListElement({ team }: { team: GetOwnedClassroomTeamResponse }) {
+  if (team.name == null || team.members == null) return <>Error loading this team, team data is faulty</>;
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">
         <div className="cursor-default">
           <div className="font-medium">{team.name}</div>
           <div className="text-sm text-muted-foreground md:inline">
-            {team.member.length} member{team.member.length != 1 ? "s" : ""}
+            {team.members.length} member{team.members.length != 1 ? "s" : ""}
           </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{team.name}</p>
         <p className="text-sm text-muted-foreground mt-[-0.3rem]">
-          {team.member.length} member{team.member.length != 1 ? "s" : ""}
+          {team.members.length} member{team.members.length != 1 ? "s" : ""}
         </p>
-        {team.member.length >= 1 && (
+        {team.members.length >= 1 && (
           <>
             <Separator className="my-1" />
             <div className="text-muted-foreground">
-              {team.member.map((m) => (
+              {team.members.map((m) => (
                 <div key={m.id}>
                   {m.gitlabUsername} - {m.name}
                 </div>

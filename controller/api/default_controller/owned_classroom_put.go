@@ -29,7 +29,7 @@ func (r updateClassroomRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/teams [put]
+// @Router			/classrooms/owned/{classroomId} [put]
 func (ctrl *DefaultController) PutOwnedClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

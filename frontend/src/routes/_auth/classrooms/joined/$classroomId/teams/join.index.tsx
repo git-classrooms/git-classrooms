@@ -92,7 +92,7 @@ function TeamsTable({ teams, isPending, joinTeam, maxTeamSize }: TeamsTableProps
         {teams.map((t) => (
           <TableRow key={t.id}>
             <TableCell>{t.name}</TableCell>
-            <TableCell>{t.member!.length}</TableCell>
+            <TableCell>{t.members!.length}</TableCell>
             <TableCell>
               <a href={t.gitlabUrl} target="_blank" rel="noreferrer">
                 <Code />
@@ -100,7 +100,7 @@ function TeamsTable({ teams, isPending, joinTeam, maxTeamSize }: TeamsTableProps
             </TableCell>
             <TableCell className="text-right">
               <Button
-                disabled={isPending || t.member!.length >= maxTeamSize}
+                disabled={isPending || t.members!.length >= maxTeamSize}
                 onClick={() => joinTeam(t.id!)}
                 variant="outline"
               >
