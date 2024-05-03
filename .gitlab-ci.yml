@@ -122,6 +122,7 @@ build:
     - chmod -R 400 ~/.ssh
   script:
     - ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "cd $BASE_PATH && docker compose pull"
+    - ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "cd $BASE_PATH && docker compose down"
     - ssh -o StrictHostKeyChecking=no "root@$SSH_HOST" "cd $BASE_PATH && docker compose up -d"
 
 deploy-staging:
