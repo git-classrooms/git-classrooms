@@ -4,18 +4,22 @@ import fs from "fs";
 import path from "path";
 
 const exceptions = ["change-owned-classroom-member-request"];
-const teamOptionChange = [
-  "user-classrooms",
-  "get-owned-classroom-member-response",
-  "get-joined-classroom-member-response",
-  "get-joined-classroom-response",
-];
+
+const subPartialChange = {
+  team: [
+    "user-classrooms",
+    "get-owned-classroom-member-response",
+    "get-joined-classroom-member-response",
+    "get-joined-classroom-response",
+  ],
+  dueDate: ["assignment", "create-assignment-request"],
+};
 
 const modelsFile = path.join("models", "index.ts");
 
 const models = fs.readFileSync(modelsFile, "utf8");
 
-let newModels = `import { DeepRequired, TeamPartial } from "@/types/utils";\n`;
+let newModels = `import { DeepRequired, SubPartial } from "@/types/utils";\n`;
 
 newModels +=
   models
@@ -31,8 +35,15 @@ newModels +=
         return line;
       }
 
-      if (teamOptionChange.some((exception) => importFolder.includes(exception))) {
-        editFunc = (input) => `TeamPartial<${input}>`;
+      const subPartials = Object.entries(subPartialChange).reduce((prev, [key, value]) => {
+        if (value.includes(importFolder)) {
+          return [...prev, `"${key}"`];
+        }
+        return prev;
+      }, []);
+
+      if (subPartials.length > 0) {
+        editFunc = (input) => `SubPartial<${input}, ${subPartials.join(" | ")}>`;
       }
 
       const modelType = importFolder

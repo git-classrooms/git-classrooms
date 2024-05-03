@@ -15,4 +15,4 @@ export type DeepRequired<T> = {
   // eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
 
-export type TeamPartial<T extends { team: unknown }> = Simplify<Omit<T, "team"> & Partial<Pick<T, "team">>>;
+export type SubPartial<T, K extends keyof T> = Simplify<Omit<T, K> & Partial<Pick<T, K>>>;
