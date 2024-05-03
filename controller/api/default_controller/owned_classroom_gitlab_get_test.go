@@ -11,6 +11,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -66,7 +67,6 @@ func TestGetOwnedClassroomGitlab(t *testing.T) {
 
 	classroomQuery := query.Classroom
 	testClassRoom := &database.Classroom{
-		ID:                 uuid.New(),
 		Name:               "Test classroom",
 		OwnerID:            1,
 		Description:        "Classroom description",

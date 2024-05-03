@@ -12,6 +12,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -100,6 +101,7 @@ func TestGetOwnedClassroomAssignmentProjectGitlab(t *testing.T) {
 
 	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
+	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
@@ -113,7 +115,7 @@ func TestGetOwnedClassroomAssignmentProjectGitlab(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewApiController()
+	handler := NewApiController(mailRepo)
 
 	t.Run("GetOwnedClassroomAssignmentProjectGitlab", func(t *testing.T) {
 		app.Get("/api/classrooms/owned/:classroomId/assignments/:assignmentId/gitlab", handler.GetOwnedClassroomAssignmentProjectGitlab)

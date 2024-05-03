@@ -97,7 +97,7 @@ func TestInviteToAssignmentProject(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewDefaultController(mailRepo)
+	handler := NewApiController(mailRepo)
 
 	t.Run("InviteToAssignmentProject", func(t *testing.T) {
 		app.Post("/api/classrooms/:classroomId/assignments/:assignmentId/invite", handler.InviteToAssignmentProject)

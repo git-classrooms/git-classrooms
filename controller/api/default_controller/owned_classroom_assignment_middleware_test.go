@@ -8,9 +8,10 @@ import (
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"github.com/google/uuid"
 	postgresDriver "gorm.io/driver/postgres"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
 func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
@@ -80,9 +82,11 @@ func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
 	// ------------ END OF SEEDING DATA -----------------
 
 	session.InitSessionStore(dbURL)
+	mailRepo := mailRepoMock.NewMockRepository(t)
+
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
-		fctx := context.Get(c)
+		fctx := fiberContext.Get(c)
 		fctx.SetOwnedClassroom(classroom)
 
 		s := session.Get(c)
@@ -92,7 +96,7 @@ func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewDefaultController()
+	handler := NewApiController(mailRepo)
 
 	t.Run("OwnedClassroomAssignmentMiddleware", func(t *testing.T) {
 		app.Get("/api/classrooms/:classroomId/assignments/:assignmentId", handler.OwnedClassroomAssignmentMiddleware)
