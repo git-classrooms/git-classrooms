@@ -3,7 +3,7 @@
 import fs from "fs";
 import path from "path";
 
-const exceptions = ["change-owned-classroom-member-request"];
+const exceptions = ["change-owned-classroom-member-request", "classroom-invitation-status", "role"];
 
 const subPartialChange = {
   team: [
@@ -31,16 +31,14 @@ newModels +=
 
       let editFunc = (input) => input;
 
-      if (exceptions.some((exception) => importFolder.includes(exception))) {
+      if (exceptions.includes(importFolder)) {
         return line;
       }
 
-      const subPartials = Object.entries(subPartialChange).reduce((prev, [key, value]) => {
-        if (value.includes(importFolder)) {
-          return [...prev, `"${key}"`];
-        }
-        return prev;
-      }, []);
+      const subPartials = Object.entries(subPartialChange).reduce(
+        (prev, [key, value]) => (value.includes(importFolder) ? [...prev, `"${key}"`] : prev),
+        [],
+      );
 
       if (subPartials.length > 0) {
         editFunc = (input) => `SubPartial<${input}, ${subPartials.join(" | ")}>`;

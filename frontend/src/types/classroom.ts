@@ -9,7 +9,8 @@ export const Role = {
 
 export type Role = (typeof Role)[keyof typeof Role];
 
-export const GetRole = reversed(Role);
+const ReverseRole = reversed(Role);
+export const getRole = (role: Role) => ReverseRole[role];
 
 export const createFormSchema = z.object({
   name: z.string().min(3),

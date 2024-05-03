@@ -1,9 +1,14 @@
-export type Reversed<T extends Record<string | number, string | number>> = {
-  [x in T[keyof T]]: keyof T;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Reversed<T extends Record<keyof T, keyof any>> = {
+  [K in T[keyof T]]: {
+    [P in keyof T]: T[P] extends K ? P : never;
+  }[keyof T];
+  // eslint-disable-next-line @typescript-eslint/ban-types
+} & {};
 
-export const reversed = <T extends Record<string | number, string | number>>(obj: T) =>
-  Object.entries(obj).reduce((acc, [key, value]) => ({ ...acc, [value]: key }), {} as Reversed<T>);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const reversed = <T extends Record<keyof T, keyof any>>(obj: T) =>
+  Object.fromEntries(Object.entries(obj).map(([key, value]) => [value, key])) as Reversed<T>;
 
 export type Simplify<T> = {
   [P in keyof T]: T[P];

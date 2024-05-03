@@ -1,4 +1,4 @@
-import { GetRole, Role } from "@/types/classroom.ts";
+import { getRole, Role } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
@@ -104,7 +104,7 @@ function MemberListElement({ member, showTeams }: { member: GetJoinedClassroomRe
         <div>
           <div className="font-medium">{member.user.name}</div>
           <div className="text-sm text-muted-foreground md:inline">
-            {GetRole[member.role]} {showTeams && member.team ? `- ${member.team.name}` : ""}
+            {getRole(member.role)} {showTeams && member.team ? `- ${member.team.name}` : ""}
           </div>
         </div>
       </HoverCardTrigger>
@@ -115,7 +115,7 @@ function MemberListElement({ member, showTeams }: { member: GetJoinedClassroomRe
         <p className="text-muted-foreground">{member.user.gitlabEmail}</p>
         <Separator className="my-1" />
         <div className="text-muted-foreground">
-          <span className="font-bold">{GetRole[member.role]}</span> of this classroom{" "}
+          <span className="font-bold">{getRole(member.role)}</span> of this classroom{" "}
           {showTeams && member.team ? (
             <>
               {" "}
