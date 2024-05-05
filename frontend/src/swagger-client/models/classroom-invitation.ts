@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { Classroom } from './classroom';
 import { ClassroomInvitationStatus } from './classroom-invitation-status';
  /**
  * 
@@ -20,6 +21,12 @@ import { ClassroomInvitationStatus } from './classroom-invitation-status';
  * @interface ClassroomInvitation
  */
 export interface ClassroomInvitation {
+
+    /**
+     * @type {Classroom}
+     * @memberof ClassroomInvitation
+     */
+    classroom?: Classroom;
 
     /**
      * @type {string}

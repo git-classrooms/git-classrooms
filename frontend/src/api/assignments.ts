@@ -50,6 +50,16 @@ export const ownedTemplateProjectQueryOptions = (classroomId: string) =>
     },
   });
 
+export const joinedClassroomAssignmentQueryOptions = (classroomId: string, assignmentId: string) =>
+  queryOptions({
+    queryKey: ["joinedClassrooms", `joinedClassroom-${classroomId}`, "assignments", `classroom-${assignmentId}`],
+    queryFn: async () => {
+      const api = createAssignmentApi();
+      const res = await api.getJoinedClassroomAssignment(classroomId, assignmentId);
+      return res.data;
+    },
+  });
+
 export const useCreateAssignment = (classroomId: string) => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();

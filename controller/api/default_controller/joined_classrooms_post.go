@@ -13,13 +13,30 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+type action string //@Name action
+
+const (
+	accept action = "accept"
+	reject action = "reject"
+)
+
+type joinClassroomRequest struct {
+	InvitationID uuid.UUID `json:"invitationId"`
+	Action       action    `json:"action"`
+} //@Name JoinClassroomRequest
+
+func (r *joinClassroomRequest) isValid() bool {
+	return r.InvitationID != uuid.Nil &&
+		(r.Action == accept || r.Action == reject)
+}
+
 // @Summary		JoinClassroom
 // @Description	JoinClassroom
 // @Id				JoinClassroom
 // @Tags			classroom
 // @Accept			json
-// @Param			invitation		body	JoinClassroomRequest	true	"Invitation"
-// @Param			X-Csrf-Token	header	string					true	"Csrf-Token"
+// @Param			invitation		body	default_controller.joinClassroomRequest	true	"Invitation"
+// @Param			X-Csrf-Token	header	string									true	"Csrf-Token"
 // @Success		201
 // @Header			201	{string}	Location	"/api/v1/classroom/joined/{classroomId}"
 // @Failure		400	{object}	HTTPError
@@ -28,10 +45,6 @@ import (
 // @Failure		500	{object}	HTTPError
 // @Router			/classrooms/joined [post]
 func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
-	type joinClassroomRequest struct {
-		InvitationID uuid.UUID `json:"invitationId"`
-	} //@Name JoinClassroomRequest
-
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
 
@@ -41,6 +54,10 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	log.Println(requestBody)
+
+	if !requestBody.isValid() {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
 
 	queryClassroomInvitation := query.ClassroomInvitation
 
@@ -68,6 +85,19 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+
+	if requestBody.Action == reject {
+		log.Println("rejected invitation")
+		invitation.Status = database.ClassroomInvitationRejected
+		invitation.Email = currentUser.Email
+		err = queryClassroomInvitation.WithContext(c.Context()).Save(invitation)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		return c.SendStatus(fiber.StatusAccepted)
+	}
+
+	log.Println("we should not be here")
 
 	err = query.Q.Transaction(func(tx *query.Query) (err error) {
 		member := &database.UserClassrooms{

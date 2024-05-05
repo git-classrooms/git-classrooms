@@ -12,24 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { Action } from './action';
- /**
+/**
  * 
- *
  * @export
- * @interface JoinClassroomRequest
+ * @enum {string}
  */
-export interface JoinClassroomRequest {
-
-    /**
-     * @type {Action}
-     * @memberof JoinClassroomRequest
-     */
-    action?: Action;
-
-    /**
-     * @type {string}
-     * @memberof JoinClassroomRequest
-     */
-    invitationId?: string;
+export enum Action {
+    Accept = 'accept',
+    Reject = 'reject'
 }
+
