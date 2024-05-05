@@ -77,10 +77,10 @@ func (ctrl *DefaultController) PutOwnedClassroom(c *fiber.Ctx) error {
 		classroom.Description = group.Description
 	}
 
-	_, err = query.Classroom.WithContext(c.Context()).Updates(classroom)
-	if err != nil {
+	if _, err := query.Classroom.WithContext(c.Context()).Updates(classroom); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
+	c.SendStatus(fiber.StatusAccepted)
+	return c.JSON(classroom)
 }
