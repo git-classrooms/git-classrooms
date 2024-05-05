@@ -37,7 +37,7 @@ function RootComponent() {
       <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
         <div className="w-screen h-screen overflow-scroll">
           <Navbar auth={auth} />
-          <div className="max-w-2xl m-auto">
+          <div className="max-w-9/12 m-auto">
             <Outlet />
             <ReactQueryDevtools initialIsOpen={false} />
             <Suspense>
