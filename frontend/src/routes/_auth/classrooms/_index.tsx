@@ -2,7 +2,7 @@ import { joinedClassroomsQueryOptions, ownedClassroomsQueryOptions } from "@/api
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
-import { Table, TableBody, TableCaption, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
@@ -28,16 +28,17 @@ function Classrooms() {
   const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
   const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
   return (
-    <div className="p-2">
-      <Header title="Dashboard" size="5xl" margin="my-10" />
-
-      <div className="flex flex-row justify-between w-full space-x-2.5">
-        <div className="w-1/2">
+    <div className="p-2 m-8">
+      <Header title="Dashboard" size="5xl" margin="mb-10" />
+      <div className="flex flex-row justify-between w-full gap-4 flex-wrap">
+        <div className="max-w-screen-sm	">
           <OwnedClassroomTable classrooms={ownClassrooms} />
         </div>
-        <div className="w-1/2">
-          <Header title="Joined Classrooms" />
+        <div className="max-w-screen-sm	">
           <JoinedClassroomTable classrooms={joinedClassrooms} />
+        </div>
+        <div className="max-w-screen-sm	">
+          <ActiveAssignmentsTable classrooms={joinedClassrooms} />
         </div>
         <Outlet />
       </div>
@@ -56,16 +57,17 @@ function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResp
         <TableBody>
           {classrooms.map((c) => (
             <TableRow key={c.id}>
-              <TableCell className="flex flex-wrap">
-                <div className="flex">
-                  {
-                    <Avatar
-                      avatarUrl={c.owner.gitlabAvatar.avatarURL}
-                      fallbackUrl={c.owner.gitlabAvatar.fallbackAvatarURL}
-                      name="classroom-avatar"
-                    />
-                  }
-                  {c.name}
+              <TableCell className="flex flex-wrap content-center gap-4">
+                {
+                  <Avatar
+                    avatarUrl={c.owner.gitlabAvatar.avatarURL}
+                    fallbackUrl={c.owner.gitlabAvatar.fallbackAvatarURL}
+                    name="classroom-avatar"
+                  />
+                }
+                <div className="justify-center">
+                  <div className="">{c.name}</div>
+                  <div className="text-sm text-muted-foreground"> {c.description}</div>
                 </div>
               </TableCell>
               <TableCell className="text-right">
@@ -97,29 +99,66 @@ function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResp
 
 function JoinedClassroomTable({ classrooms }: { classrooms: GetJoinedClassroomResponse[] }) {
   return (
-    <Table className="flex-auto">
-      <TableCaption>Joined Classrooms</TableCaption>
-      <TableHeader></TableHeader>
-      <TableBody>
-        {classrooms.map((c) => (
-          <TableRow key={c.classroom.id}>
-            <TableCell>{c.classroom.name}</TableCell>
-            <TableCell>{c.classroom.owner.name}</TableCell>
-            <TableCell>
-              <a href={c.gitlabUrl} target="_blank" rel="noreferrer">
-                <Code />
-              </a>
-            </TableCell>
-            <TableCell className="text-right">
-              <Button variant="outline">
-                <Link to="/classrooms/joined/$classroomId" params={{ classroomId: c.classroom.id }}>
-                  <ArrowRight />{" "}
-                </Link>
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <Card>
+      <CardHeader>
+        <CardTitle>Joined Classrooms</CardTitle>
+        <CardDescription>Classrooms which you have joined</CardDescription>
+      </CardHeader>
+      <Table className="flex-auto">
+        <TableBody>
+          {classrooms.map((c) => (
+            <TableRow key={c.classroom.id}>
+              <TableCell>{c.classroom.name}</TableCell>
+              <TableCell>{c.classroom.owner.name}</TableCell>
+              <TableCell>
+                <a href={c.gitlabUrl} target="_blank" rel="noreferrer">
+                  <Code />
+                </a>
+              </TableCell>
+              <TableCell className="text-right">
+                <Button variant="outline">
+                  <Link to="/classrooms/joined/$classroomId" params={{ classroomId: c.classroom.id }}>
+                    <ArrowRight />
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
+
+function ActiveAssignmentsTable({ classrooms }: { classrooms: GetJoinedClassroomResponse[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Active Assignments</CardTitle>
+        <CardDescription>Your assignments thaht are not overdue</CardDescription>
+      </CardHeader>
+      <Table className="flex-auto">
+        <TableBody>
+          {classrooms.map((c) => (
+            <TableRow key={c.classroom.id}>
+              <TableCell>{c.classroom.name}</TableCell>
+              <TableCell>{c.classroom.owner.name}</TableCell>
+              <TableCell>
+                <a href={c.gitlabUrl} target="_blank" rel="noreferrer">
+                  <Code />
+                </a>
+              </TableCell>
+              <TableCell className="text-right">
+                <Button variant="outline">
+                  <Link to="/classrooms/joined/$classroomId" params={{ classroomId: c.classroom.id }}>
+                    <ArrowRight />
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
   );
 }
