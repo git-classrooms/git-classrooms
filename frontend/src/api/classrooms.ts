@@ -3,7 +3,7 @@ import { ClassroomForm, InviteForm } from "@/types/classroom";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
-import { JoinClassroomRequestActionEnum } from "@/swagger-client";
+import { Action } from "@/swagger-client";
 
 export const ownedClassroomsQueryOptions = queryOptions({
   queryKey: ["ownedClassrooms"],
@@ -114,7 +114,7 @@ export const useJoinClassroom = (invitationId: string) => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
   return useMutation({
-    mutationFn: async (action: JoinClassroomRequestActionEnum) => {
+    mutationFn: async (action: Action) => {
       const api = createClassroomApi();
       const res = await api.joinClassroom({ invitationId, action }, csrfToken);
       return res.headers.location as string;
