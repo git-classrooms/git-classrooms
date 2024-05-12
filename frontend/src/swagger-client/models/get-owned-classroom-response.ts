@@ -80,4 +80,10 @@ export interface GetOwnedClassroomResponse {
      * @memberof GetOwnedClassroomResponse
      */
     ownerId?: number;
+
+    /**
+     * @type {boolean}
+     * @memberof GetOwnedClassroomResponse
+     */
+    studentsViewAllProjects?: boolean;
 }
