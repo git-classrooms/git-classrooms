@@ -7,7 +7,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-func joinedClassroomAssignmentQuery(classroomId uuid.UUID, c *fiber.Ctx) query.IAssignmentProjectsDo {
+func joinedClassroomAssignmentQuery(classroomID uuid.UUID, teamID uuid.UUID, c *fiber.Ctx) query.IAssignmentProjectsDo {
 	queryAssignment := query.Assignment
 	queryAssignmentProjects := query.AssignmentProjects
 	return queryAssignmentProjects.
@@ -16,17 +16,20 @@ func joinedClassroomAssignmentQuery(classroomId uuid.UUID, c *fiber.Ctx) query.I
 		Preload(queryAssignmentProjects.Team).
 		Preload(queryAssignmentProjects.Team.Member).
 		Join(queryAssignment, queryAssignment.ID.EqCol(queryAssignmentProjects.AssignmentID)).
-		Where(queryAssignment.ClassroomID.Eq(classroomId))
+		Where(queryAssignment.ClassroomID.Eq(classroomID)).
+		Where(queryAssignmentProjects.TeamID.Eq(teamID))
 }
 
 func (ctrl *DefaultController) JoinedClassroomAssignmentMiddleware(c *fiber.Ctx) error {
+	classroom := context.Get(c).GetJoinedClassroom()
+
 	param := &Params{}
 	err := c.ParamsParser(param)
 	if err != nil || param.ClassroomID == nil || param.AssignmentID == nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	assignment, err := joinedClassroomAssignmentQuery(*param.ClassroomID, c).
+	assignment, err := joinedClassroomAssignmentQuery(*param.ClassroomID, *classroom.TeamID, c).
 		Where(query.AssignmentProjects.AssignmentID.Eq(*param.AssignmentID)).
 		First()
 	if err != nil {

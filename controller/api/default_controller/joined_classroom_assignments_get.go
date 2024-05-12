@@ -20,7 +20,7 @@ import (
 func (ctrl *DefaultController) GetJoinedClassroomAssignments(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()
-	assignments, err := joinedClassroomAssignmentQuery(classroom.ClassroomID, c).Find()
+	assignments, err := joinedClassroomAssignmentQuery(classroom.ClassroomID, *classroom.TeamID, c).Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
