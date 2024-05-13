@@ -14,7 +14,7 @@ rm .gitignore .swagger-codegen-ignore .npmignore git_push.sh package.json README
 
 for file in apis/*.ts
 do
-    sed -i '1s;^;\/\/ @ts-nocheck\n;' $file
+    echo -e "// @ts-nocheck\n$(cat $file)" > $file
 done
 
 node ../../swagger-codegen.js

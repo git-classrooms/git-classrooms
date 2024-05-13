@@ -17,13 +17,13 @@ type getJoinedClassroomAssignmentResponse struct {
 // @Tags			assignment
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
-// @Param			assignemntId	path		string	true	"Assignment ID"	Format(uuid)
+// @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
 // @Success		200				{object}	default_controller.getJoinedClassroomAssignmentResponse
 // @Failure		400				{object}	HTTPError
 // @Failure		401				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
-// @Router			/classrooms/joined/{classroomId}/assignment/{assignmentId} [get]
+// @Router			/classrooms/joined/{classroomId}/assignments/{assignmentId} [get]
 func (ctrl *DefaultController) GetJoinedClassroomAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	assignment := ctx.GetJoinedClassroomAssignment()

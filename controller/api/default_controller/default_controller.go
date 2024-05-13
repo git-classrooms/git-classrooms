@@ -17,6 +17,7 @@ type Params struct {
 	AssignmentProjectID *uuid.UUID `params:"projectId"`
 	MemberID            *int       `params:"memberId"`
 	TeamID              *uuid.UUID `params:"teamId"`
+	InvitationID        *uuid.UUID `params:"invitationId"`
 }
 
 type DefaultController struct {

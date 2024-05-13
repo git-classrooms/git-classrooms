@@ -43,10 +43,11 @@ export type InviteForm = z.infer<typeof inviteFormSchema>;
 export const Status = {
   Pending: 0,
   Accepted: 1,
-  Declined: 2,
+  Rejected: 2,
   Revoked: 3,
 } as const;
 
-export const GetStatus = reversed(Status);
+const GetStatus = reversed(Status);
+export const getStatus = (status: Status) => GetStatus[status];
 
 export type Status = (typeof Status)[keyof typeof Status];

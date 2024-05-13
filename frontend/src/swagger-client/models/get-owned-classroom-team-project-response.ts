@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { Assignment } from './assignment';
 import { Team } from './team';
  /**
  * 
@@ -20,6 +21,12 @@ import { Team } from './team';
  * @interface GetOwnedClassroomTeamProjectResponse
  */
 export interface GetOwnedClassroomTeamProjectResponse {
+
+    /**
+     * @type {Assignment}
+     * @memberof GetOwnedClassroomTeamProjectResponse
+     */
+    assignment?: Assignment;
 
     /**
      * @type {boolean}
