@@ -13,6 +13,7 @@ func ownedClassroomTeamQuery(c *fiber.Ctx, classroomId uuid.UUID) query.ITeamDo 
 		WithContext(c.Context()).
 		Preload(queryTeam.Member).
 		Preload(queryTeam.Member.User).
+		Preload(queryTeam.Member.User.GitLabAvatar).
 		Where(queryTeam.ClassroomID.Eq(classroomId))
 }
 
@@ -31,6 +32,7 @@ func (ctrl *DefaultController) OwnedClassroomTeamMiddleware(c *fiber.Ctx) error 
 		Preload(queryTeam.Classroom).
 		Preload(queryTeam.Member).
 		Preload(queryTeam.Member.User).
+		Preload(queryTeam.Member.User.GitLabAvatar).
 		Preload(queryTeam.AssignmentProjects).
 		Where(queryTeam.ID.Eq(param.TeamID)).
 		Where(queryTeam.ClassroomID.Eq(param.ClassroomID)).
