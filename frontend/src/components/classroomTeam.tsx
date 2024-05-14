@@ -14,9 +14,11 @@ export function ClassroomTeamModal({ classroomId, team, projects }: {
   projects: GetOwnedClassroomTeamProjectResponse[]
 }) {
   return <div>
-    <h1 className="text-2xl">{team.name}</h1>
-    <Separator className="my-1" />
-    <h2 className="text-xl mt-4">Members</h2>
+    {team.members.length > 1 && <>
+      <h1 className="text-2xl">{team.name}</h1>
+      <Separator className="my-1" />
+      <h2 className="text-xl mt-4">Members</h2>
+    </>}
     <ClassroomTeamMemberTable members={team.members} />
     <Separator className="my-1" />
     <h2 className="text-xl mt-4">Assignments</h2>
@@ -28,13 +30,13 @@ function ClassroomTeamMemberTable({ members }: { members: User[]; }) {
   return (
     <Table>
       <TableBody>
-        {members != null && members.map((m) => (
+        {members.length > 0 ? members.map((m) => (
           <TableRow key={m.id}>
             <TableCell className="p-2">
               <ClassroomTeamMemberListElement member={m} />
             </TableCell>
           </TableRow>
-        ))}
+        )) : "No member in this team"}
       </TableBody>
     </Table>
   );
