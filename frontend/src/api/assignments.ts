@@ -109,3 +109,13 @@ export const useAcceptAssignment = (classroomId: string, assignmentId: string) =
     },
   });
 };
+export const ownedClassroomTeamProjectsQueryOptions = (classroomId: string, teamId: string) =>
+  queryOptions({
+    queryKey: ["ownedClassrooms", `ownedClassroom-${classroomId}`, "teams", `team-${teamId}`, "assignments"],
+    queryFn: async () => {
+      const api = createAssignmentApi();
+      const res = await api.getOwnedClassroomTeamProjects(classroomId, teamId);
+      return res.data;
+    },
+  });
+
