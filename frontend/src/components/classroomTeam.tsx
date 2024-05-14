@@ -14,7 +14,7 @@ export function ClassroomTeamModal({ classroomId, team, projects }: {
   projects: GetOwnedClassroomTeamProjectResponse[]
 }) {
   return <div>
-    {team.members.length > 1 && <>
+    {(team.members.length == 0 || team.members[0].gitlabUsername != team.name) && <>
       <h1 className="text-2xl">{team.name}</h1>
       <Separator className="my-1" />
       <h2 className="text-xl mt-4">Members</h2>
