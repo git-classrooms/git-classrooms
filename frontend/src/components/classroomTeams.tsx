@@ -33,7 +33,7 @@ export function TeamListCard({
         <CardDescription>Every team in this classroom</CardDescription>
       </CardHeader>
       <CardContent>
-        <TeamTable teams={teams} userRole={userRole} />
+        <TeamTable teams={teams} classroomId={classroomId} userRole={userRole} />
       </CardContent>
       {userRole != Role.Student && (
         <CardFooter className="flex justify-end">
@@ -48,7 +48,7 @@ export function TeamListCard({
   );
 }
 
-function TeamTable({ teams, userRole }: { teams: GetOwnedClassroomTeamResponse[]; userRole: Role }) {
+function TeamTable({ teams, classroomId, userRole }: { teams: GetOwnedClassroomTeamResponse[]; classroomId: string, userRole: Role }) {
   return (
     <Table>
       <TableBody>
@@ -64,10 +64,10 @@ function TeamTable({ teams, userRole }: { teams: GetOwnedClassroomTeamResponse[]
                 </a>
               </Button>
               {userRole != Role.Student && (
-                <Button variant="ghost" size="icon">
-                  {" "}
-                  {/* Should open a popup listing all assignments from that specific (team) */}
-                  <Clipboard className="h-6 w-6 text-gray-600" />
+                <Button variant="ghost" size="icon" asChild>
+                  <Link to="/classrooms/owned/$classroomId/teams/$teamId/modal" params={{ classroomId: classroomId, teamId: t.id }}>
+                    <Clipboard className="h-6 w-6 text-gray-600" />
+                  </Link>
                 </Button>
               )}
             </TableCell>
