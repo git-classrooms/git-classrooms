@@ -8,12 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { Avatar } from "./avatar";
 import { GetMeResponse } from "@/swagger-client";
+import { Button } from "@/components/ui/button.tsx";
+
 
 export function Navbar(props: { auth: GetMeResponse | null }) {
   const { csrfToken } = useCsrf();
@@ -24,39 +25,40 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
         <a href="/" className="">
           <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
         </a>
-        <ul className="flex">
-          <li className="content-center">
-            <Link
-              to="/"
-              className="font-medium text-sm px-4 py-2 hover:underline"
-              activeProps={{ className: "!font-bold" }}
-            >
-              Dashboard
-            </Link>
-          </li>
-          <li className="content-center">
-            <Link
-              to="/"
-              className="font-medium text-sm px-4 py-2 hover:underline"
-              activeProps={{ className: "!font-bold" }}
-            >
-              Created Classrooms
-            </Link>
-          </li>
-          <li className="content-center">
-            <Link
-              to="/"
-              className="font-medium text-sm px-4 py-2 hover:underline"
-              activeProps={{ className: "!font-bold" }}
-            >
-              Joined Classrooms
-            </Link>
-          </li>
-        </ul>
+        {props.auth ? (
+          <ul className="flex">
+            <li className="content-center">
+              <Link
+                to="/"
+                className="font-medium text-sm px-4 py-2 hover:underline"
+                activeProps={{ className: "!font-bold" }}
+              >
+                Dashboard
+              </Link>
+            </li>
+            <li className="content-center">
+              <Link
+                to="/"
+                className="font-medium text-sm px-4 py-2 hover:underline"
+                activeProps={{ className: "!font-bold" }}
+              >
+                Created Classrooms
+              </Link>
+            </li>
+            <li className="content-center">
+              <Link
+                to="/"
+                className="font-medium text-sm px-4 py-2 hover:underline"
+                activeProps={{ className: "!font-bold" }}
+              >
+                Joined Classrooms
+              </Link>
+            </li>
+          </ul>
+        ) : (<div />)}
       </div>
       <div className="flex items-center">
         <div className="px-4 py-2">
-          <ModeToggle />
         </div>
         {props.auth ? (
           <DropdownMenu>
@@ -68,35 +70,52 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuLabel>User Account</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <div className="font-medium">{props.auth.name}</div>
+                <div className="text-sm text-muted-foreground md:inline">
+                  @{props.auth.gitlabUsername}
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <UserIcon className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-                <DropdownMenuShortcut>⇧P</DropdownMenuShortcut>
+              <DropdownMenuItem className="flex items-center" onKeyDown={(event) => {
+                if (event.key === " " || event.key === "Spacebar") {
+                  event.preventDefault();
+                  window.open(props.auth?.gitlabUrl, "_blank");
+                }
+              }}>
+                <a href={props.auth.gitlabUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </a>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-                <DropdownMenuShortcut>⇧S</DropdownMenuShortcut>
+              <DropdownMenuItem onSelect={event => event.preventDefault()}>
+                <ModeToggle/>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onKeyDown={(event) => {
+                if (event.key === " " || event.key === "Spacebar") {
+                  (document.getElementById("logOutForm") as HTMLFormElement).submit();
+                }
+              }}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <form method="POST" action="/api/v1/auth/sign-out">
+                <form id="logOutForm" method="POST" action="/api/v1/auth/sign-out">
                   <input type="hidden" name="csrf_token" value={csrfToken} />
                   <button type="submit" className="font-bold">
                     Log out
                   </button>
                 </form>
-                <DropdownMenuShortcut>⇧Q</DropdownMenuShortcut>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Link to="/login" search={{ redirect: location.href }}>
-            Login
-          </Link>
+          <div className="flex">
+            <ModeToggle />
+            <Button className="ml-3">
+              <Link to="/login" search={{ redirect: location.href }}>
+                Login
+              </Link>
+            </Button>
+          </div>
         )}
       </div>
     </nav>
