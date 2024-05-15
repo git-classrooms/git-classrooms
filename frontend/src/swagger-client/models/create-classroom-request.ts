@@ -49,4 +49,10 @@ export interface CreateClassroomRequest {
      * @memberof CreateClassroomRequest
      */
     name?: string;
+
+    /**
+     * @type {boolean}
+     * @memberof CreateClassroomRequest
+     */
+    studentsViewAllProjects?: boolean;
 }

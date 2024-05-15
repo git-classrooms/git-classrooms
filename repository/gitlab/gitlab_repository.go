@@ -166,6 +166,29 @@ func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (
 	return repo.GetProjectById(projectId)
 }
 
+func (repo *GitlabRepo) ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.ProjectMembers.EditProjectMember(
+		projectId,
+		userId,
+		&goGitlab.EditProjectMemberOptions{AccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel))},
+	)
+
+	return err
+}
+
+func (repo *GitlabRepo) GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error) {
+	repo.assertIsConnected()
+
+	member, _, err := repo.client.ProjectMembers.GetProjectMember(projectId, userId)
+	if err != nil {
+		return model.NoPermissions, err
+	}
+
+	return model.AccessLevelValue(member.AccessLevel), nil
+}
+
 func (repo *GitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
 	repo.assertIsConnected()
 
@@ -321,6 +344,27 @@ func (repo *GitlabRepo) RemoveUserFromGroup(groupId int, userId int) error {
 	_, err := repo.client.GroupMembers.RemoveGroupMember(groupId, userId, nil)
 
 	return err
+}
+
+func (repo *GitlabRepo) ChangeUserAccessLevelInGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.GroupMembers.EditGroupMember(groupId, userId, &goGitlab.EditGroupMemberOptions{
+		AccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
+	})
+
+	return err
+}
+
+func (repo *GitlabRepo) GetAccessLevelOfUserInGroup(groupId int, userId int) (model.AccessLevelValue, error) {
+	repo.assertIsConnected()
+
+	member, _, err := repo.client.GroupMembers.GetGroupMember(groupId, userId)
+	if err != nil {
+		return model.NoPermissions, err
+	}
+
+	return model.AccessLevelValue(member.AccessLevel), nil
 }
 
 func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) {

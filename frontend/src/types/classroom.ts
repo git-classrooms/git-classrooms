@@ -16,6 +16,7 @@ export const createFormSchema = z.object({
   name: z.string().min(3),
   description: z.string().min(3),
   createTeams: z.boolean(),
+  studentsViewAllProjects: z.boolean(),
   maxTeamSize: z.coerce.number().int().min(1),
   maxTeams: z.coerce.number().int().min(0),
 });

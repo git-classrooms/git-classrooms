@@ -29,6 +29,7 @@ import (
 // @Router			/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects [post]
 func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 	ctx := context.Get(c)
+	userID := ctx.GetUserID()
 	classroom := ctx.GetOwnedClassroom()
 	assignment := ctx.GetOwnedClassroomAssignment()
 
@@ -75,8 +76,11 @@ func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	repo := context.Get(c).GetGitlabRepository()
-	owner, err := repo.GetUserById(classroom.OwnerID)
+	userQuery := query.User
+	me, err := userQuery.
+		WithContext(c.Context()).
+		Where(userQuery.ID.Eq(userID)).
+		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -91,7 +95,7 @@ func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 					classroom.Name),
 				mailRepo.AssignmentNotificationData{
 					ClassroomName:      classroom.Name,
-					ClassroomOwnerName: owner.Name,
+					ClassroomOwnerName: me.Name,
 					RecipientName:      member.User.Name,
 					AssignmentName:     assignment.Name,
 					JoinPath:           joinPath,

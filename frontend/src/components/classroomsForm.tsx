@@ -25,6 +25,7 @@ export const ClassroomsForm = () => {
       maxTeams: 0,
       maxTeamSize: 1,
       createTeams: true,
+      studentsViewAllProjects: false,
     },
   });
 
@@ -114,6 +115,21 @@ export const ClassroomsForm = () => {
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="studentsViewAllProjects"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel>Students can view projects of others</FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
           </Button>

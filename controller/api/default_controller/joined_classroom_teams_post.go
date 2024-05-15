@@ -102,7 +102,7 @@ func (ctrl *DefaultController) CreateJoinedClassroomTeam(c *fiber.Ctx) error {
 	member := make([]*database.UserClassrooms, 0)
 
 	if classroom.Role == database.Student {
-		if err := repo.AddUserToGroup(group.ID, userID, model.DeveloperPermissions); err != nil {
+		if err := repo.AddUserToGroup(group.ID, userID, model.ReporterPermissions); err != nil {
 			if err := repo.DeleteGroup(group.ID); err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}

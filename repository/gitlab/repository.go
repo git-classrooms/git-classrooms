@@ -7,51 +7,58 @@ import (
 )
 
 type Repository interface {
-	Login(token string) error                                                                                                //j
-	GroupAccessLogin(token string) error                                                                                     //f
-	GetCurrentUser() (*model.User, error)                                                                                    //f
-	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L735 https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L466
-	CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error)                          //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L366
-	CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error)         //f
+	// Access
+	Login(token string) error
+	GroupAccessLogin(token string) error
+	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error)
+	RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error)
 
-	DeleteProject(id int) error                                //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L1110
-	DeleteGroup(id int) error                                  //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L566
-	ChangeGroupName(id int, name string) (*model.Group, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L495
+	// Group
+	CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error)
+	CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error)
+	DeleteGroup(id int) error
+	ChangeGroupName(id int, name string) (*model.Group, error)
 	ChangeGroupDescription(id int, description string) (*model.Group, error)
-	AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error        //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L237
-	RemoveUserFromGroup(groupId int, userId int) error                                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L349
-	GetAllProjects(search string) ([]*model.Project, error)                                  //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L373
-	GetProjectById(id int) (*model.Project, error)                                           //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/projects.go#L577
-	GetUserById(id int) (*model.User, error)                                                 //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/users.go#L169
-	GetGroupById(id int) (*model.Group, error)                                               //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L288
-	GetAllUsers() ([]*model.User, error)                                                     //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/users.go#L144
-	GetAllGroups() ([]*model.Group, error)                                                   //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L149
-	GetAllProjectsOfGroup(id int) ([]*model.Project, error)                                  //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L255
-	GetAllUsersOfGroup(id int) ([]*model.User, error)                                        //j https://github.com/xanzy/go-gitlab/blob/v0.93.2/group_members.go#L77
-	SearchProjectByExpression(expression string) ([]*model.Project, error)                   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L49
-	SearchUserByExpression(expression string) ([]*model.User, error)                         //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L290
-	SearchUserByExpressionInGroup(expression string, groupId int) ([]*model.User, error)     //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L300
-	SearchUserByExpressionInProject(expression string, projectId int) ([]*model.User, error) //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/search.go#L310
-	SearchGroupByExpression(expression string) ([]*model.Group, error)                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/groups.go#L609
-	GetPendingProjectInvitations(projectId int) ([]*model.PendingInvite, error)              //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L85
-	GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error)                  //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L60
-	CreateGroupInvite(groupId int, email string) error                                       //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L132
-	CreateProjectInvite(projectId int, email string) error                                   //c https://github.com/xanzy/go-gitlab/blob/v0.93.2/invites.go#L157
-	DenyPushingToProject(projectId int) error                                                // TODO: keine Möglichkeit bisher gefunden
-	AllowPushingToProject(projectId int) error                                               // TODO: keine Möglichkeit bisher gefunden
+	AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error
+	RemoveUserFromGroup(groupId int, userId int) error
+	GetGroupById(id int) (*model.Group, error)
+	GetAllGroups() ([]*model.Group, error)
+	SearchGroupByExpression(expression string) ([]*model.Group, error)
+	CreateGroupInvite(groupId int, email string) error
+	GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error)
+	ChangeUserAccessLevelInGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error
+	GetAccessLevelOfUserInGroup(groupId int, userId int) (model.AccessLevelValue, error)
 
+	// User
+	GetCurrentUser() (*model.User, error)
+	GetUserById(id int) (*model.User, error)
+	GetAllUsers() ([]*model.User, error)
+	GetAllUsersOfGroup(id int) ([]*model.User, error)
+	SearchUserByExpression(expression string) ([]*model.User, error)
+	SearchUserByExpressionInGroup(expression string, groupId int) ([]*model.User, error)
+	SearchUserByExpressionInProject(expression string, projectId int) ([]*model.User, error)
+	FindUserIDByEmail(email string) (int, error)
+
+	// Project
+	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error)
+	DeleteProject(id int) error
+	GetAllProjects(search string) ([]*model.Project, error)
+	GetProjectById(id int) (*model.Project, error)
+	GetAllProjectsOfGroup(id int) ([]*model.Project, error)
+	SearchProjectByExpression(expression string) ([]*model.Project, error)
+	CreateProjectInvite(projectId int, email string) error
+	GetPendingProjectInvitations(projectId int) ([]*model.PendingInvite, error)
+	DenyPushingToProject(projectId int) error
+	AllowPushingToProject(projectId int) error
 	ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
+	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
+	GetNamespaceOfProject(projectId int) (*string, error)
+	ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error
+	GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error)
 
+	// Branches
 	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
 	ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error
 	UnprotectBranch(projectId int, branchName string) error
 	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
-
-	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
-
-	GetNamespaceOfProject(projectId int) (*string, error)
-
-	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) //F,D,Ph
-	RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error)                                                       //F,D,Ph
-	FindUserIDByEmail(email string) (int, error)
 }

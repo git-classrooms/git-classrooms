@@ -29,8 +29,6 @@ func (ctrl *DefaultController) JoinedClassroomMiddleware(c *fiber.Ctx) error {
 
 	queryUserClassrooms := query.UserClassrooms
 	classroom, err := joinedClassroomQuery(userID, c).
-		Preload(queryUserClassrooms.Classroom).
-		Preload(queryUserClassrooms.Team).
 		Where(queryUserClassrooms.ClassroomID.Eq(param.ClassroomID)).
 		First()
 	if err != nil {
