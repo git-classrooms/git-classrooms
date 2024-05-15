@@ -2,8 +2,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { HoverCard, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
-import { Clipboard, Edit, Gitlab } from "lucide-react";
+import { Edit, Gitlab } from "lucide-react";
 import { formatDate } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
@@ -63,8 +62,7 @@ function AssignmentTable({
         {assignments.map((a) => (
           <TableRow key={a.id}>
             <TableCell className="p-2">
-              <HoverCard>
-                <HoverCardTrigger className="cursor-default flex justify-between">
+              <div className="cursor-default flex justify-between">
                   <div>
                     <div className="font-medium">{a.name}</div>
                     <div className="text-sm text-muted-foreground md:inline">{classroomName}</div>
@@ -77,16 +75,11 @@ function AssignmentTable({
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" asChild>
-                      <Link to="" params={{}}>
-                        <Edit className="h-6 w-6 text-gray-600" />
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" size="icon" asChild>
                       <Link
                         to="/classrooms/owned/$classroomId/assignments/$assignmentId"
                         params={{ classroomId, assignmentId: a.id }}
                       >
-                        <Clipboard className="h-6 w-6 text-gray-600" />
+                        <Edit className="h-6 w-6 text-gray-600" />
                       </Link>
                     </Button>
                     <Button variant="ghost" size="icon" asChild>
@@ -95,8 +88,7 @@ function AssignmentTable({
                       </Link>
                     </Button>
                   </div>
-                </HoverCardTrigger>
-              </HoverCard>
+                </div>
             </TableCell>
           </TableRow>
         ))}

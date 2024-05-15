@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"fmt"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -30,10 +31,14 @@ type getOwnedClassroomTeamResponse struct {
 func (ctrl *DefaultController) GetOwnedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	team := ctx.GetOwnedClassroomTeam()
+	member := utils.Map(team.Member, func(u *database.UserClassrooms) *database.User {
+		return &u.User
+	})
 
 	response := &getOwnedClassroomTeamResponse{
-		Team:      *team,
-		GitlabURL: fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
+		Team:       *team,
+		UserMember: member,
+		GitlabURL:  fmt.Sprintf("/api/v1/classrooms/owned/%s/teams/%s/gitlab", team.ClassroomID.String(), team.ID.String()),
 	}
 
 	return c.JSON(response)
