@@ -20,11 +20,11 @@ import { GetJoinedClassroomResponse } from "@/swagger-client";
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
 export function MemberListCard({
-  classroomMembers,
-  classroomId,
-  userRole,
-  showTeams,
-}: {
+                                 classroomMembers,
+                                 classroomId,
+                                 userRole,
+                                 showTeams,
+                               }: {
   classroomMembers: GetJoinedClassroomResponse[];
   classroomId: string;
   userRole: Role;
@@ -53,11 +53,11 @@ export function MemberListCard({
 }
 
 function MemberTable({
-  members,
-  classroomId,
-  userRole,
-  showTeams,
-}: {
+                       members,
+                       classroomId,
+                       userRole,
+                       showTeams,
+                     }: {
   members: GetJoinedClassroomResponse[];
   classroomId: string;
   userRole: Role;
@@ -77,13 +77,16 @@ function MemberTable({
                   <Gitlab className="h-6 w-6 text-gray-600" />
                 </a>
               </Button>
-              {userRole != Role.Student && (
+              {userRole != Role.Student && m.team ? (
                 <Button variant="ghost" size="icon" asChild>
-                  <Link to="/classrooms/owned/$classroomId/teams/$teamId/modal" params={{ classroomId: classroomId, teamId: m.team!.id }}>
+                  <Link to="/classrooms/owned/$classroomId/teams/$teamId/modal"
+                        params={{ classroomId: classroomId, teamId: m.team.id }}>
                     <Clipboard className="h-6 w-6 text-gray-600" />
                   </Link>
                 </Button>
-              )}
+              ) : <Button variant="ghost" size="icon" asChild>
+                <div><Clipboard className="h-6 w-6 text-gray-400" /></div>
+              </Button>}
             </TableCell>
           </TableRow>
         ))}
