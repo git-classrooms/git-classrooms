@@ -25,7 +25,7 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
 
   useEffect(() => {
     setTheme(isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
+  }, [isDarkMode, setTheme]);
 
   return (
     <nav className="flex justify-between px-8 py-2.5 mb-8 border-b">
