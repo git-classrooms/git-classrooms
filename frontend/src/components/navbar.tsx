@@ -77,34 +77,26 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center" onKeyDown={(event) => {
-                if (event.key === " " || event.key === "Spacebar") {
-                  event.preventDefault();
-                  window.open(props.auth?.gitlabUrl, "_blank");
-                }
-              }}>
-                <a href={props.auth.gitlabUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
+              <a href={props.auth.gitlabUrl} target="_blank" rel="noopener noreferrer" className="flex items-center w-full">
+                <DropdownMenuItem className="flex items-center w-full">
                   <UserIcon className="mr-2 h-4 w-4" />
                   <span>Profile</span>
-                </a>
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              </a>
               <DropdownMenuItem onSelect={event => event.preventDefault()}>
-                <ModeToggle/>
+                <ModeToggle />
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onKeyDown={(event) => {
-                if (event.key === " " || event.key === "Spacebar") {
-                  (document.getElementById("logOutForm") as HTMLFormElement).submit();
-                }
-              }}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <form id="logOutForm" method="POST" action="/api/v1/auth/sign-out">
-                  <input type="hidden" name="csrf_token" value={csrfToken} />
-                  <button type="submit" className="font-bold">
-                    Log out
-                  </button>
-                </form>
-              </DropdownMenuItem>
+
+              <form id="logOutForm" method="POST" action="/api/v1/auth/sign-out" className="w-full">
+                <button type="submit" className="font-bold w-full">
+                  <DropdownMenuItem>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <input type="hidden" name="csrf_token" value={csrfToken} />
+                    <span className="">Log out</span>
+                  </DropdownMenuItem>
+                </button>
+              </form>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

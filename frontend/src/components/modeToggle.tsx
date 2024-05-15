@@ -18,9 +18,9 @@ export function ModeToggle() {
 
   return (
     <div className="flex items-center">
-      <Sun className={`h-[1.2rem] w-[1.2rem] mr-2 ${isDarkMode ? "text-white" : "text-black"}`} />
+      <Sun className="h-[1.2rem] w-[1.2rem] mr-2 dark:text-white text-black" />
       <Switch checked={isDarkMode} onCheckedChange={toggleTheme} />
-      <Moon className={`h-[1.2rem] w-[1.2rem] ml-2  ${isDarkMode ? "text-white" : "text-black"}`} />
+      <Moon className="h-[1.2rem] w-[1.2rem] ml-2  dark:text-white text-black" />
       <span className="sr-only">Toggle theme</span>
     </div>
   );
