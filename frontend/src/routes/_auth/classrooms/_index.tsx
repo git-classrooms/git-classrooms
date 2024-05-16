@@ -30,16 +30,10 @@ function Classrooms() {
   return (
     <div className="p-2 m-8">
       <Header title="Dashboard" size="5xl" margin="mb-10" />
-      <div className="flex flex-row justify-between w-full gap-4 flex-wrap">
-        <div className="max-w-screen-sm	">
-          <OwnedClassroomTable classrooms={ownClassrooms} />
-        </div>
-        <div className="max-w-screen-sm	">
-          <JoinedClassroomTable classrooms={joinedClassrooms} />
-        </div>
-        <div className="max-w-screen-sm	">
-          <ActiveAssignmentsTable classrooms={joinedClassrooms} />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-20">
+        <OwnedClassroomTable classrooms={ownClassrooms} />
+        <JoinedClassroomTable classrooms={joinedClassrooms} />
+        <ActiveAssignmentsTable classrooms={joinedClassrooms} />
         <Outlet />
       </div>
     </div>

@@ -28,7 +28,7 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
   }, [isDarkMode, setTheme]);
 
   return (
-    <nav className="flex justify-between px-8 py-2.5 mb-8 border-b">
+    <nav className="flex justify-between px-8 py-2.5 mb-8 border-b w-full">
       <div className="flex items-center">
         <a href="/" className="">
           <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />

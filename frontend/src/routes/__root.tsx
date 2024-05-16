@@ -35,14 +35,16 @@ function RootComponent() {
   return (
     <CsrfProvider>
       <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
-        <div className="w-screen h-screen overflow-scroll">
+        <div className="min-w-screen min-h-screen grid grid-rows-[auto_1fr]">
           <Navbar auth={auth} />
-          <div className="max-w-9/12 m-auto">
-            <Outlet />
-            <ReactQueryDevtools initialIsOpen={false} />
-            <Suspense>
-              <TanStackRouterDevtools />
-            </Suspense>
+          <div className="flex flex-col w-full items-center">
+            <div className="w-full xl:max-w-[90rem]">
+              <Outlet />
+              <ReactQueryDevtools initialIsOpen={false} />
+              <Suspense>
+                <TanStackRouterDevtools />
+              </Suspense>
+            </div>
           </div>
         </div>
       </ThemeProvider>
