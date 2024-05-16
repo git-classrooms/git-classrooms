@@ -35,6 +35,7 @@ const queryClient = new QueryClient();
 import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./api/auth";
 import { Loader } from "./components/loader";
+import { ThemeProvider } from "./provider/themeProvider";
 
 const classroomCreateModalToClassroomCreateMask = createRouteMask({
   routeTree,
@@ -99,11 +100,13 @@ function InnerApp() {
 function App() {
   return (
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <Suspense fallback={<Loader />}>
-          <InnerApp />
-        </Suspense>
-      </QueryClientProvider>
+      <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={<Loader />}>
+            <InnerApp />
+          </Suspense>
+        </QueryClientProvider>
+      </ThemeProvider>
     </React.StrictMode>
   );
 }

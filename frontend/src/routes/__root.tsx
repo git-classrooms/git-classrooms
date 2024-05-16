@@ -2,7 +2,6 @@ import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient } from "@tanstack/react-query";
 import React, { Suspense } from "react";
-import { ThemeProvider } from "@/provider/themeProvider.tsx";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { Loader } from "@/components/loader.tsx";
 import { CsrfProvider } from "@/provider/csrfProvider";
@@ -34,20 +33,18 @@ function RootComponent() {
   const { auth } = Route.useRouteContext();
   return (
     <CsrfProvider>
-      <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
-        <div className="min-w-screen min-h-screen grid grid-rows-[auto_1fr]">
-          <Navbar auth={auth} />
-          <div className="flex flex-col w-full items-center">
-            <div className="w-full xl:max-w-[90rem]">
-              <Outlet />
-              <ReactQueryDevtools initialIsOpen={false} />
-              <Suspense>
-                <TanStackRouterDevtools />
-              </Suspense>
-            </div>
+      <div className="min-w-screen min-h-screen grid grid-rows-[auto_1fr]">
+        <Navbar auth={auth} />
+        <div className="flex flex-col w-full items-center">
+          <div className="w-full xl:max-w-[90rem]">
+            <Outlet />
+            <ReactQueryDevtools initialIsOpen={false} />
+            <Suspense>
+              <TanStackRouterDevtools />
+            </Suspense>
           </div>
         </div>
-      </ThemeProvider>
+      </div>
     </CsrfProvider>
   );
 }
