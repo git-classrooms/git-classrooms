@@ -55,6 +55,8 @@ type Repository interface {
 	GetNamespaceOfProject(projectId int) (*string, error)
 	ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error
 	GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error)
+	ChangeProjectName(projectId int, name string) (*model.Project, error)
+	ChangeProjectDescription(projectId int, description string) (*model.Project, error)
 
 	// Branches
 	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
