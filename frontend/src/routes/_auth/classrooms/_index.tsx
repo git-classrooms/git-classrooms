@@ -3,7 +3,7 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
@@ -28,8 +28,8 @@ function Classrooms() {
   const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
   const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
   return (
-    <div className="p-2 m-8">
-      <Header title="Dashboard" size="5xl" margin="mb-10" />
+    <div className="p-10">
+      <Header title="Dashboard" className="text-5xl" />
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-20">
         <OwnedClassroomTable classrooms={ownClassrooms} />
         <JoinedClassroomTable classrooms={joinedClassrooms} />
@@ -73,20 +73,20 @@ function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResp
               </TableCell>
             </TableRow>
           ))}
-          <div className="flex flex-wrap justify-end">
-            <Button asChild variant="default">
-              <Link to="/classrooms/create/modal" replace>
-                Create a new Classroom
-              </Link>
-            </Button>
-            <Button asChild variant="default">
-              <Link to="/classrooms/create/modal" replace>
-                View all your Classrooms
-              </Link>
-            </Button>
-          </div>
         </TableBody>
       </Table>
+      <CardFooter className="flex justify-end gap-2">
+        <Button asChild variant="default">
+          <Link to="/classrooms/create/modal" replace>
+            Create a new Classroom
+          </Link>
+        </Button>
+        <Button asChild variant="default">
+          <Link to="/classrooms/create/modal" replace>
+            View all your Classrooms
+          </Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
