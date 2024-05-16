@@ -147,22 +147,22 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
          * GetJoinedClassroomAssignment
          * @summary GetJoinedClassroomAssignment
          * @param {string} classroomId Classroom ID
-         * @param {string} assignemntId Assignment ID
+         * @param {string} assignmentId Assignment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getJoinedClassroomAssignment: async (classroomId: string, assignemntId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getJoinedClassroomAssignment: async (classroomId: string, assignmentId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getJoinedClassroomAssignment.');
             }
-            // verify required parameter 'assignemntId' is not null or undefined
-            if (assignemntId === null || assignemntId === undefined) {
-                throw new RequiredError('assignemntId','Required parameter assignemntId was null or undefined when calling getJoinedClassroomAssignment.');
+            // verify required parameter 'assignmentId' is not null or undefined
+            if (assignmentId === null || assignmentId === undefined) {
+                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getJoinedClassroomAssignment.');
             }
-            const localVarPath = `/classrooms/joined/{classroomId}/assignment/{assignmentId}`
+            const localVarPath = `/classrooms/joined/{classroomId}/assignments/{assignmentId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"assignemntId"}}`, encodeURIComponent(String(assignemntId)));
+                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -559,12 +559,12 @@ export const AssignmentApiFp = function(configuration?: Configuration) {
          * GetJoinedClassroomAssignment
          * @summary GetJoinedClassroomAssignment
          * @param {string} classroomId Classroom ID
-         * @param {string} assignemntId Assignment ID
+         * @param {string} assignmentId Assignment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getJoinedClassroomAssignment(classroomId: string, assignemntId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getJoinedClassroomAssignment(classroomId, assignemntId, options);
+        async getJoinedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>>> {
+            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getJoinedClassroomAssignment(classroomId, assignmentId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -712,12 +712,12 @@ export const AssignmentApiFactory = function (configuration?: Configuration, bas
          * GetJoinedClassroomAssignment
          * @summary GetJoinedClassroomAssignment
          * @param {string} classroomId Classroom ID
-         * @param {string} assignemntId Assignment ID
+         * @param {string} assignmentId Assignment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getJoinedClassroomAssignment(classroomId: string, assignemntId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>> {
-            return AssignmentApiFp(configuration).getJoinedClassroomAssignment(classroomId, assignemntId, options).then((request) => request(axios, basePath));
+        async getJoinedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>> {
+            return AssignmentApiFp(configuration).getJoinedClassroomAssignment(classroomId, assignmentId, options).then((request) => request(axios, basePath));
         },
         /**
          * GetJoinedClassroomAssignments
@@ -836,13 +836,13 @@ export class AssignmentApi extends BaseAPI {
      * GetJoinedClassroomAssignment
      * @summary GetJoinedClassroomAssignment
      * @param {string} classroomId Classroom ID
-     * @param {string} assignemntId Assignment ID
+     * @param {string} assignmentId Assignment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AssignmentApi
      */
-    public async getJoinedClassroomAssignment(classroomId: string, assignemntId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>> {
-        return AssignmentApiFp(this.configuration).getJoinedClassroomAssignment(classroomId, assignemntId, options).then((request) => request(this.axios, this.basePath));
+    public async getJoinedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>> {
+        return AssignmentApiFp(this.configuration).getJoinedClassroomAssignment(classroomId, assignmentId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * GetJoinedClassroomAssignments

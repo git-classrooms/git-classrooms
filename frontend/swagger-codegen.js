@@ -3,7 +3,7 @@
 import fs from "fs";
 import path from "path";
 
-const exceptions = ["change-owned-classroom-member-request", "classroom-invitation-status", "role"];
+const exceptions = ["change-owned-classroom-member-request", "classroom-invitation-status", "role", "action"];
 
 const subPartialChange = {
   team: [

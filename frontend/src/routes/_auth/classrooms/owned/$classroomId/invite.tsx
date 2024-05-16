@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { GetStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
+import { getStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { ownedClassroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classrooms.ts";
@@ -105,7 +105,7 @@ function InvitationsTable({ invitations }: { invitations: ClassroomInvitation[] 
           <TableRow key={i.email}>
             <TableCell>{i.email}</TableCell>
             <TableCell>{formatDate(i.createdAt)}</TableCell>
-            <TableCell>{GetStatus[i.status]}</TableCell>
+            <TableCell>{getStatus(i.status)}</TableCell>
             <TableCell className="text-right">
               <Button variant="outline">Refresh status</Button>
             </TableCell>

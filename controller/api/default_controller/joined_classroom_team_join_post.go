@@ -47,7 +47,7 @@ func (ctrl *DefaultController) JoinJoinedClassroomTeam(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	if err := repo.AddUserToGroup(team.GroupID, userID, model.DeveloperPermissions); err != nil {
+	if err := repo.AddUserToGroup(team.GroupID, userID, model.ReporterPermissions); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

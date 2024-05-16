@@ -29,14 +29,14 @@ type changeOwnedClassroomMemberRequest struct {
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
 // @Router			/classrooms/owned/{classroomId}/members/{memberId} [patch]
-func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) error {
+func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()
 	member := ctx.GetOwnedClassroomMember()
 	repo := ctx.GetGitlabRepository()
 
 	requestBody := &changeOwnedClassroomMemberRequest{}
-	err := c.BodyParser(requestBody)
+	err = c.BodyParser(requestBody)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -46,7 +46,6 @@ func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) error {
 	}
 
 	var newTeam *database.Team
-	var oldTeam *database.Team
 
 	queryTeam := query.Team
 	if requestBody.TeamID != nil {
@@ -61,41 +60,67 @@ func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) error {
 
 	if member.TeamID != nil {
 		if newTeam != nil && *member.TeamID != newTeam.ID {
-			oldTeam = member.Team
 			if err = repo.RemoveUserFromGroup(member.Team.GroupID, member.UserID); err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
+			defer func() {
+				if recover() != nil || err != nil {
+					if err = repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
+						return
+					}
+				}
+			}()
 		}
 	}
 
 	if requestBody.Role != nil {
 		if *requestBody.Role != member.Role {
 			member.Role = *requestBody.Role
+			if !classroom.StudentsViewAllProjects && *requestBody.Role == database.Moderator {
+				if err = repo.ChangeUserAccessLevelInGroup(classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
+				defer func() {
+					if recover() != nil || err != nil {
+						if err = repo.ChangeUserAccessLevelInGroup(classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
+							return
+						}
+					}
+				}()
+			} else if !classroom.StudentsViewAllProjects && *requestBody.Role == database.Student {
+				if err = repo.ChangeUserAccessLevelInGroup(classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
+				defer func() {
+					if recover() != nil || err != nil {
+						if err = repo.ChangeUserAccessLevelInGroup(classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+							return
+						}
+					}
+				}()
+			}
 		}
 	}
 
-	if newTeam != nil {
+	if newTeam != nil && (member.TeamID == nil || *member.TeamID != newTeam.ID) {
 		if err = repo.AddUserToGroup(newTeam.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		member.TeamID = &newTeam.ID
+		defer func() {
+			if recover() != nil || err != nil {
+				if err = repo.RemoveUserFromGroup(newTeam.GroupID, member.UserID); err != nil {
+					return
+				}
+			}
+		}()
 	}
 
 	queryUserClassrooms := query.UserClassrooms
 	if err := queryUserClassrooms.
 		WithContext(c.Context()).
 		Save(member); err != nil {
-		if newTeam != nil {
-			if err = repo.RemoveUserFromGroup(member.Team.GroupID, member.UserID); err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-			}
-			if oldTeam != nil {
-				if err = repo.AddUserToGroup(oldTeam.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
-					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-				}
-			}
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)

@@ -1,4 +1,5 @@
 import { DeepRequired, SubPartial } from "@/types/utils";
+export * from './action';
 import { Assignment as OldAssignment } from "./assignment";
 export type Assignment = SubPartial<DeepRequired<OldAssignment>, "dueDate">;
 import { AuthGetCsrfResponse as OldAuthGetCsrfResponse } from "./auth-get-csrf-response";

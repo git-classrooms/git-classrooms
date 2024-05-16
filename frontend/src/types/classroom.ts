@@ -16,6 +16,7 @@ export const createFormSchema = z.object({
   name: z.string().min(3),
   description: z.string().min(3),
   createTeams: z.boolean(),
+  studentsViewAllProjects: z.boolean(),
   maxTeamSize: z.coerce.number().int().min(1),
   maxTeams: z.coerce.number().int().min(0),
 });
@@ -43,10 +44,11 @@ export type InviteForm = z.infer<typeof inviteFormSchema>;
 export const Status = {
   Pending: 0,
   Accepted: 1,
-  Declined: 2,
+  Rejected: 2,
   Revoked: 3,
 } as const;
 
-export const GetStatus = reversed(Status);
+const GetStatus = reversed(Status);
+export const getStatus = (status: Status) => GetStatus[status];
 
 export type Status = (typeof Status)[keyof typeof Status];

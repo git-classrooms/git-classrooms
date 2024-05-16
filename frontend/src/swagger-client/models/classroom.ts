@@ -74,4 +74,10 @@ export interface Classroom {
      * @memberof Classroom
      */
     ownerId?: number;
+
+    /**
+     * @type {boolean}
+     * @memberof Classroom
+     */
+    studentsViewAllProjects?: boolean;
 }

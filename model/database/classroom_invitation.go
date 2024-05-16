@@ -11,7 +11,7 @@ type ClassroomInvitationStatus uint8 //@Name ClassroomInvitationStatus
 const (
 	ClassroomInvitationPending ClassroomInvitationStatus = iota
 	ClassroomInvitationAccepted
-	ClassroomInvitationDeclined
+	ClassroomInvitationRejected
 	ClassroomInvitationRevoked
 )
 
@@ -21,7 +21,7 @@ type ClassroomInvitation struct {
 	UpdatedAt   time.Time                 `json:"updatedAt"`
 	Status      ClassroomInvitationStatus `gorm:"not null" json:"status"`
 	ClassroomID uuid.UUID                 `gorm:"not null" json:"-"`
-	Classroom   Classroom                 `json:"-"`
+	Classroom   Classroom                 `json:"classroom"`
 	Email       string                    `gorm:"not null" json:"email"`
 	ExpiryDate  time.Time                 `gorm:"not null" json:"expiryDate"`
 } //@Name ClassroomInvitation
