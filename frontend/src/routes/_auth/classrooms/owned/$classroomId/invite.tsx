@@ -43,7 +43,7 @@ function ClassroomsForm() {
   }
 
   return (
-    <div>
+    <div className="max-w-5xl mx-auto">
       <Header title="Invitations" />
       <InvitationsTable invitations={invitations} />
 

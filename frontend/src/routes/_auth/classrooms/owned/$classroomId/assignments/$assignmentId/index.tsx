@@ -37,7 +37,7 @@ function AssignmentDetail() {
   const { mutateAsync, isError, isPending } = useInviteAssignmentMembers(classroomId, assignmentId);
 
   return (
-    <div>
+    <div className="max-w-5xl mx-auto">
       <Header title="Assignment Details" />
 
       <Card>

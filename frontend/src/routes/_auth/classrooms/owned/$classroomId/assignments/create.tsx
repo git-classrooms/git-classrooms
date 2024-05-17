@@ -65,7 +65,7 @@ function CreateAssignment() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="max-w-3xl mx-auto">
       <Header title="Create Assignment" className="" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
