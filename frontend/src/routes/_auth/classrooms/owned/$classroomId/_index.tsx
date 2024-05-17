@@ -8,7 +8,7 @@ import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
 import { AssignmentListCard } from "@/components/classroomAssignments.tsx";
-import { Layout } from "@/components/layout";
+import { Header } from "@/components/header";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/_index")({
   component: ClassroomDetail,
@@ -29,17 +29,20 @@ function ClassroomDetail() {
   const { data: classroomMembers } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(ownedClassroomTeamsQueryOptions(classroomId));
   return (
-    <Layout title={`Classroom: ${classroom.name}`} subtitle={classroom.description}>
-      <AssignmentListCard assignments={assignments} classroomId={classroomId} classroomName={classroom.name} />
-      <MemberListCard
-        classroomMembers={classroomMembers}
-        classroomId={classroomId}
-        userRole={Role.Owner}
-        showTeams={classroom.maxTeamSize > 1}
-      />
-      {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
-      {classroom.maxTeamSize > 1 && <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} />}
-      <Outlet />
-    </Layout>
+    <>
+      <Header title={`Classroom: ${classroom.name}`} subtitle={classroom.description} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
+        <AssignmentListCard assignments={assignments} classroomId={classroomId} classroomName={classroom.name} />
+        <MemberListCard
+          classroomMembers={classroomMembers}
+          classroomId={classroomId}
+          userRole={Role.Owner}
+          showTeams={classroom.maxTeamSize > 1}
+        />
+        {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
+        {classroom.maxTeamSize > 1 && <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} />}
+        <Outlet />
+      </div>
+    </>
   );
 }

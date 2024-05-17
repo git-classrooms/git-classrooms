@@ -9,7 +9,7 @@ import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
 import { GetJoinedClassroomResponse, GetOwnedClassroomResponse } from "@/swagger-client";
 import { ArrowRight as ArrowRight } from "lucide-react";
-import { Layout } from "@/components/layout";
+import { Header } from "@/components/header";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -28,12 +28,15 @@ function Classrooms() {
   const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
   const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
   return (
-    <Layout title="Dashboard">
-      <OwnedClassroomTable classrooms={ownClassrooms} />
-      <JoinedClassroomTable classrooms={joinedClassrooms} />
-      <ActiveAssignmentsTable classrooms={joinedClassrooms} />
-      <Outlet />
-    </Layout>
+    <>
+      <Header title="Dashboard" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
+        <OwnedClassroomTable classrooms={ownClassrooms} />
+        <JoinedClassroomTable classrooms={joinedClassrooms} />
+        <ActiveAssignmentsTable classrooms={joinedClassrooms} />
+        <Outlet />
+      </div>
+    </>
   );
 }
 

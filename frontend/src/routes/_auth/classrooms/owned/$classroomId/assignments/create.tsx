@@ -25,6 +25,7 @@ import { useState } from "react";
 import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
+import { Header } from "@/components/header";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assignments/create")({
   loader: async ({ context, params }) => {
@@ -64,10 +65,8 @@ function CreateAssignment() {
   }
 
   return (
-    <div className="p-2">
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Create an assignment</h1>
-      </div>
+    <div className="flex flex-col items-center">
+      <Header title="Create Assignment" className="" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField

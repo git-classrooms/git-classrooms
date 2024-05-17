@@ -37,10 +37,8 @@ function AssignmentDetail() {
   const { mutateAsync, isError, isPending } = useInviteAssignmentMembers(classroomId, assignmentId);
 
   return (
-    <div className="p-2 space-y-6">
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Assignment Details </h1>
-      </div>
+    <div>
+      <Header title="Assignment Details" />
 
       <Card>
         <CardHeader>
@@ -50,7 +48,7 @@ function AssignmentDetail() {
         </CardHeader>
       </Card>
 
-      <Header title="Member Assignments">
+      <Header title="Member Assignments" className="mt-6">
         <Button onClick={() => mutateAsync()} disabled={isPending}>
           {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Invites"}
         </Button>
