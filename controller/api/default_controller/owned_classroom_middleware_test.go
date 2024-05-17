@@ -8,6 +8,8 @@ import (
 
     "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
     "gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+    gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
     fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
     "gitlab.hs-flensburg.de/gitlab-classroom/utils"
     "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
@@ -77,6 +79,8 @@ func TestOwnedClassroomMiddleware(t *testing.T) {
     // ------------ END OF SEEDING DATA -----------------
 
     session.InitSessionStore(dbURL)
+	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
+	mailRepo := mailRepoMock.NewMockRepository(t)
 
     app := fiber.New()
     app.Use("/api", func(c *fiber.Ctx) error {
@@ -86,7 +90,7 @@ func TestOwnedClassroomMiddleware(t *testing.T) {
         return c.Next()
     })
 
-    handler := NewDefaultController()
+    handler := NewApiController(mailRepo)
 
     t.Run("OwnedClassroomMiddleware", func(t *testing.T) {
         app.Get("/api/classrooms/owned/:classroomId", handler.OwnedClassroomMiddleware, func(c *fiber.Ctx) error {

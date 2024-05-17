@@ -18,6 +18,9 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+
 )
 
 func TestGetOwnedClassroomInvitations(t *testing.T) {
