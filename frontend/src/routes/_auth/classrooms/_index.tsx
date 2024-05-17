@@ -1,5 +1,4 @@
 import { joinedClassroomsQueryOptions, ownedClassroomsQueryOptions } from "@/api/classrooms";
-import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -10,6 +9,7 @@ import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
 import { GetJoinedClassroomResponse, GetOwnedClassroomResponse } from "@/swagger-client";
 import { ArrowRight as ArrowRight } from "lucide-react";
+import { Layout } from "@/components/layout";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -28,15 +28,12 @@ function Classrooms() {
   const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
   const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
   return (
-    <div className="p-10">
-      <Header title="Dashboard" className="text-5xl" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-20">
-        <OwnedClassroomTable classrooms={ownClassrooms} />
-        <JoinedClassroomTable classrooms={joinedClassrooms} />
-        <ActiveAssignmentsTable classrooms={joinedClassrooms} />
-        <Outlet />
-      </div>
-    </div>
+    <Layout title="Dashboard">
+      <OwnedClassroomTable classrooms={ownClassrooms} />
+      <JoinedClassroomTable classrooms={joinedClassrooms} />
+      <ActiveAssignmentsTable classrooms={joinedClassrooms} />
+      <Outlet />
+    </Layout>
   );
 }
 

@@ -38,8 +38,8 @@ export function AssignmentListCard({
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button variant="default" asChild>
-          <Link to="" params={{}}>
-            View all assignments
+          <Link to="/classrooms/owned/$classroomId/assignments/create" params={{ classroomId }}>
+            Create assignment
           </Link>
         </Button>
       </CardFooter>
@@ -63,32 +63,32 @@ function AssignmentTable({
           <TableRow key={a.id}>
             <TableCell className="p-2">
               <div className="cursor-default flex justify-between">
-                  <div>
-                    <div className="font-medium">{a.name}</div>
-                    <div className="text-sm text-muted-foreground md:inline">{classroomName}</div>
-                  </div>
-                  <div className="flex items-end">
-                    <div className="ml-auto">
-                      <div className="font-medium text-right">Due date</div>
-                      <div className="text-sm text-muted-foreground md:inline">
-                        {a.dueDate ? formatDate(a.dueDate) : "No Due Date"}
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link
-                        to="/classrooms/owned/$classroomId/assignments/$assignmentId"
-                        params={{ classroomId, assignmentId: a.id }}
-                      >
-                        <Edit className="h-6 w-6 text-gray-600" />
-                      </Link>
-                    </Button>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link to="" params={{}}>
-                        <Gitlab className="h-6 w-6 text-gray-600" />
-                      </Link>
-                    </Button>
-                  </div>
+                <div>
+                  <div className="font-medium">{a.name}</div>
+                  <div className="text-sm text-muted-foreground md:inline">{classroomName}</div>
                 </div>
+                <div className="flex items-end">
+                  <div className="ml-auto">
+                    <div className="font-medium text-right">Due date</div>
+                    <div className="text-sm text-muted-foreground md:inline">
+                      {a.dueDate ? formatDate(a.dueDate) : "No Due Date"}
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link
+                      to="/classrooms/owned/$classroomId/assignments/$assignmentId"
+                      params={{ classroomId, assignmentId: a.id }}
+                    >
+                      <Edit className="h-6 w-6 text-gray-600" />
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link to="" params={{}}>
+                      <Gitlab className="h-6 w-6 text-gray-600" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </TableCell>
           </TableRow>
         ))}

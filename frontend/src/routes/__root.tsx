@@ -33,7 +33,7 @@ function RootComponent() {
   const { auth } = Route.useRouteContext();
   return (
     <CsrfProvider>
-      <div className="min-w-screen min-h-screen grid grid-rows-[auto_1fr]">
+      <div className="min-w-screen min-h-screen">
         <Navbar auth={auth} />
         <div className="flex flex-col w-full items-center">
           <div className="w-full xl:max-w-[90rem]">
