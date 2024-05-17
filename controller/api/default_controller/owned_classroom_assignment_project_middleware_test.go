@@ -13,7 +13,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -78,7 +77,7 @@ func TestOwnedClassroomAssignmentProjectMiddleware(t *testing.T) {
 		return c.Next()
 	})
 
-	app.Use("/api", ctrl.OwnedClassroomAssignmentProjectMiddleware)
+	app.Use("/api", OwnedClassroomAssignmentProjectMiddleware)
 
 	t.Run("ValidAssignmentProjectMiddlewareCall", func(t *testing.T) {
 		route := fmt.Sprintf("/api/classrooms/%s/assignments/%s/projects/%s", classroom.ID, assignment.ID, assignmentProject.ID)
