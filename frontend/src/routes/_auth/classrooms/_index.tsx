@@ -28,7 +28,7 @@ function Classrooms() {
   const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
   const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
   return (
-    <>
+    <div>
       <Header title="Dashboard" />
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
         <OwnedClassroomTable classrooms={ownClassrooms} />
@@ -36,7 +36,7 @@ function Classrooms() {
         <ActiveAssignmentsTable classrooms={joinedClassrooms} />
         <Outlet />
       </div>
-    </>
+    </div>
   );
 }
 

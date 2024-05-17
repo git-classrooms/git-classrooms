@@ -29,7 +29,7 @@ function ClassroomDetail() {
   const { data: classroomMembers } = useSuspenseQuery(ownedClassroomMemberQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(ownedClassroomTeamsQueryOptions(classroomId));
   return (
-    <>
+    <div>
       <Header title={`Classroom: ${classroom.name}`} subtitle={classroom.description} />
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
         <AssignmentListCard assignments={assignments} classroomId={classroomId} classroomName={classroom.name} />
@@ -43,6 +43,6 @@ function ClassroomDetail() {
         {classroom.maxTeamSize > 1 && <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} />}
         <Outlet />
       </div>
-    </>
+    </div>
   );
 }
