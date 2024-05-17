@@ -226,9 +226,9 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		gitlabRepo.
 			EXPECT().
-			ChangeProjectName(
+			ChangeProjectDescription(
 				project.ProjectID,
-				requestBody.Name,
+				requestBody.Description,
 			).
 			Return(
 				&model.Project{},
