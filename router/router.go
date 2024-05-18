@@ -6,6 +6,7 @@ import (
 
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
+	apiV2 "gitlab.hs-flensburg.de/gitlab-classroom/controller/api_v2"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 
@@ -21,6 +22,7 @@ func Routes(
 	app *fiber.App,
 	authController authController.Controller,
 	apiController apiController.Controller,
+	v2Controller apiV2.Controller,
 	frontendPath string,
 	config authConfig.Config,
 ) {
@@ -40,6 +42,7 @@ func Routes(
 
 	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
 	setupV1Routes(&api, config, authController, apiController)
+	setupV2Routes(&api, config, authController, v2Controller)
 
 	api.Get("/swagger/*", swagger.HandlerDefault) // default
 
@@ -127,6 +130,26 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 	// api.Post("/classrooms/joined/:classroomId/invitations", apiController.InviteToClassroom) // moderator only
 	//
 
+}
+
+func setupV2Routes(api *fiber.Router, config authConfig.Config, authController authController.Controller,
+	apiController apiV2.Controller) {
+
+	v2 := (*api).Group("/v2")
+
+	v2.Post("/auth/sign-in", authController.SignIn)
+	v2.Post("/auth/sign-out", authController.SignOut)
+	v2.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v2", "", 1), authController.Callback)
+	v2.Get("/auth/csrf", authController.GetCsrf)
+	v2.Use(authController.AuthMiddleware)
+	v2.Get("/auth", authController.GetAuth)
+
+	//v2.Get("/me", apiController.GetMe)
+	//v2.Get("/me/gitlab", apiController.GetMeGitlab)
+
+	v2.Get("/classrooms", apiController.GetClassrooms)
+	v2.Use("/classrooms/:classroomId", apiController.ClassroomMiddleware)
+	v2.Get("/classrooms/:classroomId", apiController.GetClassroom)
 }
 
 func setupFrontend(app *fiber.App, frontendPath string) {

@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
+	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api_v2/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/httputil"
@@ -103,8 +104,9 @@ func main() {
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
 	apiCtrl := apiController.NewApiController(mailRepo)
+	v2Controller := api.NewApiV2Controller(mailRepo)
 
-	router.Routes(app, authCtrl, apiCtrl, appConfig.FrontendPath, appConfig.Auth)
+	router.Routes(app, authCtrl, apiCtrl, v2Controller, appConfig.FrontendPath, appConfig.Auth)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", appConfig.Port)))
 }
