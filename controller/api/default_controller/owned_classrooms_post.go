@@ -41,7 +41,7 @@ func (r createClassroomRequest) isValid() bool {
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned [post]
+// @Router			/api/v1/classrooms/owned [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()

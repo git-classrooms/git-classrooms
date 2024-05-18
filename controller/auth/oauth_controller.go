@@ -225,7 +225,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 //	@Success		200	{object}	auth.GetCsrf.response
 //	@Failure		401	{object}	HTTPError
 //	@Failure		500	{object}	HTTPError
-//	@Router			/auth/csrf [get]
+//	@Router			/api/v1/auth/csrf [get]
 func (ctrl *OAuthController) GetCsrf(c *fiber.Ctx) error {
 	type response struct {
 		Csrf string `json:"csrf"`

@@ -17,7 +17,7 @@ import (
 // @Failure		401	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/joined [get]
+// @Router			/api/v1/classrooms/joined [get]
 func (ctrl *DefaultController) GetJoinedClassrooms(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()

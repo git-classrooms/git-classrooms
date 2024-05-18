@@ -38,8 +38,6 @@ var version string = "development"
 //	@license.name	Proprietary
 //	@license.url	https://gitlab.hs-flensburg.de/fb3-masterprojekt-gitlab-classroom/gitlab-classroom/-/raw/develop/LICENSE.md
 
-//	@BasePath	/api/v1
-
 func main() {
 	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {

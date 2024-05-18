@@ -33,7 +33,7 @@ func (r createOwnedTeamRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/teams [post]
+// @Router			/api/v1/classrooms/owned/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateOwnedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

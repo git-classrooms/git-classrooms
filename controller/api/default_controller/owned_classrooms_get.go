@@ -15,7 +15,7 @@ import (
 // @Success		200	{array}		default_controller.getOwnedClassroomResponse
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned [get]
+// @Router			/api/v1/classrooms/owned [get]
 func (ctrl *DefaultController) GetOwnedClassrooms(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()

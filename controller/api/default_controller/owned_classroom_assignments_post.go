@@ -35,7 +35,7 @@ func (r createAssignmentRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/assignments [post]
+// @Router			/api/v1/classrooms/owned/{classroomId}/assignments [post]
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()

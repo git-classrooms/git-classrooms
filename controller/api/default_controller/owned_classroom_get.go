@@ -23,7 +23,7 @@ type getOwnedClassroomResponse struct {
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId} [get]
+// @Router			/api/v1/classrooms/owned/{classroomId} [get]
 func (ctrl *DefaultController) GetOwnedClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

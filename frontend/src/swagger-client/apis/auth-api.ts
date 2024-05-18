@@ -34,7 +34,7 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
          * @throws {RequiredError}
          */
         getCsrf: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/auth/csrf`;
+            const localVarPath = `/api/v1/auth/csrf`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -68,7 +68,7 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
          * @throws {RequiredError}
          */
         getMe: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/me`;
+            const localVarPath = `/api/v1/me`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;

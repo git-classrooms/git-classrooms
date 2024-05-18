@@ -52,7 +52,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (xCsrfToken === null || xCsrfToken === undefined) {
                 throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling acceptAssignment.');
             }
-            const localVarPath = `/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept`
+            const localVarPath = `/api/v1/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -107,7 +107,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling createAssignment.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/assignments`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -160,7 +160,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getJoinedClassroomAssignment.');
             }
-            const localVarPath = `/classrooms/joined/{classroomId}/assignments/{assignmentId}`
+            const localVarPath = `/api/v1/classrooms/joined/{classroomId}/assignments/{assignmentId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -201,7 +201,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getJoinedClassroomAssignments.');
             }
-            const localVarPath = `/classrooms/joined/{classroomId}/assignment`
+            const localVarPath = `/api/v1/classrooms/joined/{classroomId}/assignment`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -246,7 +246,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getOwnedClassroomAssignment.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/assignments/{assignmentId}`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -297,7 +297,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (projectId === null || projectId === undefined) {
                 throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling getOwnedClassroomAssignmentProject.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects/{projectId}`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects/{projectId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
@@ -344,7 +344,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getOwnedClassroomAssignmentProjects.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -385,7 +385,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomAssignments.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/assignments`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -430,7 +430,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (teamId === null || teamId === undefined) {
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeamProjects.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/teams/{teamId}/projects`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/teams/{teamId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -481,7 +481,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (xCsrfToken === null || xCsrfToken === undefined) {
                 throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling inviteToAssignment.');
             }
-            const localVarPath = `/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects`
+            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.

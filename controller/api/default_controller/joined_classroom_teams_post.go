@@ -33,7 +33,7 @@ func (r createJoinedTeamRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/joined/{classroomId}/teams [post]
+// @Router			/api/v1/classrooms/joined/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
