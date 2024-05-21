@@ -14,10 +14,11 @@ import (
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId		path		string	true	"Team ID"		Format(uuid)
-// @Param			memberId		path		int	true	"Member ID"
+// @Param			memberId	path		int		true	"Member ID"
 // @Success		200			{object}	api.UserClassroomResponse
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
+// @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/teams/{teamId}/members/{memberId} [get]
 func (ctrl *DefaultController) GetClassroomTeamMember(c *fiber.Ctx) (err error) {

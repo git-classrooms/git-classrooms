@@ -149,7 +149,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/me/gitlab", apiController.GetMeGitlab)
 
 	v2.Get("/classrooms", apiController.GetClassrooms)
-	// v2.Post("/classrooms", apiController.CreateClassroom)
+	v2.Post("/classrooms", apiController.CreateClassroom)
 
 	v2.Get("/classrooms/:classroomId/invitations/:invitationId", apiController.GetClassroomInvitation)
 	// v2.Post("/classrooms/:classroomId/join", apiController.JoinClassroom) // with invitation id in the body
@@ -182,6 +182,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
 
 	v2.Get("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomInvitations)
+	v2.Post("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.InviteToClassroom)
 
 	v2.Get("/classrooms/:classroomId/members", apiController.GetClassroomMembers)
 	v2.Use("/classrooms/:classroomId/members/:memberId", apiController.ClassroomMemberMiddleware)

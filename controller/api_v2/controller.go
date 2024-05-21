@@ -20,7 +20,7 @@ type Controller interface {
 	GetMeGitlab(*fiber.Ctx) error // Implemented
 
 	GetClassrooms(*fiber.Ctx) error // Implemented
-	// CreateClassroom(*fiber.Ctx) error
+	CreateClassroom(*fiber.Ctx) error
 	ClassroomMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroom(*fiber.Ctx) error        // Implemented
 
@@ -44,7 +44,7 @@ type Controller interface {
 	GetClassroomInvitation(*fiber.Ctx) error // Implemented
 	// JoinClassroom(*fiber.Ctx) error
 	GetClassroomInvitations(*fiber.Ctx) error // Implemented
-	// InviteToClassroom(*fiber.Ctx) error
+	InviteToClassroom(*fiber.Ctx) error
 
 	GetClassroomMembers(*fiber.Ctx) error       // Implemented
 	ClassroomMemberMiddleware(*fiber.Ctx) error // Implemented

@@ -19,6 +19,7 @@ import (
 // @Success		200			{array}		api.UserClassroomResponse
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
+// @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/teams/{teamId}/members [get]
 func (ctrl *DefaultController) GetClassroomTeamMembers(c *fiber.Ctx) (err error) {
