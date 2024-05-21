@@ -28,7 +28,7 @@ func (ctrl *DefaultController) GetClassroomTeamMember(c *fiber.Ctx) (err error) 
 
 	response := &UserClassroomResponse{
 		UserClassrooms: member,
-		WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/members/%d", classroom.ClassroomID.String(), team.ID.String(), member.UserID),
+		WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/members/%d/gitlab", classroom.ClassroomID.String(), team.ID.String(), member.UserID),
 	}
 
 	return c.JSON(response)

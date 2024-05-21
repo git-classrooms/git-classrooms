@@ -11,6 +11,7 @@ func teamProjectQuery(c *fiber.Ctx, teamID uuid.UUID) query.IAssignmentProjectsD
 	queryAssignmentProject := query.AssignmentProjects
 	return queryAssignmentProject.
 		WithContext(c.Context()).
+		Preload(queryAssignmentProject.Assignment).
 		Where(queryAssignmentProject.TeamID.Eq(teamID))
 }
 

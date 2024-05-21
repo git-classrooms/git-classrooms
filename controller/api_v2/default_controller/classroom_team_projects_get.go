@@ -36,7 +36,7 @@ func (ctrl *DefaultController) GetClassroomTeamProjects(c *fiber.Ctx) (err error
 	response := utils.Map(projects, func(project *database.AssignmentProjects) *ProjectResponse {
 		return &ProjectResponse{
 			AssignmentProjects: project,
-			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/projects/%s", classroom.ClassroomID.String(), team.ID.String(), project.ID.String()),
+			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/projects/%s/gitlab", classroom.ClassroomID.String(), team.ID.String(), project.ID.String()),
 		}
 	})
 

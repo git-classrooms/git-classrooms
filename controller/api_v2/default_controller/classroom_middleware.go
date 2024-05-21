@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gorm.io/gen/field"
 )
 
 func userClassroomQuery(ctx *fiber.Ctx, userID int) query.IUserClassroomsDo {
@@ -11,6 +12,11 @@ func userClassroomQuery(ctx *fiber.Ctx, userID int) query.IUserClassroomsDo {
 	return queryUserClassroom.
 		WithContext(ctx.Context()).
 		Preload(queryUserClassroom.Classroom).
+		Preload(queryUserClassroom.User).
+		Preload(queryUserClassroom.User.GitLabAvatar).
+		Preload(queryUserClassroom.Team).
+		Preload(field.NewRelation("Classroom.Owner", "")).
+		Preload(field.NewRelation("Classroom.Owner.GitLabAvatar", "")).
 		Where(queryUserClassroom.UserID.Eq(userID))
 }
 
@@ -28,7 +34,7 @@ func (ctrl *DefaultController) ClassroomMiddleware(c *fiber.Ctx) (err error) {
 	}
 
 	classroom, err := userClassroomQuery(c, userID).
-		Where(query.Classroom.ID.Eq(params.ClassroomID)).
+		Where(query.UserClassrooms.ClassroomID.Eq(params.ClassroomID)).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())

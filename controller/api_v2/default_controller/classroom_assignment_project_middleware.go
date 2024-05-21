@@ -11,10 +11,11 @@ func assignmentProjectQuery(c *fiber.Ctx, assignmentID uuid.UUID) query.IAssignm
 	queryAssignmentProject := query.AssignmentProjects
 	return queryAssignmentProject.
 		WithContext(c.Context()).
+		Preload(queryAssignmentProject.Team).
 		Where(queryAssignmentProject.AssignmentID.Eq(assignmentID))
 }
 
-func (ctrl *DefaultController) AssignmentProjectMiddleware(c *fiber.Ctx) (err error) {
+func (ctrl *DefaultController) ClassroomAssignmentProjectMiddleware(c *fiber.Ctx) (err error) {
 	var params Params
 	if err = c.ParamsParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

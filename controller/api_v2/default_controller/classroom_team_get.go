@@ -26,7 +26,7 @@ func (ctrl *DefaultController) GetClassroomTeam(c *fiber.Ctx) (err error) {
 
 	response := &TeamResponse{
 		Team:   team,
-		WebURL: fmt.Sprintf("/api/v2/classrooms/%s/teams/%s", classroom.ClassroomID.String(), team.ID.String()),
+		WebURL: fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/gitlab", classroom.ClassroomID.String(), team.ID.String()),
 	}
 
 	return c.JSON(response)

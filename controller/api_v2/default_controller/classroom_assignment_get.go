@@ -8,7 +8,7 @@ import (
 // @Summary		GetClassroomAssignment
 // @Description	GetClassroomAssignment
 // @Id				GetClassroomAssignment
-// @Tags			assignemnt
+// @Tags			assignment
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
