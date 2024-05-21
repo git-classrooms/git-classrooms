@@ -9,6 +9,19 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+// @Summary		GetClassroomTeamProjects
+// @Description	GetClassroomTeamProjects
+// @Id				GetClassroomTeamProjects
+// @Tags			project
+// @Produce		json
+// @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
+// @Param			teamId		path		string	true	"Team ID"		Format(uuid)
+// @Success		200			{array}		api.ProjectResponse
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		403			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
+// @Router			/api/v2/classrooms/{classroomId}/teams/{teamId}/projects [get]
 func (ctrl *DefaultController) GetClassroomTeamProjects(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()

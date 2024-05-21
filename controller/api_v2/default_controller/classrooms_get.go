@@ -9,8 +9,8 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-// @Summary		Get your classrooms
-// @Description	Get your classrooms
+// @Summary		Get classrooms
+// @Description	Get classrooms
 // @Id				GetClassrooms
 // @Tags			classroom
 // @Produce		json
@@ -25,7 +25,7 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	classrooms, err := userClassroomQuery(c, userID).
 		Find()
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	response := utils.Map(classrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {

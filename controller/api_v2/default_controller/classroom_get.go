@@ -17,7 +17,7 @@ import (
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v1/classrooms/owned/{classroomId} [get]
+// @Router			/api/v2/classrooms/{classroomId} [get]
 func (ctrl *DefaultController) GetClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()

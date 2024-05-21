@@ -5,6 +5,19 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 )
 
+// @Summary		GetClassroomInvitation
+// @Description	GetClassroomInvitation
+// @Id				GetClassroomInvitation
+// @Tags			classroom
+// @Produce		json
+// @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
+// @Param			invitationId	path		string	true	"Invitation ID"	Format(uuid)
+// @Success		200				{object}	ClassroomInvitation
+// @Failure		400				{object}	HTTPError
+// @Failure		401				{object}	HTTPError
+// @Failure		403				{object}	HTTPError
+// @Failure		500				{object}	HTTPError
+// @Router			/api/v2/classrooms/{classroomId}/invitations/{invitationId} [get]
 func (ctrl *DefaultController) GetClassroomInvitation(c *fiber.Ctx) (err error) {
 	var params Params
 

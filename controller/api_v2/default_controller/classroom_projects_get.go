@@ -9,6 +9,18 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+// @Summary		GetClassroomProjects
+// @Description	GetClassroomProjects
+// @Id				GetClassroomProjects
+// @Tags			project
+// @Produce		json
+// @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
+// @Success		200			{array}		api.ProjectResponse
+// @Failure		400			{object}	HTTPError
+// @Failure		401			{object}	HTTPError
+// @Failure		403			{object}	HTTPError
+// @Failure		500			{object}	HTTPError
+// @Router			/api/v2/classrooms/{classroomId}/projects [get]
 func (ctrl *DefaultController) GetClassroomProjects(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
@@ -22,7 +34,7 @@ func (ctrl *DefaultController) GetClassroomProjects(c *fiber.Ctx) (err error) {
 	response := utils.Map(projects, func(project *database.AssignmentProjects) *ProjectResponse {
 		return &ProjectResponse{
 			AssignmentProjects: project,
-			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/projects/%s", classroom.ClassroomID, project.ID.String()),
+			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/projects/%s/gitlab", classroom.ClassroomID, project.ID.String()),
 		}
 	})
 

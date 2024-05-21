@@ -208,7 +208,6 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Use("/classrooms/:classroomId/teams/:teamId/projects/:projectId", apiController.ClassroomTeamProjectMiddleware)
 	v2.Get("/classrooms/:classroomId/teams/:teamId/projects/:projectId", apiController.GetClassroomTeamProject)
 	v2.Get("/classrooms/:classroomId/teams/:teamId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
-
 }
 
 func setupFrontend(app *fiber.App, frontendPath string) {
