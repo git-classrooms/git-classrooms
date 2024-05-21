@@ -20,7 +20,7 @@ func (ctrl *DefaultController) ClassroomMiddleware(c *fiber.Ctx) (err error) {
 
 	var params Params
 	if err = c.ParamsParser(&params); err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	if params.ClassroomID == nil {
@@ -31,7 +31,7 @@ func (ctrl *DefaultController) ClassroomMiddleware(c *fiber.Ctx) (err error) {
 		Where(query.Classroom.ID.Eq(params.ClassroomID)).
 		First()
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
 	ctx.SetUserClassroom(classroom)

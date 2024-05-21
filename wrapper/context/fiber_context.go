@@ -25,7 +25,9 @@ const (
 	joinedClassroomTeamKey             contextKey = "joined-classroom-team"
 
 	// API v2 specific
-	userClassroomKey contextKey = "user-classroom"
+	userClassroomKey     contextKey = "user-classroom"
+	assignmentKey        contextKey = "assignment"
+	assignmentProjectKey contextKey = "assignment-project"
 )
 
 type FiberContext struct {
@@ -154,10 +156,26 @@ func (c *FiberContext) SetOwnedClassroomTeamMember(member *database.UserClassroo
 
 // API v2 specific
 
+func (c *FiberContext) GetUserClassroom() *database.UserClassrooms {
+	return c.Locals(userClassroomKey).(*database.UserClassrooms)
+}
+
 func (c *FiberContext) SetUserClassroom(classroom *database.UserClassrooms) {
 	c.Locals(userClassroomKey, classroom)
 }
 
-func (c *FiberContext) GetUserClassroom() *database.UserClassrooms {
-	return c.Locals(userClassroomKey).(*database.UserClassrooms)
+func (c *FiberContext) GetAssignment() *database.Assignment {
+	return c.Locals(assignmentKey).(*database.Assignment)
+}
+
+func (c *FiberContext) SetAssignment(assignment *database.Assignment) {
+	c.Locals(assignmentKey, assignment)
+}
+
+func (c *FiberContext) GetAssignmentProject() *database.AssignmentProjects {
+	return c.Locals(assignmentProjectKey).(*database.AssignmentProjects)
+}
+
+func (c *FiberContext) SetAssignmentProject(project *database.AssignmentProjects) {
+	c.Locals(assignmentProjectKey, project)
 }
