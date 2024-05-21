@@ -31,19 +31,19 @@ type Controller interface {
 	ClassroomAssignmentMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomAssignment(*fiber.Ctx) error        // Implemented
 
-	GetClassroomAssignmentProjects(*fiber.Ctx) error
+	GetClassroomAssignmentProjects(*fiber.Ctx) error // Implemented
 	InviteToAssignment(*fiber.Ctx) error
-	ClassroomAssignmentProjectMiddleware(*fiber.Ctx) error
-	GetClassroomAssignmentProject(*fiber.Ctx) error
+	ClassroomAssignmentProjectMiddleware(*fiber.Ctx) error // Implemented
+	GetClassroomAssignmentProject(*fiber.Ctx) error        // Implemented
 
 	GetClassroomProjects(*fiber.Ctx) error // Implemented
 	AcceptAssignmentProject(*fiber.Ctx) error
 	ClassroomProjectMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomProject(*fiber.Ctx) error        // Implemented
 
-	GetClassroomInvitation(*fiber.Ctx) error
+	GetClassroomInvitation(*fiber.Ctx) error // Implemented
 	JoinClassroom(*fiber.Ctx) error
-	GetClassroomInvitations(*fiber.Ctx) error
+	GetClassroomInvitations(*fiber.Ctx) error // Implemented
 	InviteToClassroom(*fiber.Ctx) error
 
 	GetClassroomMembers(*fiber.Ctx) error       // Implemented
@@ -56,11 +56,11 @@ type Controller interface {
 	ClassroomTeamMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomTeam(*fiber.Ctx) error        // Implemented
 
-	GetClassroomTeamMembers(*fiber.Ctx) error
-	ClassroomTeamMemberMiddleware(*fiber.Ctx) error
-	GetClassroomTeamMember(*fiber.Ctx) error
+	GetClassroomTeamMembers(*fiber.Ctx) error       // Implemented
+	ClassroomTeamMemberMiddleware(*fiber.Ctx) error // Implemented
+	GetClassroomTeamMember(*fiber.Ctx) error        // Implemented
 
-	GetClassroomTeamProjects(*fiber.Ctx) error
-	ClassroomTeamProjectMiddleware(*fiber.Ctx) error
-	GetClassroomTeamProject(*fiber.Ctx) error
+	GetClassroomTeamProjects(*fiber.Ctx) error       // Implemented
+	ClassroomTeamProjectMiddleware(*fiber.Ctx) error // Implemented
+	GetClassroomTeamProject(*fiber.Ctx) error        // Implemented
 }
