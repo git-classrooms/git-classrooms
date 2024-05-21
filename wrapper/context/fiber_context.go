@@ -28,6 +28,8 @@ const (
 	userClassroomKey     contextKey = "user-classroom"
 	assignmentKey        contextKey = "assignment"
 	assignmentProjectKey contextKey = "assignment-project"
+	classroomMember      contextKey = "classroom-member"
+	teamKey              contextKey = "team"
 )
 
 type FiberContext struct {
@@ -178,4 +180,20 @@ func (c *FiberContext) GetAssignmentProject() *database.AssignmentProjects {
 
 func (c *FiberContext) SetAssignmentProject(project *database.AssignmentProjects) {
 	c.Locals(assignmentProjectKey, project)
+}
+
+func (c *FiberContext) GetClassroomMember() *database.UserClassrooms {
+	return c.Locals(classroomMember).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) SetClassroomMember(member *database.UserClassrooms) {
+	c.Locals(classroomMember, member)
+}
+
+func (c *FiberContext) GetTeam() *database.Team {
+	return c.Locals(teamKey).(*database.Team)
+}
+
+func (c *FiberContext) SetTeam(team *database.Team) {
+	c.Locals(teamKey, team)
 }

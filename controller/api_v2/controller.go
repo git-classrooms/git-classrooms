@@ -45,17 +45,16 @@ type Controller interface {
 	JoinClassroom(*fiber.Ctx) error
 	GetClassroomInvitations(*fiber.Ctx) error
 	InviteToClassroom(*fiber.Ctx) error
-	ClassroomInvitationMiddleware(*fiber.Ctx) error
 
-	GetClassroomMembers(*fiber.Ctx) error
-	ClassroomMemberMiddleware(*fiber.Ctx) error
-	GetClassroomMember(*fiber.Ctx) error
+	GetClassroomMembers(*fiber.Ctx) error       // Implemented
+	ClassroomMemberMiddleware(*fiber.Ctx) error // Implemented
+	GetClassroomMember(*fiber.Ctx) error        // Implemented
 
-	GetClassroomTeams(*fiber.Ctx) error
+	GetClassroomTeams(*fiber.Ctx) error // Implemented
 	CreateTeam(*fiber.Ctx) error
 	JoinTeam(*fiber.Ctx) error
-	ClassroomTeamMiddleware(*fiber.Ctx) error
-	GetClassroomTeam(*fiber.Ctx) error
+	ClassroomTeamMiddleware(*fiber.Ctx) error // Implemented
+	GetClassroomTeam(*fiber.Ctx) error        // Implemented
 
 	GetClassroomTeamMembers(*fiber.Ctx) error
 	ClassroomTeamMemberMiddleware(*fiber.Ctx) error
