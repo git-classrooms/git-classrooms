@@ -42,7 +42,7 @@ type Controller interface {
 	GetClassroomProject(*fiber.Ctx) error        // Implemented
 
 	GetClassroomInvitation(*fiber.Ctx) error // Implemented
-	// JoinClassroom(*fiber.Ctx) error
+	JoinClassroom(*fiber.Ctx) error
 	GetClassroomInvitations(*fiber.Ctx) error // Implemented
 	InviteToClassroom(*fiber.Ctx) error
 

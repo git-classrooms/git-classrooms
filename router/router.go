@@ -152,7 +152,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Post("/classrooms", apiController.CreateClassroom)
 
 	v2.Get("/classrooms/:classroomId/invitations/:invitationId", apiController.GetClassroomInvitation)
-	// v2.Post("/classrooms/:classroomId/join", apiController.JoinClassroom) // with invitation id in the body
+	v2.Post("/classrooms/:classroomId/join", apiController.JoinClassroom) // with invitation id in the body
 
 	v2.Use("/classrooms/:classroomId", apiController.ClassroomMiddleware)
 	v2.Get("/classrooms/:classroomId", apiController.GetClassroom)
