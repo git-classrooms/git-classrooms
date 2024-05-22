@@ -27,17 +27,17 @@ type Controller interface {
 	GetClassroomTemplates(*fiber.Ctx) error
 
 	GetClassroomAssignments(*fiber.Ctx) error // Implemented
-	// CreateAssignment(*fiber.Ctx) error
+	CreateAssignment(*fiber.Ctx) error
 	ClassroomAssignmentMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomAssignment(*fiber.Ctx) error        // Implemented
 
 	GetClassroomAssignmentProjects(*fiber.Ctx) error // Implemented
-	// InviteToAssignment(*fiber.Ctx) error
+	InviteToAssignment(*fiber.Ctx) error
 	ClassroomAssignmentProjectMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomAssignmentProject(*fiber.Ctx) error        // Implemented
 
 	GetClassroomProjects(*fiber.Ctx) error // Implemented
-	// AcceptAssignmentProject(*fiber.Ctx) error
+	AcceptAssignment(*fiber.Ctx) error
 	ClassroomProjectMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomProject(*fiber.Ctx) error        // Implemented
 
@@ -51,8 +51,8 @@ type Controller interface {
 	GetClassroomMember(*fiber.Ctx) error        // Implemented
 
 	GetClassroomTeams(*fiber.Ctx) error // Implemented
-	// CreateTeam(*fiber.Ctx) error
-	// JoinTeam(*fiber.Ctx) error
+	CreateTeam(*fiber.Ctx) error
+	JoinTeam(*fiber.Ctx) error
 	ClassroomTeamMiddleware(*fiber.Ctx) error // Implemented
 	GetClassroomTeam(*fiber.Ctx) error        // Implemented
 

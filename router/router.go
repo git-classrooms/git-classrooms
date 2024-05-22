@@ -163,13 +163,13 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v2.Use("/classrooms/:classroomId/assignments", apiController.ViewableClassroomMiddleware())
 	v2.Get("/classrooms/:classroomId/assignments", apiController.GetClassroomAssignments)
-	// v2.Post("/classrooms/:classroomId/assignments", apiController.RoleMiddleware(database.Owner), apiController.CreateAssignment)
+	v2.Post("/classrooms/:classroomId/assignments", apiController.RoleMiddleware(database.Owner), apiController.CreateAssignment)
 	v2.Use("/classrooms/:classroomId/assignments/:assignmentId", apiController.ClassroomAssignmentMiddleware)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
 	// v2.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.PutClassroomAssignment)
 
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.GetClassroomAssignmentProjects)
-	// v2.Post("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.RoleMiddleware(database.Owner), apiController.InviteToAssignment)
+	v2.Post("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.RoleMiddleware(database.Owner), apiController.InviteToAssignment)
 	v2.Use("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.ClassroomAssignmentProjectMiddleware)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.GetClassroomAssignmentProject)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
@@ -178,7 +178,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/projects", apiController.GetClassroomProjects)
 	v2.Use("/classrooms/:classroomId/projects/:projectId", apiController.ClassroomProjectMiddleware)
 	v2.Get("/classrooms/:classroomId/projects/:projectId", apiController.GetClassroomProject)
-	// v2.Post("/classrooms/:classroomId/projects/:projectId/accept", apiController.AcceptAssignmentProject)
+	v2.Post("/classrooms/:classroomId/projects/:projectId/accept", apiController.AcceptAssignment)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
 
 	v2.Get("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomInvitations)
@@ -192,10 +192,10 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/members/:memberId/gitlab", apiController.RedirectUserGitlab)
 
 	v2.Get("/classrooms/:classroomId/teams", apiController.GetClassroomTeams)
-	// v2.Post("/classrooms/:classroomId/teams", apiController.CreateTeam)
+	v2.Post("/classrooms/:classroomId/teams", apiController.CreateTeam)
 	v2.Use("/classrooms/:classroomId/teams/:teamId", apiController.ClassroomTeamMiddleware)
 	v2.Get("/classrooms/:classroomId/teams/:teamId", apiController.GetClassroomTeam)
-	// v2.Post("/classrooms/:classroomId/teams/:teamId/join", apiController.RoleMiddleware(database.Student), apiController.JoinTeam)
+	v2.Post("/classrooms/:classroomId/teams/:teamId/join", apiController.RoleMiddleware(database.Student), apiController.JoinTeam)
 	v2.Get("/classrooms/:classroomId/teams/:teamId/gitlab", apiController.RedirectGroupGitlab)
 
 	v2.Get("/classrooms/:classroomId/teams/:teamId/members", apiController.GetClassroomTeamMembers)
