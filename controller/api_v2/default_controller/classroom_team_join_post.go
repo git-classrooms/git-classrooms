@@ -10,8 +10,8 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-// @Summary		Join the current team
-// @Description	Join the current Team if we aren't in another team
+// @Summary		Join the team
+// @Description	Join the Team if we aren't in another team
 // @Id				JoinTeam
 // @Tags			team
 // @Accept			json
