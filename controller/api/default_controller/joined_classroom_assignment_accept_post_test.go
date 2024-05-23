@@ -14,13 +14,14 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	testcontainerspostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
 func TestJoinAssignment(t *testing.T) {
@@ -50,7 +51,8 @@ func TestJoinAssignment(t *testing.T) {
 		t.Fatalf("could not migrate database: %s", err.Error())
 	}
 
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
+	// Take a snapshot of the database
+	err = pg.Snapshot(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +117,7 @@ func TestJoinAssignment(t *testing.T) {
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
-	app.Use("/api", func(c *fiber.Ctx) error {
+	app.Use("/api", func(c *fiber.CCtx) error {
 		ctx := fiberContext.Get(c)
 		ctx.SetJoinedClassroom(testClassroom)
 		ctx.SetUserID(1)

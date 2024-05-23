@@ -25,12 +25,12 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 )
 
-type joinedClassroomAssignmentResponse struct {
+type testJoinedClassroomAssignmentResponse struct {
 	AssignmentProjects *database.AssignmentProjects `json:"assignmentProjects"`
 	ProjectPath        string                       `json:"projectPath"`
 }
 
-func joinedClassroomAssignmentQuery(classroomID uuid.UUID, c *fiber.Ctx) *gorm.DB {
+func testJoinedClassroomAssignmentQuery(classroomID uuid.UUID, c *fiber.Ctx) *gorm.DB {
 	// Mock implementation of the query function.
 	db := query.GetDB()
 	return db.Where("classroom_id = ?", classroomID)
@@ -126,7 +126,7 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
-	app.Use("/api", func(c *fiber.Ctx) error {
+	app.Use("/api", func(c *fiber.Cctx) error {
 		ctx := fiberContext.Get(c)
 		ctx.SetJoinedClassroom(testClassRoom)
 
@@ -150,7 +150,7 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		var responses []*joinedClassroomAssignmentResponse
+		var responses []*testJoinedClassroomAssignmentResponse
 		err = json.NewDecoder(resp.Body).Decode(&responses)
 		assert.NoError(t, err)
 
