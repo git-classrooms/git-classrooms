@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -83,37 +84,31 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 	// We don't need to clean up this step because the project will be deleted
 
-	protectedMainExists, err := repo.ProtectedBranchExists(project.ID, "main")
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	if protectedMainExists {
-		log.Default().Println("Protected main branch exists")
-		err = repo.UnprotectBranch(project.ID, "main")
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-		// We don't need to clean up this step because the project will be deleted
-	} else {
-		log.Default().Println("No protected main branch exists")
-		mainExists, err := repo.BranchExists(project.ID, "main")
-		if err != nil || !mainExists {
-			log.Default().Println("Main branch does not exist")
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		} else {
-			log.Default().Println("Main branch exists")
-			exists_now, err := repo.ProtectedBranchExists(project.ID, "main")
+	timeout := time.After(1 * time.Second)
+	for true {
+		select {
+		case <-timeout:
+			log.Default().Println("Timeout while waiting for branch to exist")
+			return fiber.NewError(fiber.StatusInternalServerError, "Timeout while waiting for branch to exist")
+		default:
+			protectedMainExists, err := repo.ProtectedBranchExists(project.ID, "main")
 			if err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
-			if !exists_now {
-				log.Default().Println("Still no protected main branch")
+			if protectedMainExists {
+				log.Default().Println("Protected main branch exists")
+				break
 			} else {
-				log.Default().Println("Saw protected main branch now")
+				log.Default().Println("No protected main branch exists")
 			}
 		}
 	}
+
+	err = repo.UnprotectBranch(project.ID, "main")
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.ProtectBranch(project.ID, "main", gitlabModel.DeveloperPermissions)
 	if err != nil {
