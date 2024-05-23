@@ -2,9 +2,18 @@ package default_controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -14,22 +23,15 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
 )
 
-type getJoinedClassroomAssignmentResponse struct {
+type joinedClassroomAssignmentResponse struct {
 	AssignmentProjects *database.AssignmentProjects `json:"assignmentProjects"`
 	ProjectPath        string                       `json:"projectPath"`
 }
 
 func joinedClassroomAssignmentQuery(classroomID uuid.UUID, c *fiber.Ctx) *gorm.DB {
-	// Implementation of this function should query the database based on classroomID and return the gorm DB instance.
-	// This is a mock implementation. Replace it with the actual implementation.
+	// Mock implementation of the query function.
 	db := query.GetDB()
 	return db.Where("classroom_id = ?", classroomID)
 }
@@ -51,7 +53,7 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 	})
 	dbURL, err := pg.ConnectionString(context.Background())
 
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
@@ -148,7 +150,7 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		var responses []*getJoinedClassroomAssignmentResponse
+		var responses []*joinedClassroomAssignmentResponse
 		err = json.NewDecoder(resp.Body).Decode(&responses)
 		assert.NoError(t, err)
 

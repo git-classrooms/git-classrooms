@@ -10,15 +10,17 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func TestJoinAssignment(t *testing.T) {
@@ -38,7 +40,7 @@ func TestJoinAssignment(t *testing.T) {
 	})
 	dbURL, err := pg.ConnectionString(context.Background())
 
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
@@ -110,6 +112,7 @@ func TestJoinAssignment(t *testing.T) {
 
 	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
+	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
@@ -125,7 +128,7 @@ func TestJoinAssignment(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewApiController()
+	handler := NewApiController(mailRepo)
 
 	t.Run("JoinAssignment", func(t *testing.T) {
 		app.Post("/api/classrooms/joined/:classroomId/assignments/:assignmentId/accept", handler.JoinAssignment)
