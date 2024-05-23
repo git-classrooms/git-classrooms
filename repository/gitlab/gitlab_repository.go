@@ -150,6 +150,34 @@ func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, t
 	return err
 }
 
+func (repo *GitlabRepo) ProtectedBranchExists(projectId int, branchName string) (bool, error) {
+	repo.assertIsConnected()
+
+	_, response, err := repo.client.ProtectedBranches.GetProtectedBranch(projectId, branchName)
+	if err != nil {
+		if response.StatusCode == 404 {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (repo *GitlabRepo) BranchExists(projectId int, branchName string) (bool, error) {
+	repo.assertIsConnected()
+
+	_, response, err := repo.client.Branches.GetBranch(projectId, branchName)
+	if err != nil {
+		if response.StatusCode == 404 {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 

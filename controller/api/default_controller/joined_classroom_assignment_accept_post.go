@@ -83,11 +83,37 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 	// We don't need to clean up this step because the project will be deleted
 
-	err = repo.UnprotectBranch(project.ID, "main")
+	protectedMainExists, err := repo.ProtectedBranchExists(project.ID, "main")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	// We don't need to clean up this step because the project will be deleted
+
+	if protectedMainExists {
+		log.Default().Println("Protected main branch exists")
+		err = repo.UnprotectBranch(project.ID, "main")
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		// We don't need to clean up this step because the project will be deleted
+	} else {
+		log.Default().Println("No protected main branch exists")
+		mainExists, err := repo.BranchExists(project.ID, "main")
+		if err != nil || !mainExists {
+			log.Default().Println("Main branch does not exist")
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		} else {
+			log.Default().Println("Main branch exists")
+			exists_now, err := repo.ProtectedBranchExists(project.ID, "main")
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+			if !exists_now {
+				log.Default().Println("Still no protected main branch")
+			} else {
+				log.Default().Println("Saw protected main branch now")
+			}
+		}
+	}
 
 	err = repo.ProtectBranch(project.ID, "main", gitlabModel.DeveloperPermissions)
 	if err != nil {
