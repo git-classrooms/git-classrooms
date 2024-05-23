@@ -85,11 +85,11 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	// We don't need to clean up this step because the project will be deleted
 
 	timeout := time.After(1 * time.Second)
-	for true {
+	for keep_on_waiting := true; keep_on_waiting; {
 		select {
 		case <-timeout:
 			log.Default().Println("Timeout while waiting for branch to exist")
-			return fiber.NewError(fiber.StatusInternalServerError, "Timeout while waiting for branch to exist")
+			keep_on_waiting = false
 		default:
 			protectedMainExists, err := repo.ProtectedBranchExists(project.ID, "main")
 			if err != nil {
@@ -97,7 +97,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 			}
 			if protectedMainExists {
 				log.Default().Println("Protected main branch exists")
-				break
+				keep_on_waiting = false
 			} else {
 				log.Default().Println("No protected main branch exists")
 			}
