@@ -88,7 +88,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	for keep_on_waiting := true; keep_on_waiting; {
 		select {
 		case <-timeout:
-			log.Default().Println("Timeout while waiting for branch to exist")
+			log.Default().Println("Timeout while waiting for protected main branch to exist")
 			keep_on_waiting = false
 		default:
 			protectedMainExists, err := repo.ProtectedBranchExists(project.ID, "main")
@@ -96,10 +96,9 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 			if protectedMainExists {
-				log.Default().Println("Protected main branch exists")
 				keep_on_waiting = false
 			} else {
-				log.Default().Println("No protected main branch exists")
+				log.Default().Println("Protected main branch does not exists directly")
 			}
 		}
 	}
