@@ -117,9 +117,9 @@ func TestJoinAssignment(t *testing.T) {
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
-	app.Use("/api", func(c *fiber.CCtx) error {
+	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetJoinedClassroom(testClassroom)
+		ctx.SetJoinedClassroom(&database.UserClassrooms{ClassroomID: classroomID})
 		ctx.SetUserID(1)
 		ctx.SetGitlabRepository(gitlabRepo)
 

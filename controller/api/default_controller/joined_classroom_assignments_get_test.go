@@ -32,7 +32,7 @@ type testJoinedClassroomAssignmentResponse struct {
 
 func testJoinedClassroomAssignmentQuery(classroomID uuid.UUID, c *fiber.Ctx) *gorm.DB {
 	// Mock implementation of the query function.
-	db := query.GetDB()
+	db := query.DB()
 	return db.Where("classroom_id = ?", classroomID)
 }
 
@@ -126,9 +126,9 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
-	app.Use("/api", func(c *fiber.Cctx) error {
+	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetJoinedClassroom(testClassRoom)
+		ctx.SetJoinedClassroom(&database.UserClassrooms{Classroom: *testClassRoom})
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
