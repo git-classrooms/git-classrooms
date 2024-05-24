@@ -24,11 +24,11 @@ export interface UserAvatar {
      * @type {string}
      * @memberof UserAvatar
      */
-    avatarURL?: string;
+    avatarURL: string;
 
     /**
      * @type {string}
      * @memberof UserAvatar
      */
-    fallbackAvatarURL?: string;
+    fallbackAvatarURL: string;
 }

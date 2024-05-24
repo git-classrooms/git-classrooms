@@ -24,29 +24,29 @@ export interface Team {
      * @type {string}
      * @memberof Team
      */
-    createdAt?: string;
+    createdAt: string;
 
     /**
      * @type {number}
      * @memberof Team
      */
-    groupId?: number;
+    groupId: number;
 
     /**
      * @type {string}
      * @memberof Team
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {string}
      * @memberof Team
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {string}
      * @memberof Team
      */
-    updatedAt?: string;
+    updatedAt: string;
 }

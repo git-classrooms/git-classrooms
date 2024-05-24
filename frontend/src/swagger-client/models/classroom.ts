@@ -25,59 +25,59 @@ export interface Classroom {
      * @type {boolean}
      * @memberof Classroom
      */
-    createTeams?: boolean;
+    createTeams: boolean;
 
     /**
      * @type {string}
      * @memberof Classroom
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {number}
      * @memberof Classroom
      */
-    groupId?: number;
+    groupId: number;
 
     /**
      * @type {string}
      * @memberof Classroom
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {number}
      * @memberof Classroom
      */
-    maxTeamSize?: number;
+    maxTeamSize: number;
 
     /**
      * @type {number}
      * @memberof Classroom
      */
-    maxTeams?: number;
+    maxTeams: number;
 
     /**
      * @type {string}
      * @memberof Classroom
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {User}
      * @memberof Classroom
      */
-    owner?: User;
+    owner: User;
 
     /**
      * @type {number}
      * @memberof Classroom
      */
-    ownerId?: number;
+    ownerId: number;
 
     /**
      * @type {boolean}
      * @memberof Classroom
      */
-    studentsViewAllProjects?: boolean;
+    studentsViewAllProjects: boolean;
 }

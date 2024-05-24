@@ -24,19 +24,19 @@ export interface Assignment {
      * @type {string}
      * @memberof Assignment
      */
-    classroomId?: string;
+    classroomId: string;
 
     /**
      * @type {string}
      * @memberof Assignment
      */
-    createdAt?: string;
+    createdAt: string;
 
     /**
      * @type {string}
      * @memberof Assignment
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {string}
@@ -48,23 +48,23 @@ export interface Assignment {
      * @type {string}
      * @memberof Assignment
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {string}
      * @memberof Assignment
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {number}
      * @memberof Assignment
      */
-    templateProjectId?: number;
+    templateProjectId: number;
 
     /**
      * @type {string}
      * @memberof Assignment
      */
-    updatedAt?: string;
+    updatedAt: string;
 }

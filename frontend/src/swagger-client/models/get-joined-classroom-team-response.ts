@@ -25,41 +25,41 @@ export interface GetJoinedClassroomTeamResponse {
      * @type {string}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    createdAt?: string;
+    createdAt: string;
 
     /**
      * @type {string}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    gitlabUrl?: string;
+    gitlabUrl: string;
 
     /**
      * @type {number}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    groupId?: number;
+    groupId: number;
 
     /**
      * @type {string}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {Array<User>}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    members?: Array<User>;
+    members: Array<User>;
 
     /**
      * @type {string}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {string}
      * @memberof GetJoinedClassroomTeamResponse
      */
-    updatedAt?: string;
+    updatedAt: string;
 }

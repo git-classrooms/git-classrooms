@@ -25,35 +25,35 @@ export interface GetMeResponse {
      * @type {UserAvatar}
      * @memberof GetMeResponse
      */
-    gitlabAvatar?: UserAvatar;
+    gitlabAvatar: UserAvatar;
 
     /**
      * @type {string}
      * @memberof GetMeResponse
      */
-    gitlabEmail?: string;
+    gitlabEmail: string;
 
     /**
      * @type {string}
      * @memberof GetMeResponse
      */
-    gitlabUrl?: string;
+    gitlabUrl: string;
 
     /**
      * @type {string}
      * @memberof GetMeResponse
      */
-    gitlabUsername?: string;
+    gitlabUsername: string;
 
     /**
      * @type {number}
      * @memberof GetMeResponse
      */
-    id?: number;
+    id: number;
 
     /**
      * @type {string}
      * @memberof GetMeResponse
      */
-    name?: string;
+    name: string;
 }

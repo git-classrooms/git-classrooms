@@ -25,65 +25,65 @@ export interface GetOwnedClassroomResponse {
      * @type {boolean}
      * @memberof GetOwnedClassroomResponse
      */
-    createTeams?: boolean;
+    createTeams: boolean;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomResponse
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomResponse
      */
-    gitlabUrl?: string;
+    gitlabUrl: string;
 
     /**
      * @type {number}
      * @memberof GetOwnedClassroomResponse
      */
-    groupId?: number;
+    groupId: number;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomResponse
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {number}
      * @memberof GetOwnedClassroomResponse
      */
-    maxTeamSize?: number;
+    maxTeamSize: number;
 
     /**
      * @type {number}
      * @memberof GetOwnedClassroomResponse
      */
-    maxTeams?: number;
+    maxTeams: number;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomResponse
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {User}
      * @memberof GetOwnedClassroomResponse
      */
-    owner?: User;
+    owner: User;
 
     /**
      * @type {number}
      * @memberof GetOwnedClassroomResponse
      */
-    ownerId?: number;
+    ownerId: number;
 
     /**
      * @type {boolean}
      * @memberof GetOwnedClassroomResponse
      */
-    studentsViewAllProjects?: boolean;
+    studentsViewAllProjects: boolean;
 }

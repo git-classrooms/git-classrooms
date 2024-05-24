@@ -24,5 +24,5 @@ export interface InviteToClassroomRequest {
      * @type {Array<string>}
      * @memberof InviteToClassroomRequest
      */
-    memberEmails?: Array<string>;
+    memberEmails: Array<string>;
 }

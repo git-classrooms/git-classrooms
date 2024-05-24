@@ -24,7 +24,7 @@ export interface CreateAssignmentRequest {
      * @type {string}
      * @memberof CreateAssignmentRequest
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {string}
@@ -36,11 +36,11 @@ export interface CreateAssignmentRequest {
      * @type {string}
      * @memberof CreateAssignmentRequest
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {number}
      * @memberof CreateAssignmentRequest
      */
-    templateProjectId?: number;
+    templateProjectId: number;
 }

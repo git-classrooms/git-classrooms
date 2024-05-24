@@ -28,19 +28,19 @@ export interface GetOwnedClassroomMemberResponse {
      * @type {Classroom}
      * @memberof GetOwnedClassroomMemberResponse
      */
-    classroom?: Classroom;
+    classroom: Classroom;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomMemberResponse
      */
-    gitlabUrl?: string;
+    gitlabUrl: string;
 
     /**
      * @type {Role}
      * @memberof GetOwnedClassroomMemberResponse
      */
-    role?: Role;
+    role: Role;
 
     /**
      * @type {Team}
@@ -52,5 +52,5 @@ export interface GetOwnedClassroomMemberResponse {
      * @type {User}
      * @memberof GetOwnedClassroomMemberResponse
      */
-    user?: User;
+    user: User;
 }

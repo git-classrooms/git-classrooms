@@ -26,59 +26,59 @@ export interface GetOwnedClassroomAssignmentProjectResponse {
      * @type {Assignment}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    assignment?: Assignment;
+    assignment: Assignment;
 
     /**
      * @type {boolean}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    assignmentAccepted?: boolean;
+    assignmentAccepted: boolean;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    assignmentId?: string;
+    assignmentId: string;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    createdAt?: string;
+    createdAt: string;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {number}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    projectId?: number;
+    projectId: number;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    projectPath?: string;
+    projectPath: string;
 
     /**
      * @type {Team}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    team?: Team;
+    team: Team;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    teamId?: string;
+    teamId: string;
 
     /**
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    updatedAt?: string;
+    updatedAt: string;
 }

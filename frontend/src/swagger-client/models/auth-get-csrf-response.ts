@@ -24,5 +24,5 @@ export interface AuthGetCsrfResponse {
      * @type {string}
      * @memberof AuthGetCsrfResponse
      */
-    csrf?: string;
+    csrf: string;
 }

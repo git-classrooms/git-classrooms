@@ -24,11 +24,11 @@ export interface TemplateResponse {
      * @type {number}
      * @memberof TemplateResponse
      */
-    id?: number;
+    id: number;
 
     /**
      * @type {string}
      * @memberof TemplateResponse
      */
-    name?: string;
+    name: string;
 }
