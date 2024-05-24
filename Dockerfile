@@ -45,7 +45,6 @@ RUN yarn --frozen-lockfile
 
 COPY ./frontend ./
 COPY --from=swagger-client-builder /app/build/swagger-client ./src/swagger-client
-RUN cd src/swagger-client && node ../../swagger-codegen.js
 RUN yarn build
 
 #############################################

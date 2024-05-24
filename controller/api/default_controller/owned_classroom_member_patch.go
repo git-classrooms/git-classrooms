@@ -10,8 +10,8 @@ import (
 )
 
 type changeOwnedClassroomMemberRequest struct {
-	Role   *database.Role `json:"role"`
-	TeamID *uuid.UUID     `json:"teamId"`
+	Role   *database.Role `json:"role" validate:"optional"`
+	TeamID *uuid.UUID     `json:"teamId" validate:"optional"`
 } //@Name ChangeOwnedClassroomMemberRequest
 
 // @Summary		Update Classroom Members team and or role

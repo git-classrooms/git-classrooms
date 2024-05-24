@@ -17,6 +17,6 @@ type UserClassrooms struct {
 	ClassroomID uuid.UUID  `gorm:"type:uuid;primaryKey;not null" json:"-"`
 	Classroom   Classroom  `json:"classroom"`
 	TeamID      *uuid.UUID `gorm:"type:uuid;index" json:"-"`
-	Team        *Team      `json:"team"`
+	Team        *Team      `json:"team" validate:"optional"`
 	Role        Role       `gorm:"not null" json:"role"`
 } //@Name UserClassrooms

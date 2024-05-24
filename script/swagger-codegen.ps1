@@ -16,6 +16,4 @@ Get-ChildItem "apis" -Filter *.ts | Foreach-Object {
     ) | Set-Content $_.FullName
 }
 
-node ../../swagger-codegen.js
-
 Set-Location $BASE_PATH

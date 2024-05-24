@@ -14,7 +14,7 @@ type createAssignmentRequest struct {
 	Name              string     `json:"name"`
 	Description       string     `json:"description"`
 	TemplateProjectId int        `json:"templateProjectId"`
-	DueDate           *time.Time `json:"dueDate"`
+	DueDate           *time.Time `json:"dueDate" validate:"optional"`
 } //@Name CreateAssignmentRequest
 
 func (r createAssignmentRequest) isValid() bool {

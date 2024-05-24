@@ -19,6 +19,6 @@ type Assignment struct {
 	TemplateProjectID int                   `gorm:"<-:create;not null" json:"templateProjectId"`
 	Name              string                `gorm:"not null" json:"name"`
 	Description       string                `json:"description"`
-	DueDate           *time.Time            `json:"dueDate"`
+	DueDate           *time.Time            `json:"dueDate" validate:"optional"`
 	Projects          []*AssignmentProjects `json:"-"`
 } //@Name Assignment
