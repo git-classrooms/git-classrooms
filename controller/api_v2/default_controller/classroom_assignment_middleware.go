@@ -16,18 +16,17 @@ func classroomAssignmentQuery(c *fiber.Ctx, classroomID uuid.UUID) query.IAssign
 }
 
 func (*DefaultController) ClassroomAssignmentMiddleware(c *fiber.Ctx) (err error) {
-	param := &Params{}
-	err = c.ParamsParser(param)
-	if err != nil {
+	var params Params
+	if err = c.ParamsParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if param.ClassroomID == nil || param.AssignmentID == nil {
+	if params.ClassroomID == nil || params.AssignmentID == nil {
 		return fiber.ErrBadRequest
 	}
 
-	assignment, err := classroomAssignmentQuery(c, *param.ClassroomID).
-		Where(query.Assignment.ID.Eq(*param.AssignmentID)).
+	assignment, err := classroomAssignmentQuery(c, *params.ClassroomID).
+		Where(query.Assignment.ID.Eq(*params.AssignmentID)).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
