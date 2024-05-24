@@ -59,6 +59,7 @@ type Controller interface {
 	JoinTeam(*fiber.Ctx) error
 	ClassroomTeamMiddleware(*fiber.Ctx) error
 	GetClassroomTeam(*fiber.Ctx) error
+	UpdateTeam(*fiber.Ctx) error
 
 	GetClassroomTeamMembers(*fiber.Ctx) error
 	ClassroomTeamMemberMiddleware(*fiber.Ctx) error

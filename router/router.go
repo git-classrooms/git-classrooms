@@ -197,6 +197,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Post("/classrooms/:classroomId/teams", apiController.CreateTeam)
 	v2.Use("/classrooms/:classroomId/teams/:teamId", apiController.ClassroomTeamMiddleware)
 	v2.Get("/classrooms/:classroomId/teams/:teamId", apiController.GetClassroomTeam)
+	v2.Put("/classrooms/:classroomId/teams/:teamId", apiController.UpdateTeam)
 	v2.Post("/classrooms/:classroomId/teams/:teamId/join", apiController.RoleMiddleware(database.Student), apiController.JoinTeam)
 	v2.Get("/classrooms/:classroomId/teams/:teamId/gitlab", apiController.RedirectGroupGitlab)
 
