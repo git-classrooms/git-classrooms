@@ -43,11 +43,7 @@ function ClassroomsForm() {
   }
 
   return (
-    <div className="p-2">
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Current invitations</h1>
-      </div>
-
+    <div className="max-w-5xl mx-auto">
       <Header title="Invitations" />
       <InvitationsTable invitations={invitations} />
 

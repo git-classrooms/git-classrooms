@@ -8,5 +8,9 @@ export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/teams
 function CreateOwnedTeam() {
   const { classroomId } = Route.useParams();
 
-  return <CreateOwnedTeamForm classroomId={classroomId} />;
+  return (
+    <div className="max-w-3xl mx-auto">
+      <CreateOwnedTeamForm classroomId={classroomId} />{" "}
+    </div>
+  );
 }

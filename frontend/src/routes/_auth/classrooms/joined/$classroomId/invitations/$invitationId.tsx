@@ -34,7 +34,7 @@ function JoinClassroom() {
   };
 
   return (
-    <div className="p-6 rounded-lg border flex flex-col gap-5">
+    <div className="rounded-lg border flex flex-col gap-5 max-w-5xl mx-auto">
       <h1 className="text-5xl font-bold text-center mb-5">Join Classroom</h1>
       <Separator />
       <p className="text-slate-500">

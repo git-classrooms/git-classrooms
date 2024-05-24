@@ -1,7 +1,16 @@
-export function Header({ title, children }: { title: string; children?: React.ReactNode }) {
+import { cn } from "@/lib/utils";
+
+type HeaderProps = {
+  title: string;
+  children?: React.ReactNode;
+  subtitle?: string;
+} & Partial<Pick<HTMLDivElement, "className">>;
+
+export function Header({ title, children, subtitle, className }: HeaderProps) {
   return (
-    <div className="flex flex-row justify-between">
-      <h1 className="text-xl font-bold">{title}</h1>
+    <div className="mb-10">
+      <h1 className={cn("text-5xl font-bold mb-3", className)}>{title}</h1>
+      {subtitle && <h2 className="text-gray-400 dark:text-gray-500">{subtitle}</h2>}
       {children}
     </div>
   );
