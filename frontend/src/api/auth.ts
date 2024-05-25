@@ -16,7 +16,7 @@ export const useAuth = () =>
     queryFn: async () => {
       try {
         const api = createAuthApi();
-        const res = await api.getMe();
+        const res = await api.getMeV2();
         return res.data;
       } catch (_) {
         return null;
