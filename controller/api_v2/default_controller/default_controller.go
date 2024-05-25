@@ -52,7 +52,8 @@ type UserResponse struct {
 
 type TeamResponse struct {
 	*database.Team
-	WebURL string `json:"webUrl"`
+	Members []*UserClassroomResponse `json:"members"`
+	WebURL  string                   `json:"webUrl"`
 } //@Name TeamResponse
 
 type AssignmentResponse struct {
@@ -63,11 +64,6 @@ type ProjectResponse struct {
 	*database.AssignmentProjects
 	WebURL string `json:"webUrl"`
 } //@Name ProjectResponse
-
-type NOTNEEDEDClassroomResponse struct {
-	*database.Classroom
-	WebURL string `json:"webUrl"`
-}
 
 type UserClassroomResponse struct {
 	*database.UserClassrooms

@@ -12,7 +12,7 @@ import (
 
 type updateMemberRoleRequest struct {
 	Role *database.Role `json:"role"`
-} //@Name UpdateClassroomMemberRequest
+} //@Name UpdateMemberRoleRequest
 
 func (r updateMemberRoleRequest) isValid() bool {
 	return r.Role != nil

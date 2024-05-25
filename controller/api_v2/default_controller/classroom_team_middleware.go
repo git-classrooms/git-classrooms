@@ -11,6 +11,7 @@ func classroomTeamQuery(c *fiber.Ctx, classroomID uuid.UUID) query.ITeamDo {
 	queryTeam := query.Team
 	return queryTeam.
 		WithContext(c.Context()).
+		Preload(queryTeam.Member).
 		Where(queryTeam.ClassroomID.Eq(classroomID))
 }
 

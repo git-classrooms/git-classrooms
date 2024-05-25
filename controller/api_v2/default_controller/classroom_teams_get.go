@@ -32,9 +32,17 @@ func (ctrl *DefaultController) GetClassroomTeams(c *fiber.Ctx) (err error) {
 	}
 
 	response := utils.Map(teams, func(team *database.Team) *TeamResponse {
+		members := utils.Map(team.Member, func(member *database.UserClassrooms) *UserClassroomResponse {
+			return &UserClassroomResponse{
+				UserClassrooms: member,
+				WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/users/%d", classroom.ClassroomID.String(), member.UserID),
+			}
+		})
+
 		return &TeamResponse{
-			Team:   team,
-			WebURL: fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/gitlab", classroom.ClassroomID.String(), team.ID.String()),
+			Team:    team,
+			Members: members,
+			WebURL:  fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/gitlab", classroom.ClassroomID.String(), team.ID.String()),
 		}
 	})
 

@@ -69,6 +69,7 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 			if err = tx.AssignmentProjects.WithContext(c.Context()).Create(assignmentProject); err != nil {
 				return err
 			}
+			team.AssignmentProjects = []*database.AssignmentProjects{assignmentProject}
 		}
 		return nil
 	})
@@ -89,7 +90,7 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 		for _, member := range team.Member {
 			log.Println("Sending invitation to", member.User.GitlabEmail)
 
-			joinPath := fmt.Sprintf("/classrooms/joined/%s/assignments/%s/accept", classroom.ClassroomID.String(), assignment.ID.String())
+			joinPath := fmt.Sprintf("/classrooms/joined/%s/projects/%s/accept", classroom.ClassroomID.String(), team.AssignmentProjects[0].ID.String())
 			err = ctrl.mailRepo.SendAssignmentNotification(member.User.GitlabEmail,
 				fmt.Sprintf(`You were invited to a new Assigment "%s"`,
 					classroom.Classroom.Name),
