@@ -15,7 +15,7 @@ import (
 // @Summary		InviteToAssignment
 // @Description	InviteToAssignment
 // @Id				InviteToAssignmentV2
-// @Tags			assignment
+// @Tags			project
 // @Accept			json
 // @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path	string	true	"Assignment ID"	Format(uuid)
