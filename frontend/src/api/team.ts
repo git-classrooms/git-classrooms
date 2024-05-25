@@ -39,6 +39,7 @@ export const useCreateTeam = (classroomId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(teamsQueryOptions(classroomId));
+      queryClient.invalidateQueries(classroomQueryOptions(classroomId));
     },
     onSettled: () => {
       queryClient.invalidateQueries(authCsrfQueryOptions);
