@@ -1,19 +1,19 @@
-import { joinedClassroomQueryOptions } from "@/api/classrooms";
-import { joinedClassroomTeamsQueryOptions, useJoinTeam } from "@/api/teams";
+import { classroomQueryOptions } from "@/api/classroom";
+import { teamsQueryOptions, useJoinTeam } from "@/api/team";
 import { CreateJoinedTeamForm } from "@/components/createJoinedTeamForm";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
-import { GetJoinedClassroomTeamResponse } from "@/swagger-client";
+import { TeamResponse } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Code } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams/join/")({
-  loader: async ({ context, params }) => {
-    const teams = await context.queryClient.ensureQueryData(joinedClassroomTeamsQueryOptions(params.classroomId));
-    const joinedClassroom = await context.queryClient.ensureQueryData(joinedClassroomQueryOptions(params.classroomId));
+  loader: async ({ context: { queryClient }, params }) => {
+    const joinedClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
+    const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
 
     if (joinedClassroom.team) {
       throw redirect({
@@ -31,8 +31,8 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/team
 function JoinTeam() {
   const navigate = useNavigate();
   const { classroomId } = Route.useParams();
-  const { data: joinedClassroom } = useSuspenseQuery(joinedClassroomQueryOptions(classroomId));
-  const { data: teams } = useSuspenseQuery(joinedClassroomTeamsQueryOptions(classroomId));
+  const { data: joinedClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
+  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
 
   const { mutateAsync, isPending } = useJoinTeam(classroomId);
 
@@ -70,7 +70,7 @@ function JoinTeam() {
 }
 
 interface TeamsTableProps {
-  teams: GetJoinedClassroomTeamResponse[];
+  teams: TeamResponse[];
   isPending: boolean;
   joinTeam: (teamId: string) => Promise<void>;
   maxTeamSize: number;
@@ -92,15 +92,15 @@ function TeamsTable({ teams, isPending, joinTeam, maxTeamSize }: TeamsTableProps
         {teams.map((t) => (
           <TableRow key={t.id}>
             <TableCell>{t.name}</TableCell>
-            <TableCell>{t.members!.length}</TableCell>
+            <TableCell>{t.members.length}</TableCell>
             <TableCell>
-              <a href={t.gitlabUrl} target="_blank" rel="noreferrer">
+              <a href={t.webUrl} target="_blank" rel="noreferrer">
                 <Code />
               </a>
             </TableCell>
             <TableCell className="text-right">
               <Button
-                disabled={isPending || t.members!.length >= maxTeamSize}
+                disabled={isPending || t.members.length >= maxTeamSize}
                 onClick={() => joinTeam(t.id!)}
                 variant="outline"
               >

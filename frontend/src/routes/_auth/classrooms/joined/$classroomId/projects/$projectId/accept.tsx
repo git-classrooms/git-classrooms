@@ -2,30 +2,29 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { joinedClassroomAssignmentQueryOptions, useAcceptAssignment } from "@/api/assignments.ts";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { joinedClassroomQueryOptions } from "@/api/classrooms.ts";
 import { Separator } from "@/components/ui/separator";
+import { projectQueryOptions, useAcceptAssignment } from "@/api/project";
+import { classroomQueryOptions } from "@/api/classroom";
 
-export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/assignments/$assignmentId/accept")({
-  loader: async ({ context, params }) => {
-    const assignment = await context.queryClient.ensureQueryData(
-      joinedClassroomAssignmentQueryOptions(params.classroomId, params.assignmentId),
-    );
-    return { assignment };
+export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/projects/$projectId/accept")({
+  loader: async ({ context: { queryClient }, params }) => {
+    const project = await queryClient.ensureQueryData(projectQueryOptions(params.classroomId, params.projectId));
+    return { project };
   },
   component: AcceptAssignment,
 });
 
 function AcceptAssignment() {
   const navigate = useNavigate({
-    from: "/_auth/classrooms/$classroomId/assignments/$assignmentId/accept/",
+    from: "/_auth/classrooms/$classroomId/projects/$projectId/accept/",
   });
-  const { classroomId, assignmentId } = Route.useParams();
-  const { data: classroom } = useSuspenseQuery(joinedClassroomQueryOptions(classroomId));
-  const { data: assignemnt } = useSuspenseQuery(joinedClassroomAssignmentQueryOptions(classroomId, assignmentId));
-  const { mutateAsync, isError, isPending } = useAcceptAssignment(classroomId, assignmentId);
+  const { classroomId, projectId } = Route.useParams();
+  const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
+  const { data: project } = useSuspenseQuery(projectQueryOptions(classroomId, projectId));
+  const { mutateAsync, isError, isPending } = useAcceptAssignment(classroomId, projectId);
+
   const onClick = async () => {
     await mutateAsync();
     await navigate({ to: "/classrooms" });
@@ -36,13 +35,13 @@ function AcceptAssignment() {
       <h1 className="text-5xl font-bold text-center mb-5">Accept Assignment</h1>
       <Separator />
       <p className="text-slate-500">
-        You need to accept the assignment <span className="font-bold">{assignemnt.assignment.name}</span> in the
-        classroom <span className="font-bold">{classroom.classroom.name}</span>.
+        You need to accept the assignment <span className="font-bold">{project.assignment.name}</span> in the classroom{" "}
+        <span className="font-bold">{classroom.classroom.name}</span>.
       </p>
       <Separator />
       <p className="text-slate-500">
         Once you have accepted the assignment, you will get access to the repository{" "}
-        <span>{assignemnt.assignment.name}</span>. in the <span>{classroom.classroom.name}</span> group.
+        <span>{project.assignment.name}</span>. in the <span>{classroom.classroom.name}</span> group.
       </p>
       <Separator />
       <div className="flex justify-between">

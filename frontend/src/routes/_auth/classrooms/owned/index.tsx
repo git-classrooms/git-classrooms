@@ -1,11 +1,12 @@
-import { ownedClassroomsQueryOptions } from "@/api/classrooms";
+import { classroomsQueryOptions } from "@/api/classroom";
 import { Loader } from "@/components/loader";
+import { Filter } from "@/types/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/")({
-  loader: async ({ context }) => {
-    const ownedClassrooms = await context.queryClient.ensureQueryData(ownedClassroomsQueryOptions);
+  loader: async ({ context: { queryClient } }) => {
+    const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
 
     return { ownedClassrooms };
   },
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/_auth/classrooms/owned/")({
 });
 
 function OwnedClassrooms() {
-  const { data: ownedClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
+  const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   ownedClassrooms;
 
   return <div>Owned Classrooms</div>;

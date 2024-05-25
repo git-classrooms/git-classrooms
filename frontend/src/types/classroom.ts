@@ -12,6 +12,14 @@ export type Role = (typeof Role)[keyof typeof Role];
 const ReverseRole = reversed(Role);
 export const getRole = (role: Role) => ReverseRole[role];
 
+export const Filter = {
+  Owned: "owned",
+  Moderator: "moderator",
+  Student: "student",
+} as const;
+
+export type Filter = (typeof Filter)[keyof typeof Filter];
+
 export const createFormSchema = z.object({
   name: z.string().min(3),
   description: z.string().min(3),

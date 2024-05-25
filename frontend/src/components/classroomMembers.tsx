@@ -7,7 +7,7 @@ import { Clipboard, Gitlab } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Avatar } from "@/components/avatar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { GetJoinedClassroomResponse } from "@/swagger-client";
+import { UserClassroomResponse } from "@/swagger-client";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -25,7 +25,7 @@ export function MemberListCard({
   userRole,
   showTeams,
 }: {
-  classroomMembers: GetJoinedClassroomResponse[];
+  classroomMembers: UserClassroomResponse[];
   classroomId: string;
   userRole: Role;
   showTeams: boolean;
@@ -58,7 +58,7 @@ function MemberTable({
   userRole,
   showTeams,
 }: {
-  members: GetJoinedClassroomResponse[];
+  members: UserClassroomResponse[];
   classroomId: string;
   userRole: Role;
   showTeams: boolean;
@@ -73,7 +73,7 @@ function MemberTable({
             </TableCell>
             <TableCell className="p-2 flex justify-end align-middle">
               <Button variant="ghost" size="icon" asChild>
-                <a href={m.gitlabUrl} target="_blank" rel="noreferrer">
+                <a href={m.webUrl} target="_blank" rel="noreferrer">
                   <Gitlab className="h-6 w-6 text-gray-600" />
                 </a>
               </Button>
@@ -101,7 +101,7 @@ function MemberTable({
   );
 }
 
-function MemberListElement({ member, showTeams }: { member: GetJoinedClassroomResponse; showTeams: boolean }) {
+function MemberListElement({ member, showTeams }: { member: UserClassroomResponse; showTeams: boolean }) {
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">
