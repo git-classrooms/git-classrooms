@@ -47,17 +47,18 @@ function JoinTeam() {
   return (
     <div className="p-2">
       <Header title={`Join a team of ${joinedClassroom.classroom.name}`}>
-        {joinedClassroom.classroom.createTeams && teams.length < joinedClassroom.classroom.maxTeams && (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="default">Create</Button>
-            </DialogTrigger>
-            <DialogHeader>Create a new Team</DialogHeader>
-            <DialogContent>
-              <CreateJoinedTeamForm classroomId={classroomId} />
-            </DialogContent>
-          </Dialog>
-        )}
+        {joinedClassroom.classroom.createTeams &&
+          (joinedClassroom.classroom.maxTeams === 0 || teams.length < joinedClassroom.classroom.maxTeams) && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="default">Create</Button>
+              </DialogTrigger>
+              <DialogHeader>Create a new Team</DialogHeader>
+              <DialogContent>
+                <CreateJoinedTeamForm classroomId={classroomId} />
+              </DialogContent>
+            </Dialog>
+          )}
       </Header>
       <TeamsTable
         teams={teams}
