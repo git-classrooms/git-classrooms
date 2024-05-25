@@ -12,8 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -32,6 +30,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	}
 	testDb.InsertClassroom(&classroom)
 	oldTime := time.Date(1970, 1, 1, 0, 0, 0, 0, time.Local)
+	oldTime = oldTime.Truncate(time.Second)
 	assignment := database.Assignment{
 		ID:          uuid.New(),
 		Name:        "Test",
@@ -55,14 +54,12 @@ func TestPutOwnedAssignments(t *testing.T) {
 	testDb.InsertAssignmentProjects(&project)
 	assignment.Projects = append(assignment.Projects, &project)
 
-	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
 		ctx.SetOwnedClassroomAssignment(&assignment)
-		ctx.SetGitlabRepository(gitlabRepo)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
@@ -77,50 +74,19 @@ func TestPutOwnedAssignments(t *testing.T) {
 	targetRoute := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
 
 	t.Run("updates assignment", func(t *testing.T) {
-		newTime := time.Date(2000, 2, 2, 2, 2, 2, 0, time.Local)
+		newTime := time.Now().Add(time.Hour * 24)
+		newTime = newTime.Truncate(time.Second)
 		requestBody := updateAssignmentRequest{
 			Name:        "New",
 			Description: "new",
 			DueDate:     &newTime,
 		}
 
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectName(
-				project.ProjectID,
-				requestBody.Name,
-			).
-			Return(
-				&model.Project{
-					ID:   project.ProjectID,
-					Name: requestBody.Name,
-				},
-				nil,
-			).
-			Times(1)
-
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectDescription(
-				project.ProjectID,
-				requestBody.Description,
-			).
-			Return(
-				&model.Project{
-					ID:          project.ProjectID,
-					Description: requestBody.Description,
-				},
-				nil,
-			).
-			Times(1)
-
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 		assert.NoError(t, err)
-
-		gitlabRepo.AssertExpectations(t)
 
 		updatedAssignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ID.Eq(assignment.ID)).First()
 		assert.NoError(t, err)
@@ -143,137 +109,52 @@ func TestPutOwnedAssignments(t *testing.T) {
 			t.Fatal(err)
 		}
 		bodyString := string(bodyBytes)
-		assert.Equal(t, "request requires name, description or dueDate", bodyString)
+		assert.Equal(t, "Request can not be empty, requires name, description or dueDate", bodyString)
 	})
 
-	t.Run("gitlab error on change project name", func(t *testing.T) {
+	t.Run("due date is in the past", func(t *testing.T) {
+		newTime := time.Date(1970, 1, 1, 0, 0, 0, 0, time.Local)
 		requestBody := updateAssignmentRequest{
-			Name: "New",
+			DueDate: &newTime,
 		}
-
-		project2 := database.AssignmentProjects{
-			AssignmentID: assignment.ID,
-			TeamID:       team.ID,
-			ProjectID:    2,
-		}
-		testDb.InsertAssignmentProjects(&project2)
-		assignment.Projects = append(assignment.Projects, &project2)
-
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectName(
-				project.ProjectID,
-				requestBody.Name,
-			).
-			Return(
-				&model.Project{},
-				nil,
-			).
-			Times(1)
-
-		errorMsg := "gitlab error"
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectName(
-				project2.ProjectID,
-				requestBody.Name,
-			).
-			Return(
-				nil,
-				fmt.Errorf(errorMsg),
-			).
-			Times(1)
-
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectName(
-				project.ProjectID,
-				assignment.Name,
-			).
-			Return(
-				&model.Project{},
-				nil,
-			).
-			Times(1)
 
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
+		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 		assert.NoError(t, err)
-		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 
-		gitlabRepo.AssertExpectations(t)
-
-		updatedAssignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ID.Eq(assignment.ID)).First()
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, assignment.Name, updatedAssignment.Name)
+		bodyString := string(bodyBytes)
+		assert.Equal(t, "DueDate must be in the future", bodyString)
 	})
 
-	t.Run("gitlab error on change project description", func(t *testing.T) {
+	t.Run("assignment name and description can not be changed after it has been accepted by students", func(t *testing.T) {
+		newTime := time.Now().Add(time.Hour * 24)
 		requestBody := updateAssignmentRequest{
+			Name:        "New",
 			Description: "new",
+			DueDate:     &newTime,
 		}
 
-		project2 := database.AssignmentProjects{
-			AssignmentID: assignment.ID,
-			TeamID:       team.ID,
-			ProjectID:    2,
-		}
-		testDb.InsertAssignmentProjects(&project2)
-		assignment.Projects = append(assignment.Projects, &project2)
-
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectDescription(
-				project.ProjectID,
-				requestBody.Description,
-			).
-			Return(
-				&model.Project{},
-				nil,
-			).
-			Times(1)
-
-		errorMsg := "gitlab error"
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectDescription(
-				project2.ProjectID,
-				requestBody.Description,
-			).
-			Return(
-				nil,
-				fmt.Errorf(errorMsg),
-			).
-			Times(1)
-
-		gitlabRepo.
-			EXPECT().
-			ChangeProjectDescription(
-				project.ProjectID,
-				assignment.Description,
-			).
-			Return(
-				&model.Project{},
-				nil,
-			).
-			Times(1)
+		project.AssignmentAccepted = true
+		testDb.SaveAssignmentProjects(&project)
 
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
+		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 		assert.NoError(t, err)
-		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 
-		gitlabRepo.AssertExpectations(t)
-
-		updatedAssignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ID.Eq(assignment.ID)).First()
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, assignment.Description, updatedAssignment.Description)
+		bodyString := string(bodyBytes)
+		assert.Equal(t, "Assignment name and description can not be changed after it has been accepted by students", bodyString)
 	})
 
 }

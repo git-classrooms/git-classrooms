@@ -14,17 +14,21 @@ type updateAssignmentRequest struct {
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 }
 
-func (r updateAssignmentRequest) isValid() bool {
-	return r.Name != "" || r.Description != "" || r.DueDate != nil
+func (r updateAssignmentRequest) isValid() (bool, string) {
+	if r.Name == "" && r.Description == "" && r.DueDate == nil {
+		return false, "Request can not be empty, requires name, description or dueDate"
+	}
+
+	if r.DueDate.Before(time.Now()) {
+		return false, "DueDate must be in the future"
+	}
+
+	return true, ""
 }
 
 func (ctrl *DefaultController) PutOwnedAssignments(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	assignment := ctx.GetOwnedClassroomAssignment()
-	oldName := assignment.Name
-	oldDescription := assignment.Description
-
-	repo := ctx.GetGitlabRepository()
 	var err error
 
 	requestBody := &updateAssignmentRequest{}
@@ -33,42 +37,35 @@ func (ctrl *DefaultController) PutOwnedAssignments(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if !requestBody.isValid() {
-		return fiber.NewError(fiber.StatusBadRequest, "request requires name, description or dueDate")
+	isValid, reason := requestBody.isValid()
+	if !isValid {
+		return fiber.NewError(fiber.StatusBadRequest, reason)
 	}
 
-	if requestBody.Name != "" {
-		for _, project := range assignment.Projects {
-			_, err = repo.ChangeProjectName(project.ProjectID, requestBody.Name)
-			if err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-			}
-
-			defer func(projectId int) {
-				if recover() != nil || err != nil {
-					repo.ChangeProjectName(projectId, oldName)
-				}
-			}(project.ProjectID)
+	projectLinks, err := query.AssignmentProjects.WithContext(c.Context()).Where(query.AssignmentProjects.AssignmentID.Eq(assignment.ID)).Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	assignmentAcceptedByStudents := false
+	for _, projectLink := range projectLinks {
+		if projectLink.AssignmentAccepted {
+			assignmentAcceptedByStudents = true
+			break
 		}
-
-		assignment.Name = requestBody.Name
 	}
 
-	if requestBody.Description != "" {
-		for _, project := range assignment.Projects {
-			_, err = repo.ChangeProjectDescription(project.ProjectID, requestBody.Description)
-			if err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-			}
-
-			defer func(projectId int) {
-				if recover() != nil || err != nil {
-					repo.ChangeProjectDescription(projectId, oldDescription)
-				}
-			}(project.ProjectID)
+	if assignmentAcceptedByStudents {
+		if requestBody.Name != "" || requestBody.Description != "" {
+			return fiber.NewError(fiber.StatusBadRequest, "Assignment name and description can not be changed after it has been accepted by students")
+		}
+	} else {
+		if requestBody.Name != "" {
+			assignment.Name = requestBody.Name
 		}
 
-		assignment.Description = requestBody.Description
+		if requestBody.Description != "" {
+			assignment.Description = requestBody.Description
+		}
 	}
 
 	if requestBody.DueDate != nil {

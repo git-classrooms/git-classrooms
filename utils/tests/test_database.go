@@ -92,3 +92,10 @@ func (testDb *TestDB) InsertAssignmentProjects(assignmentProject *database.Assig
 		testDb.t.Fatalf("could not insert assignment project: %s", err.Error())
 	}
 }
+
+func (db *TestDB) SaveAssignmentProjects(project *database.AssignmentProjects) {
+	err := query.AssignmentProjects.WithContext(context.Background()).Save(project)
+	if err != nil {
+		db.t.Fatalf("could not update assignment project: %s", err.Error())
+	}
+}
