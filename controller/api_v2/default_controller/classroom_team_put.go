@@ -23,10 +23,10 @@ func (r updateTeamRequest) isValid() bool {
 // @Id				UpdateTeam
 // @Tags			team
 // @Produces		json
-// @Param			classroomId		path	string							true	"Classroom ID"	Format(uuid)
-// @Param			teamId			path	string							true	"Team ID"		Format(uuid)
-// @Param			UpdateTeam		body	api.UpdateTeamRequest	true	"Update Team"
-// @Param			X-Csrf-Token	header	string							true	"Csrf-Token"
+// @Param			classroomId		path	string					true	"Classroom ID"	Format(uuid)
+// @Param			teamId			path	string					true	"Team ID"		Format(uuid)
+// @Param			UpdateTeam		body	api.updateTeamRequest	true	"Update Team"
+// @Param			X-Csrf-Token	header	string					true	"Csrf-Token"
 // @Success		202
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
