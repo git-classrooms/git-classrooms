@@ -25,29 +25,29 @@ export interface User {
      * @type {UserAvatar}
      * @memberof User
      */
-    gitlabAvatar?: UserAvatar;
+    gitlabAvatar: UserAvatar;
 
     /**
      * @type {string}
      * @memberof User
      */
-    gitlabEmail?: string;
+    gitlabEmail: string;
 
     /**
      * @type {string}
      * @memberof User
      */
-    gitlabUsername?: string;
+    gitlabUsername: string;
 
     /**
      * @type {number}
      * @memberof User
      */
-    id?: number;
+    id: number;
 
     /**
      * @type {string}
      * @memberof User
      */
-    name?: string;
+    name: string;
 }

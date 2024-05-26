@@ -17,6 +17,4 @@ do
     echo -e "// @ts-nocheck\n$(cat $file)" > $file
 done
 
-node ../../swagger-codegen.js
-
 cd $BASE_PATH

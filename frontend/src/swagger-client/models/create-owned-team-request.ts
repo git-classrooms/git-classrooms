@@ -24,5 +24,5 @@ export interface CreateOwnedTeamRequest {
      * @type {string}
      * @memberof CreateOwnedTeamRequest
      */
-    name?: string;
+    name: string;
 }

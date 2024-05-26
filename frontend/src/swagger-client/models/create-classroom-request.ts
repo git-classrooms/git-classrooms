@@ -24,35 +24,35 @@ export interface CreateClassroomRequest {
      * @type {boolean}
      * @memberof CreateClassroomRequest
      */
-    createTeams?: boolean;
+    createTeams: boolean;
 
     /**
      * @type {string}
      * @memberof CreateClassroomRequest
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {number}
      * @memberof CreateClassroomRequest
      */
-    maxTeamSize?: number;
+    maxTeamSize: number;
 
     /**
      * @type {number}
      * @memberof CreateClassroomRequest
      */
-    maxTeams?: number;
+    maxTeams: number;
 
     /**
      * @type {string}
      * @memberof CreateClassroomRequest
      */
-    name?: string;
+    name: string;
 
     /**
      * @type {boolean}
      * @memberof CreateClassroomRequest
      */
-    studentsViewAllProjects?: boolean;
+    studentsViewAllProjects: boolean;
 }

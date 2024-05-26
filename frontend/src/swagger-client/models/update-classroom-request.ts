@@ -24,11 +24,11 @@ export interface UpdateClassroomRequest {
      * @type {string}
      * @memberof UpdateClassroomRequest
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {string}
      * @memberof UpdateClassroomRequest
      */
-    name?: string;
+    name: string;
 }

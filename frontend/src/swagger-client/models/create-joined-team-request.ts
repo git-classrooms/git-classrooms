@@ -24,5 +24,5 @@ export interface CreateJoinedTeamRequest {
      * @type {string}
      * @memberof CreateJoinedTeamRequest
      */
-    name?: string;
+    name: string;
 }

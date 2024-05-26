@@ -25,11 +25,11 @@ export interface JoinClassroomRequest {
      * @type {Action}
      * @memberof JoinClassroomRequest
      */
-    action?: Action;
+    action: Action;
 
     /**
      * @type {string}
      * @memberof JoinClassroomRequest
      */
-    invitationId?: string;
+    invitationId: string;
 }

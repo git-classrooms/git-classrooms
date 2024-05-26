@@ -28,19 +28,19 @@ export interface GetJoinedClassroomResponse {
      * @type {Classroom}
      * @memberof GetJoinedClassroomResponse
      */
-    classroom?: Classroom;
+    classroom: Classroom;
 
     /**
      * @type {string}
      * @memberof GetJoinedClassroomResponse
      */
-    gitlabUrl?: string;
+    gitlabUrl: string;
 
     /**
      * @type {Role}
      * @memberof GetJoinedClassroomResponse
      */
-    role?: Role;
+    role: Role;
 
     /**
      * @type {Team}
@@ -52,5 +52,5 @@ export interface GetJoinedClassroomResponse {
      * @type {User}
      * @memberof GetJoinedClassroomResponse
      */
-    user?: User;
+    user: User;
 }

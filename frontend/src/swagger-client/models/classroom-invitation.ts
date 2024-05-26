@@ -26,41 +26,41 @@ export interface ClassroomInvitation {
      * @type {Classroom}
      * @memberof ClassroomInvitation
      */
-    classroom?: Classroom;
+    classroom: Classroom;
 
     /**
      * @type {string}
      * @memberof ClassroomInvitation
      */
-    createdAt?: string;
+    createdAt: string;
 
     /**
      * @type {string}
      * @memberof ClassroomInvitation
      */
-    email?: string;
+    email: string;
 
     /**
      * @type {string}
      * @memberof ClassroomInvitation
      */
-    expiryDate?: string;
+    expiryDate: string;
 
     /**
      * @type {string}
      * @memberof ClassroomInvitation
      */
-    id?: string;
+    id: string;
 
     /**
      * @type {ClassroomInvitationStatus}
      * @memberof ClassroomInvitation
      */
-    status?: ClassroomInvitationStatus;
+    status: ClassroomInvitationStatus;
 
     /**
      * @type {string}
      * @memberof ClassroomInvitation
      */
-    updatedAt?: string;
+    updatedAt: string;
 }

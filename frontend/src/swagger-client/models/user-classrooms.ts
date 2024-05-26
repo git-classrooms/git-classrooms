@@ -28,13 +28,13 @@ export interface UserClassrooms {
      * @type {Classroom}
      * @memberof UserClassrooms
      */
-    classroom?: Classroom;
+    classroom: Classroom;
 
     /**
      * @type {Role}
      * @memberof UserClassrooms
      */
-    role?: Role;
+    role: Role;
 
     /**
      * @type {Team}
@@ -46,5 +46,5 @@ export interface UserClassrooms {
      * @type {User}
      * @memberof UserClassrooms
      */
-    user?: User;
+    user: User;
 }

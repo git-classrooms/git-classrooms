@@ -24,5 +24,5 @@ export interface HTTPError {
      * @type {string}
      * @memberof HTTPError
      */
-    error?: string;
+    error: string;
 }
