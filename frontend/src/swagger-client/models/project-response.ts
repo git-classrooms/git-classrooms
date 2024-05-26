@@ -18,61 +18,61 @@ import { Team } from './team';
  * 
  *
  * @export
- * @interface GetOwnedClassroomAssignmentProjectResponse
+ * @interface ProjectResponse
  */
-export interface GetOwnedClassroomAssignmentProjectResponse {
+export interface ProjectResponse {
 
     /**
      * @type {Assignment}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     assignment: Assignment;
 
     /**
      * @type {boolean}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     assignmentAccepted: boolean;
 
     /**
      * @type {string}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     createdAt: string;
 
     /**
      * @type {string}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     id: string;
 
     /**
      * @type {number}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     projectId: number;
 
     /**
-     * @type {string}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
-     */
-    projectPath: string;
-
-    /**
      * @type {Team}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     team: Team;
 
     /**
      * @type {string}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     teamId: string;
 
     /**
      * @type {string}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
+     * @memberof ProjectResponse
      */
     updatedAt: string;
+
+    /**
+     * @type {string}
+     * @memberof ProjectResponse
+     */
+    webUrl: string;
 }

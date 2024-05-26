@@ -11,10 +11,19 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-export * from './apis/assignment-api';
-export * from './apis/auth-api';
-export * from './apis/classroom-api';
-export * from './apis/member-api';
-export * from './apis/project-api';
-export * from './apis/team-api';
 
+import { Role } from './role';
+ /**
+ * 
+ *
+ * @export
+ * @interface UpdateMemberRoleRequest
+ */
+export interface UpdateMemberRoleRequest {
+
+    /**
+     * @type {Role}
+     * @memberof UpdateMemberRoleRequest
+     */
+    role: Role;
+}
