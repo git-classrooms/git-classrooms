@@ -71,3 +71,31 @@ func (testDb *TestDB) InsertClassroom(classroom *database.Classroom) {
 		testDb.t.Fatalf("could not insert classroom: %s", err.Error())
 	}
 }
+
+func (testDb *TestDB) InsertAssignment(assignment *database.Assignment) {
+	err := query.Assignment.WithContext(context.Background()).Create(assignment)
+	if err != nil {
+		testDb.t.Fatalf("could not insert assignment: %s", err.Error())
+	}
+}
+
+func (testDb *TestDB) InsertTeam(team *database.Team) {
+	err := query.Team.WithContext(context.Background()).Create(team)
+	if err != nil {
+		testDb.t.Fatalf("could not insert team: %s", err.Error())
+	}
+}
+
+func (testDb *TestDB) InsertAssignmentProjects(assignmentProject *database.AssignmentProjects) {
+	err := query.AssignmentProjects.WithContext(context.Background()).Create(assignmentProject)
+	if err != nil {
+		testDb.t.Fatalf("could not insert assignment project: %s", err.Error())
+	}
+}
+
+func (db *TestDB) SaveAssignmentProjects(project *database.AssignmentProjects) {
+	err := query.AssignmentProjects.WithContext(context.Background()).Save(project)
+	if err != nil {
+		db.t.Fatalf("could not update assignment project: %s", err.Error())
+	}
+}

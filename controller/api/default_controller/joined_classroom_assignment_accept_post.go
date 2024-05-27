@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -37,6 +38,10 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 
 	if assignmentProject.AssignmentAccepted {
 		return c.SendStatus(fiber.StatusNoContent) // You or your teammate have already accepted the assignment
+	}
+
+	if assignmentProject.Assignment.DueDate.Before(time.Now()) {
+		return fiber.NewError(fiber.StatusBadRequest, "Assignment is already overdue")
 	}
 
 	repo := context.Get(c).GetGitlabRepository()

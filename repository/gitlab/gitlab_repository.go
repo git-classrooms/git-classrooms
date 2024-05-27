@@ -314,6 +314,32 @@ func (repo *GitlabRepo) ChangeGroupDescription(id int, description string) (*mod
 	return repo.GetGroupById(id)
 }
 
+func (repo *GitlabRepo) ChangeProjectName(projectId int, name string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.Projects.EditProject(projectId, &goGitlab.EditProjectOptions{
+		Name: goGitlab.String(name),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.GetProjectById(projectId)
+}
+
+func (repo *GitlabRepo) ChangeProjectDescription(projectId int, description string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.Projects.EditProject(projectId, &goGitlab.EditProjectOptions{
+		Description: goGitlab.String(description),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.GetProjectById(projectId)
+}
+
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
