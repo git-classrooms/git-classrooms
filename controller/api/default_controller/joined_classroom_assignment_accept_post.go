@@ -84,6 +84,26 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 	// We don't need to clean up this step because the project will be deleted
 
+	queryUsers := query.User
+	members, err := queryUsers.
+		WithContext(c.Context()).
+		Where(queryUsers.ID.In(memberIds...)).
+		Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	mentions := utils.Map(members, func(member *database.User) string {
+		return fmt.Sprintf("/cc @%s", member.GitlabUsername)
+	})
+	description := fmt.Sprintf(mergeRequestDescription, strings.Join(mentions, "\n"))
+	err = repo.CreateMergeRequest(project.ID, "main", "feedback", "Feedback", description, userID, classroom.Classroom.OwnerID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	// We don't need to clean up this step because the project will be deleted
+
+	// In a few cases the main branch isn't available directly after the creation, this would cause an error when setting up protection rules for it, there we wait for the main branch to exist
 	timeout := time.After(1 * time.Second)
 	for keep_on_waiting := true; keep_on_waiting; {
 		select {
@@ -116,25 +136,6 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.ProtectBranch(project.ID, "feedback", gitlabModel.MaintainerPermissions)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	// We don't need to clean up this step because the project will be deleted
-
-	queryUsers := query.User
-	members, err := queryUsers.
-		WithContext(c.Context()).
-		Where(queryUsers.ID.In(memberIds...)).
-		Find()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	mentions := utils.Map(members, func(member *database.User) string {
-		return fmt.Sprintf("/cc @%s", member.GitlabUsername)
-	})
-	description := fmt.Sprintf(mergeRequestDescription, strings.Join(mentions, "\n"))
-	err = repo.CreateMergeRequest(project.ID, "main", "feedback", "Feedback", description, userID, classroom.Classroom.OwnerID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
