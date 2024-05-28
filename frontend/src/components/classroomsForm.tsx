@@ -12,11 +12,12 @@ import { useCreateClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch"
+import { useState } from "react";
 
 export const ClassroomsForm = () => {
   const navigate = useNavigate();
+  const [areTeamsEnabled, setAreTeamsEnabled] = useState(true);
   const { mutateAsync, isError, isPending } = useCreateClassroom();
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
@@ -72,6 +73,11 @@ export const ClassroomsForm = () => {
               </FormItem>
             )}
           />
+          <div className="flex flex-row items-center space-x-3 space-y-0">
+            <Switch checked={areTeamsEnabled}  onCheckedChange={setAreTeamsEnabled} />
+            <FormLabel>Enable Teams</FormLabel>
+          </div>
+          <div className ="transition-all duration-500 border-l p-4" hidden={!areTeamsEnabled}>
           <FormField
             control={form.control}
             name="maxTeams"
@@ -113,7 +119,7 @@ export const ClassroomsForm = () => {
                 </FormItem>
               )}
             />
-
+          </div>
           <FormField
             control={form.control}
             name="studentsViewAllProjects"
