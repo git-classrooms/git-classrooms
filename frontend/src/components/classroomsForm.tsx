@@ -8,11 +8,12 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema } from "@/types/classroom";
+import { useCreateClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCreateClassroom } from "@/api/classroom";
+import { Switch } from "@/components/ui/switch"
 
 export const ClassroomsForm = () => {
   const navigate = useNavigate();
@@ -37,31 +38,31 @@ export const ClassroomsForm = () => {
 
   return (
     <div className="p-2">
-      <div className="flex flex-row justify-between">
+      <div>
         <h1 className="text-xl font-bold">Create a classroom</h1>
+        <p className="text-sm text-muted-foreground">Add the details you need and submit when you're done.</p>
       </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="space-y-0 my-2">
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Programming classroom" {...field} />
                 </FormControl>
-                <FormDescription>This is your classroom name.</FormDescription>
+                <FormDescription>The name of the new classroom</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="space-y-0 my-2">
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
@@ -71,65 +72,61 @@ export const ClassroomsForm = () => {
               </FormItem>
             )}
           />
-
-          <div className="flex flex-row">
-            <FormField
-              control={form.control}
-              name="maxTeamSize"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Max Team Size</FormLabel>
-                  <FormControl>
-                    <Input type="number" step={1} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="maxTeams"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Max Teams</FormLabel>
-                  <FormControl>
-                    <Input type="number" step={1} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+          <FormField
+            control={form.control}
+            name="maxTeams"
+            render={({ field }) => (
+              <FormItem className="space-y-0 my-2">
+                <FormLabel>Max Teams</FormLabel>
+                <FormControl>
+                  <Input type="number" step={1} {...field} />
+                </FormControl>
+                <FormDescription>The maximum amount of teams</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maxTeamSize"
+            render={({ field }) => (
+              <FormItem className="space-y-0 my-2">
+                <FormLabel>Max Team Size</FormLabel>
+                <FormControl>
+                  <Input type="number" step={1} {...field} />
+                </FormControl>
+                <FormDescription>The maximum amount of members per team. Must be at least 2. For one-person teams deactivate teams.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
             <FormField
               control={form.control}
               name="createTeams"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
-                  <FormLabel>Users can create Teams</FormLabel>
+                  <FormLabel>Students can create teams</FormLabel>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
 
           <FormField
             control={form.control}
             name="studentsViewAllProjects"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
-                <FormLabel>Students can view projects of others</FormLabel>
+                <FormLabel>Students can inspect other students' repositories</FormLabel>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <Button type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
           </Button>
