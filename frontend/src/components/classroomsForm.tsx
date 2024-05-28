@@ -19,7 +19,7 @@ export const ClassroomsForm = () => {
   const navigate = useNavigate();
   const [areTeamsEnabled, setAreTeamsEnabled] = useState(true);
   const [prevMaxTeams, setPrevMaxTeams] = useState(0);
-  const [prevMaxTeamSize, setPrevMaxTeamSize] = useState(1);
+  const [prevMaxTeamSize, setPrevMaxTeamSize] = useState(2);
   const [prevCanStudentsCreateTeams, setCanStudentsCreateTeams] = useState(true);
   const { mutateAsync, isError, isPending } = useCreateClassroom();
 
@@ -34,7 +34,7 @@ export const ClassroomsForm = () => {
       setCanStudentsCreateTeams(form.getValues().createTeams);
       form.setValue("maxTeams", 0);
       form.setValue("maxTeamSize", 1);
-      form.setValue("createTeams", false);
+      form.setValue("createTeams", true);
     }
   }, [areTeamsEnabled]);
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -43,7 +43,7 @@ export const ClassroomsForm = () => {
       name: "",
       description: "",
       maxTeams: 0,
-      maxTeamSize: 1,
+      maxTeamSize: 2,
       createTeams: true,
       studentsViewAllProjects: false,
     },
