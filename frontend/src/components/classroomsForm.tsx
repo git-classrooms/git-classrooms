@@ -13,12 +13,30 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
 import { Switch } from "@/components/ui/switch"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const ClassroomsForm = () => {
   const navigate = useNavigate();
   const [areTeamsEnabled, setAreTeamsEnabled] = useState(true);
+  const [prevMaxTeams, setPrevMaxTeams] = useState(0);
+  const [prevMaxTeamSize, setPrevMaxTeamSize] = useState(1);
+  const [prevCanStudentsCreateTeams, setCanStudentsCreateTeams] = useState(true);
   const { mutateAsync, isError, isPending } = useCreateClassroom();
+
+  useEffect(() => {
+    if (areTeamsEnabled) {
+      form.setValue("maxTeams", prevMaxTeams);
+      form.setValue("maxTeamSize", prevMaxTeamSize);
+      form.setValue("createTeams", prevCanStudentsCreateTeams);
+    } else {
+      setPrevMaxTeams(form.getValues().maxTeams);
+      setPrevMaxTeamSize(form.getValues().maxTeamSize);
+      setCanStudentsCreateTeams(form.getValues().createTeams);
+      form.setValue("maxTeams", 0);
+      form.setValue("maxTeamSize", 1);
+      form.setValue("createTeams", false);
+    }
+  }, [areTeamsEnabled]);
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
     defaultValues: {
@@ -49,7 +67,7 @@ export const ClassroomsForm = () => {
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem className="space-y-0 my-2">
+              <FormItem className="space-y-1 my-2">
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Programming classroom" {...field} />
@@ -63,7 +81,7 @@ export const ClassroomsForm = () => {
             control={form.control}
             name="description"
             render={({ field }) => (
-              <FormItem className="space-y-0 my-2">
+              <FormItem className="space-y-1  my-2">
                 <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
@@ -77,12 +95,12 @@ export const ClassroomsForm = () => {
             <Switch checked={areTeamsEnabled}  onCheckedChange={setAreTeamsEnabled} />
             <FormLabel>Enable Teams</FormLabel>
           </div>
-          <div className ="transition-all duration-500 border-l p-4" hidden={!areTeamsEnabled}>
+          <div className ="border-l px-4" hidden={!areTeamsEnabled}>
           <FormField
             control={form.control}
             name="maxTeams"
             render={({ field }) => (
-              <FormItem className="space-y-0 my-2">
+              <FormItem className="space-y-1  my-2">
                 <FormLabel>Max Teams</FormLabel>
                 <FormControl>
                   <Input type="number" step={1} {...field} />
@@ -96,7 +114,7 @@ export const ClassroomsForm = () => {
             control={form.control}
             name="maxTeamSize"
             render={({ field }) => (
-              <FormItem className="space-y-0 my-2">
+              <FormItem className="space-y-1 my-2">
                 <FormLabel>Max Team Size</FormLabel>
                 <FormControl>
                   <Input type="number" step={1} {...field} />
