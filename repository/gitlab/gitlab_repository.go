@@ -340,6 +340,58 @@ func (repo *GitlabRepo) ChangeProjectDescription(projectId int, description stri
 	return repo.GetProjectById(projectId)
 }
 
+// GetProjectPipelineTestReportSummary retrieves the test report summary for a specific pipeline
+// in a GitLab project.
+//
+// Parameters:
+// - projectId: The ID of the project.
+// - pipelineId: The ID of the pipeline.
+//
+// Returns:
+// - *model.TestReport: The test report summary of the pipeline.
+// - error: An error if the retrieval fails.
+func (repo *GitlabRepo) GetProjectPipelineTestReportSummary(projectId int, pipelineId int) (*model.TestReport, error) {
+	repo.assertIsConnected()
+
+	testReport, _, err := repo.client.Pipelines.GetPipelineTestReport(projectId, pipelineId)
+	if err != nil {
+		return nil, err
+	}
+
+	return TestReportFromGoGitlabTestReport(testReport), nil
+}
+
+// GetProjectLatestPipelineTestReportSummary retrieves the test report summary for the latest pipeline
+// in a GitLab project, optionally filtering by a reference (branch or tag).
+//
+// Parameters:
+// - projectId: The ID of the project.
+// - ref: An optional reference (branch or tag). If nil, the default branch is used.
+//
+// Returns:
+// - *model.TestReport: The test report summary of the latest pipeline.
+// - error: An error if the retrieval fails.
+func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error) {
+	repo.assertIsConnected()
+
+	options := &goGitlab.GetLatestPipelineOptions{}
+	if ref != nil {
+		options.Ref = ref
+	}
+
+	pipeline, _, err := repo.client.Pipelines.GetLatestPipeline(projectId, options)
+	if err != nil {
+		return nil, err
+	}
+
+	testReport, _, err := repo.client.Pipelines.GetPipelineTestReport(projectId, pipeline.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return TestReportFromGoGitlabTestReport(testReport), nil
+}
+
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 

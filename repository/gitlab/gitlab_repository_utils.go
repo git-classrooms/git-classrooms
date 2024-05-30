@@ -201,6 +201,43 @@ func GroupFromGoGitlabWithMembersAndProjects(group goGitlab.Group, members []mod
 	}
 }
 
+func TestReportFromGoGitlabTestReport(testReport *goGitlab.PipelineTestReport) *model.TestReport {
+	var report model.TestReport
+	report.TotalTime = testReport.TotalTime
+	report.TotalCount = testReport.TotalCount
+	report.SuccessCount = testReport.SuccessCount
+	report.FailedCount = testReport.FailedCount
+	report.SkippedCount = testReport.SkippedCount
+	report.ErrorCount = testReport.ErrorCount
+
+	for _, ts := range testReport.TestSuites {
+		var suite model.TestReportTestSuite
+		suite.Name = ts.Name
+		suite.TotalTime = ts.TotalTime
+		suite.TotalCount = ts.TotalCount
+		suite.SuccessCount = ts.SuccessCount
+		suite.FailedCount = ts.FailedCount
+		suite.SkippedCount = ts.SkippedCount
+		suite.ErrorCount = ts.ErrorCount
+
+		for _, tc := range ts.TestCases {
+			var case_ model.TestReportTestCase
+			case_.Status = tc.Status
+			case_.Name = tc.Name
+			case_.Classname = tc.Classname
+			case_.ExecutionTime = tc.ExecutionTime
+			case_.SystemOutput = tc.SystemOutput
+			case_.StackTrace = tc.StackTrace
+
+			suite.TestCases = append(suite.TestCases, case_)
+		}
+
+		report.TestSuites = append(report.TestSuites, suite)
+	}
+
+	return &report
+}
+
 func PendingInviteFromGoGitlab(input goGitlab.PendingInvite) *model.PendingInvite {
 	return &model.PendingInvite{
 		ID:            input.ID,
