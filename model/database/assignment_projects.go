@@ -17,7 +17,7 @@ type AssignmentProjects struct {
 	TeamID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"teamId"`
 	Team   Team      `json:"team"`
 
-	AssignmentID uuid.UUID  `gorm:"<-:create;not null" json:"assignmentId"`
+	AssignmentID uuid.UUID  `gorm:"<-:create;not null" json:"-"`
 	Assignment   Assignment `json:"assignment"`
 
 	AssignmentAccepted bool `gorm:"not null" json:"assignmentAccepted"`

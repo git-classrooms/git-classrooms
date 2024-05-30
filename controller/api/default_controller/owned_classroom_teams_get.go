@@ -20,7 +20,7 @@ import (
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/teams [get]
+// @Router			/api/v1/classrooms/owned/{classroomId}/teams [get]
 func (ctrl *DefaultController) GetOwnedClassroomTeams(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

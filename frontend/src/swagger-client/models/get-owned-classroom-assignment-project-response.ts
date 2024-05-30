@@ -38,12 +38,6 @@ export interface GetOwnedClassroomAssignmentProjectResponse {
      * @type {string}
      * @memberof GetOwnedClassroomAssignmentProjectResponse
      */
-    assignmentId: string;
-
-    /**
-     * @type {string}
-     * @memberof GetOwnedClassroomAssignmentProjectResponse
-     */
     createdAt: string;
 
     /**

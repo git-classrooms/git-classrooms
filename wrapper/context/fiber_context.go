@@ -23,6 +23,13 @@ const (
 	joinedClassroomKey                 contextKey = "joined-classroom"
 	joinedClassroomAssignmentKey       contextKey = "joined-classroom-assignment"
 	joinedClassroomTeamKey             contextKey = "joined-classroom-team"
+
+	// API v2 specific
+	userClassroomKey     contextKey = "user-classroom"
+	assignmentKey        contextKey = "assignment"
+	assignmentProjectKey contextKey = "assignment-project"
+	classroomMember      contextKey = "classroom-member"
+	teamKey              contextKey = "team"
 )
 
 type FiberContext struct {
@@ -147,4 +154,46 @@ func (c *FiberContext) GetOwnedClassroomTeamMember() *database.UserClassrooms {
 
 func (c *FiberContext) SetOwnedClassroomTeamMember(member *database.UserClassrooms) {
 	c.Locals(ownedClassroomTeamMemberKey, member)
+}
+
+// API v2 specific
+
+func (c *FiberContext) GetUserClassroom() *database.UserClassrooms {
+	return c.Locals(userClassroomKey).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) SetUserClassroom(classroom *database.UserClassrooms) {
+	c.Locals(userClassroomKey, classroom)
+}
+
+func (c *FiberContext) GetAssignment() *database.Assignment {
+	return c.Locals(assignmentKey).(*database.Assignment)
+}
+
+func (c *FiberContext) SetAssignment(assignment *database.Assignment) {
+	c.Locals(assignmentKey, assignment)
+}
+
+func (c *FiberContext) GetAssignmentProject() *database.AssignmentProjects {
+	return c.Locals(assignmentProjectKey).(*database.AssignmentProjects)
+}
+
+func (c *FiberContext) SetAssignmentProject(project *database.AssignmentProjects) {
+	c.Locals(assignmentProjectKey, project)
+}
+
+func (c *FiberContext) GetClassroomMember() *database.UserClassrooms {
+	return c.Locals(classroomMember).(*database.UserClassrooms)
+}
+
+func (c *FiberContext) SetClassroomMember(member *database.UserClassrooms) {
+	c.Locals(classroomMember, member)
+}
+
+func (c *FiberContext) GetTeam() *database.Team {
+	return c.Locals(teamKey).(*database.Team)
+}
+
+func (c *FiberContext) SetTeam(team *database.Team) {
+	c.Locals(teamKey, team)
 }

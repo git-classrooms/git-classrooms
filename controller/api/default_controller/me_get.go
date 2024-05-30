@@ -20,7 +20,7 @@ type getMeResponse struct {
 // @Success		200	{object}	default_controller.getMeResponse
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/me [get]
+// @Router			/api/v1/me [get]
 func (ctrl *DefaultController) GetMe(c *fiber.Ctx) error {
 	queryUser := query.User
 	user, err := queryUser.WithContext(c.Context()).

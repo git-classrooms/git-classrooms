@@ -12,7 +12,7 @@ export const getUUIDFromLocation = (location: string) => location.split("/").pop
 
 export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
 
-const apiClient = axios.create({ baseURL: "/api/v1", withCredentials: true });
+const apiClient = axios.create({ withCredentials: true });
 
 export const createTeamApi = () => new TeamApi(undefined, "", apiClient);
 export const createClassroomApi = () => new ClassroomApi(undefined, "", apiClient);
