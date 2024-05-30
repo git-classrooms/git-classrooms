@@ -18,83 +18,16 @@ import { Configuration } from '../configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
-import { ChangeOwnedClassroomMemberRequest } from '../models';
-import { GetOwnedClassroomMemberResponse } from '../models';
 import { HTTPError } from '../models';
 import { UpdateMemberRoleRequest } from '../models';
 import { UpdateMemberTeamRequest } from '../models';
 import { UserClassroomResponse } from '../models';
-import { UserClassrooms } from '../models';
 /**
  * MemberApi - axios parameter creator
  * @export
  */
 export const MemberApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Update Classroom Members team and or role
-         * @summary Update Classroom Members team and or role
-         * @param {ChangeOwnedClassroomMemberRequest} body Update ClassroomMemberRequest
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {string} classroomId Classroom ID
-         * @param {number} memberId Member ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        changeOwnedClassroomMember: async (body: ChangeOwnedClassroomMemberRequest, xCsrfToken: string, classroomId: string, memberId: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling changeOwnedClassroomMember.');
-            }
-            // verify required parameter 'xCsrfToken' is not null or undefined
-            if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling changeOwnedClassroomMember.');
-            }
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling changeOwnedClassroomMember.');
-            }
-            // verify required parameter 'memberId' is not null or undefined
-            if (memberId === null || memberId === undefined) {
-                throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling changeOwnedClassroomMember.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/members/{memberId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'PATCH', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (xCsrfToken !== undefined && xCsrfToken !== null) {
-                localVarHeaderParameter['X-Csrf-Token'] = String(xCsrfToken);
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * GetClassroomMember
          * @summary GetClassroomMember
@@ -262,153 +195,6 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get classroom Members
-         * @summary Get classroom Members
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomMembers: async (classroomId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomMembers.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/members`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get all Members of the current Team
-         * @summary Get all Members of the current Team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomTeamMembers: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomTeamMembers.');
-            }
-            // verify required parameter 'teamId' is not null or undefined
-            if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeamMembers.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/teams/{teamId}/members`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Remove current Member from the current team
-         * @summary Remove current Member from the current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {number} memberId Member ID
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        removeMemberFromTeam: async (classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling removeMemberFromTeam.');
-            }
-            // verify required parameter 'teamId' is not null or undefined
-            if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling removeMemberFromTeam.');
-            }
-            // verify required parameter 'memberId' is not null or undefined
-            if (memberId === null || memberId === undefined) {
-                throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling removeMemberFromTeam.');
-            }
-            // verify required parameter 'xCsrfToken' is not null or undefined
-            if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling removeMemberFromTeam.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/teams/{teamId}/members/{memberId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
-                .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (xCsrfToken !== undefined && xCsrfToken !== null) {
-                localVarHeaderParameter['X-Csrf-Token'] = String(xCsrfToken);
-            }
 
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
@@ -625,23 +411,6 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
 export const MemberApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * Update Classroom Members team and or role
-         * @summary Update Classroom Members team and or role
-         * @param {ChangeOwnedClassroomMemberRequest} body Update ClassroomMemberRequest
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {string} classroomId Classroom ID
-         * @param {number} memberId Member ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async changeOwnedClassroomMember(body: ChangeOwnedClassroomMemberRequest, xCsrfToken: string, classroomId: string, memberId: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).changeOwnedClassroomMember(body, xCsrfToken, classroomId, memberId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
          * GetClassroomMember
          * @summary GetClassroomMember
          * @param {string} classroomId Classroom ID
@@ -696,52 +465,6 @@ export const MemberApiFp = function(configuration?: Configuration) {
          */
         async getClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<UserClassroomResponse>>>> {
             const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).getClassroomTeamMembers(classroomId, teamId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Get classroom Members
-         * @summary Get classroom Members
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomMembers(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<GetOwnedClassroomMemberResponse>>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).getOwnedClassroomMembers(classroomId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Get all Members of the current Team
-         * @summary Get all Members of the current Team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<UserClassrooms>>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).getOwnedClassroomTeamMembers(classroomId, teamId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Remove current Member from the current team
-         * @summary Remove current Member from the current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {number} memberId Member ID
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -808,19 +531,6 @@ export const MemberApiFp = function(configuration?: Configuration) {
 export const MemberApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * Update Classroom Members team and or role
-         * @summary Update Classroom Members team and or role
-         * @param {ChangeOwnedClassroomMemberRequest} body Update ClassroomMemberRequest
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {string} classroomId Classroom ID
-         * @param {number} memberId Member ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async changeOwnedClassroomMember(body: ChangeOwnedClassroomMemberRequest, xCsrfToken: string, classroomId: string, memberId: number, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return MemberApiFp(configuration).changeOwnedClassroomMember(body, xCsrfToken, classroomId, memberId, options).then((request) => request(axios, basePath));
-        },
-        /**
          * GetClassroomMember
          * @summary GetClassroomMember
          * @param {string} classroomId Classroom ID
@@ -863,40 +573,6 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          */
         async getClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<UserClassroomResponse>>> {
             return MemberApiFp(configuration).getClassroomTeamMembers(classroomId, teamId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get classroom Members
-         * @summary Get classroom Members
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomMembers(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<GetOwnedClassroomMemberResponse>>> {
-            return MemberApiFp(configuration).getOwnedClassroomMembers(classroomId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get all Members of the current Team
-         * @summary Get all Members of the current Team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<UserClassrooms>>> {
-            return MemberApiFp(configuration).getOwnedClassroomTeamMembers(classroomId, teamId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Remove current Member from the current team
-         * @summary Remove current Member from the current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {number} memberId Member ID
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return MemberApiFp(configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(axios, basePath));
         },
         /**
          * Remove Member from the team
@@ -948,20 +624,6 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
  */
 export class MemberApi extends BaseAPI {
     /**
-     * Update Classroom Members team and or role
-     * @summary Update Classroom Members team and or role
-     * @param {ChangeOwnedClassroomMemberRequest} body Update ClassroomMemberRequest
-     * @param {string} xCsrfToken Csrf-Token
-     * @param {string} classroomId Classroom ID
-     * @param {number} memberId Member ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MemberApi
-     */
-    public async changeOwnedClassroomMember(body: ChangeOwnedClassroomMemberRequest, xCsrfToken: string, classroomId: string, memberId: number, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return MemberApiFp(this.configuration).changeOwnedClassroomMember(body, xCsrfToken, classroomId, memberId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
      * GetClassroomMember
      * @summary GetClassroomMember
      * @param {string} classroomId Classroom ID
@@ -1008,43 +670,6 @@ export class MemberApi extends BaseAPI {
      */
     public async getClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<UserClassroomResponse>>> {
         return MemberApiFp(this.configuration).getClassroomTeamMembers(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Get classroom Members
-     * @summary Get classroom Members
-     * @param {string} classroomId Classroom ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MemberApi
-     */
-    public async getOwnedClassroomMembers(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<GetOwnedClassroomMemberResponse>>> {
-        return MemberApiFp(this.configuration).getOwnedClassroomMembers(classroomId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Get all Members of the current Team
-     * @summary Get all Members of the current Team
-     * @param {string} classroomId Classroom ID
-     * @param {string} teamId Team ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MemberApi
-     */
-    public async getOwnedClassroomTeamMembers(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<UserClassrooms>>> {
-        return MemberApiFp(this.configuration).getOwnedClassroomTeamMembers(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Remove current Member from the current team
-     * @summary Remove current Member from the current team
-     * @param {string} classroomId Classroom ID
-     * @param {string} teamId Team ID
-     * @param {number} memberId Member ID
-     * @param {string} xCsrfToken Csrf-Token
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof MemberApi
-     */
-    public async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return MemberApiFp(this.configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * Remove Member from the team

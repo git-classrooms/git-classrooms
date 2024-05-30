@@ -1,4 +1,3 @@
-import { joinedClassroomsQueryOptions, ownedClassroomsQueryOptions } from "@/api/classrooms";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/avatar";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -7,31 +6,43 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { Code } from "lucide-react";
-import { GetJoinedClassroomResponse, GetOwnedClassroomResponse } from "@/swagger-client";
 import { ArrowRight as ArrowRight } from "lucide-react";
 import { Header } from "@/components/header";
+import { classroomsQueryOptions } from "@/api/classroom";
+import { Filter } from "@/types/classroom";
+import { useMemo } from "react";
+import { UserClassroomResponse } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
-  loader: ({ context }) => {
-    const ownClassrooms = context.queryClient.ensureQueryData(ownedClassroomsQueryOptions);
-    const joinedClassrooms = context.queryClient.ensureQueryData(joinedClassroomsQueryOptions);
+  loader: async ({ context: { queryClient } }) => {
+    const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
+    const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
+    const studentClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Student));
     return {
-      ownClassrooms,
-      joinedClassrooms,
+      ownedClassrooms,
+      moderatorClassrooms,
+      studentClassrooms,
     };
   },
   pendingComponent: Loader,
 });
 
 function Classrooms() {
-  const { data: ownClassrooms } = useSuspenseQuery(ownedClassroomsQueryOptions);
-  const { data: joinedClassrooms } = useSuspenseQuery(joinedClassroomsQueryOptions);
+  const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
+  const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
+  const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
+
+  const joinedClassrooms = useMemo(
+    () => [...moderatorClassrooms, ...studentClassrooms],
+    [moderatorClassrooms, studentClassrooms],
+  );
+
   return (
     <div>
       <Header title="Dashboard" />
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        <OwnedClassroomTable classrooms={ownClassrooms} />
+        <OwnedClassroomTable classrooms={ownedClassrooms} />
         <JoinedClassroomTable classrooms={joinedClassrooms} />
         <ActiveAssignmentsTable classrooms={joinedClassrooms} />
         <Outlet />
@@ -40,7 +51,7 @@ function Classrooms() {
   );
 }
 
-function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResponse[] }) {
+function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
     <Card>
       <CardHeader>
@@ -50,23 +61,23 @@ function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResp
       <Table className="flex-auto flex-wrap justify-end">
         <TableBody>
           {classrooms.map((c) => (
-            <TableRow key={c.id}>
+            <TableRow key={c.classroom.id}>
               <TableCell className="flex flex-wrap content-center gap-4">
                 {
                   <Avatar
-                    avatarUrl={c.owner.gitlabAvatar.avatarURL}
-                    fallbackUrl={c.owner.gitlabAvatar.fallbackAvatarURL}
+                    avatarUrl={c.classroom.owner.gitlabAvatar.avatarURL}
+                    fallbackUrl={c.classroom.owner.gitlabAvatar.fallbackAvatarURL}
                     name="classroom-avatar"
                   />
                 }
                 <div className="justify-center">
-                  <div className="">{c.name}</div>
-                  <div className="text-sm text-muted-foreground"> {c.description}</div>
+                  <div className="">{c.classroom.name}</div>
+                  <div className="text-sm text-muted-foreground"> {c.classroom.description}</div>
                 </div>
               </TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="outline">
-                  <Link to="/classrooms/owned/$classroomId" params={{ classroomId: c.id }}>
+                  <Link to="/classrooms/owned/$classroomId" params={{ classroomId: c.classroom.id }}>
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -91,7 +102,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: GetOwnedClassroomResp
   );
 }
 
-function JoinedClassroomTable({ classrooms }: { classrooms: GetJoinedClassroomResponse[] }) {
+function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
     <Card>
       <CardHeader>
@@ -105,7 +116,7 @@ function JoinedClassroomTable({ classrooms }: { classrooms: GetJoinedClassroomRe
               <TableCell>{c.classroom.name}</TableCell>
               <TableCell>{c.classroom.owner.name}</TableCell>
               <TableCell>
-                <a href={c.gitlabUrl} target="_blank" rel="noreferrer">
+                <a href={c.webUrl} target="_blank" rel="noreferrer">
                   <Code />
                 </a>
               </TableCell>
@@ -124,7 +135,7 @@ function JoinedClassroomTable({ classrooms }: { classrooms: GetJoinedClassroomRe
   );
 }
 
-function ActiveAssignmentsTable({ classrooms }: { classrooms: GetJoinedClassroomResponse[] }) {
+function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
     <Card>
       <CardHeader>
@@ -138,7 +149,7 @@ function ActiveAssignmentsTable({ classrooms }: { classrooms: GetJoinedClassroom
               <TableCell>{c.classroom.name}</TableCell>
               <TableCell>{c.classroom.owner.name}</TableCell>
               <TableCell>
-                <a href={c.gitlabUrl} target="_blank" rel="noreferrer">
+                <a href={c.webUrl} target="_blank" rel="noreferrer">
                   <Code />
                 </a>
               </TableCell>

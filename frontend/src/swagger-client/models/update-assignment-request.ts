@@ -16,13 +16,25 @@
  * 
  *
  * @export
- * @interface CreateJoinedTeamRequest
+ * @interface UpdateAssignmentRequest
  */
-export interface CreateJoinedTeamRequest {
+export interface UpdateAssignmentRequest {
 
     /**
      * @type {string}
-     * @memberof CreateJoinedTeamRequest
+     * @memberof UpdateAssignmentRequest
+     */
+    description: string;
+
+    /**
+     * @type {string}
+     * @memberof UpdateAssignmentRequest
+     */
+    dueDate: string;
+
+    /**
+     * @type {string}
+     * @memberof UpdateAssignmentRequest
      */
     name: string;
 }

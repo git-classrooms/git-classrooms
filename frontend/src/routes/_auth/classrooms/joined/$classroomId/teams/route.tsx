@@ -1,9 +1,9 @@
-import { joinedClassroomQueryOptions } from "@/api/classrooms";
+import { classroomQueryOptions } from "@/api/classroom";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams")({
-  beforeLoad: async ({ context, params }) => {
-    const joinedClassroom = await context.queryClient.ensureQueryData(joinedClassroomQueryOptions(params.classroomId));
+  beforeLoad: async ({ context: { queryClient }, params }) => {
+    const joinedClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
 
     if (joinedClassroom.classroom.maxTeamSize === 1) {
       throw redirect({

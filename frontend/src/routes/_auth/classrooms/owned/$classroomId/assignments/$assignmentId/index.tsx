@@ -1,10 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
-import {
-  ownedAssignmentProjectsQueryOptions,
-  ownedAssignmentQueryOptions,
-  useInviteAssignmentMembers,
-} from "@/api/assignments.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
@@ -13,15 +8,17 @@ import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Code, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { formatDate } from "@/lib/utils.ts";
-import { GetOwnedClassroomAssignmentProjectResponse } from "@/swagger-client";
+import { assignmentQueryOptions } from "@/api/assignment";
+import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
+import { ProjectResponse } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assignments/$assignmentId/")({
-  loader: async ({ context, params }) => {
-    const assignment = await context.queryClient.ensureQueryData(
-      ownedAssignmentQueryOptions(params.classroomId, params.assignmentId),
+  loader: async ({ context: { queryClient }, params }) => {
+    const assignment = await queryClient.ensureQueryData(
+      assignmentQueryOptions(params.classroomId, params.assignmentId),
     );
-    const assignmentProjects = await context.queryClient.ensureQueryData(
-      ownedAssignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
+    const assignmentProjects = await queryClient.ensureQueryData(
+      assignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
     );
     return { assignment, assignmentProjects };
   },
@@ -31,10 +28,10 @@ export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/assig
 
 function AssignmentDetail() {
   const { classroomId, assignmentId } = Route.useParams();
-  const { data: assignment } = useSuspenseQuery(ownedAssignmentQueryOptions(classroomId, assignmentId));
-  const { data: assignmentProjects } = useSuspenseQuery(ownedAssignmentProjectsQueryOptions(classroomId, assignmentId));
+  const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
+  const { data: assignmentProjects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
 
-  const { mutateAsync, isError, isPending } = useInviteAssignmentMembers(classroomId, assignmentId);
+  const { mutateAsync, isError, isPending } = useInviteToAssignment(classroomId, assignmentId);
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -65,11 +62,7 @@ function AssignmentDetail() {
   );
 }
 
-function AssignmentProjectTable({
-  assignmentProjects,
-}: {
-  assignmentProjects: GetOwnedClassroomAssignmentProjectResponse[];
-}) {
+function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: ProjectResponse[] }) {
   return (
     <Table>
       <TableCaption>AssignmentProjects</TableCaption>
@@ -88,7 +81,7 @@ function AssignmentProjectTable({
             <TableCell>{a.assignmentAccepted ? "Accepted" : "Pending"}</TableCell>
             <TableCell>
               {a.assignmentAccepted ? (
-                <a href={a.projectPath} target="_blank" rel="noreferrer">
+                <a href={a.webUrl} target="_blank" rel="noreferrer">
                   <Code />
                 </a>
               ) : null}

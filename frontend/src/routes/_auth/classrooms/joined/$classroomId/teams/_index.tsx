@@ -1,5 +1,5 @@
-import { joinedClassroomQueryOptions } from "@/api/classrooms";
-import { joinedClassroomTeamsQueryOptions } from "@/api/teams";
+import { classroomQueryOptions } from "@/api/classroom";
+import { teamsQueryOptions } from "@/api/team";
 import { Header } from "@/components/header";
 import { Loader } from "@/components/loader";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/teams/_index")({
-  loader: async ({ context, params }) => {
-    const teams = await context.queryClient.ensureQueryData(joinedClassroomTeamsQueryOptions(params.classroomId));
+  loader: async ({ context: { queryClient }, params }) => {
+    const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     return { teams };
   },
   pendingComponent: Loader,
@@ -25,13 +25,13 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/team
 
 function Teams() {
   const { classroomId } = Route.useParams();
-  const { data: classroom } = useSuspenseQuery(joinedClassroomQueryOptions(classroomId));
-  const { data: teams } = useSuspenseQuery(joinedClassroomTeamsQueryOptions(classroomId));
+  const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
+  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   teams;
   return (
     <div className="pt-2">
       <Header title="Teams">
-        {classroom.role === Role.Moderator && (
+        {classroom.role !== Role.Student && (
           <Button variant="default" asChild>
             <Link to="/classrooms/owned/$classroomId/teams/create/modal" replace params={{ classroomId }}>
               Create Teams

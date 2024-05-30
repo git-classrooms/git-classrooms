@@ -1,16 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { invitationInfoQueryOptions, useJoinClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { getUUIDFromLocation } from "@/lib/utils";
 import { Action } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classroom";
 
 export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/invitations/$invitationId")({
-  loader: async ({ context, params }) => {
-    const invitationInfo = await context.queryClient.ensureQueryData(invitationInfoQueryOptions(params.invitationId));
+  loader: async ({ context: { queryClient }, params }) => {
+    const invitationInfo = await queryClient.ensureQueryData(
+      classroomInvitationQueryOptions(params.classroomId, params.invitationId),
+    );
     return { invitationInfo };
   },
   component: JoinClassroom,
@@ -18,9 +20,9 @@ export const Route = createFileRoute("/_auth/classrooms/joined/$classroomId/invi
 
 function JoinClassroom() {
   const navigate = useNavigate();
-  const { invitationId } = Route.useParams();
-  const { data } = useSuspenseQuery(invitationInfoQueryOptions(invitationId));
-  const { mutateAsync, isError, isPending } = useJoinClassroom(invitationId);
+  const { classroomId, invitationId } = Route.useParams();
+  const { data } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId));
+  const { mutateAsync, isError, isPending } = useJoinClassroom(classroomId, invitationId);
 
   const onAccept = async () => {
     const location = await mutateAsync(Action.Accept);

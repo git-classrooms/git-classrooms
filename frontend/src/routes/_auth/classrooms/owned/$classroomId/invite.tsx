@@ -9,24 +9,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { getStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { ownedClassroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classrooms.ts";
 import { Loader } from "@/components/loader.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils.ts";
 import { ClassroomInvitation } from "@/swagger-client";
+import { classroomInvitationsQueryOptions, useInviteClassroomMembers } from "@/api/classroom";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/invite")({
   loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(ownedClassroomInvitationsQueryOptions(params.classroomId)),
+    context.queryClient.ensureQueryData(classroomInvitationsQueryOptions(params.classroomId)),
   pendingComponent: Loader,
   component: ClassroomsForm,
 });
 
 function ClassroomsForm() {
   const { classroomId } = Route.useParams();
-  const { data: invitations } = useSuspenseQuery(ownedClassroomInvitationsQueryOptions(classroomId));
+  const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
 
   const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
 

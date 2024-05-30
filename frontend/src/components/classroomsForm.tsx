@@ -8,11 +8,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema } from "@/types/classroom";
-import { useCreateClassroom } from "@/api/classrooms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useCreateClassroom } from "@/api/classroom";
 
 export const ClassroomsForm = () => {
   const navigate = useNavigate();

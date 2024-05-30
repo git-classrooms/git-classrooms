@@ -8,11 +8,11 @@ import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useCreateTeamJoinedClassroom } from "@/api/teams";
+import { useCreateTeam } from "@/api/team";
 
 export const CreateJoinedTeamForm = ({ classroomId }: { classroomId: string }) => {
   const navigate = useNavigate();
-  const { mutateAsync, isError, isPending } = useCreateTeamJoinedClassroom(classroomId);
+  const { mutateAsync, isError, isPending } = useCreateTeam(classroomId);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),

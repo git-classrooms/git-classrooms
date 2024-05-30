@@ -6,7 +6,7 @@ export const createAssignmentFormSchema = z.object({
     .regex(/^[\p{L}\p{N}\p{Emoji}_.+\-\s]+$/u, "Invalid characters in name"),
   description: z.string().min(3),
   templateProjectId: z.number().min(1, "Please select a template project"),
-  dueDate: z.coerce.date(),
+  dueDate: z.coerce.date().optional(),
 });
 
 
