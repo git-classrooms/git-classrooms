@@ -21,9 +21,6 @@ export const createAuthApi = () =>
     },
   });
 
-const test = createAuthApi();
-test.getCsrf().then(console.log);
-
 export const createClassroomApi = () => new ClassroomApi(undefined, "", apiClient);
 export const createAssignmentApi = () => new AssignmentApi(undefined, "", apiClient);
 export const createProjectApi = () => new ProjectApi(undefined, "", apiClient);

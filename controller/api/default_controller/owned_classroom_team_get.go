@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"fmt"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,7 +28,7 @@ type getOwnedClassroomTeamResponse struct {
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/teams/{teamId} [get]
+// @Router			/api/v1/classrooms/owned/{classroomId}/teams/{teamId} [get]
 func (ctrl *DefaultController) GetOwnedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	team := ctx.GetOwnedClassroomTeam()

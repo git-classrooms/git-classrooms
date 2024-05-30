@@ -3,7 +3,7 @@ package default_controller
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -112,7 +112,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -144,6 +144,14 @@ func TestPutOwnedClassroom(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+
+		gitlabRepo.AssertExpectations(t)
+
+		classRoom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.OwnerID.Eq(user.ID)).First()
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, classroom.Name, classRoom.Name)
 	})
 
 	t.Run("gitlab error on change group description", func(t *testing.T) {
@@ -184,5 +192,13 @@ func TestPutOwnedClassroom(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
+
+		gitlabRepo.AssertExpectations(t)
+
+		classRoom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.OwnerID.Eq(user.ID)).First()
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, classroom.Description, classRoom.Description)
 	})
 }

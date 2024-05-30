@@ -24,7 +24,7 @@ import (
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/joined/{classroomId}/teams/{teamId}/join [post]
+// @Router			/api/v1/classrooms/joined/{classroomId}/teams/{teamId}/join [post]
 func (ctrl *DefaultController) JoinJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()

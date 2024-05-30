@@ -17,8 +17,16 @@ type createAssignmentRequest struct {
 	DueDate           *time.Time `json:"dueDate" validate:"optional"`
 } //@Name CreateAssignmentRequest
 
-func (r createAssignmentRequest) isValid() bool {
-	return r.Name != "" && r.TemplateProjectId != 0
+func (r createAssignmentRequest) isValid() (bool, string) {
+	if r.Name == "" || r.Description == "" || r.TemplateProjectId != 0 || r.DueDate == nil {
+		return false, "Request can not be empty, requires name, description, dueDate and templateProjectId"
+	}
+
+	if r.DueDate.Before(time.Now()) {
+		return false, "DueDate must be in the future"
+	}
+
+	return true, ""
 }
 
 // @Summary		CreateAssignment
@@ -35,7 +43,7 @@ func (r createAssignmentRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/assignments [post]
+// @Router			/api/v1/classrooms/owned/{classroomId}/assignments [post]
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
@@ -46,8 +54,10 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	if !requestBody.isValid() {
-		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+
+	isValid, reason := requestBody.isValid()
+	if !isValid {
+		return fiber.NewError(fiber.StatusBadRequest, reason)
 	}
 
 	// Check if template repository exists

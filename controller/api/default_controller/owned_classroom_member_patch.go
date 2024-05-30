@@ -28,7 +28,7 @@ type changeOwnedClassroomMemberRequest struct {
 // @Failure		401	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/owned/{classroomId}/members/{memberId} [patch]
+// @Router			/api/v1/classrooms/owned/{classroomId}/members/{memberId} [patch]
 func (ctrl *DefaultController) ChangeOwnedClassroomMember(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetOwnedClassroom()

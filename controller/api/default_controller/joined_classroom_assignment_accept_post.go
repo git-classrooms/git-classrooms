@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -27,7 +28,7 @@ import (
 // @Failure		401	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept [post]
+// @Router			/api/v1/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept [post]
 func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetJoinedClassroom()
@@ -37,6 +38,10 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 
 	if assignmentProject.AssignmentAccepted {
 		return c.SendStatus(fiber.StatusNoContent) // You or your teammate have already accepted the assignment
+	}
+
+	if assignmentProject.Assignment.DueDate.Before(time.Now()) {
+		return fiber.NewError(fiber.StatusBadRequest, "Assignment is already overdue")
 	}
 
 	repo := context.Get(c).GetGitlabRepository()
@@ -83,24 +88,6 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 	// We don't need to clean up this step because the project will be deleted
 
-	err = repo.UnprotectBranch(project.ID, "main")
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	// We don't need to clean up this step because the project will be deleted
-
-	err = repo.ProtectBranch(project.ID, "main", gitlabModel.DeveloperPermissions)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	// We don't need to clean up this step because the project will be deleted
-
-	err = repo.ProtectBranch(project.ID, "feedback", gitlabModel.MaintainerPermissions)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	// We don't need to clean up this step because the project will be deleted
-
 	queryUsers := query.User
 	members, err := queryUsers.
 		WithContext(c.Context()).
@@ -115,6 +102,44 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	})
 	description := fmt.Sprintf(mergeRequestDescription, strings.Join(mentions, "\n"))
 	err = repo.CreateMergeRequest(project.ID, "main", "feedback", "Feedback", description, userID, classroom.Classroom.OwnerID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	// We don't need to clean up this step because the project will be deleted
+
+	// In a few cases the main branch isn't available directly after the creation, this would cause an error when setting up protection rules for it, there we wait for the main branch to exist
+	timeout := time.After(1 * time.Second)
+	for keep_on_waiting := true; keep_on_waiting; {
+		select {
+		case <-timeout:
+			log.Default().Println("Timeout while waiting for protected main branch to exist")
+			keep_on_waiting = false
+		default:
+			protectedMainExists, err := repo.ProtectedBranchExists(project.ID, "main")
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+			if protectedMainExists {
+				keep_on_waiting = false
+			} else {
+				log.Default().Println("Protected main branch does not exists directly")
+			}
+		}
+	}
+
+	err = repo.UnprotectBranch(project.ID, "main")
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	// We don't need to clean up this step because the project will be deleted
+
+	err = repo.ProtectBranch(project.ID, "main", gitlabModel.DeveloperPermissions)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	// We don't need to clean up this step because the project will be deleted
+
+	err = repo.ProtectBranch(project.ID, "feedback", gitlabModel.MaintainerPermissions)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

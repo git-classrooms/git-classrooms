@@ -28,7 +28,7 @@ type getJoinedClassroomTeamResponse struct {
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/classrooms/joined/{classroomId}/teams/{teamId} [get]
+// @Router			/api/v1/classrooms/joined/{classroomId}/teams/{teamId} [get]
 func (ctrl *DefaultController) GetJoinedClassroomTeam(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	team := ctx.GetJoinedClassroom().Team

@@ -150,6 +150,34 @@ func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, t
 	return err
 }
 
+func (repo *GitlabRepo) ProtectedBranchExists(projectId int, branchName string) (bool, error) {
+	repo.assertIsConnected()
+
+	_, response, err := repo.client.ProtectedBranches.GetProtectedBranch(projectId, branchName)
+	if err != nil {
+		if response.StatusCode == 404 {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (repo *GitlabRepo) BranchExists(projectId int, branchName string) (bool, error) {
+	repo.assertIsConnected()
+
+	_, response, err := repo.client.Branches.GetBranch(projectId, branchName)
+	if err != nil {
+		if response.StatusCode == 404 {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -312,6 +340,32 @@ func (repo *GitlabRepo) ChangeGroupDescription(id int, description string) (*mod
 	}
 
 	return repo.GetGroupById(id)
+}
+
+func (repo *GitlabRepo) ChangeProjectName(projectId int, name string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.Projects.EditProject(projectId, &goGitlab.EditProjectOptions{
+		Name: goGitlab.String(name),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.GetProjectById(projectId)
+}
+
+func (repo *GitlabRepo) ChangeProjectDescription(projectId int, description string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.Projects.EditProject(projectId, &goGitlab.EditProjectOptions{
+		Description: goGitlab.String(description),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.GetProjectById(projectId)
 }
 
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {

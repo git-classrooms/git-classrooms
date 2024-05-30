@@ -17,7 +17,7 @@ import (
 // @Failure		401				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
-// @Router			/invitations/{invitationId} [get]
+// @Router			/api/v1/invitations/{invitationId} [get]
 func (ctrl *DefaultController) GetInvitationInfo(c *fiber.Ctx) error {
 	param := &Params{}
 	err := c.ParamsParser(param)

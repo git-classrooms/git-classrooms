@@ -43,7 +43,7 @@ func (r *joinClassroomRequest) isValid() bool {
 // @Failure		401	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/classrooms/joined [post]
+// @Router			/api/v1/classrooms/joined [post]
 func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()

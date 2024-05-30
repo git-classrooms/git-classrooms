@@ -38,12 +38,6 @@ export interface GetJoinedClassroomAssignmentResponse {
      * @type {string}
      * @memberof GetJoinedClassroomAssignmentResponse
      */
-    assignmentId: string;
-
-    /**
-     * @type {string}
-     * @memberof GetJoinedClassroomAssignmentResponse
-     */
     createdAt: string;
 
     /**
