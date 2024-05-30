@@ -40,7 +40,6 @@ describe("test create Assignmet Form Schema", () => {
   });
 
   test("errors on invalid Date", () => {
-    expect(() => createAssignmentFormSchema.parse({ ...validForm, dueDate: undefined })).toThrowError();
     expect(createAssignmentFormSchema.parse({ ...validForm, dueDate: null })).toEqual({
       ...validForm,
       dueDate: new Date("1970-01-01T00:00:00.000Z"),
@@ -49,6 +48,10 @@ describe("test create Assignmet Form Schema", () => {
   });
 
   test("valid Form", () => {
+    expect(createAssignmentFormSchema.parse({ ...validForm, dueDate: undefined })).toEqual({
+      ...validForm,
+      dueDate: undefined,
+    });
     expect(createAssignmentFormSchema.parse(validForm)).toEqual(validForm);
     expect(createAssignmentFormSchema.parse({ ...validForm, dueDate: "2024-05-30T19:37:40.787Z" })).toEqual(validForm);
   });
