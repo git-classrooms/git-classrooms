@@ -350,7 +350,7 @@ func (repo *GitlabRepo) ChangeProjectDescription(projectId int, description stri
 // Returns:
 // - *model.TestReport: The test report summary of the pipeline.
 // - error: An error if the retrieval fails.
-func (repo *GitlabRepo) GetProjectPipelineTestReportSummary(projectId int, pipelineId int) (*model.TestReport, error) {
+func (repo *GitlabRepo) GetProjectPipelineTestReportSummary(projectId, pipelineId int) (*model.TestReport, error) {
 	repo.assertIsConnected()
 
 	testReport, _, err := repo.client.Pipelines.GetPipelineTestReport(projectId, pipelineId)
