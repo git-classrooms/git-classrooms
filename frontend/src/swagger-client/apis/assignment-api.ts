@@ -20,129 +20,14 @@ import { Configuration } from '../configuration';
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 import { Assignment } from '../models';
 import { CreateAssignmentRequest } from '../models';
-import { GetJoinedClassroomAssignmentResponse } from '../models';
-import { GetOwnedClassroomAssignmentProjectResponse } from '../models';
-import { GetOwnedClassroomTeamProjectResponse } from '../models';
 import { HTTPError } from '../models';
+import { UpdateAssignmentRequest } from '../models';
 /**
  * AssignmentApi - axios parameter creator
  * @export
  */
 export const AssignmentApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
-        /**
-         * Accept the assignment and work on your repository
-         * @summary Accept the assignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        acceptAssignment: async (classroomId: string, assignmentId: string, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling acceptAssignment.');
-            }
-            // verify required parameter 'assignmentId' is not null or undefined
-            if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling acceptAssignment.');
-            }
-            // verify required parameter 'xCsrfToken' is not null or undefined
-            if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling acceptAssignment.');
-            }
-            const localVarPath = `/api/v1/classrooms/joined/{classroomId}/assignments/{assignmentId}/accept`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (xCsrfToken !== undefined && xCsrfToken !== null) {
-                localVarHeaderParameter['X-Csrf-Token'] = String(xCsrfToken);
-            }
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * CreateAssignment
-         * @summary CreateAssignment
-         * @param {CreateAssignmentRequest} body Assignment Info
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createAssignment: async (body: CreateAssignmentRequest, xCsrfToken: string, classroomId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'body' is not null or undefined
-            if (body === null || body === undefined) {
-                throw new RequiredError('body','Required parameter body was null or undefined when calling createAssignment.');
-            }
-            // verify required parameter 'xCsrfToken' is not null or undefined
-            if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling createAssignment.');
-            }
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling createAssignment.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (xCsrfToken !== undefined && xCsrfToken !== null) {
-                localVarHeaderParameter['X-Csrf-Token'] = String(xCsrfToken);
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
         /**
          * CreateAssignment
          * @summary CreateAssignment
@@ -288,344 +173,33 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * GetJoinedClassroomAssignment
-         * @summary GetJoinedClassroomAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getJoinedClassroomAssignment: async (classroomId: string, assignmentId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getJoinedClassroomAssignment.');
-            }
-            // verify required parameter 'assignmentId' is not null or undefined
-            if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getJoinedClassroomAssignment.');
-            }
-            const localVarPath = `/api/v1/classrooms/joined/{classroomId}/assignments/{assignmentId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * GetJoinedClassroomAssignments
-         * @summary GetJoinedClassroomAssignments
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getJoinedClassroomAssignments: async (classroomId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getJoinedClassroomAssignments.');
-            }
-            const localVarPath = `/api/v1/classrooms/joined/{classroomId}/assignment`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignment
-         * @summary GetOwnedClassroomAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomAssignment: async (classroomId: string, assignmentId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomAssignment.');
-            }
-            // verify required parameter 'assignmentId' is not null or undefined
-            if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getOwnedClassroomAssignment.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignmentProject
-         * @summary GetOwnedClassroomAssignmentProject
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {string} projectId Project ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomAssignmentProject: async (classroomId: string, assignmentId: string, projectId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomAssignmentProject.');
-            }
-            // verify required parameter 'assignmentId' is not null or undefined
-            if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getOwnedClassroomAssignmentProject.');
-            }
-            // verify required parameter 'projectId' is not null or undefined
-            if (projectId === null || projectId === undefined) {
-                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling getOwnedClassroomAssignmentProject.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects/{projectId}`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
-                .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignmentProjects
-         * @summary GetOwnedClassroomAssignmentProjects
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomAssignmentProjects: async (classroomId: string, assignmentId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomAssignmentProjects.');
-            }
-            // verify required parameter 'assignmentId' is not null or undefined
-            if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getOwnedClassroomAssignmentProjects.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignments
-         * @summary GetOwnedClassroomAssignments
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomAssignments: async (classroomId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomAssignments.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getOwnedClassroomTeamProjects: async (classroomId: string, teamId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getOwnedClassroomTeamProjects.');
-            }
-            // verify required parameter 'teamId' is not null or undefined
-            if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getOwnedClassroomTeamProjects.');
-            }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/teams/{teamId}/projects`
-                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
-                .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * InviteToAssignment
-         * @summary InviteToAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
+         * CreateAssignment
+         * @summary CreateAssignment
+         * @param {UpdateAssignmentRequest} body Assignment Update Info
          * @param {string} xCsrfToken Csrf-Token
+         * @param {string} classroomId Classroom ID
+         * @param {string} assignmentId Assignment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inviteToAssignment: async (classroomId: string, assignmentId: string, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'classroomId' is not null or undefined
-            if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling inviteToAssignment.');
-            }
-            // verify required parameter 'assignmentId' is not null or undefined
-            if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling inviteToAssignment.');
+        updateAssignment: async (body: UpdateAssignmentRequest, xCsrfToken: string, classroomId: string, assignmentId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'body' is not null or undefined
+            if (body === null || body === undefined) {
+                throw new RequiredError('body','Required parameter body was null or undefined when calling updateAssignment.');
             }
             // verify required parameter 'xCsrfToken' is not null or undefined
             if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling inviteToAssignment.');
+                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling updateAssignment.');
             }
-            const localVarPath = `/api/v1/classrooms/owned/{classroomId}/assignments/{assignmentId}/projects`
+            // verify required parameter 'classroomId' is not null or undefined
+            if (classroomId === null || classroomId === undefined) {
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling updateAssignment.');
+            }
+            // verify required parameter 'assignmentId' is not null or undefined
+            if (assignmentId === null || assignmentId === undefined) {
+                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling updateAssignment.');
+            }
+            const localVarPath = `/api/v2/classrooms/{classroomId}/assignment/{assignmentId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -634,7 +208,7 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             if (configuration) {
                 baseOptions = configuration.baseOptions;
             }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'POST', ...baseOptions, ...options};
+            const localVarRequestOptions :AxiosRequestConfig = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -642,6 +216,8 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
                 localVarHeaderParameter['X-Csrf-Token'] = String(xCsrfToken);
             }
 
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
                 query.set(key, localVarQueryParameter[key]);
@@ -652,6 +228,8 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             localVarUrlObj.search = (new URLSearchParams(query)).toString();
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
 
             return {
                 url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
@@ -667,38 +245,6 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
  */
 export const AssignmentApiFp = function(configuration?: Configuration) {
     return {
-        /**
-         * Accept the assignment and work on your repository
-         * @summary Accept the assignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async acceptAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).acceptAssignment(classroomId, assignmentId, xCsrfToken, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * CreateAssignment
-         * @summary CreateAssignment
-         * @param {CreateAssignmentRequest} body Assignment Info
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createAssignment(body: CreateAssignmentRequest, xCsrfToken: string, classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).createAssignment(body, xCsrfToken, classroomId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
         /**
          * CreateAssignment
          * @summary CreateAssignment
@@ -745,120 +291,17 @@ export const AssignmentApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * GetJoinedClassroomAssignment
-         * @summary GetJoinedClassroomAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getJoinedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getJoinedClassroomAssignment(classroomId, assignmentId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * GetJoinedClassroomAssignments
-         * @summary GetJoinedClassroomAssignments
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getJoinedClassroomAssignments(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<GetJoinedClassroomAssignmentResponse>>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getJoinedClassroomAssignments(classroomId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignment
-         * @summary GetOwnedClassroomAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Assignment>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getOwnedClassroomAssignment(classroomId, assignmentId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignmentProject
-         * @summary GetOwnedClassroomAssignmentProject
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {string} projectId Project ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignmentProject(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetOwnedClassroomAssignmentProjectResponse>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getOwnedClassroomAssignmentProject(classroomId, assignmentId, projectId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignmentProjects
-         * @summary GetOwnedClassroomAssignmentProjects
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignmentProjects(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<GetOwnedClassroomAssignmentProjectResponse>>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getOwnedClassroomAssignmentProjects(classroomId, assignmentId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * GetOwnedClassroomAssignments
-         * @summary GetOwnedClassroomAssignments
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignments(classroomId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<Assignment>>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getOwnedClassroomAssignments(classroomId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<GetOwnedClassroomTeamProjectResponse>>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getOwnedClassroomTeamProjects(classroomId, teamId, options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
-        /**
-         * InviteToAssignment
-         * @summary InviteToAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
+         * CreateAssignment
+         * @summary CreateAssignment
+         * @param {UpdateAssignmentRequest} body Assignment Update Info
          * @param {string} xCsrfToken Csrf-Token
+         * @param {string} classroomId Classroom ID
+         * @param {string} assignmentId Assignment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async inviteToAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).inviteToAssignment(classroomId, assignmentId, xCsrfToken, options);
+        async updateAssignment(body: UpdateAssignmentRequest, xCsrfToken: string, classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Assignment>>> {
+            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).updateAssignment(body, xCsrfToken, classroomId, assignmentId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -873,30 +316,6 @@ export const AssignmentApiFp = function(configuration?: Configuration) {
  */
 export const AssignmentApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
-        /**
-         * Accept the assignment and work on your repository
-         * @summary Accept the assignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async acceptAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return AssignmentApiFp(configuration).acceptAssignment(classroomId, assignmentId, xCsrfToken, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * CreateAssignment
-         * @summary CreateAssignment
-         * @param {CreateAssignmentRequest} body Assignment Info
-         * @param {string} xCsrfToken Csrf-Token
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createAssignment(body: CreateAssignmentRequest, xCsrfToken: string, classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return AssignmentApiFp(configuration).createAssignment(body, xCsrfToken, classroomId, options).then((request) => request(axios, basePath));
-        },
         /**
          * CreateAssignment
          * @summary CreateAssignment
@@ -931,92 +350,17 @@ export const AssignmentApiFactory = function (configuration?: Configuration, bas
             return AssignmentApiFp(configuration).getClassroomAssignments(classroomId, options).then((request) => request(axios, basePath));
         },
         /**
-         * GetJoinedClassroomAssignment
-         * @summary GetJoinedClassroomAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getJoinedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>> {
-            return AssignmentApiFp(configuration).getJoinedClassroomAssignment(classroomId, assignmentId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * GetJoinedClassroomAssignments
-         * @summary GetJoinedClassroomAssignments
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getJoinedClassroomAssignments(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<GetJoinedClassroomAssignmentResponse>>> {
-            return AssignmentApiFp(configuration).getJoinedClassroomAssignments(classroomId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * GetOwnedClassroomAssignment
-         * @summary GetOwnedClassroomAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Assignment>> {
-            return AssignmentApiFp(configuration).getOwnedClassroomAssignment(classroomId, assignmentId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * GetOwnedClassroomAssignmentProject
-         * @summary GetOwnedClassroomAssignmentProject
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {string} projectId Project ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignmentProject(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<GetOwnedClassroomAssignmentProjectResponse>> {
-            return AssignmentApiFp(configuration).getOwnedClassroomAssignmentProject(classroomId, assignmentId, projectId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * GetOwnedClassroomAssignmentProjects
-         * @summary GetOwnedClassroomAssignmentProjects
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignmentProjects(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<GetOwnedClassroomAssignmentProjectResponse>>> {
-            return AssignmentApiFp(configuration).getOwnedClassroomAssignmentProjects(classroomId, assignmentId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * GetOwnedClassroomAssignments
-         * @summary GetOwnedClassroomAssignments
-         * @param {string} classroomId Classroom ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomAssignments(classroomId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<Assignment>>> {
-            return AssignmentApiFp(configuration).getOwnedClassroomAssignments(classroomId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get all gitlab projects of the current team
-         * @summary Get all Projects of current team
-         * @param {string} classroomId Classroom ID
-         * @param {string} teamId Team ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getOwnedClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<GetOwnedClassroomTeamProjectResponse>>> {
-            return AssignmentApiFp(configuration).getOwnedClassroomTeamProjects(classroomId, teamId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * InviteToAssignment
-         * @summary InviteToAssignment
-         * @param {string} classroomId Classroom ID
-         * @param {string} assignmentId Assignment ID
+         * CreateAssignment
+         * @summary CreateAssignment
+         * @param {UpdateAssignmentRequest} body Assignment Update Info
          * @param {string} xCsrfToken Csrf-Token
+         * @param {string} classroomId Classroom ID
+         * @param {string} assignmentId Assignment ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async inviteToAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return AssignmentApiFp(configuration).inviteToAssignment(classroomId, assignmentId, xCsrfToken, options).then((request) => request(axios, basePath));
+        async updateAssignment(body: UpdateAssignmentRequest, xCsrfToken: string, classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Assignment>> {
+            return AssignmentApiFp(configuration).updateAssignment(body, xCsrfToken, classroomId, assignmentId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1028,32 +372,6 @@ export const AssignmentApiFactory = function (configuration?: Configuration, bas
  * @extends {BaseAPI}
  */
 export class AssignmentApi extends BaseAPI {
-    /**
-     * Accept the assignment and work on your repository
-     * @summary Accept the assignment
-     * @param {string} classroomId Classroom ID
-     * @param {string} assignmentId Assignment ID
-     * @param {string} xCsrfToken Csrf-Token
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async acceptAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return AssignmentApiFp(this.configuration).acceptAssignment(classroomId, assignmentId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * CreateAssignment
-     * @summary CreateAssignment
-     * @param {CreateAssignmentRequest} body Assignment Info
-     * @param {string} xCsrfToken Csrf-Token
-     * @param {string} classroomId Classroom ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async createAssignment(body: CreateAssignmentRequest, xCsrfToken: string, classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return AssignmentApiFp(this.configuration).createAssignment(body, xCsrfToken, classroomId, options).then((request) => request(this.axios, this.basePath));
-    }
     /**
      * CreateAssignment
      * @summary CreateAssignment
@@ -1091,99 +409,17 @@ export class AssignmentApi extends BaseAPI {
         return AssignmentApiFp(this.configuration).getClassroomAssignments(classroomId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
-     * GetJoinedClassroomAssignment
-     * @summary GetJoinedClassroomAssignment
-     * @param {string} classroomId Classroom ID
-     * @param {string} assignmentId Assignment ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getJoinedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<GetJoinedClassroomAssignmentResponse>> {
-        return AssignmentApiFp(this.configuration).getJoinedClassroomAssignment(classroomId, assignmentId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * GetJoinedClassroomAssignments
-     * @summary GetJoinedClassroomAssignments
-     * @param {string} classroomId Classroom ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getJoinedClassroomAssignments(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<GetJoinedClassroomAssignmentResponse>>> {
-        return AssignmentApiFp(this.configuration).getJoinedClassroomAssignments(classroomId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * GetOwnedClassroomAssignment
-     * @summary GetOwnedClassroomAssignment
-     * @param {string} classroomId Classroom ID
-     * @param {string} assignmentId Assignment ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getOwnedClassroomAssignment(classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Assignment>> {
-        return AssignmentApiFp(this.configuration).getOwnedClassroomAssignment(classroomId, assignmentId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * GetOwnedClassroomAssignmentProject
-     * @summary GetOwnedClassroomAssignmentProject
-     * @param {string} classroomId Classroom ID
-     * @param {string} assignmentId Assignment ID
-     * @param {string} projectId Project ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getOwnedClassroomAssignmentProject(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<GetOwnedClassroomAssignmentProjectResponse>> {
-        return AssignmentApiFp(this.configuration).getOwnedClassroomAssignmentProject(classroomId, assignmentId, projectId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * GetOwnedClassroomAssignmentProjects
-     * @summary GetOwnedClassroomAssignmentProjects
-     * @param {string} classroomId Classroom ID
-     * @param {string} assignmentId Assignment ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getOwnedClassroomAssignmentProjects(classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<GetOwnedClassroomAssignmentProjectResponse>>> {
-        return AssignmentApiFp(this.configuration).getOwnedClassroomAssignmentProjects(classroomId, assignmentId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * GetOwnedClassroomAssignments
-     * @summary GetOwnedClassroomAssignments
-     * @param {string} classroomId Classroom ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getOwnedClassroomAssignments(classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<Assignment>>> {
-        return AssignmentApiFp(this.configuration).getOwnedClassroomAssignments(classroomId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Get all gitlab projects of the current team
-     * @summary Get all Projects of current team
-     * @param {string} classroomId Classroom ID
-     * @param {string} teamId Team ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AssignmentApi
-     */
-    public async getOwnedClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<GetOwnedClassroomTeamProjectResponse>>> {
-        return AssignmentApiFp(this.configuration).getOwnedClassroomTeamProjects(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * InviteToAssignment
-     * @summary InviteToAssignment
-     * @param {string} classroomId Classroom ID
-     * @param {string} assignmentId Assignment ID
+     * CreateAssignment
+     * @summary CreateAssignment
+     * @param {UpdateAssignmentRequest} body Assignment Update Info
      * @param {string} xCsrfToken Csrf-Token
+     * @param {string} classroomId Classroom ID
+     * @param {string} assignmentId Assignment ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AssignmentApi
      */
-    public async inviteToAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return AssignmentApiFp(this.configuration).inviteToAssignment(classroomId, assignmentId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
+    public async updateAssignment(body: UpdateAssignmentRequest, xCsrfToken: string, classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Assignment>> {
+        return AssignmentApiFp(this.configuration).updateAssignment(body, xCsrfToken, classroomId, assignmentId, options).then((request) => request(this.axios, this.basePath));
     }
 }
