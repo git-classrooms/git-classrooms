@@ -11,11 +11,18 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-export * from './apis/assignment-api';
-export * from './apis/auth-api';
-export * from './apis/classroom-api';
-export * from './apis/info-api';
-export * from './apis/member-api';
-export * from './apis/project-api';
-export * from './apis/team-api';
 
+ /**
+ * 
+ *
+ * @export
+ * @interface GetInfoGitlabResponse
+ */
+export interface GetInfoGitlabResponse {
+
+    /**
+     * @type {string}
+     * @memberof GetInfoGitlabResponse
+     */
+    gitlabUrl?: string;
+}

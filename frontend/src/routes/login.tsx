@@ -5,6 +5,8 @@ import { useCsrf } from "@/provider/csrfProvider";
 import { Separator } from "@/components/ui/separator.tsx";
 import { Mail as MailIcon } from "lucide-react";
 import { GitBranch as GitBranchIcon } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { gitlabInfoQueryOptions } from "@/api/info.ts";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -25,6 +27,7 @@ export const Route = createFileRoute("/login")({
 function Login() {
   const { csrfToken } = useCsrf();
   const { redirect } = Route.useSearch();
+  const { data} = useSuspenseQuery(gitlabInfoQueryOptions());
 
   return (
     <div>
@@ -33,7 +36,7 @@ function Login() {
         <h1 className="text-5xl font-bold text-center mb-5">Login</h1>
         <p className="text-slate-500 text-lg">
           Authenticate Classrooms with your GitLab account at <span
-          className="font-bold text-slate-900">gitlab.hs-flensburg.de</span>.
+          className="font-bold text-slate-900">{data.gitlabUrl}</span>.
         </p>
         <Separator />
         <p className="text-slate-500">
