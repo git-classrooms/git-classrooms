@@ -8,35 +8,16 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema } from "@/types/classroom";
-import { useCreateClassroom } from "@/api/classrooms";
+import { useCreateClassroom } from "@/api/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
 import { Switch } from "@/components/ui/switch"
-import { useEffect, useState } from "react";
 
 export const ClassroomsForm = () => {
   const navigate = useNavigate();
-  const [areTeamsEnabled, setAreTeamsEnabled] = useState(true);
-  const [prevMaxTeams, setPrevMaxTeams] = useState(0);
-  const [prevMaxTeamSize, setPrevMaxTeamSize] = useState(2);
-  const [prevCanStudentsCreateTeams, setCanStudentsCreateTeams] = useState(true);
   const { mutateAsync, isError, isPending } = useCreateClassroom();
 
-  useEffect(() => {
-    if (areTeamsEnabled) {
-      form.setValue("maxTeams", prevMaxTeams);
-      form.setValue("maxTeamSize", prevMaxTeamSize);
-      form.setValue("createTeams", prevCanStudentsCreateTeams);
-    } else {
-      setPrevMaxTeams(form.getValues().maxTeams);
-      setPrevMaxTeamSize(form.getValues().maxTeamSize);
-      setCanStudentsCreateTeams(form.getValues().createTeams);
-      form.setValue("maxTeams", 0);
-      form.setValue("maxTeamSize", 1);
-      form.setValue("createTeams", true);
-    }
-  }, [areTeamsEnabled]);
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
     defaultValues: {
@@ -46,6 +27,7 @@ export const ClassroomsForm = () => {
       maxTeamSize: 2,
       createTeams: true,
       studentsViewAllProjects: false,
+      teamsEnabled: true,
     },
   });
 
@@ -91,11 +73,20 @@ export const ClassroomsForm = () => {
               </FormItem>
             )}
           />
-          <div className="flex flex-row items-center space-x-3 space-y-0">
-            <Switch checked={areTeamsEnabled}  onCheckedChange={setAreTeamsEnabled} />
-            <FormLabel>Enable Teams</FormLabel>
-          </div>
-          <div className ="border-l px-4" hidden={!areTeamsEnabled}>
+          <FormField
+            control={form.control}
+            name="teamsEnabled"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                <FormControl>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel>Enable Teams</FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className ="border-l px-4" hidden={!form.getValues("teamsEnabled")}>
           <FormField
             control={form.control}
             name="maxTeams"
@@ -103,9 +94,9 @@ export const ClassroomsForm = () => {
               <FormItem className="space-y-1  my-2">
                 <FormLabel>Max Teams</FormLabel>
                 <FormControl>
-                  <Input type="number" step={1} {...field} />
+                  <Input type="number" min={0} step={1} {...field} />
                 </FormControl>
-                <FormDescription>The maximum amount of teams</FormDescription>
+                <FormDescription>The maximum amount of teams. Keep at 0 to have no limit.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -117,7 +108,7 @@ export const ClassroomsForm = () => {
               <FormItem className="space-y-1 my-2">
                 <FormLabel>Max Team Size</FormLabel>
                 <FormControl>
-                  <Input type="number" step={1} {...field} />
+                  <Input type="number" min={2} step={1} {...field} />
                 </FormControl>
                 <FormDescription>The maximum amount of members per team. Must be at least 2. For one-person teams deactivate teams.</FormDescription>
                 <FormMessage />

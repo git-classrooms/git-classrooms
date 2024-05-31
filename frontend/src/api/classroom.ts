@@ -3,7 +3,7 @@ import { ClassroomForm, Filter, InviteForm } from "@/types/classroom";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
-import { Action } from "@/swagger-client";
+import { Action, CreateClassroomRequest } from "@/swagger-client";
 
 const apiClient = createClassroomApi();
 
@@ -55,13 +55,20 @@ export const classroomTemplatesQueryOptions = (classroomId: string) =>
   });
 
 // Mutations
-
 export const useCreateClassroom = () => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: ClassroomForm) => {
-      const res = await apiClient.createClassroomV2(values, csrfToken);
+      const body: CreateClassroomRequest = {
+        name: values.name,
+        description: values.description,
+        studentsViewAllProjects: values.studentsViewAllProjects,
+        createTeams: values.teamsEnabled? values.createTeams : false,
+        maxTeamSize: values.teamsEnabled? values.maxTeamSize : 1,
+        maxTeams: values.teamsEnabled? values.maxTeams : 0,
+      };
+      const res = await apiClient.createClassroomV2(body, csrfToken);
       return res.headers.location as string;
     },
     onSuccess: () => {

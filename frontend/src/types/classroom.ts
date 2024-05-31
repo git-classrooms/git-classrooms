@@ -20,14 +20,28 @@ export const Filter = {
 
 export type Filter = (typeof Filter)[keyof typeof Filter];
 
-export const createFormSchema = z.object({
+const createFormBase = {
   name: z.string().min(3),
   description: z.string().min(3),
-  createTeams: z.boolean(),
   studentsViewAllProjects: z.boolean(),
-  maxTeamSize: z.coerce.number().int().min(1),
-  maxTeams: z.coerce.number().int().min(0),
-});
+} as const;
+
+export const createFormSchema = z
+  .object({
+    teamsEnabled: z.literal(true),
+    createTeams: z.boolean(),
+    maxTeamSize: z.coerce.number().int().min(1),
+    maxTeams: z.coerce.number().int().min(0),
+  })
+  .extend(createFormBase)
+  .or(
+    z
+      .object({
+        teamsEnabled: z.literal(false),
+      })
+      .extend(createFormBase),
+  );
+
 export type ClassroomForm = z.infer<typeof createFormSchema>;
 
 export const inviteFormSchema = z.object({
