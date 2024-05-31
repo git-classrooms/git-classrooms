@@ -26,8 +26,8 @@ func (r updateAssignmentRequest) isValid() (bool, string) {
 	return true, ""
 }
 
-// @Summary		CreateAssignment
-// @Description	CreateAssignment
+// @Summary		UpdateAssignment
+// @Description	UpdateAssignment
 // @Id				UpdateAssignment
 // @Tags			assignment
 // @Accept			json
@@ -42,7 +42,7 @@ func (r updateAssignmentRequest) isValid() (bool, string) {
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/assignment/{assignmentId} [put]
-func (ctrl *DefaultController) PutOwnedAssignment(c *fiber.Ctx) error {
+func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	assignment := ctx.GetAssignment()
 	var err error

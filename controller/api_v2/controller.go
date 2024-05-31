@@ -32,6 +32,7 @@ type Controller interface {
 	CreateAssignment(*fiber.Ctx) error
 	ClassroomAssignmentMiddleware(*fiber.Ctx) error
 	GetClassroomAssignment(*fiber.Ctx) error
+	UpdateAssignment(*fiber.Ctx) error
 
 	GetClassroomAssignmentProjects(*fiber.Ctx) error
 	InviteToAssignment(*fiber.Ctx) error

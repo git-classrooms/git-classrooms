@@ -173,8 +173,8 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * CreateAssignment
-         * @summary CreateAssignment
+         * UpdateAssignment
+         * @summary UpdateAssignment
          * @param {UpdateAssignmentRequest} body Assignment Update Info
          * @param {string} xCsrfToken Csrf-Token
          * @param {string} classroomId Classroom ID
@@ -291,8 +291,8 @@ export const AssignmentApiFp = function(configuration?: Configuration) {
             };
         },
         /**
-         * CreateAssignment
-         * @summary CreateAssignment
+         * UpdateAssignment
+         * @summary UpdateAssignment
          * @param {UpdateAssignmentRequest} body Assignment Update Info
          * @param {string} xCsrfToken Csrf-Token
          * @param {string} classroomId Classroom ID
@@ -350,8 +350,8 @@ export const AssignmentApiFactory = function (configuration?: Configuration, bas
             return AssignmentApiFp(configuration).getClassroomAssignments(classroomId, options).then((request) => request(axios, basePath));
         },
         /**
-         * CreateAssignment
-         * @summary CreateAssignment
+         * UpdateAssignment
+         * @summary UpdateAssignment
          * @param {UpdateAssignmentRequest} body Assignment Update Info
          * @param {string} xCsrfToken Csrf-Token
          * @param {string} classroomId Classroom ID
@@ -409,8 +409,8 @@ export class AssignmentApi extends BaseAPI {
         return AssignmentApiFp(this.configuration).getClassroomAssignments(classroomId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
-     * CreateAssignment
-     * @summary CreateAssignment
+     * UpdateAssignment
+     * @summary UpdateAssignment
      * @param {UpdateAssignmentRequest} body Assignment Update Info
      * @param {string} xCsrfToken Csrf-Token
      * @param {string} classroomId Classroom ID
