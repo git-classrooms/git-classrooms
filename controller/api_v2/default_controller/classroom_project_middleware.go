@@ -15,6 +15,9 @@ func classroomProjectQuery(c *fiber.Ctx, classroomID uuid.UUID, teamID uuid.UUID
 		WithContext(c.Context()).
 		Preload(queryAssignmentProjects.Assignment).
 		Preload(queryAssignmentProjects.Team).
+		Preload(queryAssignmentProjects.GradingJUnitTestResult).
+		Preload(queryAssignmentProjects.GradingManualResults).
+		Preload(queryAssignmentProjects.GradingManualResults.Rubric).
 		Preload(field.NewRelation("Team.Member", "")).
 		Join(queryAssignment, queryAssignment.ID.EqCol(queryAssignmentProjects.AssignmentID)).
 		Where(queryAssignment.ClassroomID.Eq(classroomID)).
