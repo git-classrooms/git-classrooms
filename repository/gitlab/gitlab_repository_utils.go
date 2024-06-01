@@ -210,7 +210,8 @@ func TestReportFromGoGitlabTestReport(testReport *goGitlab.PipelineTestReport) *
 	report.SkippedCount = testReport.SkippedCount
 	report.ErrorCount = testReport.ErrorCount
 
-	for _, ts := range testReport.TestSuites {
+	report.TestSuites = make([]model.TestReportTestSuite, len(testReport.TestSuites))
+	for i, ts := range testReport.TestSuites {
 		var suite model.TestReportTestSuite
 		suite.Name = ts.Name
 		suite.TotalTime = ts.TotalTime
@@ -220,7 +221,8 @@ func TestReportFromGoGitlabTestReport(testReport *goGitlab.PipelineTestReport) *
 		suite.SkippedCount = ts.SkippedCount
 		suite.ErrorCount = ts.ErrorCount
 
-		for _, tc := range ts.TestCases {
+		suite.TestCases = make([]model.TestReportTestCase, len(ts.TestCases))
+		for j, tc := range ts.TestCases {
 			var case_ model.TestReportTestCase
 			case_.Status = tc.Status
 			case_.Name = tc.Name
@@ -229,10 +231,10 @@ func TestReportFromGoGitlabTestReport(testReport *goGitlab.PipelineTestReport) *
 			case_.SystemOutput = tc.SystemOutput
 			case_.StackTrace = tc.StackTrace
 
-			suite.TestCases = append(suite.TestCases, case_)
+			suite.TestCases[j] = case_
 		}
 
-		report.TestSuites = append(report.TestSuites, suite)
+		report.TestSuites[i] = suite
 	}
 
 	return &report
