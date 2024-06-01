@@ -21,4 +21,7 @@ type Assignment struct {
 	Description       string                `json:"description"`
 	DueDate           *time.Time            `json:"dueDate" validate:"optional"`
 	Projects          []*AssignmentProjects `json:"-"`
+
+	GradingJUnitAutoGradingActive bool                   `json:"gradingJUnitAutoGradingActive"`
+	GradingManualRubrics          []*ManualGradingRubric `gorm:"foreignKey:AssignmentID" json:"gradingManualRubrics"`
 } //@Name Assignment
