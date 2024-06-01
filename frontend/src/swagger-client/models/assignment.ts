@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { ManualGradingRubric } from './manual-grading-rubric';
  /**
  * 
  *
@@ -43,6 +44,18 @@ export interface Assignment {
      * @memberof Assignment
      */
     dueDate?: string;
+
+    /**
+     * @type {boolean}
+     * @memberof Assignment
+     */
+    gradingJUnitAutoGradingActive: boolean;
+
+    /**
+     * @type {Array<ManualGradingRubric>}
+     * @memberof Assignment
+     */
+    gradingManualRubrics: Array<ManualGradingRubric>;
 
     /**
      * @type {string}
