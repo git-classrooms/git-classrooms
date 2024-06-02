@@ -3,8 +3,7 @@ import GitlabLogo from "./../assets/gitlab_logo.svg";
 import { Button } from "@/components/ui/button";
 import { useCsrf } from "@/provider/csrfProvider";
 import { Separator } from "@/components/ui/separator.tsx";
-import { Mail as MailIcon } from "lucide-react";
-import { GitBranch as GitBranchIcon } from "lucide-react";
+import { GitBranch as GitBranchIcon, Mail as MailIcon } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { gitlabInfoQueryOptions } from "@/api/info.ts";
 
@@ -27,7 +26,7 @@ export const Route = createFileRoute("/login")({
 function Login() {
   const { csrfToken } = useCsrf();
   const { redirect } = Route.useSearch();
-  const { data} = useSuspenseQuery(gitlabInfoQueryOptions());
+  const { data } = useSuspenseQuery(gitlabInfoQueryOptions());
 
   return (
     <div>
@@ -36,7 +35,7 @@ function Login() {
         <h1 className="text-5xl font-bold text-center mb-5">Login</h1>
         <p className="text-slate-500 text-lg">
           Authenticate Classrooms with your GitLab account at <span
-          className="font-bold text-slate-900">{data.gitlabUrl}</span>.
+          className="text-slate-900">{data.gitlabUrl}</span>.
         </p>
         <Separator />
         <p className="text-slate-500">
@@ -52,8 +51,6 @@ function Login() {
             <p className="text-sm">Repository information</p>
           </div>
         </div>
-
-
         <Separator />
         <div className="flex justify-center">
           <form method="POST" action="/api/v1/auth/sign-in">
