@@ -1,4 +1,4 @@
-package default_controller
+package api
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -12,15 +12,15 @@ type getInfoGitlabResponse struct {
 
 // @Summary		getInfoGitlabResponse
 // @Description	getInfoGitlabResponse
-// @Id				getInfoGitlabResponse
+// @Id				GetGitlabInfo
 // @Tags			info
 // @Produce		json
-// @Success		200	{object}	default_controller.getInfoGitlabResponse
+// @Success		200	{object}	api.getInfoGitlabResponse
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/info/gitlab [get]
+// @Router			/api/v2/info/gitlab [get]
 func (ctrl *DefaultController) GetGitlabInfo(c *fiber.Ctx) error {
 	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {

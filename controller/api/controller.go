@@ -3,7 +3,6 @@ package api
 import "github.com/gofiber/fiber/v2"
 
 type Controller interface {
-	GetGitlabInfo(*fiber.Ctx) error
 	GetMe(*fiber.Ctx) error
 	GetMeGitlab(*fiber.Ctx) error
 

@@ -106,8 +106,6 @@ func main() {
 	apiCtrl := apiController.NewApiController(mailRepo)
 	v2Controller := api.NewApiV2Controller(mailRepo)
 
-	app.Get("/info", apiCtrl.GetGitlabInfo)
-
 	router.Routes(app, authCtrl, apiCtrl, v2Controller, appConfig.FrontendPath, appConfig.Auth)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", appConfig.Port)))

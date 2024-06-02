@@ -1,12 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createInfoApi } from "@/lib/utils.ts";
 
+const apiClient = createInfoApi();
+
 export const gitlabInfoQueryOptions = () =>
   queryOptions({
     queryKey: ["gitLabInfo"],
     queryFn: async () => {
-      const api = createInfoApi();
-      const res = await api.getInfoGitlabResponse();
+      const res = await apiClient.getGitlabInfo();
       return res.data;
     }
   })

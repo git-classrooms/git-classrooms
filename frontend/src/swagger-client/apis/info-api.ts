@@ -32,8 +32,8 @@ export const InfoApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInfoGitlabResponse: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/info/gitlab`;
+        getGitlabInfo: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v2/info/gitlab`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -75,8 +75,8 @@ export const InfoApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getInfoGitlabResponse(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetInfoGitlabResponse>>> {
-            const localVarAxiosArgs = await InfoApiAxiosParamCreator(configuration).getInfoGitlabResponse(options);
+        async getGitlabInfo(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetInfoGitlabResponse>>> {
+            const localVarAxiosArgs = await InfoApiAxiosParamCreator(configuration).getGitlabInfo(options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -97,8 +97,8 @@ export const InfoApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getInfoGitlabResponse(options?: AxiosRequestConfig): Promise<AxiosResponse<GetInfoGitlabResponse>> {
-            return InfoApiFp(configuration).getInfoGitlabResponse(options).then((request) => request(axios, basePath));
+        async getGitlabInfo(options?: AxiosRequestConfig): Promise<AxiosResponse<GetInfoGitlabResponse>> {
+            return InfoApiFp(configuration).getGitlabInfo(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -117,7 +117,7 @@ export class InfoApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof InfoApi
      */
-    public async getInfoGitlabResponse(options?: AxiosRequestConfig) : Promise<AxiosResponse<GetInfoGitlabResponse>> {
-        return InfoApiFp(this.configuration).getInfoGitlabResponse(options).then((request) => request(this.axios, this.basePath));
+    public async getGitlabInfo(options?: AxiosRequestConfig) : Promise<AxiosResponse<GetInfoGitlabResponse>> {
+        return InfoApiFp(this.configuration).getGitlabInfo(options).then((request) => request(this.axios, this.basePath));
     }
 }

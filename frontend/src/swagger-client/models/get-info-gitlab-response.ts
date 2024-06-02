@@ -24,5 +24,5 @@ export interface GetInfoGitlabResponse {
      * @type {string}
      * @memberof GetInfoGitlabResponse
      */
-    gitlabUrl?: string;
+    gitlabUrl: string;
 }

@@ -55,7 +55,6 @@ func setupV1Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v1 := (*api).Group("/v1")
 
-	v1.Get("/info/gitlab", apiController.GetGitlabInfo)
 	v1.Post("/auth/sign-in", authController.SignIn)
 	v1.Post("/auth/sign-out", authController.SignOut)
 	v1.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)
@@ -139,6 +138,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v2 := (*api).Group("/v2")
 
+	v2.Get("/info/gitlab", apiController.GetGitlabInfo)
 	v2.Post("/auth/sign-in", authController.SignIn)
 	v2.Post("/auth/sign-out", authController.SignOut)
 	v2.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v2", "", 1), authController.Callback)
