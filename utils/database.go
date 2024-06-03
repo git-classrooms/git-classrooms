@@ -25,3 +25,4 @@ func MigrateDatabase(db *gorm.DB) error {
 		&dbModel.AssignmentJunitTest{},
 	)
 }
+

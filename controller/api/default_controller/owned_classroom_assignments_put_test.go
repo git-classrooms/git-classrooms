@@ -8,11 +8,10 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
@@ -21,45 +20,29 @@ import (
 func TestPutOwnedAssignments(t *testing.T) {
 	testDb := db_tests.NewTestDB(t)
 
-	user := database.User{ID: 1}
-	testDb.InsertUser(&user)
+	user := factory.User()
+	testDb.InsertUser(user)
 
-	classroom := database.Classroom{
-		ID:      uuid.New(),
-		OwnerID: user.ID,
-	}
-	testDb.InsertClassroom(&classroom)
-	oldTime := time.Date(1970, 1, 1, 0, 0, 0, 0, time.Local)
-	oldTime = oldTime.Truncate(time.Second)
-	assignment := database.Assignment{
-		ID:          uuid.New(),
-		Name:        "Test",
-		Description: "test",
-		DueDate:     &oldTime,
-		ClassroomID: classroom.ID,
-	}
-	testDb.InsertAssignment(&assignment)
+	classroom := factory.Classroom()
+	testDb.InsertClassroom(classroom)
 
-	team := database.Team{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-	}
-	testDb.InsertTeam(&team)
+	assignment := factory.Assignment(classroom.ID)
+	testDb.InsertAssignment(assignment)
 
-	project := database.AssignmentProjects{
-		AssignmentID: assignment.ID,
-		TeamID:       team.ID,
-		ProjectID:    1,
-	}
-	testDb.InsertAssignmentProjects(&project)
-	assignment.Projects = append(assignment.Projects, &project)
+	team := factory.Team(classroom.ID)
+	testDb.InsertTeam(team)
+
+	project := factory.AssignmentProject(assignment.ID, team.ID)
+	testDb.InsertAssignmentProjects(project)
+
+	assignment.Projects = append(assignment.Projects, project)
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
-		ctx.SetOwnedClassroomAssignment(&assignment)
+		ctx.SetOwnedClassroomAssignment(assignment)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)

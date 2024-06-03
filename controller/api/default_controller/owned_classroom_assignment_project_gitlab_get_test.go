@@ -1,105 +1,42 @@
 package default_controller
 
 import (
-	"context"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestGetOwnedClassroomAssignmentProjectGitlab(t *testing.T) {
-	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pg, err := tests.StartPostgres()
+	testDB := db_tests.NewTestDB(t)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	// Create test user
+	user := factory.User()
+	testDB.InsertUser(user)
 
-	t.Cleanup(func() {
-		err = pg.Restore(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	dbURL, err := pg.ConnectionString(context.Background())
+	classroom := factory.Classroom()
+	testDB.InsertClassroom(classroom)
 
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("could not connect to database: %s", err.Error())
-	}
+	assignment := factory.Assignment(classroom.ID)
+	testDB.InsertAssignment(assignment)
 
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
+	team := factory.Team(classroom.ID)
+	testDB.InsertTeam(team)
 
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	query.SetDefault(db)
-
-	// ------------ END OF DB SETUP -----------------
-
-	user := &database.User{ID: 1}
-	err = query.User.WithContext(context.Background()).Create(user)
-
-	if err != nil {
-		t.Fatalf("could not create test user: %s", err.Error())
-	}
-
-	classroom := &database.Classroom{
-		ID:          uuid.New(),
-		Name:        "Test Classroom",
-		OwnerID:     1,
-		Description: "A classroom for testing",
-	}
-	err = query.Classroom.WithContext(context.Background()).Create(classroom)
-	if err != nil {
-		t.Fatalf("could not create classroom: %s", err.Error())
-	}
-
-	assignment := &database.Assignment{
-		ClassroomID: classroom.ID,
-		Name:        "Test Assignment",
-		Description: "Assignment Description",
-	}
-	err = query.Assignment.WithContext(context.Background()).Create(assignment)
-	if err != nil {
-		t.Fatalf("could not create assignment: %s", err.Error())
-	}
-
-	project := &database.AssignmentProjects{
-		AssignmentID: assignment.ID,
-		UserID:       1,
-		ProjectID:    12345, // Mock project ID to fetch from GitLab
-	}
-	err = query.AssignmentProjects.WithContext(context.Background()).Create(project)
-	if err != nil {
-		t.Fatalf("could not create project: %s", err.Error())
-	}
+	project := factory.AssignmentProject(assignment.ID, team.ID)
+	testDB.InsertAssignmentProjects(project)
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
@@ -118,7 +55,7 @@ func TestGetOwnedClassroomAssignmentProjectGitlab(t *testing.T) {
 	handler := NewApiController(mailRepo)
 
 	t.Run("GetOwnedClassroomAssignmentProjectGitlab", func(t *testing.T) {
-		app.Get("/api/classrooms/owned/:classroomId/assignments/:assignmentId/gitlab", handler.GetOwnedClassroomAssignmentProjectGitlab)
+		app.Get("/api/classrooms/owned/:classroomId/assignments/:assignmentId/gitlab", handler.GetOwnedClassroomAssignmentProject)
 		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s/gitlab", classroom.ID, assignment.ID)
 
 		req := httptest.NewRequest("GET", route, nil)

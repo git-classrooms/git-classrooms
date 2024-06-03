@@ -6,82 +6,26 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"github.com/google/uuid"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
-	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pg, err := tests.StartPostgres()
+	testDB := db_tests.NewTestDB(t)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	classroom := factory.Classroom()
+	testDB.InsertClassroom(classroom)
 
-	t.Cleanup(func() {
-		err = pg.Restore(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
+	assignment := factory.Assignment(classroom.ID)
+	testDB.InsertAssignment(assignment)
 
-	dbURL, err := pg.ConnectionString(context.Background())
-
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("could not connect to database: %s", err.Error())
-	}
-
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
-
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	query.SetDefault(db)
-
-	// ------------ END OF DB SETUP -----------------
-
-	// Seeding data
-	classroom := &database.Classroom{
-		ID: uuid.New(),
-		OwnerID: 1,
-	}
-	err = query.Classroom.WithContext(context.Background()).Create(classroom)
-	if err != nil {
-		t.Fatalf("could not create test classroom: %s", err.Error())
-	}
-
-	assignment := &database.Assignment{
-		ID: uuid.New(),
-		ClassroomID: classroom.ID,
-		Name: "Test Assignment",
-	}
-	err = query.Assignment.WithContext(context.Background()).Create(assignment)
-	if err != nil {
-		t.Fatalf("could not create test assignment: %s", err.Error())
-	}
-
-	// ------------ END OF SEEDING DATA -----------------
-
-	session.InitSessionStore(dbURL)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()

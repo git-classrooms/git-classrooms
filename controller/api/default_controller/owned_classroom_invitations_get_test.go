@@ -5,104 +5,32 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
-
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestGetOwnedClassroomInvitations(t *testing.T) {
-	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pg, err := tests.StartPostgres()
+	testDB := db_tests.NewTestDB(t)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	user := factory.User()
+	testDB.InsertUser(user)
 
-	t.Cleanup(func() {
-		err = pg.Restore(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	dbURL, err := pg.ConnectionString(context.Background())
+	classroom := factory.Classroom()
+	testDB.InsertClassroom(classroom)
 
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("could not connect to database: %s", err.Error())
-	}
-
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
-
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	query.SetDefault(db)
-
-	// ------------ END OF DB SETUP -----------------
-
-	user := &database.User{ID: 1}
-	err = query.User.WithContext(context.Background()).Create(user)
-
-	if err != nil {
-		t.Fatalf("could not create test user: %s", err.Error())
-	}
-
-	classroomQuery := query.Classroom
-	testClassRoom := &database.Classroom{
-		ID: uuid.New(),
-		Name: "Test classroom",
-		OwnerID: 1,
-		Description: "Classroom description",
-		GroupID: 1,
-		GroupAccessTokenID: 20,
-		GroupAccessToken: "token",
-	}
-
-	err = classroomQuery.WithContext(context.Background()).Create(testClassRoom)
-	if err != nil {
-		t.Fatalf("could not create test classroom: %s", err.Error())
-	}
-
-	invitation := &database.ClassroomInvitation{
-		ID: uuid.New(),
-		ClassroomID: testClassRoom.ID,
-		Email: "test@example.com",
-		ExpiryDate: time.Now().Add(24 * time.Hour),
-		Status: database.ClassroomInvitationPending,
-	}
-
-	err = query.ClassroomInvitation.WithContext(context.Background()).Create(invitation)
-	if err != nil {
-		t.Fatalf("could not create test invitation: %s", err.Error())
-	}
-
-	// ------------ END OF SEEDING DATA -----------------
-
-	session.InitSessionStore(dbURL)
+	invitation := factory.Invitation(classroom.ID)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(testClassRoom)
+		ctx.SetOwnedClassroom(classroom)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
@@ -115,7 +43,7 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 
 	t.Run("GetOwnedClassroomInvitations", func(t *testing.T) {
 		app.Get("/api/classrooms/owned/:classroomId/invitations", handler.GetOwnedClassroomInvitations)
-		route := fmt.Sprintf("/api/classrooms/owned/%s/invitations", testClassRoom.ID)
+		route := fmt.Sprintf("/api/classrooms/owned/%s/invitations", classroom.ID)
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
@@ -123,9 +51,13 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		invitations, err := query.ClassroomInvitation.WithContext(context.Background()).Where(query.ClassroomInvitation.ClassroomID.Eq(testClassRoom.ID)).Find()
+		invitations, err := query.ClassroomInvitation.
+			WithContext(context.Background()).
+			Where(query.ClassroomInvitation.ClassroomID.Eq(classroom.ID)).
+			Find()
+
 		assert.NoError(t, err)
 		assert.NotEmpty(t, invitations)
-		assert.Equal(t, "test@example.com", invitations[0].Email)
+		assert.Equal(t, invitation.Email, invitations[0].Email)
 	})
 }

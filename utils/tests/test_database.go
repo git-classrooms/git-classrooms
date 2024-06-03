@@ -66,6 +66,13 @@ func (testDb *TestDB) InsertUser(user *database.User) {
 	}
 }
 
+func (testDb *TestDB) InsertUserClassroom(userClassroom *database.UserClassrooms) {
+	err := query.UserClassrooms.WithContext(context.Background()).Create(userClassroom)
+	if err != nil {
+		testDb.t.Fatalf("could not insert classroom: %s", err.Error())
+	}
+}
+
 func (testDb *TestDB) InsertClassroom(classroom *database.Classroom) {
 	err := query.Classroom.WithContext(context.Background()).Create(classroom)
 	if err != nil {

@@ -1,20 +1,17 @@
-//go:build integration
-// +build integration
-
 package default_controller
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,17 +19,17 @@ import (
 )
 
 func TestCreateClassroom(t *testing.T) {
-	testDb := tests.NewTestDB(t)
+	testDB := tests.NewTestDB(t)
 
-	user := database.User{ID: 1}
-	testDb.InsertUser(&user)
+	user := factory.User()
+	testDB.InsertUser(user)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
-		fiberContext.SetGitlabRepository(c, gitlabRepo)
+		// fiberContext.SetGitlabRepository(c, gitlabRepo)
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
 		s.SetUserID(user.ID)
@@ -45,11 +42,13 @@ func TestCreateClassroom(t *testing.T) {
 	t.Run("CreateClassroom", func(t *testing.T) {
 		app.Post("/api/classrooms", handler.CreateClassroom)
 
-		requestBody := CreateClassroomRequest{
+		requestBody := createClassroomRequest{
+			MaxTeams:                nil,
+			MaxTeamSize:             1,
 			Name:                    "Test",
-			MemberEmails:            []string{},
 			Description:             "test",
-			StudentsViewAllProjects: true,
+			CreateTeams:             nil,
+			StudentsViewAllProjects: nil,
 		}
 
 		gitlabRepo.
@@ -85,7 +84,11 @@ func TestCreateClassroom(t *testing.T) {
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 		assert.NoError(t, err)
 
-		classRoom, err := query.Classroom.Where(query.Classroom.OwnerID.Eq(user.ID)).First()
+		classRoom, err := query.Classroom.
+			WithContext(context.Background()).
+			Where(query.Classroom.OwnerID.Eq(user.ID)).
+			First()
+
 		assert.NoError(t, err)
 		assert.Equal(t, "Test", classRoom.Name)
 		assert.Equal(t, "test", classRoom.Description)

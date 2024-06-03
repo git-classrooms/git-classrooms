@@ -6,34 +6,27 @@ import (
 	"io"
 	"testing"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPutOwnedClassroom(t *testing.T) {
 	testDb := db_tests.NewTestDB(t)
 
-	user := database.User{ID: 1}
-	testDb.InsertUser(&user)
+	user := factory.User()
+	testDb.InsertUser(user)
 
-	classroom := database.Classroom{
-		ID:          uuid.UUID{},
-		Name:        "Test",
-		Description: "test",
-		OwnerID:     user.ID,
-		GroupID:     228,
-	}
-	testDb.InsertClassroom(&classroom)
+	classroom := factory.Classroom()
+	testDb.InsertClassroom(classroom)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -41,7 +34,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
-		ctx.SetOwnedClassroom(&classroom)
+		ctx.SetOwnedClassroom(classroom)
 		ctx.SetGitlabRepository(gitlabRepo)
 
 		s := session.Get(c)

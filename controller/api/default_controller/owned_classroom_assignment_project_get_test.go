@@ -1,124 +1,55 @@
 package default_controller
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestGetOwnedClassroomAssignmentProject(t *testing.T) {
-	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pg, err := tests.StartPostgres()
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	testDB := db_tests.NewTestDB(t)
 
-	t.Cleanup(func() {
-		err = pg.Restore(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	dbURL, err := pg.ConnectionString(context.Background())
 
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("could not connect to database: %s", err.Error())
-	}
+	// Create test user
+	owner := factory.User()
+	testDB.InsertUser(owner )
 
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
+	classroom := factory.Classroom()
+	testDB.InsertClassroom(classroom)
 
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	assignment := factory.Assignment(classroom.ID)
+	testDB.InsertAssignment(assignment)
 
-	query.SetDefault(db)
+	team := factory.Team(classroom.ID)
+	testDB.InsertTeam(team)
 
-	// ------------ END OF DB SETUP -----------------
+	project := factory.AssignmentProject(assignment.ID, team.ID)
+	testDB.InsertAssignmentProjects(project)
 
-	owner := &database.User{ID: 1, GitlabEmail: "owner@example.com"}
-	err = query.User.WithContext(context.Background()).Create(owner)
-
-	if err != nil {
-		t.Fatalf("could not create test user: %s", err.Error())
-	}
-
-	classroomQuery := query.Classroom
-	testClassroom := &database.Classroom{
-		Name:               "Test classroom",
-		OwnerID:            owner.ID,
-		Description:        "Classroom description",
-		GroupID:            1,
-		GroupAccessTokenID: 20,
-		GroupAccessToken:   "token",
-	}
-
-	err = classroomQuery.WithContext(context.Background()).Create(testClassroom)
-	if err != nil {
-		t.Fatalf("could not create test classroom: %s", err.Error())
-	}
-
-	classroomAssignmentQuery := query.Assignment
-	testClassroomAssignment := &database.Assignment{
-		ClassroomID:       testClassroom.ID,
-		TemplateProjectID: 1,
-		Name:              "Test classroom assignment",
-		Description:       "Classroom assignment description",
-	}
-
-	err = classroomAssignmentQuery.WithContext(context.Background()).Create(testClassroomAssignment)
-	if err != nil {
-		t.Fatalf("could not create test classroom assignment: %s", err.Error())
-	}
-
-	classroomAssignmentProjectQuery := query.AssignmentProjects
-	testClassroomAssignmentProject := &database.AssignmentProjects{
-		AssignmentID:       testClassroomAssignment.ID,
-		UserID:             owner.ID,
-		AssignmentAccepted: true,
-		ProjectID:          1,
-	}
-
-	err = classroomAssignmentProjectQuery.WithContext(context.Background()).Create(testClassroomAssignmentProject)
-	if err != nil {
-		t.Fatalf("could not create test classroom assignment project: %s", err.Error())
-	}
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(testClassroom)
+		ctx.SetOwnedClassroom(classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
@@ -132,7 +63,7 @@ func TestGetOwnedClassroomAssignmentProject(t *testing.T) {
 
 	t.Run("GetOwnedClassroomAssignmentProject", func(t *testing.T) {
 		app.Get("/classrooms/owned/:classroomId/assignments/:assignmentId/projects/:projectId", handler.GetOwnedClassroomAssignment)
-		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s/projects/%s", testClassroom.ID.String(), testClassroomAssignment.ID.String(), testClassroomAssignmentProject.ID.String())
+		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s/projects/%s", classroom.ID.String(), assignment.ID.String(), project.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
@@ -157,10 +88,11 @@ func TestGetOwnedClassroomAssignmentProject(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		assert.Equal(t, testClassroomAssignmentProject.ID, classroomAssignmentProject.ID)
-		assert.Equal(t, testClassroomAssignmentProject.AssignmentID, classroomAssignmentProject.AssignmentID)
-		assert.Equal(t, testClassroomAssignmentProject.UserID, classroomAssignmentProject.UserID)
-		assert.Equal(t, testClassroomAssignmentProject.AssignmentAccepted, classroomAssignmentProject.AssignmentAccepted)
-		assert.Equal(t, testClassroomAssignmentProject.ProjectID, classroomAssignmentProject.ProjectID)
+		assert.Equal(t, project.ID, classroomAssignmentProject.ID)
+		assert.Equal(t, project.AssignmentID, classroomAssignmentProject.AssignmentID)
+		// FIXME: NEEDS fix
+		assert.Equal(t, project.Team.ID, classroomAssignmentProject.UserID)
+		assert.Equal(t, project.AssignmentAccepted, classroomAssignmentProject.AssignmentAccepted)
+		assert.Equal(t, project.ProjectID, classroomAssignmentProject.ProjectID)
 	})
 }

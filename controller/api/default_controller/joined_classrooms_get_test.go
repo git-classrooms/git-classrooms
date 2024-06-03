@@ -1,64 +1,32 @@
 package default_controller
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestGetJoinedClassrooms(t *testing.T) {
-	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pg, err := tests.StartPostgres()
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() {
-		err = pg.Restore(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	dbURL, err := pg.ConnectionString(context.Background())
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("could not connect to database: %s", err.Error())
-	}
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	query.SetDefault(db)
+	testDB := db_tests.NewTestDB(t)
 
-	// ------------ END OF DB SETUP -----------------
+	owner := factory.User()
+	testDB.InsertUser(owner)
 
-	owner := &database.User{ID: 1}
-	err = query.User.WithContext(context.Background()).Create(owner)
-	if err != nil {
-		t.Fatalf("could not create test owner: %s", err.Error())
-	}
+	classroom := factory.Classroom()
+	testDB.InsertClassroom(classroom)
 
 	joinedClassrooms := []*database.Classroom{
 		{
@@ -80,15 +48,11 @@ func TestGetJoinedClassrooms(t *testing.T) {
 	}
 
 	for _, classroom := range joinedClassrooms {
-		err = query.Classroom.WithContext(context.Background()).Create(classroom)
-		if err != nil {
-			t.Fatalf("could not create test classroom: %s", err.Error())
-		}
+		testDB.InsertClassroom(classroom)
 	}
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 

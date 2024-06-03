@@ -1,111 +1,45 @@
 package default_controller
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestGetOwnedClassroomAssignment(t *testing.T) {
-	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
-	pg, err := tests.StartPostgres()
+	testDB := db_tests.NewTestDB(t)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	owner := factory.User()
+	testDB.InsertUser(owner)
 
-	t.Cleanup(func() {
-		err = pg.Restore(context.Background())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	dbURL, err := pg.ConnectionString(context.Background())
+	classroom := factory.Classroom()
+	testDB.InsertClassroom(classroom)
 
-	db, err := gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("could not connect to database: %s", err.Error())
-	}
-
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
-
-	err = pg.Snapshot(context.Background(), postgres.WithSnapshotName("test-snapshot"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	query.SetDefault(db)
-
-	// ------------ END OF DB SETUP -----------------
-
-	owner := &database.User{ID: 1, GitlabEmail: "owner@example.com"}
-	err = query.User.WithContext(context.Background()).Create(owner)
-
-	if err != nil {
-		t.Fatalf("could not create test user: %s", err.Error())
-	}
-
-	classroomQuery := query.Classroom
-	testClassroom := &database.Classroom{
-		Name:               "Test classroom",
-		OwnerID:            owner.ID,
-		Description:        "Classroom description",
-		GroupID:            1,
-		GroupAccessTokenID: 20,
-		GroupAccessToken:   "token",
-	}
-
-	err = classroomQuery.WithContext(context.Background()).Create(testClassroom)
-	if err != nil {
-		t.Fatalf("could not create test classroom: %s", err.Error())
-	}
-
-	classroomAssignmentQuery := query.Assignment
-	testClassroomAssignment := &database.Assignment{
-		ClassroomID:       testClassroom.ID,
-		TemplateProjectID: 1,
-		Name:              "Test classroom assignment",
-		Description:       "Classroom assignment description",
-	}
-
-	err = classroomAssignmentQuery.WithContext(context.Background()).Create(testClassroomAssignment)
-	if err != nil {
-		t.Fatalf("could not create test classroom assignment: %s", err.Error())
-	}
+	assignment := factory.Assignment(classroom.ID)
+	testDB.InsertAssignment(assignment)
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(dbURL)
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(testClassroom)
+		ctx.SetOwnedClassroom(classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
@@ -119,7 +53,7 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 
 	t.Run("GetOwnedClassroomAssignment", func(t *testing.T) {
 		app.Get("classrooms/owned/:classroomId/assignments/:assignmentId", handler.GetOwnedClassroomAssignment)
-		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s", testClassroom.ID.String(), testClassroomAssignment.ID.String())
+		route := fmt.Sprintf("/api/classrooms/owned/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
@@ -145,10 +79,10 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
 
-		assert.Equal(t, testClassroomAssignment.ID, classroomAssignment.ID)
-		assert.Equal(t, testClassroomAssignment.ClassroomID, classroomAssignment.ClassroomID)
-		assert.Equal(t, testClassroomAssignment.TemplateProjectID, classroomAssignment.TemplateProjectID)
-		assert.Equal(t, testClassroomAssignment.Name, classroomAssignment.Name)
-		assert.Equal(t, testClassroomAssignment.Description, classroomAssignment.Description)
+		assert.Equal(t, assignment.ID, classroomAssignment.ID)
+		assert.Equal(t, assignment.ClassroomID, classroomAssignment.ClassroomID)
+		assert.Equal(t, assignment.TemplateProjectID, classroomAssignment.TemplateProjectID)
+		assert.Equal(t, assignment.Name, classroomAssignment.Name)
+		assert.Equal(t, assignment.Description, classroomAssignment.Description)
 	})
 }
