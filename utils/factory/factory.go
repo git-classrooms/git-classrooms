@@ -8,7 +8,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 
-func Classroom(overwrites ...map[string]any) *database.Classroom {
+func Classroom(overwrites ...map[string]any) database.Classroom {
 	classroom := database.Classroom{}
 	classroom.ID = uuid.UUID{}
 	classroom.Name = "Test classroom"
@@ -20,10 +20,20 @@ func Classroom(overwrites ...map[string]any) *database.Classroom {
 
 	mergeOverwrites(classroom, overwrites...)
 
-	return &classroom
+	return classroom
 }
 
-func Invitation(classroomID uuid.UUID, overwrites ...map[string]any) *database.ClassroomInvitation {
+func UserClassroom(userID int, classroomID uuid.UUID, overwrites ...map[string]any) database.UserClassrooms {
+	userClassroom := database.UserClassrooms{}
+	userClassroom.UserID = userID
+	userClassroom.ClassroomID = classroomID
+
+	mergeOverwrites(userClassroom, overwrites...)
+
+	return userClassroom
+}
+
+func Invitation(classroomID uuid.UUID, overwrites ...map[string]any) database.ClassroomInvitation {
 	invitation := database.ClassroomInvitation{}
 	invitation.ID = uuid.New()
 	invitation.ClassroomID = classroomID
@@ -33,10 +43,10 @@ func Invitation(classroomID uuid.UUID, overwrites ...map[string]any) *database.C
 
 	mergeOverwrites(invitation, overwrites...)
 
-	return &invitation
+	return invitation
 }
 
-func User(overwrites ...map[string]any) *database.User {
+func User(overwrites ...map[string]any) database.User {
 	usr := database.User{}
 	usr.ID = 1
 	usr.GitlabEmail = "test@example.com"
@@ -44,10 +54,10 @@ func User(overwrites ...map[string]any) *database.User {
 
 	mergeOverwrites(usr, overwrites...)
 
-	return &usr
+	return usr
 }
 
-func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID, overwrites ...map[string]any) *database.AssignmentProjects {
+func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID, overwrites ...map[string]any) database.AssignmentProjects {
 	project := database.AssignmentProjects{}
 	project.TeamID = teamID
 	project.AssignmentID = assignmentID
@@ -55,20 +65,20 @@ func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID, overwrites ...m
 
 	mergeOverwrites(project, overwrites...)
 
-	return &project
+	return project
 }
 
-func Team(classroomID uuid.UUID, overwrites ...map[string]any) *database.Team {
+func Team(classroomID uuid.UUID, overwrites ...map[string]any) database.Team {
 	team := database.Team{}
 	team.ID = uuid.UUID{}
 	team.ClassroomID = classroomID
 
 	mergeOverwrites(team, overwrites...)
 
-	return &team
+	return team
 }
 
-func Assignment(classroomID uuid.UUID, overwrites ...map[string]any) *database.Assignment {
+func Assignment(classroomID uuid.UUID, overwrites ...map[string]any) database.Assignment {
 	assignment := database.Assignment{}
 	assignment.ID = uuid.UUID{}
 	assignment.ClassroomID = classroomID
@@ -82,7 +92,7 @@ func Assignment(classroomID uuid.UUID, overwrites ...map[string]any) *database.A
 
 	mergeOverwrites(assignment, overwrites...)
 
-	return &assignment
+	return assignment
 }
 
 func mergeOverwrites(obj any, overwrites ...map[string]any) {

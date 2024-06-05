@@ -22,7 +22,7 @@ func TestGetOwnedClassrooms(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classrooms := []*database.Classroom{
 		{

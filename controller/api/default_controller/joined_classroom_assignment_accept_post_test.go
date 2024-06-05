@@ -23,20 +23,21 @@ func TestJoinAssignment(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDB.InsertAssignment(assignment)
+	testDB.InsertAssignment(&assignment)
 
 	team := factory.Team(classroom.ID)
-	testDB.InsertTeam(team)
+	testDB.InsertTeam(&team)
 
 	project := factory.AssignmentProject(assignment.ID, team.ID)
+	testDB.InsertAssignmentProjects(&project)
 
-	testDB.InsertAssignmentProjects(project)
+	project.Assignment = assignment
 
 	// ------------ END OF SEEDING DATA -----------------
 
@@ -46,9 +47,11 @@ func TestJoinAssignment(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetJoinedClassroom(&database.UserClassrooms{ClassroomID: classroom.ID})
 		ctx.SetUserID(1)
 		ctx.SetGitlabRepository(gitlabRepo)
+		ctx.SetJoinedClassroom(&database.UserClassrooms{ClassroomID: classroom.ID})
+		ctx.SetAssignment(&assignment)
+		ctx.SetJoinedClassroomAssignment(&project)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)

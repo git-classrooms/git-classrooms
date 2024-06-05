@@ -20,17 +20,17 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	invitation := factory.Invitation(classroom.ID)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)

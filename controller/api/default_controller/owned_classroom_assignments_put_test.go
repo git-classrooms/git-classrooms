@@ -21,28 +21,28 @@ func TestPutOwnedAssignments(t *testing.T) {
 	testDb := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDb.InsertUser(user)
+	testDb.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDb.InsertClassroom(classroom)
+	testDb.InsertClassroom(&classroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDb.InsertAssignment(assignment)
+	testDb.InsertAssignment(&assignment)
 
 	team := factory.Team(classroom.ID)
-	testDb.InsertTeam(team)
+	testDb.InsertTeam(&team)
 
 	project := factory.AssignmentProject(assignment.ID, team.ID)
-	testDb.InsertAssignmentProjects(project)
+	testDb.InsertAssignmentProjects(&project)
 
-	assignment.Projects = append(assignment.Projects, project)
+	assignment.Projects = append(assignment.Projects, &project)
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
-		ctx.SetOwnedClassroomAssignment(assignment)
+		ctx.SetOwnedClassroomAssignment(&assignment)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)

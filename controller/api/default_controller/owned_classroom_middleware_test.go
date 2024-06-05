@@ -21,10 +21,10 @@ func TestOwnedClassroomMiddleware(t *testing.T) {
 	// ------------ END OF DB SETUP -----------------
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	// ------------ END OF SEEDING DATA -----------------
 

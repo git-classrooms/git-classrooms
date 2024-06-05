@@ -34,17 +34,17 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 
 	// Create test user
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	// Create test classroom
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDB.InsertAssignment(assignment)
+	testDB.InsertAssignment(&assignment)
 
 	project := factory.AssignmentProject(assignment.ID, classroom.ID)
-	testDB.InsertAssignmentProjects(project)
+	testDB.InsertAssignmentProjects(&project)
 
 	// ------------ END OF SEEDING DATA -----------------
 
@@ -54,7 +54,7 @@ func TestGetJoinedClassroomAssignments(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetJoinedClassroom(&database.UserClassrooms{Classroom: *classroom})
+		ctx.SetJoinedClassroom(&database.UserClassrooms{Classroom: classroom})
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)

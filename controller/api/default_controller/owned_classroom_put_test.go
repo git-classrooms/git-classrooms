@@ -23,10 +23,10 @@ func TestPutOwnedClassroom(t *testing.T) {
 	testDb := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDb.InsertUser(user)
+	testDb.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDb.InsertClassroom(classroom)
+	testDb.InsertClassroom(&classroom)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -34,7 +34,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 		ctx.SetGitlabRepository(gitlabRepo)
 
 		s := session.Get(c)

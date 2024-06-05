@@ -24,10 +24,10 @@ func TestGetOwnedClassroomMembers(t *testing.T) {
 
 	// ------------ END OF DB SETUP -----------------
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	// ------------ END OF SEEDING DATA -----------------
 
@@ -37,7 +37,7 @@ func TestGetOwnedClassroomMembers(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)

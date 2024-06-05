@@ -22,14 +22,14 @@ import (
 func TestGetJoinedClassroom(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
-	owner := &database.User{ID: 1, GitlabEmail: "owner@example.com"}
-	testDB.InsertUser(owner)
+	owner := database.User{ID: 1, GitlabEmail: "owner@example.com"}
+	testDB.InsertUser(&owner)
 
-	member := &database.User{ID: 2, GitlabEmail: "member@example.com"}
-	testDB.InsertUser(member)
+	member := database.User{ID: 2, GitlabEmail: "member@example.com"}
+	testDB.InsertUser(&member)
 
 	classroom := factory.Classroom(map[string]any{"OwnerID": owner.ID})
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	userClassroom := &database.UserClassrooms{
 		UserID:      member.ID,
@@ -46,7 +46,7 @@ func TestGetJoinedClassroom(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)

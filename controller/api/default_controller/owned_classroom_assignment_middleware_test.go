@@ -21,17 +21,17 @@ func TestOwnedClassroomAssignmentMiddleware(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDB.InsertAssignment(assignment)
+	testDB.InsertAssignment(&assignment)
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		fctx := fiberContext.Get(c)
-		fctx.SetOwnedClassroom(classroom)
+		fctx.SetOwnedClassroom(&classroom)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)

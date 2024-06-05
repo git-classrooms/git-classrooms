@@ -23,10 +23,10 @@ func TestGetJoinedClassrooms(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	owner := factory.User()
-	testDB.InsertUser(owner)
+	testDB.InsertUser(&owner)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	joinedClassrooms := []*database.Classroom{
 		{

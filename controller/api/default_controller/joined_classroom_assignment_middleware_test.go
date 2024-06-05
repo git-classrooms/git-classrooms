@@ -9,6 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 
@@ -21,28 +22,13 @@ func TestJoinedClassroomAssignmentMiddleware(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	// Create test user
-	user := database.User{ID: 1, GitlabEmail: "test@example.com", Name: "Test User"}
+	user := factory.User()
 	testDB.InsertUser(&user)
 
-	// Create test classroom
-	classroom := database.Classroom{
-		ID:                 uuid.UUID{},
-		Name:               "Test classroom",
-		OwnerID:            1,
-		Description:        "Classroom description",
-		GroupID:            1,
-		GroupAccessTokenID: 20,
-		GroupAccessToken:   "token",
-	}
+	classroom := factory.Classroom()
 	testDB.InsertClassroom(&classroom)
 
-	assignment := database.Assignment{
-		ID:                uuid.UUID{},
-		ClassroomID:       classroom.ID,
-		TemplateProjectID: 1234,
-		Name:              "Test Assignment",
-		Description:       "Test Assignment Description",
-	}
+	assignment := factory.Assignment(classroom.ID)
 	testDB.InsertAssignment(&assignment)
 
 	team := database.Team{
@@ -50,6 +36,11 @@ func TestJoinedClassroomAssignmentMiddleware(t *testing.T) {
 		ClassroomID: classroom.ID,
 	}
 	testDB.InsertTeam(&team)
+
+	project := factory.AssignmentProject(assignment.ID, team.ID)
+	testDB.InsertAssignmentProjects(&project)
+
+	assignment.Projects = append(assignment.Projects, &project)
 
 	// ------------ END OF SEEDING DATA -----------------
 
@@ -59,7 +50,7 @@ func TestJoinedClassroomAssignmentMiddleware(t *testing.T) {
 	app.Use("/api", func(c *fiber.Ctx) error {
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
-		s.SetUserID(1)
+		s.SetUserID(user.ID)
 		s.Save()
 		return c.Next()
 	})
@@ -67,7 +58,7 @@ func TestJoinedClassroomAssignmentMiddleware(t *testing.T) {
 	handler := NewApiController(mailRepo)
 
 	t.Run("JoinedClassroomAssignmentMiddleware", func(t *testing.T) {
-		app.Use("/api/classrooms/:classroomId/assignments/:assignmentId", handler.JoinedClassroomAssignmentMiddleware)
+		app.Use("/api/v1/classrooms/:classroomId/assignments/:assignmentId", handler.JoinedClassroomAssignmentMiddleware)
 		route := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)

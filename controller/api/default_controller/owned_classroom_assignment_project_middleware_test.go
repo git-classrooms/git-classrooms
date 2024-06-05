@@ -21,19 +21,22 @@ func TestOwnedClassroomAssignmentProjectMiddleware(t *testing.T) {
 	// Seeding data
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
+
+	userClassroom := factory.UserClassroom(user.ID, classroom.ID)
+	testDB.InsertUserClassroom(&userClassroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDB.InsertAssignment(assignment)
+	testDB.InsertAssignment(&assignment)
 
 	team := factory.Team(classroom.ID)
-	testDB.InsertTeam(team)
+	testDB.InsertTeam(&team)
 
 	project := factory.AssignmentProject(assignment.ID, team.ID)
-	testDB.InsertAssignmentProjects(project)
+	testDB.InsertAssignmentProjects(&project)
 
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {

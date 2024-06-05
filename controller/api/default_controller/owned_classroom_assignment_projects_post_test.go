@@ -20,13 +20,13 @@ func TestInviteToAssignmentProject(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDB.InsertAssignment(assignment)
+	testDB.InsertAssignment(&assignment)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -34,8 +34,8 @@ func TestInviteToAssignmentProject(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
-		ctx.SetOwnedClassroomAssignment(assignment)
+		ctx.SetOwnedClassroom(&classroom)
+		ctx.SetOwnedClassroomAssignment(&assignment)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)

@@ -23,13 +23,13 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	owner := factory.User()
-	testDB.InsertUser(owner)
+	testDB.InsertUser(&owner)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	assignment := factory.Assignment(classroom.ID)
-	testDB.InsertAssignment(assignment)
+	testDB.InsertAssignment(&assignment)
 
 	// ------------ END OF SEEDING DATA -----------------
 
@@ -39,7 +39,7 @@ func TestGetOwnedClassroomAssignment(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)

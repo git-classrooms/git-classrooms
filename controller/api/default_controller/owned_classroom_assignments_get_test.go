@@ -27,7 +27,7 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 	testDB.InsertUser(owner)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	testClassroomAssignments := []*database.Assignment{
 		{
@@ -56,7 +56,7 @@ func TestGetOwnedClassroomAssignments(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)

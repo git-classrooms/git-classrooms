@@ -23,10 +23,10 @@ func TestInviteToClassroom(t *testing.T) {
 	testDB := db_tests.NewTestDB(t)
 
 	user := factory.User()
-	testDB.InsertUser(user)
+	testDB.InsertUser(&user)
 
 	classroom := factory.Classroom()
-	testDB.InsertClassroom(classroom)
+	testDB.InsertClassroom(&classroom)
 
 	// ------------ END OF SEEDING DATA -----------------
 
@@ -36,7 +36,7 @@ func TestInviteToClassroom(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(classroom)
+		ctx.SetOwnedClassroom(&classroom)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
@@ -49,7 +49,7 @@ func TestInviteToClassroom(t *testing.T) {
 	handler := NewApiController(mailRepo)
 
 	t.Run("InviteToClassroom", func(t *testing.T) {
-		app.Post("/api/classrooms/:classroomId/invitations", handler.InviteToClassroom)
+		app.Post("/api/v1/classrooms/:classroomId/invitations", handler.InviteToClassroom)
 		route := fmt.Sprintf("/api/classrooms/%d/invitations", classroom.ID)
 
 		req := httptest.NewRequest("POST", route, strings.NewReader(`{"memberEmails":["test1@example.com", "test2@example.com"]}`))
