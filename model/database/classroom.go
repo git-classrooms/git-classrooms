@@ -33,4 +33,6 @@ type Classroom struct {
 	Assignments             []*Assignment          `json:"-"`
 	Invitations             []*ClassroomInvitation `json:"-"`
 	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
+
+	Archived bool `gorm:"not null;default:false" json:"archived"`
 } //@Name Classroom

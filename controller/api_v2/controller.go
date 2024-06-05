@@ -12,6 +12,7 @@ type Controller interface {
 	RoleMiddleware(validRoles ...database.Role) fiber.Handler
 	CreatorMiddleware() fiber.Handler
 	ViewableClassroomMiddleware() fiber.Handler
+	ArchivedMiddleware() fiber.Handler
 
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error
@@ -25,6 +26,7 @@ type Controller interface {
 	ClassroomMiddleware(*fiber.Ctx) error
 	GetClassroom(*fiber.Ctx) error
 	UpdateClassroom(*fiber.Ctx) error
+	ArchiveClassroom(*fiber.Ctx) error
 
 	GetClassroomTemplates(*fiber.Ctx) error
 
