@@ -29,7 +29,8 @@ func (r createClassroomRequest) isValid() bool {
 		r.Description != "" &&
 		r.CreateTeams != nil &&
 		r.MaxTeamSize > 0 &&
-		r.MaxTeams != nil && *r.MaxTeams >= 0 &&
+		r.MaxTeams != nil &&
+		*r.MaxTeams >= 0 &&
 		r.StudentsViewAllProjects != nil
 }
 

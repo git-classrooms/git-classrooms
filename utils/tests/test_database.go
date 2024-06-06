@@ -37,13 +37,13 @@ func (testDb *TestDB) Setup() {
 		testDb.t.Fatalf("could not start database container: %s", err.Error())
 	}
 	testDb.t.Cleanup(func() {
-		err = pq.Restore(context.Background())
+		err = pg.Restore(context.Background())
 		if err != nil {
 			testDb.t.Fatal(err)
 		}
 	})
 
-	testDb.dbUrl, err = pq.ConnectionString(context.Background())
+	testDb.dbUrl, err = pg.ConnectionString(context.Background())
 	if err != nil {
 		testDb.t.Fatalf("could not get database connection string: %s", err.Error())
 	}
@@ -59,8 +59,8 @@ func (testDb *TestDB) Setup() {
 	}
 }
 
-func (testDb *TestDB) InsertUser(user *database.User) {
-	err := query.User.WithContext(context.Background()).Create(user)
+func (testDb *TestDB) InsertUser(users *database.User) {
+	err := query.User.WithContext(context.Background()).Create(users)
 	if err != nil {
 		testDb.t.Fatalf("could not insert user: %s", err.Error())
 	}

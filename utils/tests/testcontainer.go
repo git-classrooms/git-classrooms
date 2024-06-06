@@ -10,9 +10,9 @@ import (
 )
 
 func StartPostgres() (*postgres.PostgresContainer, error) {
-	return postgres.RunContainer(context.Background(),
-		testcontainers.WithImage("docker.io/postgres:13-alpine"),
-		postgres.WithDatabase("postgres"),
+	return postgres.Run(context.Background(),
+		"postgres:14-alpine",
+		postgres.WithDatabase("classrooms_db"),
 		postgres.WithUsername("postgres"),
 		postgres.WithPassword("postgres"),
 		testcontainers.WithWaitStrategy(

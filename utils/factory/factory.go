@@ -1,86 +1,106 @@
 package factory
 
 import (
-	"reflect"
+	"context"
+	"log"
 	"time"
 
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 )
 
-func Classroom(overwrites ...map[string]any) database.Classroom {
+func Classroom(ownerID int) database.Classroom {
 	classroom := database.Classroom{}
-	classroom.ID = uuid.UUID{}
-	classroom.Name = "Test classroom"
-	classroom.OwnerID = 1
-	classroom.Description = "Classroom description"
+	classroom.Name = gofakeit.Name()
+	classroom.OwnerID = ownerID
+	classroom.Description = gofakeit.ProductDescription()
 	classroom.GroupID = 1
 	classroom.GroupAccessTokenID = 20
 	classroom.GroupAccessToken = "token"
 
-	mergeOverwrites(classroom, overwrites...)
+	err := query.Classroom.WithContext(context.Background()).Create(&classroom)
+	if err != nil {
+		log.Fatalf("could not insert classroom: %s", err.Error())
+	}
 
 	return classroom
 }
 
-func UserClassroom(userID int, classroomID uuid.UUID, overwrites ...map[string]any) database.UserClassrooms {
+func UserClassroom(userID int, classroomID uuid.UUID, role database.Role) database.UserClassrooms {
 	userClassroom := database.UserClassrooms{}
 	userClassroom.UserID = userID
 	userClassroom.ClassroomID = classroomID
+	userClassroom.Role = role
 
-	mergeOverwrites(userClassroom, overwrites...)
+	err := query.UserClassrooms.WithContext(context.Background()).Create(&userClassroom)
+	if err != nil {
+		log.Fatalf("could not insert classroom: %s", err.Error())
+	}
 
 	return userClassroom
 }
 
-func Invitation(classroomID uuid.UUID, overwrites ...map[string]any) database.ClassroomInvitation {
+func Invitation(classroomID uuid.UUID) database.ClassroomInvitation {
 	invitation := database.ClassroomInvitation{}
-	invitation.ID = uuid.New()
 	invitation.ClassroomID = classroomID
-	invitation.Email = "test@example.com"
+	invitation.Email = gofakeit.Email()
 	invitation.ExpiryDate = time.Now().Add(24 * time.Hour)
 	invitation.Status = database.ClassroomInvitationPending
-
-	mergeOverwrites(invitation, overwrites...)
 
 	return invitation
 }
 
-func User(overwrites ...map[string]any) database.User {
+func User() database.User {
 	usr := database.User{}
-	usr.ID = 1
-	usr.GitlabEmail = "test@example.com"
-	usr.Name = "Test user"
+	usr.GitlabEmail = gofakeit.Email()
+	usr.GitlabUsername = gofakeit.Username()
+	usr.Name = gofakeit.Name()
 
-	mergeOverwrites(usr, overwrites...)
+	lastUser, err := query.User.WithContext(context.Background()).Last()
+	if err != nil {
+		usr.ID = 0
+	} else {
+		usr.ID = lastUser.ID + 1
+	}
+
+	err = query.User.WithContext(context.Background()).Create(&usr)
+	if err != nil {
+		log.Fatalf("could not insert user: %s", err.Error())
+	}
 
 	return usr
 }
 
-func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID, overwrites ...map[string]any) database.AssignmentProjects {
+func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID) database.AssignmentProjects {
 	project := database.AssignmentProjects{}
 	project.TeamID = teamID
 	project.AssignmentID = assignmentID
 	project.ProjectID = 1
+	project.AssignmentAccepted = true
 
-	mergeOverwrites(project, overwrites...)
+	err := query.AssignmentProjects.WithContext(context.Background()).Create(&project)
+	if err != nil {
+		log.Fatalf("could not insert assignment project: %s", err.Error())
+	}
 
 	return project
 }
 
-func Team(classroomID uuid.UUID, overwrites ...map[string]any) database.Team {
+func Team(classroomID uuid.UUID) database.Team {
 	team := database.Team{}
-	team.ID = uuid.UUID{}
 	team.ClassroomID = classroomID
 
-	mergeOverwrites(team, overwrites...)
-
+	err := query.Team.WithContext(context.Background()).Create(&team)
+	if err != nil {
+		log.Fatalf("could not insert team: %s", err.Error())
+	}
 	return team
 }
 
-func Assignment(classroomID uuid.UUID, overwrites ...map[string]any) database.Assignment {
+func Assignment(classroomID uuid.UUID) database.Assignment {
 	assignment := database.Assignment{}
-	assignment.ID = uuid.UUID{}
 	assignment.ClassroomID = classroomID
 	assignment.TemplateProjectID = 1234
 	assignment.Name = "Test Assignment"
@@ -90,23 +110,9 @@ func Assignment(classroomID uuid.UUID, overwrites ...map[string]any) database.As
 
 	assignment.DueDate = &dueDate
 
-	mergeOverwrites(assignment, overwrites...)
-
+	err := query.Assignment.WithContext(context.Background()).Create(&assignment)
+	if err != nil {
+		log.Fatalf("could not insert assignment: %s", err.Error())
+	}
 	return assignment
-}
-
-func mergeOverwrites(obj any, overwrites ...map[string]any) {
-	for _, o := range overwrites {
-		merge(obj, o)
-	}
-}
-
-func merge(obj any, values map[string]any) {
-	st := reflect.ValueOf(obj).Elem()
-
-	for k, v := range values {
-		f := st.FieldByName(k)
-		v := reflect.ValueOf(v)
-		f.Set(v)
-	}
 }
