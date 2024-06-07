@@ -8,17 +8,14 @@ import (
 
 type getInfoGitlabResponse struct {
 	GitlabUrl string `json:"gitlabUrl"`
-} //@Name getInfoGitlabResponse
+} //@Name GetInfoGitlabResponse
 
-// @Summary		getInfoGitlabResponse
-// @Description	getInfoGitlabResponse
+// @Summary		GetGitlabInfo
+// @Description	GetGitlabInfo
 // @Id				GetGitlabInfo
 // @Tags			info
 // @Produce		json
 // @Success		200	{object}	api.getInfoGitlabResponse
-// @Failure		400	{object}	HTTPError
-// @Failure		401	{object}	HTTPError
-// @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/info/gitlab [get]
 func (ctrl *DefaultController) GetGitlabInfo(c *fiber.Ctx) error {

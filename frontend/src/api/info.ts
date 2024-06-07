@@ -3,11 +3,10 @@ import { createInfoApi } from "@/lib/utils.ts";
 
 const apiClient = createInfoApi();
 
-export const gitlabInfoQueryOptions = () =>
-  queryOptions({
-    queryKey: ["gitLabInfo"],
-    queryFn: async () => {
-      const res = await apiClient.getGitlabInfo();
-      return res.data;
-    }
-  })
+export const gitlabInfoQueryOptions = queryOptions({
+  queryKey: ["gitLabInfo"],
+  queryFn: async () => {
+    const res = await apiClient.getGitlabInfo();
+    return res.data;
+  },
+});

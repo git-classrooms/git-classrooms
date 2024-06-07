@@ -20,22 +20,29 @@ export const Route = createFileRoute("/login")({
       });
     }
   },
+  loader: async ({ context: { queryClient}}) => {
+    const gitlabInfo = await queryClient.ensureQueryData(gitlabInfoQueryOptions)
+    return { gitlabInfo }
+  },
   component: Login,
 });
 
 function Login() {
   const { csrfToken } = useCsrf();
   const { redirect } = Route.useSearch();
-  const { data } = useSuspenseQuery(gitlabInfoQueryOptions());
+  const { data } = useSuspenseQuery(gitlabInfoQueryOptions);
 
   return (
-    <div>
-      <img src={GitlabLogo} className="h-96 w-96" />
+    <div className="m-auto max-w-lg ">
+      <div className="flex justify-center">
+        <img src={GitlabLogo} className="max-w-xs" />
+      </div>
+
       <div className="p-6 rounded-lg border flex flex-col gap-5">
         <h1 className="text-5xl font-bold text-center mb-5">Login</h1>
         <p className="text-slate-500 text-lg">
           Authenticate Classrooms with your GitLab account at <span
-          className="text-slate-900">{data.gitlabUrl}</span>.
+          className="text-slate-900 font-bold">{data.gitlabUrl}</span>.
         </p>
         <Separator />
         <p className="text-slate-500">

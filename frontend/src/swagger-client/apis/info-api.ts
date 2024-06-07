@@ -27,8 +27,8 @@ import { HTTPError } from '../models';
 export const InfoApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * getInfoGitlabResponse
-         * @summary getInfoGitlabResponse
+         * GetGitlabInfo
+         * @summary GetGitlabInfo
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -70,8 +70,8 @@ export const InfoApiAxiosParamCreator = function (configuration?: Configuration)
 export const InfoApiFp = function(configuration?: Configuration) {
     return {
         /**
-         * getInfoGitlabResponse
-         * @summary getInfoGitlabResponse
+         * GetGitlabInfo
+         * @summary GetGitlabInfo
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -92,8 +92,8 @@ export const InfoApiFp = function(configuration?: Configuration) {
 export const InfoApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     return {
         /**
-         * getInfoGitlabResponse
-         * @summary getInfoGitlabResponse
+         * GetGitlabInfo
+         * @summary GetGitlabInfo
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -111,8 +111,8 @@ export const InfoApiFactory = function (configuration?: Configuration, basePath?
  */
 export class InfoApi extends BaseAPI {
     /**
-     * getInfoGitlabResponse
-     * @summary getInfoGitlabResponse
+     * GetGitlabInfo
+     * @summary GetGitlabInfo
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InfoApi
