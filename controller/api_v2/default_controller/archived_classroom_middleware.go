@@ -8,7 +8,7 @@ import (
 
 func (ctrl *DefaultController) ArchivedMiddleware() fiber.Handler {
 	var validateArchived apiV2.ValidateUserFunc = func(classroom database.UserClassrooms) bool {
-		return !classroom.Classroom.Archived
+		return !classroom.Classroom.Archived || classroom.Role == database.Owner
 	}
 
 	return ctrl.ValidateUserMiddleware(validateArchived)

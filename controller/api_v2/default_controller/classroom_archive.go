@@ -19,6 +19,7 @@ import (
 // @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
 //
 // @Success		202
+// @Success		204
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		403	{object}	HTTPError

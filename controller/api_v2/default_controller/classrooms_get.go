@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -43,8 +42,6 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	log.Println("GetClassrooms", urlQuery)
-
 	dbQuery := userClassroomQuery(c, userID)
 	switch urlQuery.Filter {
 	case ownedClassrooms:
@@ -61,7 +58,11 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	response := utils.Map(classrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
+	notArchivedClassrooms := utils.Filter(classrooms, func(classroom *database.UserClassrooms) bool {
+		return !classroom.Classroom.Archived || classroom.Role == database.Owner
+	})
+
+	response := utils.Map(notArchivedClassrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
 		return &UserClassroomResponse{
 			UserClassrooms: classroom,
 			WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
