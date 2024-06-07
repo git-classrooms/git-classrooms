@@ -1,8 +1,6 @@
 package api
 
 import (
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -31,8 +29,6 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 	userClassroom := ctx.GetUserClassroom()
 	classroom := userClassroom.Classroom
 	repo := ctx.GetGitlabRepository()
-
-	log.Println("ArchiveClassroom")
 
 	if classroom.Archived {
 		return c.SendStatus(fiber.StatusNoContent)

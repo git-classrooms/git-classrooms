@@ -53,8 +53,16 @@ func TestPutOwnedAssignments(t *testing.T) {
 		OwnerID:  1,
 		Member:   members,
 		Archived: false,
+		GroupID:  12,
 	}
 	testDb.InsertClassroom(&classroom)
+
+	userClassroom := database.UserClassrooms{
+		UserID:      user1.ID,
+		User:        user1,
+		ClassroomID: classroom.ID,
+		Classroom:   classroom,
+	}
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -62,7 +70,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
-		ctx.SetOwnedClassroom(&classroom)
+		ctx.SetUserClassroom(&userClassroom)
 		ctx.SetGitlabRepository(gitlabRepo)
 
 		return c.Next()
@@ -74,7 +82,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	targetRoute := fmt.Sprintf("/api/classrooms/%s/archive", classroom.ID.String())
 
 	t.Run("classroom already archived", func(t *testing.T) {
-		classroom.Archived = true
+		userClassroom.Classroom.Archived = true
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
 
@@ -83,8 +91,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	})
 
 	t.Run("gitlab throws error in changing access level", func(t *testing.T) {
-		classroom.Archived = false
-
+		userClassroom.Classroom.Archived = false
 		gitlabRepo.
 			EXPECT().
 			GetAccessLevelOfUserInGroup(classroom.GroupID, user2.ID).
@@ -125,8 +132,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	})
 
 	t.Run("updates classroom in db", func(t *testing.T) {
-		classroom.Archived = false
-
+		userClassroom.Classroom.Archived = false
 		gitlabRepo.
 			EXPECT().
 			GetAccessLevelOfUserInGroup(classroom.GroupID, user2.ID).
