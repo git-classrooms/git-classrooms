@@ -1,16 +1,37 @@
 package api
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+// @Summary		ArchiveClassroom
+// @Description	ArchiveClassroom
+// @Id				ArchiveClassroom
+// @Tags			classroom
+// @Produce		json
+// @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
+//
+// @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
+//
+// @Success		202
+// @Failure		400	{object}	HTTPError
+// @Failure		401	{object}	HTTPError
+// @Failure		403	{object}	HTTPError
+// @Failure		404	{object}	HTTPError
+// @Failure		500	{object}	HTTPError
+// @Router			/api/v2/classrooms/{classroomId}/archive [patch]
 func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
-	classroom := ctx.GetOwnedClassroom()
+	userClassroom := ctx.GetUserClassroom()
+	classroom := userClassroom.Classroom
 	repo := ctx.GetGitlabRepository()
+
+	log.Println("ArchiveClassroom")
 
 	if classroom.Archived {
 		return c.SendStatus(fiber.StatusNoContent)
