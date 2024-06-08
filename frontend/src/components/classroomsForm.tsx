@@ -34,7 +34,7 @@ export const ClassroomsForm = () => {
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     const location = await mutateAsync(values);
     const classroomId = getUUIDFromLocation(location);
-    await navigate({ to: "/classrooms/owned/$classroomId", params: { classroomId } });
+    await navigate({ to: "/classrooms/$classroomId", params: { classroomId } });
   }
 
   return (

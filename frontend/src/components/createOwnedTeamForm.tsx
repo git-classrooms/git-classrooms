@@ -23,7 +23,7 @@ export const CreateOwnedTeamForm = ({ classroomId }: { classroomId: string }) =>
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     await mutateAsync(values);
-    navigate({ to: "/classrooms/owned/$classroomId", params: { classroomId } });
+    navigate({ to: "/classrooms/$classroomId", params: { classroomId } });
   }
 
   return (

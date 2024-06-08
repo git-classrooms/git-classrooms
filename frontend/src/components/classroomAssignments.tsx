@@ -38,7 +38,7 @@ export function AssignmentListCard({
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button variant="default" asChild>
-          <Link to="/classrooms/owned/$classroomId/assignments/create" params={{ classroomId }}>
+          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
             Create assignment
           </Link>
         </Button>
@@ -76,7 +76,7 @@ function AssignmentTable({
                   </div>
                   <Button variant="ghost" size="icon" asChild>
                     <Link
-                      to="/classrooms/owned/$classroomId/assignments/$assignmentId"
+                      to="/classrooms/$classroomId/assignments/$assignmentId"
                       params={{ classroomId, assignmentId: a.id }}
                     >
                       <Edit className="h-6 w-6 text-gray-600" />

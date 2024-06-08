@@ -63,24 +63,6 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
                   Dashboard
                 </Link>
               </li>
-              <li className="content-center">
-                <Link
-                  to="/"
-                  className="font-medium text-sm px-4 py-2 hover:underline"
-                  activeProps={{ className: "!font-bold" }}
-                >
-                  Created Classrooms
-                </Link>
-              </li>
-              <li className="content-center">
-                <Link
-                  to="/"
-                  className="font-medium text-sm px-4 py-2 hover:underline"
-                  activeProps={{ className: "!font-bold" }}
-                >
-                  Joined Classrooms
-                </Link>
-              </li>
             </ul>
           ) : (
             <div />
