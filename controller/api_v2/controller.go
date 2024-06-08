@@ -12,7 +12,8 @@ type Controller interface {
 	RoleMiddleware(validRoles ...database.Role) fiber.Handler
 	CreatorMiddleware() fiber.Handler
 	ViewableClassroomMiddleware() fiber.Handler
-	ArchivedMiddleware() fiber.Handler
+
+	ArchivedMiddleware(*fiber.Ctx) error
 
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error
