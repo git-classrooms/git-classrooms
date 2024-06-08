@@ -3,7 +3,7 @@ import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/teamsJoined/$teamId")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/$teamId")({
   loader: async ({ context: { queryClient }, params }) => {
     const team = await queryClient.ensureQueryData(teamQueryOptions(params.classroomId, params.teamId));
 

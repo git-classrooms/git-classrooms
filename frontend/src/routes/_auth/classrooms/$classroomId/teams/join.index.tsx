@@ -10,7 +10,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Code } from "lucide-react";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/teamsJoined/join/")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
     const joinedClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
