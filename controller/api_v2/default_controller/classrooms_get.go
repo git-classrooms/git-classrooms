@@ -19,19 +19,21 @@ const (
 )
 
 type classroomRequestQuery struct {
-	Filter filter `query:"filter"`
+	Filter   filter `query:"filter"`
+	Archived bool   `query:"archived"`
 }
 
-// @Summary		Get classrooms
-// @Description	Get classrooms
-// @Id				GetClassrooms
-// @Tags			classroom
-// @Produce		json
-// @Param			filter	query		api.filter	false	"Filter Options"
-// @Success		200		{array}		api.UserClassroomResponse
-// @Failure		401		{object}	HTTPError
-// @Failure		500		{object}	HTTPError
-// @Router			/api/v2/classrooms [get]
+//	@Summary		Get classrooms
+//	@Description	Get classrooms
+//	@Id				GetClassrooms
+//	@Tags			classroom
+//	@Produce		json
+//	@Param			filter		query		api.filter	false	"Filter Options"
+//	@Param			archived	query		bool		false	"Archived"
+//	@Success		200			{array}		api.UserClassroomResponse
+//	@Failure		401			{object}	HTTPError
+//	@Failure		500			{object}	HTTPError
+//	@Router			/api/v2/classrooms [get]
 func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
@@ -53,16 +55,18 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	default:
 	}
 
+	if urlQuery.Archived {
+		dbQuery = dbQuery.Join(query.Classroom, query.UserClassrooms.ClassroomID.EqCol(query.Classroom.ID)).Where(query.Classroom.Archived)
+	} else {
+		dbQuery = dbQuery.Join(query.Classroom, query.UserClassrooms.ClassroomID.EqCol(query.Classroom.ID)).Where(query.Classroom.Archived.Not())
+	}
+
 	classrooms, err := dbQuery.Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	notArchivedClassrooms := utils.Filter(classrooms, func(classroom *database.UserClassrooms) bool {
-		return !classroom.Classroom.Archived || classroom.Role == database.Owner
-	})
-
-	response := utils.Map(notArchivedClassrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
+	response := utils.Map(classrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
 		return &UserClassroomResponse{
 			UserClassrooms: classroom,
 			WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),

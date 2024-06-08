@@ -18,7 +18,7 @@ import (
 	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-func TestPutOwnedAssignments(t *testing.T) {
+func TestPatchClassroomArchive(t *testing.T) {
 	testDb := db_tests.NewTestDB(t)
 
 	user1 := database.User{
@@ -43,19 +43,40 @@ func TestPutOwnedAssignments(t *testing.T) {
 	testDb.InsertUser(&user3)
 
 	members := []*database.UserClassrooms{
-		{UserID: user1.ID},
-		{UserID: user2.ID},
-		{UserID: user3.ID},
+		{UserID: user1.ID, Role: database.Owner},
+		{UserID: user2.ID, Role: database.Student},
+		{UserID: user3.ID, Role: database.Student},
 	}
 
 	classroom := database.Classroom{
 		ID:       uuid.New(),
-		OwnerID:  1,
+		OwnerID:  user1.ID,
 		Member:   members,
 		Archived: false,
 		GroupID:  12,
 	}
 	testDb.InsertClassroom(&classroom)
+
+	assignment := database.Assignment{
+		ID:          uuid.New(),
+		ClassroomID: classroom.ID,
+	}
+	testDb.InsertAssignment(&assignment)
+
+	team := database.Team{
+		ID:          uuid.New(),
+		ClassroomID: classroom.ID,
+		Member:      members,
+	}
+	testDb.InsertTeam(&team)
+
+	assignmentProject := database.AssignmentProjects{
+		ID:           uuid.New(),
+		TeamID:       team.ID,
+		AssignmentID: assignment.ID,
+		ProjectID:    1,
+	}
+	testDb.InsertAssignmentProjects(&assignmentProject)
 
 	userClassroom := database.UserClassrooms{
 		UserID:      user1.ID,
@@ -94,31 +115,31 @@ func TestPutOwnedAssignments(t *testing.T) {
 		userClassroom.Classroom.Archived = false
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInGroup(classroom.GroupID, user2.ID).
+			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user2.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInGroup(classroom.GroupID, user2.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user2.ID, model.ReporterPermissions).
 			Return(nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInGroup(classroom.GroupID, user3.ID).
+			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user3.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInGroup(classroom.GroupID, user3.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user3.ID, model.ReporterPermissions).
 			Return(fmt.Errorf("error")).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInGroup(classroom.GroupID, user2.ID, model.DeveloperPermissions).
+			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user2.ID, model.DeveloperPermissions).
 			Return(nil).
 			Times(1)
 
@@ -135,25 +156,25 @@ func TestPutOwnedAssignments(t *testing.T) {
 		userClassroom.Classroom.Archived = false
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInGroup(classroom.GroupID, user2.ID).
+			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user2.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInGroup(classroom.GroupID, user2.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user2.ID, model.ReporterPermissions).
 			Return(nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInGroup(classroom.GroupID, user3.ID).
+			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user3.ID).
 			Return(model.NoPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInGroup(classroom.GroupID, user3.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user3.ID, model.ReporterPermissions).
 			Return(nil).
 			Times(1)
 

@@ -2,14 +2,26 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	apiV2 "gitlab.hs-flensburg.de/gitlab-classroom/controller/api_v2"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-func (ctrl *DefaultController) ArchivedMiddleware() fiber.Handler {
-	var validateArchived apiV2.ValidateUserFunc = func(classroom database.UserClassrooms) bool {
-		return !classroom.Classroom.Archived || classroom.Role == database.Owner
+func (ctrl *DefaultController) ArchivedMiddleware(c *fiber.Ctx) error {
+	ctx := context.Get(c)
+	classroom := ctx.GetUserClassroom()
+
+	switch c.Method() {
+	case fiber.MethodPost:
+		fallthrough
+	case fiber.MethodPut:
+		fallthrough
+	case fiber.MethodPatch:
+		fallthrough
+	case fiber.MethodDelete:
+		if classroom.Classroom.Archived {
+			return fiber.NewError(fiber.StatusForbidden, "Classroom is archived")
+		}
+	default:
 	}
 
-	return ctrl.ValidateUserMiddleware(validateArchived)
+	return c.Next()
 }

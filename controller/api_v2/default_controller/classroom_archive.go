@@ -2,10 +2,17 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
+
+type OldPermission struct {
+	UserID     int
+	ProjectID  int
+	Permission model.AccessLevelValue
+}
 
 // @Summary		ArchiveClassroom
 // @Description	ArchiveClassroom
@@ -13,9 +20,7 @@ import (
 // @Tags			classroom
 // @Produce		json
 // @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
-//
 // @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
-//
 // @Success		202
 // @Success		204
 // @Failure		400	{object}	HTTPError
@@ -35,29 +40,43 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 	}
 	classroom.Archived = true
 
-	oldPermissions := make(map[int]model.AccessLevelValue)
+	teams, err := query.Team.
+		WithContext(c.Context()).
+		Preload(query.Team.Member).
+		Preload(query.Team.AssignmentProjects).
+		Where(query.Team.ClassroomID.Eq(classroom.ID)).
+		Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	oldPermissions := []OldPermission{}
 	defer func() {
 		if recover() != nil || err != nil {
-			for userID, permission := range oldPermissions {
-				repo.ChangeUserAccessLevelInGroup(classroom.GroupID, userID, permission)
+			for _, oldPermission := range oldPermissions {
+				repo.ChangeUserAccessLevelInProject(oldPermission.ProjectID, oldPermission.UserID, oldPermission.Permission)
 			}
 		}
 	}()
-	for _, member := range classroom.Member {
-		if member.UserID == classroom.OwnerID {
-			continue
-		}
+	for _, team := range teams {
+		for _, project := range team.AssignmentProjects {
+			for _, member := range team.Member {
+				if member.Role != database.Student {
+					continue
+				}
 
-		permission, err := repo.GetAccessLevelOfUserInGroup(classroom.GroupID, member.UserID)
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
+				permission, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, member.UserID)
+				if err != nil {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
 
-		if err := repo.ChangeUserAccessLevelInGroup(classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
+				if err := repo.ChangeUserAccessLevelInProject(project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
 
-		oldPermissions[member.UserID] = permission
+				oldPermissions = append(oldPermissions, OldPermission{UserID: member.UserID, ProjectID: project.ProjectID, Permission: permission})
+			}
+		}
 	}
 
 	if _, err := query.Classroom.WithContext(c.Context()).Updates(classroom); err != nil {
