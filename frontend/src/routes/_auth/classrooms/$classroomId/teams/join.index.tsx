@@ -9,13 +9,14 @@ import { TeamResponse } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Code } from "lucide-react";
+import { Role } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
 
-    if (userClassroom.team) {
+    if (userClassroom.team || userClassroom.role !== Role.Student) {
       throw redirect({
         to: "/classrooms/$classroomId",
         params,

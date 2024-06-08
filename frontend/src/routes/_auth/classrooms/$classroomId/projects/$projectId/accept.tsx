@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
@@ -7,10 +7,18 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Separator } from "@/components/ui/separator";
 import { projectQueryOptions, useAcceptAssignment } from "@/api/project";
 import { classroomQueryOptions } from "@/api/classroom";
+import { Role } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$projectId/accept")({
   loader: async ({ context: { queryClient }, params }) => {
     const project = await queryClient.ensureQueryData(projectQueryOptions(params.classroomId, params.projectId));
+    const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
+    if (userClassroom.role !== Role.Student || !userClassroom.team) {
+      throw redirect({
+        to: "/classrooms/$classroomId",
+        params,
+      });
+    }
     return { project };
   },
   component: AcceptAssignment,

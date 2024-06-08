@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Form,
   FormControl,
@@ -25,12 +25,20 @@ import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command.tsx";
 import { Header } from "@/components/header";
-import { classroomTemplatesQueryOptions } from "@/api/classroom";
+import { classroomQueryOptions, classroomTemplatesQueryOptions } from "@/api/classroom";
 import { useCreateAssignment } from "@/api/assignment";
+import { Role } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
   loader: async ({ context: { queryClient }, params }) => {
     const templateProjects = await queryClient.ensureQueryData(classroomTemplatesQueryOptions(params.classroomId));
+    const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
+    if (userClassroom.role === Role.Student ) {
+      throw redirect({
+        to: "/classrooms/$classroomId",
+        params,
+      });
+    }
     return { templateProjects };
   },
   component: CreateAssignment,
