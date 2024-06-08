@@ -16,10 +16,10 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/$team
 function Team() {
   const { classroomId, teamId } = Route.useParams();
   const { data: team } = useSuspenseQuery(teamQueryOptions(classroomId, teamId));
-  team;
   return (
     <div>
-      Team Page
+      <h1 className="text-4xl">WIP</h1>
+      Team Page of Team <b>{team.name}</b>
       <Outlet />
     </div>
   );

@@ -1,4 +1,4 @@
-import { CreateOwnedTeamForm } from "@/components/createOwnedTeamForm";
+import { CreateTeamForm } from "@/components/createTeamForm.tsx";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
@@ -23,7 +23,7 @@ function CreateTeamModal() {
       }}
     >
       <DialogContent>
-        <CreateOwnedTeamForm classroomId={classroomId} />
+        <CreateTeamForm classroomId={classroomId} />
       </DialogContent>
     </Dialog>
   );

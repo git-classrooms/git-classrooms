@@ -1,6 +1,6 @@
 import { classroomQueryOptions } from "@/api/classroom";
 import { teamsQueryOptions, useJoinTeam } from "@/api/team";
-import { CreateJoinedTeamForm } from "@/components/createJoinedTeamForm";
+import { CreateTeamForm } from "@/components/createTeamForm";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
@@ -12,10 +12,10 @@ import { Code } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
-    const joinedClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
+    const userClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
 
-    if (joinedClassroom.team) {
+    if (userClassroom.team) {
       throw redirect({
         to: "/classrooms/$classroomId",
         params,
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
       });
     }
 
-    return { teams, joinedClassroom };
+    return { teams, userClassroom };
   },
   component: JoinTeam,
 });
@@ -55,7 +55,7 @@ function JoinTeam() {
               </DialogTrigger>
               <DialogHeader>Create a new Team</DialogHeader>
               <DialogContent>
-                <CreateJoinedTeamForm classroomId={classroomId} />
+                <CreateTeamForm classroomId={classroomId} />
               </DialogContent>
             </Dialog>
           )}

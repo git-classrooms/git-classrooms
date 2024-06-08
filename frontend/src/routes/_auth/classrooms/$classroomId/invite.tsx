@@ -21,10 +21,10 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(classroomInvitationsQueryOptions(params.classroomId)),
   pendingComponent: Loader,
-  component: ClassroomsForm,
+  component: ClassroomInviteForm,
 });
 
-function ClassroomsForm() {
+function ClassroomInviteForm() {
   const { classroomId } = Route.useParams();
   const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
 

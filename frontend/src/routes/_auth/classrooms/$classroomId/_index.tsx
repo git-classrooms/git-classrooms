@@ -39,8 +39,8 @@ function ClassroomDetail() {
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   if (userClassroom.role === Role.Student) {
     return <ClassroomStudentView />;
-  } else {
-    return <ClassroomOwnerView userClassroom={userClassroom} />;
+  } else if (userClassroom.role === Role.Owner || userClassroom.role === Role.Moderator){
+    return <ClassroomSupervisorView userClassroom={userClassroom} />;
   }
 }
 
@@ -53,7 +53,7 @@ function ClassroomStudentView(){
     </div>
   );
 }
-function ClassroomOwnerView( {userClassroom}: {userClassroom: UserClassroomResponse}){
+function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroomResponse}){
   const { classroomId } = Route.useParams();
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));

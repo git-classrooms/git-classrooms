@@ -1,4 +1,4 @@
-import { CreateOwnedTeamForm } from "@/components/createOwnedTeamForm";
+import { CreateTeamForm } from "@/components/createTeamForm.tsx";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { classroomQueryOptions } from "@/api/classroom.ts";
 import { teamsQueryOptions } from "@/api/team.ts";
@@ -23,7 +23,7 @@ function CreateTeam() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <CreateOwnedTeamForm classroomId={classroomId} />{" "}
+      <CreateTeamForm classroomId={classroomId} />{" "}
     </div>
   );
 }

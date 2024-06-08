@@ -1,4 +1,4 @@
-import { CreateOwnedTeamForm } from "@/components/createOwnedTeamForm";
+import { CreateTeamForm } from "@/components/createTeamForm.tsx";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/classrooms/owned/$classroomId/teams/create")({
@@ -10,7 +10,7 @@ function CreateOwnedTeam() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <CreateOwnedTeamForm classroomId={classroomId} />{" "}
+      <CreateTeamForm classroomId={classroomId} />{" "}
     </div>
   );
 }

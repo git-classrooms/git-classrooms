@@ -10,7 +10,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useCreateTeam } from "@/api/team";
 
-export const CreateOwnedTeamForm = ({ classroomId }: { classroomId: string }) => {
+export const CreateTeamForm = ({ classroomId }: { classroomId: string }) => {
   const navigate = useNavigate();
   const { mutateAsync, isError, isPending } = useCreateTeam(classroomId);
 
