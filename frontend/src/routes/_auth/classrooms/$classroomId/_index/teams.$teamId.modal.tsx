@@ -29,7 +29,7 @@ function TeamModal() {
       onOpenChange={(open) => {
         if (!open) {
           navigate({
-            to: "/classrooms/owned/$classroomId",
+            to: "/classrooms/$classroomId",
             params: { classroomId },
             replace: true,
           });

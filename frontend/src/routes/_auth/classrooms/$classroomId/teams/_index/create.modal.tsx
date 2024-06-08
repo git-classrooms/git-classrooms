@@ -15,7 +15,7 @@ function CreateTeamModal() {
       onOpenChange={(open) => {
         if (!open) {
           navigate({
-            to: "/classrooms/owned/$classroomId/teams",
+            to: "/classrooms/$classroomId/teams",
             params: { classroomId },
             replace: true,
           });

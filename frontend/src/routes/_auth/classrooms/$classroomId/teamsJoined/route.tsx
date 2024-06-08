@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teamsJoined
 
     if (joinedClassroom.classroom.maxTeamSize === 1) {
       throw redirect({
-        to: "/classrooms/joined/$classroomId",
+        to: "/classrooms/$classroomId",
         params,
         replace: true,
       });

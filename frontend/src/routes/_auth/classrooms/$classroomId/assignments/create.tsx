@@ -58,7 +58,7 @@ function CreateAssignment() {
     const location = await mutateAsync({ ...values, dueDate: values.dueDate?.toISOString() });
     const assignmentId = getUUIDFromLocation(location);
     await navigate({
-      to: "/classrooms/owned/$classroomId/assignments/$assignmentId",
+      to: "/classrooms/$classroomId/assignments/$assignmentId",
       params: { classroomId, assignmentId },
     });
   }

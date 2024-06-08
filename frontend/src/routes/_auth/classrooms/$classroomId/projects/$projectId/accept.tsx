@@ -46,7 +46,7 @@ function AcceptAssignment() {
       <Separator />
       <div className="flex justify-between">
         <Button variant="destructive" asChild>
-          <Link to="/classrooms/joined/$classroomId" params={{ classroomId }} property="stylesheet">
+          <Link to="/classrooms/$classroomId" params={{ classroomId }} property="stylesheet">
             Reject
           </Link>
         </Button>

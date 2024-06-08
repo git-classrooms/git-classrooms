@@ -33,7 +33,7 @@ function Teams() {
       <Header title="Teams">
         {classroom.role !== Role.Student && (
           <Button variant="default" asChild>
-            <Link to="/classrooms/owned/$classroomId/teams/create/modal" replace params={{ classroomId }}>
+            <Link to="/classrooms/$classroomId/teams/create/modal" replace params={{ classroomId }}>
               Create Teams
             </Link>
           </Button>

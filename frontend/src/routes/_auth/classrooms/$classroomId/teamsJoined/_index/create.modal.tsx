@@ -11,7 +11,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teamsJoined
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     if (classroom.role === Role.Student || classroom.classroom.maxTeamSize <= teams.length) {
       throw redirect({
-        to: "/classrooms/joined/$classroomId/teams",
+        to: "/classrooms/$classroomId/teams",
         params,
         replace: true,
       });
@@ -29,7 +29,7 @@ function CreateTeamModal() {
       onOpenChange={(open) => {
         if (!open) {
           navigate({
-            to: "/classrooms/joined/$classroomId/teams",
+            to: "/classrooms/$classroomId/teams",
             params: { classroomId },
             replace: true,
           });
