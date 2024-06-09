@@ -107,7 +107,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) (err error) {
 	for i, email := range invitableEmails {
 		log.Println("Sending invitation to", email.Address)
 
-		invitePath := fmt.Sprintf("/classrooms/joined/%s/invitations/%s", classroom.ClassroomID.String(), invitations[i].ID.String())
+		invitePath := fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ClassroomID.String(), invitations[i].ID.String())
 		err = ctrl.mailRepo.SendClassroomInvitation(email.Address,
 			fmt.Sprintf(`New Invitation for Classroom "%s"`,
 				classroom.Classroom.Name),

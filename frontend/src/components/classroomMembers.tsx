@@ -42,7 +42,7 @@ export function MemberListCard({
       {userRole != 2 && (
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
-            <Link to="/classrooms/owned/$classroomId/invite" params={{ classroomId }}>
+            <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
               Invite members
             </Link>
           </Button>
@@ -80,7 +80,7 @@ function MemberTable({
               {userRole != Role.Student && m.team ? (
                 <Button variant="ghost" size="icon" asChild>
                   <Link
-                    to="/classrooms/owned/$classroomId/teams/$teamId/modal"
+                    to="/classrooms/$classroomId/teams/$teamId/modal"
                     params={{ classroomId: classroomId, teamId: m.team.id }}
                   >
                     <Clipboard className="h-6 w-6 text-gray-600" />

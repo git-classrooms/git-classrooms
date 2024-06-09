@@ -77,7 +77,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
               </TableCell>
               <TableCell className="text-right">
                 <Button asChild variant="outline">
-                  <Link to="/classrooms/owned/$classroomId" params={{ classroomId: c.classroom.id }}>
+                  <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -122,7 +122,7 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
               </TableCell>
               <TableCell className="text-right">
                 <Button variant="outline">
-                  <Link to="/classrooms/joined/$classroomId" params={{ classroomId: c.classroom.id }}>
+                  <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -155,7 +155,7 @@ function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomRespo
               </TableCell>
               <TableCell className="text-right">
                 <Button variant="outline">
-                  <Link to="/classrooms/joined/$classroomId" params={{ classroomId: c.classroom.id }}>
+                  <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
                     <ArrowRight />
                   </Link>
                 </Button>

@@ -98,7 +98,7 @@ export function ClassroomTeamAssignmentTable({
                   </div>
                   <Button variant="ghost" size="icon" asChild>
                     <Link
-                      to="/classrooms/owned/$classroomId/assignments/$assignmentId"
+                      to="/classrooms/$classroomId/assignments/$assignmentId"
                       params={{ classroomId: classroomId, assignmentId: p.assignment.id }}
                     >
                       <Edit className="h-6 w-6 text-gray-600" />

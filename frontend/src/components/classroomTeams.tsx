@@ -39,7 +39,7 @@ export function TeamListCard({
       {userRole != Role.Student && (
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
-            <Link to="/classrooms/owned/$classroomId/team/create/modal" replace params={{ classroomId }}>
+            <Link to="/classrooms/$classroomId/team/create/modal" replace params={{ classroomId }}>
               Create a team
             </Link>
           </Button>
@@ -67,7 +67,7 @@ function TeamTable({ teams, classroomId, userRole }: { teams: TeamResponse[]; cl
               {userRole != Role.Student && (
                 <Button variant="ghost" size="icon" asChild>
                   <Link
-                    to="/classrooms/owned/$classroomId/teams/$teamId/modal"
+                    to="/classrooms/$classroomId/teams/$teamId/modal"
                     params={{ classroomId: classroomId, teamId: t.id }}
                   >
                     <Clipboard className="h-6 w-6 text-gray-600" />

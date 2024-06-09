@@ -44,24 +44,18 @@ const classroomCreateModalToClassroomCreateMask = createRouteMask({
   params: true,
 });
 
-const joinedClassroomTeamCreateMask = createRouteMask({
+
+const classroomTeamCreateMask = createRouteMask({
   routeTree,
-  from: "/classrooms/joined/$classroomId/teams/create/modal",
-  to: "/classrooms/joined/$classroomId/teams/create",
+  from: "/classrooms/$classroomId/team/create/modal",
+  to: "/classrooms/$classroomId/teams/create",
   params: true,
 });
 
-const ownedClassroomTeamCreateMask = createRouteMask({
+const classroomTeamsCreateMask = createRouteMask({
   routeTree,
-  from: "/classrooms/owned/$classroomId/team/create/modal",
-  to: "/classrooms/owned/$classroomId/teams/create",
-  params: true,
-});
-
-const ownedClassroomTeamsCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/owned/$classroomId/teams/create/modal",
-  to: "/classrooms/owned/$classroomId/teams/create",
+  from: "/classrooms/$classroomId/teams/create/modal",
+  to: "/classrooms/$classroomId/teams/create",
   params: true,
 });
 
@@ -74,9 +68,8 @@ const router = createRouter({
   },
   routeMasks: [
     classroomCreateModalToClassroomCreateMask,
-    ownedClassroomTeamCreateMask,
-    ownedClassroomTeamsCreateMask,
-    joinedClassroomTeamCreateMask,
+    classroomTeamCreateMask,
+    classroomTeamsCreateMask,
   ],
   defaultPreload: "intent",
   unmaskOnReload: true,
