@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
   loader: async ({ context: { queryClient }, params }) => {
     const templateProjects = await queryClient.ensureQueryData(classroomTemplatesQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student ) {
+    if (userClassroom.role !== Role.Owner ) {
       throw redirect({
         to: "/classrooms/$classroomId",
         params,
