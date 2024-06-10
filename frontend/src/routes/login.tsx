@@ -42,7 +42,7 @@ function Login() {
         <h1 className="text-5xl font-bold text-center mb-5">Login</h1>
         <p className="text-slate-500 text-lg">
           Authenticate Classrooms with your GitLab account at <span
-          className="text-slate-900 font-bold">{data.gitlabUrl}</span>.
+          className="text-slate-900  dark:text-slate-300 font-bold">{data.gitlabUrl}</span>.
         </p>
         <Separator />
         <p className="text-slate-500">
