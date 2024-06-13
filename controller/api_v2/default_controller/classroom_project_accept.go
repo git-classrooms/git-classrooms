@@ -82,7 +82,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 	// We don't need to clean up this step because the project will be deleted
 
-	_, err = repo.CreateBranch(project.ID, "feedback", "main")
+	_, err = repo.CreateBranch(project.ID, "feedback", project.DefaultBranch)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -101,7 +101,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 		return fmt.Sprintf("/cc @%s", member.GitlabUsername)
 	})
 	description := fmt.Sprintf(mergeRequestDescription, strings.Join(mentions, "\n"))
-	err = repo.CreateMergeRequest(project.ID, "main", "feedback", "Feedback", description, userID, classroom.Classroom.OwnerID)
+	err = repo.CreateMergeRequest(project.ID, project.DefaultBranch, "feedback", "Feedback", description, userID, classroom.Classroom.OwnerID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -127,13 +127,13 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 		}
 	}
 
-	err = repo.UnprotectBranch(project.ID, "main")
+	err = repo.UnprotectBranch(project.ID, project.DefaultBranch)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	// We don't need to clean up this step because the project will be deleted
 
-	err = repo.ProtectBranch(project.ID, "main", gitlabModel.DeveloperPermissions)
+	err = repo.ProtectBranch(project.ID, project.DefaultBranch, gitlabModel.DeveloperPermissions)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

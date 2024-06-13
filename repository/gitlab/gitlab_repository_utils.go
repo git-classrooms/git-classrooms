@@ -15,12 +15,13 @@ func ProjectFromGoGitlab(gitlabProject goGitlab.Project) *model.Project {
 	}
 
 	return &model.Project{
-		Name:        gitlabProject.Name,
-		ID:          gitlabProject.ID,
-		Visibility:  VisibilityFromGoGitlab(gitlabProject.Visibility),
-		WebUrl:      gitlabProject.WebURL,
-		Description: gitlabProject.Description,
-		Owner:       owner,
+		Name:          gitlabProject.Name,
+		ID:            gitlabProject.ID,
+		Visibility:    VisibilityFromGoGitlab(gitlabProject.Visibility),
+		WebUrl:        gitlabProject.WebURL,
+		Description:   gitlabProject.Description,
+		Owner:         owner,
+		DefaultBranch: gitlabProject.DefaultBranch,
 	}
 }
 
