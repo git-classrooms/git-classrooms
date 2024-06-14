@@ -13,6 +13,8 @@ type Controller interface {
 	CreatorMiddleware() fiber.Handler
 	ViewableClassroomMiddleware() fiber.Handler
 
+	ArchivedMiddleware(*fiber.Ctx) error
+
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error
 	RedirectProjectGitlab(*fiber.Ctx) error
@@ -25,6 +27,7 @@ type Controller interface {
 	ClassroomMiddleware(*fiber.Ctx) error
 	GetClassroom(*fiber.Ctx) error
 	UpdateClassroom(*fiber.Ctx) error
+	ArchiveClassroom(*fiber.Ctx) error
 
 	GetClassroomTemplates(*fiber.Ctx) error
 
