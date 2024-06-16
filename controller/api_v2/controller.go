@@ -51,6 +51,7 @@ type Controller interface {
 	JoinClassroom(*fiber.Ctx) error
 	GetClassroomInvitations(*fiber.Ctx) error
 	InviteToClassroom(*fiber.Ctx) error
+	RevokeClassroomInvitation(*fiber.Ctx) error
 
 	GetClassroomMembers(*fiber.Ctx) error
 	ClassroomMemberMiddleware(*fiber.Ctx) error
