@@ -99,3 +99,17 @@ func (db *TestDB) SaveAssignmentProjects(project *database.AssignmentProjects) {
 		db.t.Fatalf("could not update assignment project: %s", err.Error())
 	}
 }
+
+func (testDb *TestDB) InsertInvitation(invitation *database.ClassroomInvitation) {
+	err := query.ClassroomInvitation.WithContext(context.Background()).Create(invitation)
+	if err != nil {
+		testDb.t.Fatalf("could not insert invitation: %s", err.Error())
+	}
+}
+
+func (testDb *TestDB) SaveInvitation(invitation *database.ClassroomInvitation) {
+	err := query.ClassroomInvitation.WithContext(context.Background()).Save(invitation)
+	if err != nil {
+		testDb.t.Fatalf("could not update invitation: %s", err.Error())
+	}
+}

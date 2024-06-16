@@ -182,9 +182,10 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Post("/classrooms/:classroomId/projects/:projectId/accept", apiController.AcceptAssignment)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
 
-	v2.Get("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomInvitations)
-	v2.Post("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.InviteToClassroom)
-	// v2.Delete("/classrooms/:classroomId/invitations/:invitationId", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.RevokeInvitation)
+	v2.Use("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator))
+	v2.Get("/classrooms/:classroomId/invitations", apiController.GetClassroomInvitations)
+	v2.Post("/classrooms/:classroomId/invitations", apiController.InviteToClassroom)
+	v2.Delete("/classrooms/:classroomId/invitations/:invitationId", apiController.RevokeClassroomInvitation)
 
 	v2.Get("/classrooms/:classroomId/members", apiController.GetClassroomMembers)
 	v2.Use("/classrooms/:classroomId/members/:memberId", apiController.ClassroomMemberMiddleware)
