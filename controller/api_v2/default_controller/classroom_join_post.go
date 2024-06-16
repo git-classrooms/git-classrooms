@@ -78,7 +78,12 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	if invitation.Status != database.ClassroomInvitationPending {
+	switch invitation.Status {
+	case database.ClassroomInvitationRevoked:
+		return fiber.NewError(fiber.StatusForbidden, "This invitation has been revoked.")
+	case database.ClassroomInvitationPending:
+		break
+	default:
 		return fiber.NewError(fiber.StatusForbidden, "This invitation has already been processed.")
 	}
 
