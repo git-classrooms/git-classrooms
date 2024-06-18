@@ -136,8 +136,9 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
   function MobileNavbar() {
     return (
       <div className="md:hidden flex justify-between px-4 py-2.5 border-b w-full">
+        {!props.auth && <LogoButton/>}
         <AvatarDropdown />
-        <LogoButton/>
+        {props.auth && (<><LogoButton/>
         <Sheet >
           <SheetTrigger asChild>
             <Button size="icon" className="m-2">
@@ -159,7 +160,7 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
               <Separator />
             </nav>
           </SheetContent>
-        </Sheet>
+        </Sheet></>)}
         </div>
     );
   }
