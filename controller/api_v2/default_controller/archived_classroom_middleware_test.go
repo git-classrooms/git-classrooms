@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"net/http/httptest"
 	"testing"
 
@@ -29,7 +30,7 @@ func TestArchivedClassroomMiddleware(t *testing.T) {
 	})
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	handler := NewApiV2Controller(mailRepo)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 	app.Use("/api/v2/classrooms/:classroomId", handler.ArchivedMiddleware)
 
 	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s", userClassroom.Classroom.ID.String())
