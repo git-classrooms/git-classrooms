@@ -104,7 +104,7 @@ func main() {
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
 	apiCtrl := apiController.NewApiController(mailRepo)
-	v2Controller := api.NewApiV2Controller(mailRepo)
+	v2Controller := api.NewApiV2Controller(mailRepo, *appConfig)
 
 	router.Routes(app, authCtrl, apiCtrl, v2Controller, appConfig.FrontendPath, appConfig.Auth)
 
