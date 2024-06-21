@@ -1,12 +1,14 @@
 package api
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 // @Summary		ArchiveClassroom
@@ -25,7 +27,7 @@ import (
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/archive [patch]
 func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	userClassroom := ctx.GetUserClassroom()
 	classroom := userClassroom.Classroom
 	repo := ctx.GetGitlabRepository()
@@ -49,7 +51,7 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 	defer func() {
 		if recover() != nil || err != nil {
 			for _, cache := range caches {
-				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
+				repo.ChangeUserAccessLevelInProject(context.Background(), cache.ProjectID, cache.UserID, cache.AccessLevel)
 			}
 		}
 	}()
@@ -60,12 +62,12 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 					continue
 				}
 
-				permission, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, member.UserID)
+				permission, err := repo.GetAccessLevelOfUserInProject(c.Context(), project.ProjectID, member.UserID)
 				if err != nil {
 					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 				}
 
-				if err := repo.ChangeUserAccessLevelInProject(project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInProject(c.Context(), project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
 					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 				}
 

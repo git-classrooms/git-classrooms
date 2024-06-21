@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -8,7 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type updateMemberTeamRequest struct {
@@ -37,7 +38,7 @@ func (r updateMemberTeamRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/members/{memberId}/team [patch]
 func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
 	member := ctx.GetClassroomMember()
 	repo := ctx.GetGitlabRepository()
@@ -77,25 +78,25 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 	}
 
 	if member.TeamID != nil {
-		if err = repo.RemoveUserFromGroup(member.Team.GroupID, member.UserID); err != nil {
+		if err = repo.RemoveUserFromGroup(c.Context(), member.Team.GroupID, member.UserID); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
+				if err := repo.AddUserToGroup(context.Background(), member.Team.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
 					log.Println(err)
 				}
 			}
 		}()
 	}
 
-	if err = repo.AddUserToGroup(newTeam.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
+	if err = repo.AddUserToGroup(c.Context(), newTeam.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	member.TeamID = &newTeam.ID
 	defer func() {
 		if recover() != nil || err != nil {
-			if err := repo.RemoveUserFromGroup(newTeam.GroupID, member.UserID); err != nil {
+			if err := repo.RemoveUserFromGroup(context.Background(), newTeam.GroupID, member.UserID); err != nil {
 				log.Println(err)
 			}
 		}

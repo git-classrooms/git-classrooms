@@ -30,7 +30,7 @@ func (ctrl *DefaultController) GetClassroomTemplates(c *fiber.Ctx) error {
 	search := c.Query("search")
 
 	repo := ctx.GetGitlabRepository()
-	projects, err := repo.GetAllProjects(search)
+	projects, err := repo.GetAllProjects(c.Context(), search)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

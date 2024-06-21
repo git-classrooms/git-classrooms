@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type action string //@Name action
@@ -46,7 +47,7 @@ func (r *joinClassroomRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/join [post]
 func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	repo := ctx.GetGitlabRepository()
 
 	var params Params
@@ -149,29 +150,30 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			groupRole = gitlabModel.ReporterPermissions
 		}
 
-		if err = repo.AddUserToGroup(invitation.Classroom.GroupID, userID, groupRole); err != nil {
+		if err = repo.AddUserToGroup(c.Context(), invitation.Classroom.GroupID, userID, groupRole); err != nil {
 			return err
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				repo.RemoveUserFromGroup(invitation.Classroom.GroupID, userID)
+				repo.RemoveUserFromGroup(context.Background(), invitation.Classroom.GroupID, userID)
 			}
 		}()
 
 		if invitation.Classroom.MaxTeamSize == 1 {
 			var subgroup *gitlabModel.Group
 			subgroup, err = repo.CreateSubGroup(
+				c.Context(),
 				user.Name,
 				invitation.Classroom.GroupID,
 				gitlabModel.Private,
-				fmt.Sprintf("Team %s of classroom %s", user.Name, invitation.Classroom.Name),
+				fmt.Sprintf("team %s of classroom %s", user.Name, invitation.Classroom.Name),
 			)
 			if err != nil {
 				return err
 			}
 			defer func() {
 				if recover() != nil || err != nil {
-					repo.DeleteGroup(subgroup.ID)
+					repo.DeleteGroup(context.Background(), subgroup.ID)
 				}
 			}()
 
@@ -185,7 +187,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 				return err
 			}
 
-			if err = repo.AddUserToGroup(subgroup.ID, userID, gitlabModel.ReporterPermissions); err != nil {
+			if err = repo.AddUserToGroup(c.Context(), subgroup.ID, userID, gitlabModel.ReporterPermissions); err != nil {
 				return err
 			}
 		}

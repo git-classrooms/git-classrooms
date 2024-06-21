@@ -43,7 +43,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 	repo := ctx.GetGitlabRepository()
 	assignment := ctx.GetAssignment()
 
-	languages, err := repo.GetProjectLanguages(assignment.TemplateProjectID)
+	languages, err := repo.GetProjectLanguages(c.Context(), assignment.TemplateProjectID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -62,7 +62,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 		Report:        make([]*assignmentTestReport, 0),
 		Example:       examples.GetLanguageCIExample(maxLanguage),
 	}
-	response.Activatible, err = repo.CheckIfFileExistsInProject(assignment.TemplateProjectID, ".gitlab-ci.yml")
+	response.Activatible, err = repo.CheckIfFileExistsInProject(c.Context(), assignment.TemplateProjectID, ".gitlab-ci.yml")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -71,7 +71,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 		return c.JSON(response)
 	}
 
-	report, err := repo.GetProjectLatestPipelineTestReportSummary(assignment.TemplateProjectID, nil)
+	report, err := repo.GetProjectLatestPipelineTestReportSummary(c.Context(), assignment.TemplateProjectID, nil)
 	if err != nil {
 		return c.JSON(response)
 	}

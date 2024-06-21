@@ -27,12 +27,12 @@ func (ctrl *DefaultController) GetClassroomRunners(c *fiber.Ctx) (err error) {
 	repository := ctx.GetGitlabRepository()
 	classroom := ctx.GetUserClassroom()
 
-	globalRunners, err := repository.GetAvailableRunnersForGitLab()
+	globalRunners, err := repository.GetAvailableRunnersForGitLab(c.Context())
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	groupRunners, err := repository.GetAvailableRunnersForGroup(classroom.Classroom.GroupID)
+	groupRunners, err := repository.GetAvailableRunnersForGroup(c.Context(), classroom.Classroom.GroupID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

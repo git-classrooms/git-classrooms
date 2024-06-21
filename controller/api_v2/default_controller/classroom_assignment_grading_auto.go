@@ -65,7 +65,7 @@ func (ctrl *DefaultController) StartAutoGrading(c *fiber.Ctx) (err error) {
 		}
 
 		for _, project := range projects {
-			report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
+			report, err := repo.GetProjectLatestPipelineTestReportSummary(c.Context(), project.ProjectID, nil)
 			if err != nil {
 				var gitlabError *model.GitLabError
 				if errors.As(err, &gitlabError) {

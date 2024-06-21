@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -9,7 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type updateMemberRoleRequest struct {
@@ -38,7 +39,7 @@ func (r updateMemberRoleRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/members/{memberId}/role [patch]
 func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
 	member := ctx.GetClassroomMember()
 	repo := ctx.GetGitlabRepository()
@@ -80,36 +81,36 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 	case oldRole == database.Owner && *requestBody.Role == database.Student && viewOtherProjects:
 		fallthrough
 	case oldRole == database.Owner && *requestBody.Role == database.Moderator:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 					log.Println(err)
 				}
 			}
 		}()
 
 	case oldRole == database.Owner && *requestBody.Role == database.Student && !viewOtherProjects:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 					log.Println(err)
 				}
 			}
 		}()
 
 	case oldRole == database.Moderator && *requestBody.Role == database.Student && !viewOtherProjects:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
 			}
@@ -120,24 +121,24 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		break
 
 	case oldRole == database.Moderator && *requestBody.Role == database.Owner:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
 			}
 		}()
 
 	case oldRole == database.Student && *requestBody.Role == database.Moderator && !viewOtherProjects:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
 					log.Println(err)
 				}
 			}
@@ -147,24 +148,24 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		// The Permission donẗ change
 
 	case oldRole == database.Student && *requestBody.Role == database.Owner && !viewOtherProjects:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
 					log.Println(err)
 				}
 			}
 		}()
 
 	case oldRole == database.Student && *requestBody.Role == database.Owner && viewOtherProjects:
-		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
+		if err = repo.ChangeUserAccessLevelInGroup(c.Context(), classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
+				if err := repo.ChangeUserAccessLevelInGroup(context.Background(), classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
 			}
@@ -179,7 +180,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 					return err
 				}
 
-				if err := repo.DeleteGroup(member.Team.GroupID); err != nil {
+				if err := repo.DeleteGroup(c.Context(), member.Team.GroupID); err != nil {
 					return err
 				}
 			}
@@ -188,6 +189,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		} else if classroom.Classroom.MaxTeamSize == 1 {
 
 			subgroup, err := repo.CreateSubGroup(
+				c.Context(),
 				member.User.Name,
 				classroom.Classroom.GroupID,
 				gitlabModel.Private,
@@ -198,7 +200,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			}
 			defer func() {
 				if recover() != nil || err != nil {
-					repo.DeleteGroup(subgroup.ID)
+					repo.DeleteGroup(context.Background(), subgroup.ID)
 				}
 			}()
 
@@ -214,12 +216,12 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			member.TeamID = &team.ID
 			member.Team = team
 
-			if err = repo.AddUserToGroup(team.GroupID, member.UserID, gitlabModel.ReporterPermissions); err != nil {
+			if err = repo.AddUserToGroup(c.Context(), team.GroupID, member.UserID, gitlabModel.ReporterPermissions); err != nil {
 				return err
 			}
 			defer func() {
 				if recover() != nil || err != nil {
-					repo.RemoveUserFromGroup(team.GroupID, member.UserID)
+					repo.RemoveUserFromGroup(context.Background(), team.GroupID, member.UserID)
 				}
 			}()
 		}

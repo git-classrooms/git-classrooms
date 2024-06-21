@@ -33,7 +33,7 @@ func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err er
 
 	response := make([]*ProjectCloneUrlResponse, len(assignmentProjects))
 	for i, assignment_project := range assignmentProjects {
-		project, err := repo.GetProjectById(assignment_project.ProjectID)
+		project, err := repo.GetProjectById(c.Context(), assignment_project.ProjectID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}

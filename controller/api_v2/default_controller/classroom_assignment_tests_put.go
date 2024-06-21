@@ -65,7 +65,7 @@ func (ctrl *DefaultController) UpdateAssignmentTests(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, "Request Body is not valid")
 	}
 
-	report, err := repo.GetProjectLatestPipelineTestReportSummary(assignment.TemplateProjectID, nil)
+	report, err := repo.GetProjectLatestPipelineTestReportSummary(c.Context(), assignment.TemplateProjectID, nil)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

@@ -1,13 +1,14 @@
 package api
 
 import (
+	"context"
 	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type updateTeamRequest struct {
@@ -35,7 +36,7 @@ func (r updateTeamRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/teams/{teamId} [put]
 func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
 	team := ctx.GetTeam()
 	repo := ctx.GetGitlabRepository()
@@ -59,13 +60,13 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 
 	oldTeamName := team.Name
 
-	_, err = repo.ChangeGroupName(team.GroupID, requestBody.Name)
+	_, err = repo.ChangeGroupName(c.Context(), team.GroupID, requestBody.Name)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer func() {
 		if recover() != nil || err != nil {
-			if _, err := repo.ChangeGroupName(team.GroupID, oldTeamName); err != nil {
+			if _, err := repo.ChangeGroupName(context.Background(), team.GroupID, oldTeamName); err != nil {
 				log.Printf("Failed to revert group name: %v", err)
 			}
 		}

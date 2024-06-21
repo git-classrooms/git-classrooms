@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -8,7 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type updateAssignmentRequest struct {
@@ -43,7 +44,7 @@ func (r updateAssignmentRequest) isValid() (bool, string) {
 // @Failure		500				{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId} [put]
 func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	assignment := ctx.GetAssignment()
 	var err error
 
@@ -106,7 +107,7 @@ func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 }
 
 func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	assignment := ctx.GetAssignment()
 	repo := ctx.GetGitlabRepository()
 
@@ -123,7 +124,7 @@ func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
 	defer func() {
 		if recover() != nil || err != nil {
 			for _, cache := range caches {
-				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
+				repo.ChangeUserAccessLevelInProject(context.Background(), cache.ProjectID, cache.UserID, cache.AccessLevel)
 			}
 		}
 	}()
@@ -139,7 +140,7 @@ func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
 		}
 
 		for _, userClassroom := range userClassrooms {
-			oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, userClassroom.UserID)
+			oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(c.Context(), project.ProjectID, userClassroom.UserID)
 			if err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
@@ -147,7 +148,7 @@ func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
 				continue
 			}
 
-			err = repo.ChangeUserAccessLevelInProject(project.ProjectID, userClassroom.UserID, model.DeveloperPermissions)
+			err = repo.ChangeUserAccessLevelInProject(c.Context(), project.ProjectID, userClassroom.UserID, model.DeveloperPermissions)
 			if err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}

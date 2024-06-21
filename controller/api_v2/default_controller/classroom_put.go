@@ -1,10 +1,12 @@
 package api
 
 import (
+	"context"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type updateClassroomRequest struct {
@@ -32,7 +34,7 @@ func (r updateClassroomRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId} [put]
 func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom().Classroom
 	oldclassroom := ctx.GetUserClassroom().Classroom
 
@@ -49,13 +51,13 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 
 	if requestBody.Name != oldclassroom.Name {
 		classroom.Name = requestBody.Name
-		if _, err := repo.ChangeGroupName(classroom.GroupID, requestBody.Name); err != nil {
+		if _, err := repo.ChangeGroupName(c.Context(), classroom.GroupID, requestBody.Name); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
 		defer func() {
 			if recover() != nil || err != nil {
-				repo.ChangeGroupName(classroom.GroupID, oldclassroom.Name)
+				repo.ChangeGroupName(context.Background(), classroom.GroupID, oldclassroom.Name)
 			}
 		}()
 	}
@@ -63,13 +65,13 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 	if requestBody.Description != oldclassroom.Description {
 		classroom.Description = requestBody.Description
 
-		if _, err := repo.ChangeGroupDescription(classroom.GroupID, utils.CreateClassroomGitlabDescription(&classroom, ctrl.config.PublicURL)); err != nil {
+		if _, err := repo.ChangeGroupDescription(c.Context(), classroom.GroupID, utils.CreateClassroomGitlabDescription(&classroom, ctrl.config.PublicURL)); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
 		defer func() {
 			if recover() != nil || err != nil {
-				repo.ChangeGroupDescription(classroom.GroupID, oldclassroom.Description)
+				repo.ChangeGroupDescription(context.Background(), classroom.GroupID, oldclassroom.Description)
 			}
 		}()
 	}

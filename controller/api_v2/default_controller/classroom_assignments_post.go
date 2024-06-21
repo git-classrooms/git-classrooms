@@ -52,7 +52,7 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) (err error) {
 	}
 
 	// Check if template repository exists
-	if _, err = repo.GetProjectById(requestBody.TemplateProjectId); err != nil {
+	if _, err = repo.GetProjectById(c.Context(), requestBody.TemplateProjectId); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 

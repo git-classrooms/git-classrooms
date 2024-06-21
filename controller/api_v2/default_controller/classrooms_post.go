@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -10,7 +11,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type createClassroomRequest struct {
@@ -45,7 +46,7 @@ func (r createClassroomRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	repo := ctx.GetGitlabRepository()
 
 	userID := ctx.GetUserID()
@@ -66,6 +67,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	}
 
 	group, err := repo.CreateGroup(
+		c.Context(),
 		requestBody.Name,
 		model.Private,
 		requestBody.Description,
@@ -75,7 +77,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	}
 	defer func() {
 		if recover() != nil || err != nil {
-			if err := repo.DeleteGroup(group.ID); err != nil {
+			if err := repo.DeleteGroup(context.Background(), group.ID); err != nil {
 				log.Println(err.Error())
 			}
 		}
@@ -83,7 +85,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 
 	expiresAt := time.Now().AddDate(0, 0, 364)
 
-	accessToken, err := repo.CreateGroupAccessToken(group.ID, "GitClassrooms", model.OwnerPermissions, expiresAt, "api")
+	accessToken, err := repo.CreateGroupAccessToken(c.Context(), group.ID, "GitClassrooms", model.OwnerPermissions, expiresAt, "api")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -110,7 +112,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 			return err
 		}
 
-		if _, err = repo.ChangeGroupDescription(group.ID, utils.CreateClassroomGitlabDescription(classroom, ctrl.config.PublicURL)); err != nil {
+		if _, err = repo.ChangeGroupDescription(c.Context(), group.ID, utils.CreateClassroomGitlabDescription(classroom, ctrl.config.PublicURL)); err != nil {
 			return err
 		}
 

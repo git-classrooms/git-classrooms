@@ -10,7 +10,7 @@ func (ctrl *DefaultController) RedirectGroupGitlab(c *fiber.Ctx) (err error) {
 	groupID := ctx.GetGitlabGroupID()
 	repo := ctx.GetGitlabRepository()
 
-	group, err := repo.GetGroupById(groupID)
+	group, err := repo.GetGroupById(c.Context(), groupID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

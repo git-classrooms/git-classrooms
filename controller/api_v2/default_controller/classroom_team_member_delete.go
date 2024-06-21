@@ -43,7 +43,7 @@ func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		if err := repo.RemoveUserFromGroup(team.GroupID, member.UserID); err != nil {
+		if err := repo.RemoveUserFromGroup(c.Context(), team.GroupID, member.UserID); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		return nil

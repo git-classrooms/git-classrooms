@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
@@ -113,35 +114,37 @@ func TestPatchClassroomArchive(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	ctx := context.TODO()
+
 	t.Run("gitlab throws error in changing access level", func(t *testing.T) {
 		userClassroom.Classroom.Archived = false
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user2.ID).
+			GetAccessLevelOfUserInProject(mock.Anything, assignmentProject.ProjectID, user2.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user2.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(mock.Anything, assignmentProject.ProjectID, user2.ID, model.ReporterPermissions).
 			Return(nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user3.ID).
+			GetAccessLevelOfUserInProject(mock.Anything, assignmentProject.ProjectID, user3.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user3.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(mock.Anything, assignmentProject.ProjectID, user3.ID, model.ReporterPermissions).
 			Return(fmt.Errorf("error")).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user2.ID, model.DeveloperPermissions).
+			ChangeUserAccessLevelInProject(mock.Anything, assignmentProject.ProjectID, user2.ID, model.DeveloperPermissions).
 			Return(nil).
 			Times(1)
 
@@ -158,25 +161,25 @@ func TestPatchClassroomArchive(t *testing.T) {
 		userClassroom.Classroom.Archived = false
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user2.ID).
+			GetAccessLevelOfUserInProject(mock.Anything, assignmentProject.ProjectID, user2.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user2.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(mock.Anything, assignmentProject.ProjectID, user2.ID, model.ReporterPermissions).
 			Return(nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user3.ID).
+			GetAccessLevelOfUserInProject(mock.Anything, assignmentProject.ProjectID, user3.ID).
 			Return(model.NoPermissions, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeUserAccessLevelInProject(assignmentProject.ProjectID, user3.ID, model.ReporterPermissions).
+			ChangeUserAccessLevelInProject(mock.Anything, assignmentProject.ProjectID, user3.ID, model.ReporterPermissions).
 			Return(nil).
 			Times(1)
 
@@ -188,7 +191,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 		assert.NoError(t, err)
 
-		dbClassroom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.ID.Eq(classroom.ID)).First()
+		dbClassroom, err := query.Classroom.WithContext(ctx).Where(query.Classroom.ID.Eq(classroom.ID)).First()
 		assert.NoError(t, err)
 		assert.Equal(t, true, dbClassroom.Archived)
 	})
