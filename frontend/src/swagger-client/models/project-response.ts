@@ -13,6 +13,7 @@
  */
 
 import { Assignment } from './assignment';
+import { DatabaseStatus } from './database-status';
 import { Team } from './team';
  /**
  * 
@@ -27,12 +28,6 @@ export interface ProjectResponse {
      * @memberof ProjectResponse
      */
     assignment: Assignment;
-
-    /**
-     * @type {boolean}
-     * @memberof ProjectResponse
-     */
-    assignmentAccepted: boolean;
 
     /**
      * @type {string}
@@ -51,6 +46,12 @@ export interface ProjectResponse {
      * @memberof ProjectResponse
      */
     projectId: number;
+
+    /**
+     * @type {DatabaseStatus}
+     * @memberof ProjectResponse
+     */
+    projectStatus: DatabaseStatus;
 
     /**
      * @type {Team}

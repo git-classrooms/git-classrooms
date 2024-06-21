@@ -30,7 +30,7 @@ func (ctrl *DefaultController) GetJoinedClassroomAssignment(c *fiber.Ctx) error 
 
 	repo := ctx.GetGitlabRepository()
 	webURL := ""
-	if assignment.AssignmentAccepted {
+	if assignment.ProjectStatus == database.Accepted {
 		projectFromGitLab, err := repo.GetProjectById(assignment.ProjectID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())

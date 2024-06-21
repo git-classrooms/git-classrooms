@@ -62,9 +62,9 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 	err = query.Q.Transaction(func(tx *query.Query) (err error) {
 		for _, team := range invitableTeams {
 			assignmentProject := &database.AssignmentProjects{
-				AssignmentID:       assignment.ID,
-				TeamID:             team.ID,
-				AssignmentAccepted: false,
+				AssignmentID:  assignment.ID,
+				TeamID:        team.ID,
+				ProjectStatus: database.Pending,
 			}
 			if err = tx.AssignmentProjects.WithContext(c.Context()).Create(assignmentProject); err != nil {
 				return err
