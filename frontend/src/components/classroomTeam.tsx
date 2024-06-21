@@ -85,9 +85,7 @@ export function ClassroomTeamAssignmentTable({
               <div className="cursor-default flex justify-between">
                 <div>
                   <div className="font-medium">{p.assignment.name}</div>
-                  <div className="text-sm text-muted-foreground md:inline">
-                    {p.assignmentAccepted ? "Accepted" : "Pending"}
-                  </div>
+                  <div className="text-sm text-muted-foreground md:inline">{p.projectStatus}</div>
                 </div>
                 <div className="flex items-end">
                   <div className="ml-auto">
@@ -105,7 +103,7 @@ export function ClassroomTeamAssignmentTable({
                     </Link>
                   </Button>
                   <Button variant="ghost" size="icon" asChild>
-                    {p.assignmentAccepted ? (
+                    {p.projectStatus === "accepted" ? (
                       <a href={p.webUrl} target="_blank" rel="noreferrer">
                         <Gitlab className="h-6 w-6 text-gray-600" />
                       </a>
