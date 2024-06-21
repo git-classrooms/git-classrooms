@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"net/http/httptest"
 	"testing"
 
@@ -97,7 +98,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewApiV2Controller(mailRepo)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 	app.Patch("/api/classrooms/:classroomId/archive", handler.ArchiveClassroom)
 
 	targetRoute := fmt.Sprintf("/api/classrooms/%s/archive", classroom.ID.String())

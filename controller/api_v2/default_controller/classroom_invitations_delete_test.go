@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"net/http/httptest"
 	"testing"
 
@@ -40,7 +41,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	app := fiber.New()
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	handler := NewApiV2Controller(mailRepo)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 	app.Delete("/classrooms/:classroomId/invitations/:invitationId", handler.RevokeClassroomInvitation)
 
 	targetRoute := fmt.Sprintf("/classrooms/%s/invitations/%s", invitation.ClassroomID, invitation.ID)

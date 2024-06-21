@@ -74,4 +74,5 @@ type Controller interface {
 	GetClassroomTeamProjects(*fiber.Ctx) error
 	ClassroomTeamProjectMiddleware(*fiber.Ctx) error
 	GetClassroomTeamProject(*fiber.Ctx) error
+	GetGitlabInfo(*fiber.Ctx) error
 }
