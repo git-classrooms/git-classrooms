@@ -2,12 +2,13 @@ import { getRole, Role } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Clipboard, Gitlab } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Avatar } from "@/components/avatar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { UserClassroomResponse } from "@/swagger-client";
+import List from "@/components/ui/list.tsx";
+import ListItem from "@/components/ui/listItem.tsx";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -64,14 +65,15 @@ function MemberTable({
   showTeams: boolean;
 }) {
   return (
-    <Table>
-      <TableBody>
-        {members.map((m) => (
-          <TableRow key={m.user.id}>
-            <TableCell className="p-2">
-              <MemberListElement member={m} showTeams={showTeams} />
-            </TableCell>
-            <TableCell className="p-2 flex justify-end align-middle">
+    <List
+      items={members}
+      renderItem={(m) => (
+        <ListItem
+          leftContent={
+            <MemberListElement member={m} showTeams={showTeams} />
+          }
+          rightContent={
+            <>
               <Button variant="ghost" size="icon" asChild>
                 <a href={m.webUrl} target="_blank" rel="noreferrer">
                   <Gitlab className="h-6 w-6 text-gray-600" />
@@ -93,11 +95,11 @@ function MemberTable({
                   </div>
                 </Button>
               )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+            </>
+          }
+        />
+      )}
+    />
   );
 }
 
