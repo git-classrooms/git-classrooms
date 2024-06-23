@@ -21,7 +21,6 @@ import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 
 export function Navbar(props: { auth: GetMeResponse | null }) {
-  const { csrfToken } = useCsrf();
   const { theme, setTheme } = useTheme();
   const [isDarkMode, setIsDarkMode] = useState(theme === "dark");
 
@@ -31,20 +30,28 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
 
   return (
     <div className="flex sticky top-0 bg-white dark:bg-slate-900 mb-8">
-      <MobileNavbar props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
-      <DesktopNavbar props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <MobileNavbar
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        {...props}
+      />
+      <DesktopNavbar
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
+        {...props}
+      />
     </div>
   );
 }
 
 interface NavbarProps {
-  props: { auth: GetMeResponse | null },
-  csrfToken: string,
+  auth: GetMeResponse | null,
   isDarkMode: boolean,
   setIsDarkMode: (value: (((prevState: boolean) => boolean) | boolean)) => void
+
 }
 
-function DesktopNavbar({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarProps) {
+function DesktopNavbar(props: NavbarProps) {
   return (
     <nav className="hidden md:flex justify-between px-8 py-2.5 border-b w-full">
       <div className="flex items-center">
@@ -65,7 +72,7 @@ function DesktopNavbar({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarPr
           <div />
         )}
       </div>
-      <AvatarDropdown props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <AvatarDropdown {...props} />
     </nav>
   );
 }
@@ -78,7 +85,8 @@ function LogoButton() {
   );
 }
 
-function AvatarDropdown({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarProps ) {
+function AvatarDropdown(props: NavbarProps) {
+  const { csrfToken } = useCsrf();
   return (
     <div className="flex items-center">
       {props.auth ? (
@@ -109,11 +117,11 @@ function AvatarDropdown({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarP
             </a>
 
             <DropdownMenuItem
-              onClick={() => setIsDarkMode((prev) => !prev)}
+              onClick={() => props.setIsDarkMode((prev) => !prev)}
               onSelect={(event) => event.preventDefault()}
             >
               <Sun className="h-[1.2rem] w-[1.2rem] mr-2 dark:text-white text-black" />
-              <Switch checked={isDarkMode} />
+              <Switch checked={props.isDarkMode} />
               <Moon className="h-[1.2rem] w-[1.2rem] ml-2 dark:text-white text-black" />
               <span className="sr-only">Toggle theme</span>
             </DropdownMenuItem>
@@ -144,11 +152,11 @@ function AvatarDropdown({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarP
   );
 }
 
-function MobileNavbar({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarProps) {
+function MobileNavbar(props: NavbarProps) {
   return (
     <div className="md:hidden flex justify-between px-4 py-2.5 border-b w-full">
       {!props.auth && <LogoButton />}
-      <AvatarDropdown props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <AvatarDropdown {...props} />
       {props.auth && (<><LogoButton />
         <Sheet>
           <SheetTrigger asChild>
