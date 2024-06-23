@@ -165,9 +165,12 @@ function MobileNavbar({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarPro
             </SheetHeader>
             <Separator />
             <nav>
-              <a href="/">
-                <p className="font-medium px-4 py-2"> Dashboard</p>
-              </a>
+              <Link
+                to="/"
+                activeProps={{ className: "!font-bold" }}
+              >
+                <p className="font-medium px-4 py-2 hover:underline">Dashboard</p>
+              </Link>
               <Separator />
             </nav>
           </SheetContent>
