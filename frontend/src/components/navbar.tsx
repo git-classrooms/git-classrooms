@@ -31,115 +31,126 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
 
   return (
     <div className="flex sticky top-0 bg-white dark:bg-slate-900 mb-8">
-      <MobileNavbar/>
-      <DesktopNavbar/>
+      <MobileNavbar props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      <DesktopNavbar props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
     </div>
   );
+}
 
-  function DesktopNavbar() {
-    return (
-      <nav className="hidden md:flex justify-between px-8 py-2.5 border-b w-full">
-        <div className="flex items-center">
-          <LogoButton/>
-          {props.auth ? (
-            <ul className="flex">
-              <li className="content-center">
-                <Link
-                  to="/"
-                  className="font-medium text-sm px-4 py-2 hover:underline"
-                  activeProps={{ className: "!font-bold" }}
-                >
-                  Dashboard
-                </Link>
-              </li>
-            </ul>
-          ) : (
-            <div />
-          )}
-        </div>
-        <AvatarDropdown/>
-      </nav>
-    );
-  }
-  function LogoButton(){
-    return (
-      <a href="/">
-        <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
-      </a>
-    )
-  }
-  function AvatarDropdown() {
-    return (
+interface NavbarProps {
+  props: { auth: GetMeResponse | null },
+  csrfToken: string,
+  isDarkMode: boolean,
+  setIsDarkMode: (value: (((prevState: boolean) => boolean) | boolean)) => void
+}
+
+function DesktopNavbar({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarProps) {
+  return (
+    <nav className="hidden md:flex justify-between px-8 py-2.5 border-b w-full">
       <div className="flex items-center">
+        <LogoButton />
         {props.auth ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Avatar
-                avatarUrl={props.auth.gitlabAvatar?.avatarURL}
-                fallbackUrl={props.auth.gitlabAvatar?.fallbackAvatarURL}
-                name={props.auth.name!}
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>
-                <div className="font-medium">{props.auth.name}</div>
-                <div className="text-sm text-muted-foreground md:inline">@{props.auth.gitlabUsername}</div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <a
-                href={props.auth.gitlabUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center w-full"
+          <ul className="flex">
+            <li className="content-center">
+              <Link
+                to="/"
+                className="font-medium text-sm px-4 py-2 hover:underline"
+                activeProps={{ className: "!font-bold" }}
               >
-                <DropdownMenuItem className="w-full">
-                  <UserIcon className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-              </a>
-
-              <DropdownMenuItem
-                onClick={() => setIsDarkMode((prev) => !prev)}
-                onSelect={(event) => event.preventDefault()}
-              >
-                <Sun className="h-[1.2rem] w-[1.2rem] mr-2 dark:text-white text-black" />
-                <Switch checked={isDarkMode} />
-                <Moon className="h-[1.2rem] w-[1.2rem] ml-2 dark:text-white text-black" />
-                <span className="sr-only">Toggle theme</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-
-              <form id="logOutForm" method="POST" action="/api/v1/auth/sign-out">
-                <button type="submit" className="w-full">
-                  <DropdownMenuItem className="w-full">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <input type="hidden" name="csrf_token" value={csrfToken} />
-                    <span className="font-bold">Log out</span>
-                  </DropdownMenuItem>
-                </button>
-              </form>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex">
-            <ModeToggle />
-            <Button className="ml-3">
-              <Link to="/login" search={{ redirect: location.href }}>
-                Login
+                Dashboard
               </Link>
-            </Button>
-          </div>
+            </li>
+          </ul>
+        ) : (
+          <div />
         )}
       </div>
-    )
-  }
-  function MobileNavbar() {
-    return (
-      <div className="md:hidden flex justify-between px-4 py-2.5 border-b w-full">
-        {!props.auth && <LogoButton/>}
-        <AvatarDropdown />
-        {props.auth && (<><LogoButton/>
-        <Sheet >
+      <AvatarDropdown props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+    </nav>
+  );
+}
+
+function LogoButton() {
+  return (
+    <a href="/">
+      <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
+    </a>
+  );
+}
+
+function AvatarDropdown({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarProps ) {
+  return (
+    <div className="flex items-center">
+      {props.auth ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Avatar
+              avatarUrl={props.auth.gitlabAvatar?.avatarURL}
+              fallbackUrl={props.auth.gitlabAvatar?.fallbackAvatarURL}
+              name={props.auth.name!}
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>
+              <div className="font-medium">{props.auth.name}</div>
+              <div className="text-sm text-muted-foreground md:inline">@{props.auth.gitlabUsername}</div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <a
+              href={props.auth.gitlabUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center w-full"
+            >
+              <DropdownMenuItem className="w-full">
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+            </a>
+
+            <DropdownMenuItem
+              onClick={() => setIsDarkMode((prev) => !prev)}
+              onSelect={(event) => event.preventDefault()}
+            >
+              <Sun className="h-[1.2rem] w-[1.2rem] mr-2 dark:text-white text-black" />
+              <Switch checked={isDarkMode} />
+              <Moon className="h-[1.2rem] w-[1.2rem] ml-2 dark:text-white text-black" />
+              <span className="sr-only">Toggle theme</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+
+            <form id="logOutForm" method="POST" action="/api/v1/auth/sign-out">
+              <button type="submit" className="w-full">
+                <DropdownMenuItem className="w-full">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <input type="hidden" name="csrf_token" value={csrfToken} />
+                  <span className="font-bold">Log out</span>
+                </DropdownMenuItem>
+              </button>
+            </form>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <div className="flex">
+          <ModeToggle />
+          <Button className="ml-3">
+            <Link to="/login" search={{ redirect: location.href }}>
+              Login
+            </Link>
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileNavbar({ props, csrfToken, isDarkMode, setIsDarkMode }: NavbarProps) {
+  return (
+    <div className="md:hidden flex justify-between px-4 py-2.5 border-b w-full">
+      {!props.auth && <LogoButton />}
+      <AvatarDropdown props={props} csrfToken={csrfToken} isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+      {props.auth && (<><LogoButton />
+        <Sheet>
           <SheetTrigger asChild>
             <Button size="icon" className="m-2">
               <Menu />
@@ -148,7 +159,7 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
           <SheetContent>
             <SheetHeader>
               <SheetTitle className="flex items-center">
-                <LogoButton/>
+                <LogoButton />
                 Menu
               </SheetTitle>
             </SheetHeader>
@@ -161,7 +172,7 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
             </nav>
           </SheetContent>
         </Sheet></>)}
-        </div>
-    );
-  }
+    </div>
+  );
 }
+
