@@ -25,6 +25,12 @@ import { User } from './user';
 export interface UserClassroomResponse {
 
     /**
+     * @type {number}
+     * @memberof UserClassroomResponse
+     */
+    assignmentsCount: number;
+
+    /**
      * @type {Classroom}
      * @memberof UserClassroomResponse
      */

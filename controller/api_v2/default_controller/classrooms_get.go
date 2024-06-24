@@ -63,8 +63,9 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 
 	response := utils.Map(classrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
 		return &UserClassroomResponse{
-			UserClassrooms: classroom,
-			WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+			UserClassrooms:   classroom,
+			WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+			AssignmentsCount: len(classroom.Classroom.Assignments),
 		}
 	})
 

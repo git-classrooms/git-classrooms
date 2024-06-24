@@ -17,6 +17,7 @@ func userClassroomQuery(ctx *fiber.Ctx, userID int) query.IUserClassroomsDo {
 		Preload(queryUserClassroom.Team).
 		Preload(field.NewRelation("Classroom.Owner", "")).
 		Preload(field.NewRelation("Classroom.Owner.GitLabAvatar", "")).
+		Preload(field.NewRelation("Classroom.Assignments", "")).
 		Where(queryUserClassroom.UserID.Eq(userID))
 }
 
