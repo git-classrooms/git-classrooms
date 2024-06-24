@@ -24,8 +24,9 @@ func (ctrl *DefaultController) GetClassroom(c *fiber.Ctx) (err error) {
 	classroom := ctx.GetUserClassroom()
 
 	response := &UserClassroomResponse{
-		UserClassrooms: classroom,
-		WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+		UserClassrooms:   classroom,
+		WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+		AssignmentsCount: len(classroom.Classroom.Assignments),
 	}
 
 	return c.JSON(response)

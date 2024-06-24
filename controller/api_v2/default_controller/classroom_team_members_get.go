@@ -35,8 +35,9 @@ func (ctrl *DefaultController) GetClassroomTeamMembers(c *fiber.Ctx) (err error)
 
 	response := utils.Map(members, func(member *database.UserClassrooms) *UserClassroomResponse {
 		return &UserClassroomResponse{
-			UserClassrooms: member,
-			WebURL:         fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/members/%d/gitlab", classroom.ClassroomID.String(), team.ID.String(), member.UserID),
+			UserClassrooms:   member,
+			WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/members/%d/gitlab", classroom.ClassroomID.String(), team.ID.String(), member.UserID),
+			AssignmentsCount: len(classroom.Classroom.Assignments),
 		}
 	})
 
