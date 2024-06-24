@@ -1,17 +1,18 @@
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/avatar";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
-import { Code } from "lucide-react";
-import { ArrowRight as ArrowRight } from "lucide-react";
+import { ArrowRight as ArrowRight, Code, Gitlab } from "lucide-react";
 import { Header } from "@/components/header";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
 import { UserClassroomResponse } from "@/swagger-client";
+import List from "@/components/ui/list.tsx";
+import ListItem from "@/components/ui/listItem.tsx";
+import { Avatar } from "@/components/avatar.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -58,34 +59,30 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
         <CardTitle>Owned Classrooms</CardTitle>
         <CardDescription>Classrooms which are managed by you</CardDescription>
       </CardHeader>
-      <Table className="flex-auto flex-wrap justify-end">
-        <TableBody>
-          {classrooms.map((c) => (
-            <TableRow key={c.classroom.id}>
-              <TableCell className="flex flex-wrap content-center gap-4">
-                {
-                  <Avatar
-                    avatarUrl={c.classroom.owner.gitlabAvatar.avatarURL}
-                    fallbackUrl={c.classroom.owner.gitlabAvatar.fallbackAvatarURL}
-                    name="classroom-avatar"
-                  />
-                }
-                <div className="justify-center">
-                  <div className="">{c.classroom.name}</div>
-                  <div className="text-sm text-muted-foreground"> {c.classroom.description}</div>
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button asChild variant="outline">
-                  <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
-                    <ArrowRight />
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+
+      <CardContent>
+        <List
+          items={classrooms}
+          renderItem={(item) => (
+            <ListItem
+              leftContent={
+                <ListLeftContent
+                  avatarName={"Test"}
+                  avatarUrl={"Test"}
+                  avatarFallbackUrl={"Test"}
+                  classroomName={item.classroom.name}
+                  assignmentsCount={item.assignmentsCount}
+                />
+              }
+              rightContent={
+                <ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />
+              }
+            />
+          )}
+        />
+      </CardContent>
+
+
       <CardFooter className="flex justify-end gap-2">
         <Button asChild variant="default">
           <Link to="/classrooms/create/modal" replace>
@@ -165,5 +162,51 @@ function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomRespo
         </TableBody>
       </Table>
     </Card>
+  );
+}
+
+function ListLeftContent({ avatarUrl, avatarFallbackUrl, avatarName, classroomName, assignmentsCount }: {
+  avatarUrl: string,
+  avatarFallbackUrl: string,
+  avatarName: string,
+  classroomName: string,
+  assignmentsCount: number
+}) {
+  const assignmentsText = assignmentsCount === 1
+    ? `${assignmentsCount} Assignment`
+    : `${assignmentsCount} Assignments`;
+  return (
+    <div className="cursor-default flex">
+      <div className="pr-2">
+        <Avatar
+          avatarUrl={avatarUrl}
+          fallbackUrl={avatarFallbackUrl}
+          name={avatarName}
+        />
+      </div>
+      <div>
+        <div className="font-medium">{classroomName}</div>
+        <div className="text-sm text-muted-foreground md:inline">
+          {assignmentsText}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string, classroomId: string }) {
+  return (
+    <>
+      <Button variant="ghost" size="icon" asChild>
+        <a href={gitlabUrl} target="_blank" rel="noreferrer">
+          <Gitlab className="h-6 w-6 text-gray-600" />
+        </a>
+      </Button>
+      <Button variant="ghost" size="icon" asChild>
+        <Link to="/classrooms/$classroomId" params={{ classroomId: classroomId }}>
+          <ArrowRight />
+        </Link>
+      </Button>
+    </>
   );
 }
