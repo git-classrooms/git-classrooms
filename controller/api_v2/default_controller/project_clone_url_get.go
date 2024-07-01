@@ -11,21 +11,26 @@ type ProjectCloneUrlResponse struct {
 	HttpUrlToRepo string `json:"httpUrlToRepo"`
 }
 
-//	@Summary		GetProjectCloneUrls
-//	@Description	GetProjectCloneUrls
-//	@Id				GetProjectCloneUrls
-//	@Tags			project
-//	@Produce		json
-//	@Param			classroomId			path		string	true	"Classroom ID"			Format(uuid)
-//	@Param			assignmentId		path		string	true	"Assignment ID"			Format(uuid)
-//	@Param			assignmentProjectId	path		string	true	"Assignment Project ID"	Format(uuid)
-//	@Success		200					{object}	ProjectCloneUrlResponse
-//	@Failure		500					{object}	HTTPError
-//	@Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo [get]
+// @Summary		GetProjectCloneUrls
+// @Description	GetProjectCloneUrls
+// @Id				GetProjectCloneUrls
+// @Tags			project
+// @Produce		json
+// @Param			classroomId			path		string	true	"Classroom ID"			Format(uuid)
+// @Param			assignmentId		path		string	true	"Assignment ID"			Format(uuid)
+// @Param			assignmentProjectId	path		string	true	"Assignment Project ID"	Format(uuid)
+// @Success		200					{object}	ProjectCloneUrlResponse
+// @Failure		500					{object}	HTTPError
+// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo [get]
 func (ctrl *DefaultController) GetProjectCloneUrls(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	assignment := ctx.GetAssignmentProject()
 	projectId := ctx.GetGitlabProjectID()
 	repo := ctx.GetGitlabRepository()
+
+	if !assignment.AssignmentAccepted {
+		return fiber.ErrNotFound
+	}
 
 	project, err := repo.GetProjectById(projectId)
 	if err != nil {

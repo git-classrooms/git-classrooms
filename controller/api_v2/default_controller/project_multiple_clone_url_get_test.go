@@ -21,18 +21,16 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	projectId1 := 1
 	projectId2 := 2
 
-	expectedResponse := MultipleProjectCloneUrlResponse{
-		Projects: []ProjectCloneUrlResponse{
-			{
-				ProjectId:     projectId1,
-				SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
-				HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
-			},
-			{
-				ProjectId:     projectId2,
-				SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
-				HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
-			},
+	expectedResponse := []ProjectCloneUrlResponse{
+		{
+			ProjectId:     projectId1,
+			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
+			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
+		},
+		{
+			ProjectId:     projectId2,
+			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
+			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
 		},
 	}
 
@@ -119,8 +117,8 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 			GetProjectById(projectId1).
 			Return(
 				&model.Project{
-					SSHURLToRepo:  expectedResponse.Projects[0].SshUrlToRepo,
-					HTTPURLToRepo: expectedResponse.Projects[0].HttpUrlToRepo,
+					SSHURLToRepo:  expectedResponse[0].SshUrlToRepo,
+					HTTPURLToRepo: expectedResponse[0].HttpUrlToRepo,
 					ID:            projectId1,
 				},
 				nil,
@@ -132,8 +130,8 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 			GetProjectById(projectId2).
 			Return(
 				&model.Project{
-					SSHURLToRepo:  expectedResponse.Projects[1].SshUrlToRepo,
-					HTTPURLToRepo: expectedResponse.Projects[1].HttpUrlToRepo,
+					SSHURLToRepo:  expectedResponse[1].SshUrlToRepo,
+					HTTPURLToRepo: expectedResponse[1].HttpUrlToRepo,
 					ID:            projectId2,
 				},
 				nil,

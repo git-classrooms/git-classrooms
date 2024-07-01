@@ -7,10 +7,13 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -29,6 +32,41 @@ func TestGetProjectCloneUrl(t *testing.T) {
 		t.Fatalf("Could not prepare Expected Response Body")
 	}
 
+	testDb := db_tests.NewTestDB(t)
+
+	user := &database.User{
+		ID:             1,
+		GitlabUsername: "user1",
+		GitlabEmail:    "user1",
+	}
+	testDb.InsertUser(user)
+
+	classroom := &database.Classroom{
+		ID:      uuid.New(),
+		OwnerID: user.ID,
+	}
+	testDb.InsertClassroom(classroom)
+
+	team := &database.Team{
+		ID:          uuid.New(),
+		ClassroomID: classroom.ID,
+	}
+	testDb.InsertTeam(team)
+
+	assignment := &database.Assignment{
+		ID:          uuid.New(),
+		ClassroomID: classroom.ID,
+	}
+	testDb.InsertAssignment(assignment)
+
+	assignmentProject := &database.AssignmentProjects{
+		ProjectID:          projectId,
+		AssignmentID:       assignment.ID,
+		TeamID:             team.ID,
+		AssignmentAccepted: true,
+	}
+	testDb.InsertAssignmentProject(assignmentProject)
+
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 
@@ -36,6 +74,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	app.Use("api/v2", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
 		ctx.SetGitlabRepository(gitlabRepo)
+		ctx.SetAssignmentProject(assignmentProject)
 		ctx.SetGitlabProjectID(projectId)
 
 		return c.Next()
@@ -84,5 +123,16 @@ func TestGetProjectCloneUrl(t *testing.T) {
 		body, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)
 		assert.Equal(t, string(expectedResponseBody), string(body))
+	})
+
+	t.Run("GetProjectCloneUrls - assignment not accepted", func(t *testing.T) {
+		assignmentProject.AssignmentAccepted = false
+		testDb.SaveAssignmentProject(assignmentProject)
+
+		req := httptest.NewRequest("GET", "/api/v2/classrooms/:classroomId/projects/:projectId/repo", nil)
+		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t, fiber.StatusNotFound, resp.StatusCode)
 	})
 }
