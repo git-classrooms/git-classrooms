@@ -175,6 +175,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Use("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.ClassroomAssignmentProjectMiddleware)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.GetClassroomAssignmentProject)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/repo", apiController.GetRepoCloneLink)
 
 	v2.Use("/classrooms/:classroomId/projects", apiController.RoleMiddleware(database.Student))
 	v2.Get("/classrooms/:classroomId/projects", apiController.GetClassroomProjects)
@@ -182,6 +183,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/projects/:projectId", apiController.GetClassroomProject)
 	v2.Post("/classrooms/:classroomId/projects/:projectId/accept", apiController.AcceptAssignment)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/projects/:projectId/repo", apiController.GetRepoCloneLink)
 
 	v2.Use("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator))
 	v2.Get("/classrooms/:classroomId/invitations", apiController.GetClassroomInvitations)

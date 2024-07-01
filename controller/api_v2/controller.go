@@ -19,6 +19,8 @@ type Controller interface {
 	RedirectGroupGitlab(*fiber.Ctx) error
 	RedirectProjectGitlab(*fiber.Ctx) error
 
+	GetRepoCloneLink(*fiber.Ctx) error
+
 	GetMe(*fiber.Ctx) error
 	GetMeGitlab(*fiber.Ctx) error
 
