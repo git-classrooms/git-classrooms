@@ -48,6 +48,8 @@ func ProjectFromGoGitlabWithProjectMembers(gitlabProject goGitlab.Project, gitla
 		Owner:         owner,
 		Members:       members,
 		DefaultBranch: gitlabProject.DefaultBranch,
+		HTTPURLToRepo: gitlabProject.HTTPURLToRepo,
+		SSHURLToRepo:  gitlabProject.SSHURLToRepo,
 	}
 }
 

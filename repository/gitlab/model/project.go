@@ -17,4 +17,6 @@ type Project struct {
 	Owner         *User
 	DefaultBranch string
 	Members       []User
+	HTTPURLToRepo string
+	SSHURLToRepo  string
 }
