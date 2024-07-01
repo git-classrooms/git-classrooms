@@ -14,13 +14,14 @@ type ProjectCloneUrlResponse struct {
 //	@Summary		GetProjectCloneUrls
 //	@Description	GetProjectCloneUrls
 //	@Id				GetProjectCloneUrls
-//	@Tags			default
+//	@Tags			project
 //	@Produce		json
-//	@Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
-//	@Param			projectId	path		string	true	"Project ID"	Format(uuid)
-//	@Success		200			{object}	ProjectCloneUrlResponse
-//	@Failure		500			{object}	HTTPError
-//	@Router			/classrooms/:classroomId/projects/:projectId/repo [get]
+//	@Param			classroomId			path		string	true	"Classroom ID"			Format(uuid)
+//	@Param			assignmentId		path		string	true	"Assignment ID"			Format(uuid)
+//	@Param			assignmentProjectId	path		string	true	"Assignment Project ID"	Format(uuid)
+//	@Success		200					{object}	ProjectCloneUrlResponse
+//	@Failure		500					{object}	HTTPError
+//	@Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo [get]
 func (ctrl *DefaultController) GetProjectCloneUrls(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	projectId := ctx.GetGitlabProjectID()
