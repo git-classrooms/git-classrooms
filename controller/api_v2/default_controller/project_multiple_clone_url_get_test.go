@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -62,25 +63,25 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	testDb.InsertAssignment(assignment)
 
 	assignmentProject1 := &database.AssignmentProjects{
-		ProjectID:          projectId1,
-		AssignmentID:       assignment.ID,
-		TeamID:             team.ID,
-		AssignmentAccepted: true,
+		ProjectID:     projectId1,
+		AssignmentID:  assignment.ID,
+		TeamID:        team.ID,
+		ProjectStatus: database.Accepted,
 	}
 	testDb.InsertAssignmentProject(assignmentProject1)
 
 	assignmentProject2 := &database.AssignmentProjects{
-		ProjectID:          projectId2,
-		AssignmentID:       assignment.ID,
-		TeamID:             team.ID,
-		AssignmentAccepted: true,
+		ProjectID:     projectId2,
+		AssignmentID:  assignment.ID,
+		TeamID:        team.ID,
+		ProjectStatus: database.Accepted,
 	}
 	testDb.InsertAssignmentProject(assignmentProject2)
 
 	assignmentProject3 := &database.AssignmentProjects{
-		AssignmentID:       assignment.ID,
-		TeamID:             team.ID,
-		AssignmentAccepted: false,
+		AssignmentID:  assignment.ID,
+		TeamID:        team.ID,
+		ProjectStatus: database.Pending,
 	}
 	testDb.InsertAssignmentProject(assignmentProject3)
 
@@ -101,7 +102,7 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewApiV2Controller(mailRepo)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 	app.Get("/api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", handler.GetMultipleProjectCloneUrls)
 
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {

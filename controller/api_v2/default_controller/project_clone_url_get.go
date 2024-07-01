@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -28,7 +29,7 @@ func (ctrl *DefaultController) GetProjectCloneUrls(c *fiber.Ctx) (err error) {
 	projectId := ctx.GetGitlabProjectID()
 	repo := ctx.GetGitlabRepository()
 
-	if !assignment.AssignmentAccepted {
+	if assignment.ProjectStatus != database.Accepted {
 		return fiber.ErrNotFound
 	}
 

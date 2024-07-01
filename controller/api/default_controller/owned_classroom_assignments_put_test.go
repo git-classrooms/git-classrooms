@@ -141,7 +141,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 		}
 
 		project.ProjectStatus = database.Accepted
-		testDb.SaveAssignmentProjects(&project)
+		testDb.SaveAssignmentProject(&project)
 
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
