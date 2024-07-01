@@ -62,18 +62,27 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	testDb.InsertAssignment(assignment)
 
 	assignmentProject1 := &database.AssignmentProjects{
-		ProjectID:    projectId1,
-		AssignmentID: assignment.ID,
-		TeamID:       team.ID,
+		ProjectID:          projectId1,
+		AssignmentID:       assignment.ID,
+		TeamID:             team.ID,
+		AssignmentAccepted: true,
 	}
 	testDb.InsertAssignmentProject(assignmentProject1)
 
 	assignmentProject2 := &database.AssignmentProjects{
-		ProjectID:    projectId2,
-		AssignmentID: assignment.ID,
-		TeamID:       team.ID,
+		ProjectID:          projectId2,
+		AssignmentID:       assignment.ID,
+		TeamID:             team.ID,
+		AssignmentAccepted: true,
 	}
 	testDb.InsertAssignmentProject(assignmentProject2)
+
+	assignmentProject3 := &database.AssignmentProjects{
+		AssignmentID:       assignment.ID,
+		TeamID:             team.ID,
+		AssignmentAccepted: false,
+	}
+	testDb.InsertAssignmentProject(assignmentProject3)
 
 	expectedResponseBody, err := json.Marshal(expectedResponse)
 	if err != nil {
