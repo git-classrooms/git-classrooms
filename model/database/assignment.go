@@ -20,5 +20,6 @@ type Assignment struct {
 	Name              string                `gorm:"not null" json:"name"`
 	Description       string                `json:"description"`
 	DueDate           *time.Time            `json:"dueDate" validate:"optional"`
+	Closed            bool                  `gorm:"default:false" json:"closed"`
 	Projects          []*AssignmentProjects `json:"-"`
 } //@Name Assignment
