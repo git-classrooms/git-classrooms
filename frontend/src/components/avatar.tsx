@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { AvatarFallback, AvatarImage, Avatar as AvatarShad } from "@/components/ui/avatar";
 import { Avatar as AvatarRadix } from "@radix-ui/react-avatar";
 
-interface AvatarProps {
+export interface AvatarProps {
   avatarUrl: string | undefined;
   fallbackUrl: string | undefined;
   name: string;
