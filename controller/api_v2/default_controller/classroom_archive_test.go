@@ -77,7 +77,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 		AssignmentID: assignment.ID,
 		ProjectID:    1,
 	}
-	testDb.InsertAssignmentProjects(&assignmentProject)
+	testDb.InsertAssignmentProject(&assignmentProject)
 
 	userClassroom := database.UserClassrooms{
 		UserID:      user1.ID,

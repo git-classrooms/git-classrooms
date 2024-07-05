@@ -51,7 +51,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 		TeamID:       team.ID,
 		ProjectID:    1,
 	}
-	testDb.InsertAssignmentProjects(&project)
+	testDb.InsertAssignmentProject(&project)
 	assignment.Projects = append(assignment.Projects, &project)
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -141,7 +141,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 		}
 
 		project.ProjectStatus = database.Accepted
-		testDb.SaveAssignmentProjects(&project)
+		testDb.SaveAssignmentProject(&project)
 
 		req := newPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
