@@ -51,6 +51,7 @@ type Repository interface {
 	DenyPushingToProject(projectId int) error
 	AllowPushingToProject(projectId int) error
 	ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
+	ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
 	GetNamespaceOfProject(projectId int) (*string, error)
 	ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error

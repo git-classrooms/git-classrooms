@@ -96,6 +96,36 @@ func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, 
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+func (repo *GitlabRepo) ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	templateProject, _, err := repo.client.Projects.GetProject(projectId, &goGitlab.GetProjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	opts := &goGitlab.ForkProjectOptions{
+		Name:                          goGitlab.String(name),
+		Path:                          goGitlab.String(convertToGitLabPath(name)),
+		NamespaceID:                   goGitlab.Int(namespaceId),
+		Visibility:                    goGitlab.Visibility(VisibilityFromModel(visibility)),
+		Description:                   goGitlab.String(description),
+		MergeRequestDefaultTargetSelf: goGitlab.Bool(true),
+	}
+
+	gitlabProject, _, err := repo.client.Projects.ForkProject(projectId, opts, func(r *retryablehttp.Request) error {
+		query := r.URL.Query()
+		query.Add("branches", templateProject.DefaultBranch)
+		r.URL.RawQuery = query.Encode()
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.convertGitlabProject(gitlabProject)
+}
+
 func (repo *GitlabRepo) CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error) {
 	repo.assertIsConnected()
 
