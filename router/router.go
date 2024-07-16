@@ -170,8 +170,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
 	v2.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignment)
 
-	v2.Put("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateGradingRubrics)
-
+	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetGradingRubrics)
 	v2.Put("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateGradingRubrics)
 
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/repos", apiController.GetMultipleProjectCloneUrls)

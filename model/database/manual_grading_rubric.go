@@ -1,9 +1,10 @@
 package database
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type ManualGradingRubric struct {
@@ -15,7 +16,7 @@ type ManualGradingRubric struct {
 	Name        string `gorm:"not null" json:"name"`
 	Description string `gorm:"not null" json:"description"`
 
-	AssignmentID uuid.UUID  `gorm:"not null" json:"assignmentId"`
+	AssignmentID uuid.UUID  `gorm:"not null" json:"-"`
 	Assignment   Assignment `json:"-"`
 
 	MaxScore int `gorm:"not null" json:"maxScore"`
