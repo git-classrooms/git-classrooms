@@ -132,10 +132,10 @@ func (repo *GitlabRepo) UnprotectBranch(projectId int, branchName string) error 
 	return err
 }
 
-func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error {
+func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, reviewerId int) error {
 	repo.assertIsConnected()
 
-	reviewers := []int{recviewerId}
+	reviewers := []int{reviewerId}
 
 	opts := &goGitlab.CreateMergeRequestOptions{
 		Title:        goGitlab.String(title),
@@ -702,7 +702,7 @@ TODO:
 func (repo *GitlabRepo) DenyPushingToProject(projectId int) error {
 	log.Panic("No working option to close an assignment")
 
-	permission := goGitlab.AccessLevelValue(goGitlab.MinimalAccessPermissions)
+	permission := goGitlab.MinimalAccessPermissions
 
 	return repo.changeProjectMemberPermissions(projectId, permission)
 }
@@ -710,7 +710,7 @@ func (repo *GitlabRepo) DenyPushingToProject(projectId int) error {
 func (repo *GitlabRepo) AllowPushingToProject(projectId int) error {
 	log.Panic("No working option to reopen an assignment")
 
-	permission := goGitlab.AccessLevelValue(goGitlab.DeveloperPermissions)
+	permission := goGitlab.DeveloperPermissions
 
 	return repo.changeProjectMemberPermissions(projectId, permission)
 }
@@ -737,6 +737,37 @@ func (repo *GitlabRepo) changeProjectMemberPermissions(projectId int, accessLeve
 	return nil
 }
 
+func (repo *GitlabRepo) getAvailableRunnersForGitLab() ([]*goGitlab.Runner, error) {
+	repo.assertIsConnected()
+
+	runners, _, err := repo.client.Runners.ListRunners(
+		&goGitlab.ListRunnersOptions{Status: goGitlab.String("online"), Paused: goGitlab.Bool(false)})
+	if err != nil {
+		return nil, err
+	}
+
+	return runners, nil
+}
+
+func (repo *GitlabRepo) getAvailableRunnersForGroup(gitlabGroup *goGitlab.Group) ([]*goGitlab.Runner, error) {
+	repo.assertIsConnected()
+
+	runners, _, err := repo.client.Runners.ListGroupsRunners(gitlabGroup.ID,
+		&goGitlab.ListGroupsRunnersOptions{Status: goGitlab.String("online")})
+	if err != nil {
+		return nil, err
+	}
+
+	var availableRunners []*goGitlab.Runner
+	for _, runner := range runners {
+		if !runner.Paused {
+			availableRunners = append(availableRunners, runner)
+		}
+	}
+
+	return availableRunners, nil
+}
+
 func (repo *GitlabRepo) assertIsConnected() {
 	if repo.client == nil {
 		panic("No connection to Gitlab! Make sure you have executed Login()")
@@ -754,7 +785,7 @@ func (repo *GitlabRepo) getUserByUsername(username string) (*model.User, error) 
 	}
 
 	if len(users) == 0 {
-		return nil, fmt.Errorf("User with username [%s] not found", username)
+		return nil, fmt.Errorf("user with username [%s] not found", username)
 	}
 
 	return UserFromGoGitlab(*users[0]), nil
