@@ -10,8 +10,8 @@ type ClassroomRunnerResponse struct {
 	*model.Runner
 } //@Name ClassroomRunnerResponse
 
-// @Summary		GetClassroomRunnersAvailable
-// @Description	GetClassroomRunnersAvailable
+// @Summary		GetClassroomRunners
+// @Description	GetClassroomRunners
 // @Id				GetClassroomRunners
 // @Tags			runners
 // @Produce		json
@@ -21,7 +21,7 @@ type ClassroomRunnerResponse struct {
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/runners [get
+// @Router			/api/v2/classrooms/{classroomId}/runners [get]
 func (ctrl *DefaultController) GetClassroomRunners(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	repository := ctx.GetGitlabRepository()

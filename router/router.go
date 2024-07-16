@@ -205,6 +205,9 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	// v2.Delete("/classrooms/:classroomId/members/:memberId", apiController.RoleMiddleware(database.Moderator, database.Owner), apiController.RemoveClassroomMember)
 	v2.Get("/classrooms/:classroomId/members/:memberId/gitlab", apiController.RedirectUserGitlab)
 
+	v2.Get("/classrooms/:classroomId/runners", apiController.GetClassroomRunners)
+	v2.Get("/classrooms/:classroomId/runners/available", apiController.GetClassroomRunnersAreAvailable)
+
 	v2.Get("/classrooms/:classroomId/teams", apiController.GetClassroomTeams)
 	v2.Post("/classrooms/:classroomId/teams", apiController.CreateTeam)
 	v2.Use("/classrooms/:classroomId/teams/:teamId", apiController.ClassroomTeamMiddleware)

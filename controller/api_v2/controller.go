@@ -67,6 +67,9 @@ type Controller interface {
 	UpdateMemberTeam(*fiber.Ctx) error
 	UpdateMemberRole(*fiber.Ctx) error
 
+	GetClassroomRunners(c *fiber.Ctx) error
+	GetClassroomRunnersAreAvailable(c *fiber.Ctx) error
+
 	GetClassroomTeams(*fiber.Ctx) error
 	CreateTeam(*fiber.Ctx) error
 	JoinTeam(*fiber.Ctx) error
