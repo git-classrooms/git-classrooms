@@ -14,7 +14,7 @@ type projectGradingResponse struct {
 
 // @Summary		GetGradingResults
 // @Description	GetGradingResults
-// @Tags			project
+// @Tags			grading
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)

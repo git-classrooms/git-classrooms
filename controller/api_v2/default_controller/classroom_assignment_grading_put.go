@@ -37,7 +37,7 @@ func (r updateAssignmentGradingRequest) isValid() bool {
 // @Summary		UpdateGradingRubrics
 // @Description	UpdateGradingRubrics
 // @Id				UpdateGradingRubrics
-// @Tags			assignment
+// @Tags			grading
 // @Accept			json
 // @Param			classroomId		path	string								true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path	string								true	"Assignment ID"	Format(uuid)
@@ -113,5 +113,10 @@ func (ctrl *DefaultController) UpdateGradingRubrics(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(updatedRubrics)
+	assignment.GradingJUnitAutoGradingActive = *requestBody.GradingJUnitAutoGradingActive
+	if err = query.Assignment.WithContext(c.Context()).Save(assignment); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.SendStatus(fiber.StatusAccepted)
 }

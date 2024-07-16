@@ -16,7 +16,7 @@ type assignmentGradingResponse struct {
 // @Summary		GetGradingRubrics
 // @Description	GetGradingRubrics
 // @Id				GetGradingRubrics
-// @Tags			assignment
+// @Tags			grading
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
