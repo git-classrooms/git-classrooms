@@ -20,7 +20,7 @@ type assignmentGradingResponse struct {
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
-// @Success		200				{object}	api.AssignmentGradingResponse
+// @Success		200				{object}	api.assignmentGradingResponse
 // @Failure		400				{object}	HTTPError
 // @Failure		401				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
