@@ -17,13 +17,13 @@ type gradingManualRubricResponse struct {
 // @Id				GetGradingRubrics
 // @Tags			assignment
 // @Produce		json
-// @Param			classroomId		path	string								true	"Classroom ID"	Format(uuid)
-// @Param			assignmentId	path	string								true	"Assignment ID"	Format(uuid)
-// @Success		200				{array}	api.gradingManualRubricResponse
-// @Failure		400			{object}	HTTPError
-// @Failure		401			{object}	HTTPError
-// @Failure		404			{object}	HTTPError
-// @Failure		500			{object}	HTTPError
+// @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
+// @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
+// @Success		200				{array}		api.gradingManualRubricResponse
+// @Failure		400				{object}	HTTPError
+// @Failure		401				{object}	HTTPError
+// @Failure		404				{object}	HTTPError
+// @Failure		500				{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading [get]
 func (ctrl *DefaultController) GetGradingRubrics(c *fiber.Ctx) (err error) {
 	return fiber.NewError(fiber.StatusServiceUnavailable, err.Error())

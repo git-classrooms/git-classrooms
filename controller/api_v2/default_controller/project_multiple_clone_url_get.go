@@ -14,7 +14,7 @@ import (
 // @Produce		json
 // @Param			classroomId			path		string	true	"Classroom ID"			Format(uuid)
 // @Param			assignmentProjectId	path		string	true	"Assignment Project ID"	Format(uuid)
-// @Success		200					{array}	ProjectCloneUrlResponse
+// @Success		200					{array}		ProjectCloneUrlResponse
 // @Failure		500					{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentProjectId}/repos [get]
 func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err error) {
