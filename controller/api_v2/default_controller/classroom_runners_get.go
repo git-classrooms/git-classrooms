@@ -15,8 +15,8 @@ type ClassroomRunnerResponse struct {
 // @Id				GetClassroomRunners
 // @Tags			runners
 // @Produce		json
-// @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
-// @Success		200		{array}		ClassroomRunnerResponse	"Success"
+// @Param			classroomId	path		string					true	"Classroom ID"	Format(uuid)
+// @Success		200			{array}		ClassroomRunnerResponse	"Success"
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError

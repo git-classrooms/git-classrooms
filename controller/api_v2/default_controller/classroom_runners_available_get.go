@@ -11,7 +11,7 @@ import (
 // @Tags			runners
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
-// @Success		200		{boolean}	true	"Success"
+// @Success		200			{boolean}	true	"Success"
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError

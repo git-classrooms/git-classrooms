@@ -14,8 +14,7 @@ type projectGradingResponse struct {
 
 // @Summary		GetGradingResults
 // @Description	GetGradingResults
-// @Id				GetGradingResults
-// @Tags			assignment
+// @Tags			project
 // @Produce		json
 // @Param			classroomId		path		string	true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path		string	true	"Assignment ID"	Format(uuid)
@@ -26,6 +25,7 @@ type projectGradingResponse struct {
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading [get]
+// @Router			/api/v2/classrooms/{classroomId}/projects/{projectId}/grading [get]
 func (ctrl *DefaultController) GetGradingResults(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	project := ctx.GetAssignmentProject()
@@ -33,6 +33,7 @@ func (ctrl *DefaultController) GetGradingResults(c *fiber.Ctx) (err error) {
 	queryManualGradingResult := query.ManualGradingResult
 	results, err := queryManualGradingResult.
 		WithContext(c.Context()).
+		Preload(queryManualGradingResult.Rubric).
 		Where(queryManualGradingResult.AssignmentProjectID.Eq(project.ID)).
 		Find()
 	if err != nil {

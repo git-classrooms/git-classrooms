@@ -36,7 +36,7 @@ func (r updateProjectGradingRequest) isValid() bool {
 // @Summary		UpdateGradingResults
 // @Description	UpdateGradingResults
 // @Id				UpdateGradingResults
-// @Tags			assignment
+// @Tags			project
 // @Accept			json
 // @Param			classroomId		path	string							true	"Classroom ID"	Format(uuid)
 // @Param			assignmentId	path	string							true	"Assignment ID"	Format(uuid)
