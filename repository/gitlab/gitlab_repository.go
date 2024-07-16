@@ -771,7 +771,9 @@ func (repo *GitlabRepo) GetAvailableRunnersForGitLab() ([]*model.Runner, error) 
 	repo.assertIsConnected()
 
 	availableRunners, _, err := repo.client.Runners.ListRunners(
-		&goGitlab.ListRunnersOptions{Status: goGitlab.String("online"), Paused: goGitlab.Bool(false)})
+		&goGitlab.ListRunnersOptions{
+			Status: goGitlab.String("online"), Paused: goGitlab.Bool(false),
+			Type: goGitlab.String("instance_type")})
 	if err != nil {
 		return nil, err
 	}
