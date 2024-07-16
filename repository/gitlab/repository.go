@@ -65,4 +65,8 @@ type Repository interface {
 	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
 	ProtectedBranchExists(projectId int, branchName string) (bool, error)
 	BranchExists(projectId int, branchName string) (bool, error)
+
+	// Runners
+	GetAvailableRunnersForGitLab() ([]*model.Runner, error)
+	GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error)
 }

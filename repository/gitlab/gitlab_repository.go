@@ -737,22 +737,22 @@ func (repo *GitlabRepo) changeProjectMemberPermissions(projectId int, accessLeve
 	return nil
 }
 
-func (repo *GitlabRepo) getAvailableRunnersForGitLab() ([]*goGitlab.Runner, error) {
+func (repo *GitlabRepo) GetAvailableRunnersForGitLab() ([]*model.Runner, error) {
 	repo.assertIsConnected()
 
-	runners, _, err := repo.client.Runners.ListRunners(
+	availableRunners, _, err := repo.client.Runners.ListRunners(
 		&goGitlab.ListRunnersOptions{Status: goGitlab.String("online"), Paused: goGitlab.Bool(false)})
 	if err != nil {
 		return nil, err
 	}
 
-	return runners, nil
+	return convertRunners(availableRunners), nil
 }
 
-func (repo *GitlabRepo) getAvailableRunnersForGroup(gitlabGroup *goGitlab.Group) ([]*goGitlab.Runner, error) {
+func (repo *GitlabRepo) GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error) {
 	repo.assertIsConnected()
 
-	runners, _, err := repo.client.Runners.ListGroupsRunners(gitlabGroup.ID,
+	runners, _, err := repo.client.Runners.ListGroupsRunners(groupId,
 		&goGitlab.ListGroupsRunnersOptions{Status: goGitlab.String("online")})
 	if err != nil {
 		return nil, err
@@ -765,7 +765,7 @@ func (repo *GitlabRepo) getAvailableRunnersForGroup(gitlabGroup *goGitlab.Group)
 		}
 	}
 
-	return availableRunners, nil
+	return convertRunners(availableRunners), nil
 }
 
 func (repo *GitlabRepo) assertIsConnected() {
@@ -906,4 +906,15 @@ func convertToGitLabPath(s string) string {
 	}
 
 	return s
+}
+
+func convertRunners(runners []*goGitlab.Runner) []*model.Runner {
+	convertedRunners := make([]*model.Runner, len(runners))
+	for i, r := range runners {
+		if r != nil {
+			rConverted := model.Runner(*r)
+			convertedRunners[i] = &rConverted
+		}
+	}
+	return convertedRunners
 }
