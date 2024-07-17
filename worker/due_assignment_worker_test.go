@@ -1,4 +1,4 @@
-package task
+package worker
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
@@ -14,7 +15,7 @@ import (
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
-func TestCloseDueAssignments(t *testing.T) {
+func TestDueAssignmentWorker(t *testing.T) {
 	repo := gitlabRepoMock.NewMockRepository(t)
 
 	testDb := db_tests.NewTestDB(t)
@@ -79,14 +80,25 @@ func TestCloseDueAssignments(t *testing.T) {
 	}
 	testDb.InsertAssignmentProjects(&assignmentProject1)
 
+	dueDate2 := time.Now().Add(1 * time.Hour)
+	assignment2 := database.Assignment{
+		ID:          uuid.New(),
+		ClassroomID: classroom.ID,
+		DueDate:     &dueDate2,
+		Closed:      true,
+	}
+	testDb.InsertAssignment(&assignment2)
+
+	worker := NewDueAssignmentCloser(&gitlab.GitlabConfig{})
+
 	t.Run("All Assignments already closed", func(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = true
 		testDb.SaveAssignment(&assignment1)
 
-		err := CloseDueAssignments(repo, context.Background())
-		assert.NoError(t, err)
+		assignments := worker.getAssignments2Close()
+		assert.Empty(t, assignments)
 	})
 
 	t.Run("No Assignments are due", func(t *testing.T) {
@@ -95,15 +107,19 @@ func TestCloseDueAssignments(t *testing.T) {
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
 
-		err := CloseDueAssignments(repo, context.Background())
-		assert.NoError(t, err)
+		assignments := worker.getAssignments2Close()
+		assert.Empty(t, assignments)
+	})
 
-		assignment1After, err := query.Assignment.
-			WithContext(context.Background()).
-			Where(query.Assignment.ID.Eq(assignment1.ID)).
-			First()
-		assert.NoError(t, err)
-		assert.False(t, assignment1After.Closed)
+	t.Run("Fetches due Assignments", func(t *testing.T) {
+		dueDate := time.Now().Add(-1 * time.Hour)
+		assignment1.DueDate = &dueDate
+		assignment1.Closed = false
+		testDb.SaveAssignment(&assignment1)
+
+		assignments := worker.getAssignments2Close()
+		assert.Len(t, assignments, 1)
+		assert.Equal(t, assignment1.ID, assignments[0].ID)
 	})
 
 	t.Run("Close unaccepted Assignment", func(t *testing.T) {
@@ -115,7 +131,7 @@ func TestCloseDueAssignments(t *testing.T) {
 		assignmentProject1.ProjectStatus = database.Pending
 		testDb.SaveAssignmentProjects(&assignmentProject1)
 
-		err := CloseDueAssignments(repo, context.Background())
+		err := worker.closeAssignment(&assignment1, repo)
 		assert.NoError(t, err)
 
 		assignment1After, err := query.Assignment.
@@ -124,17 +140,13 @@ func TestCloseDueAssignments(t *testing.T) {
 			First()
 		assert.NoError(t, err)
 		assert.True(t, assignment1After.Closed)
-
-		assignmentProject1.ProjectStatus = database.Accepted
-		testDb.SaveAssignmentProjects(&assignmentProject1)
 	})
 
 	assignmentProject1.ProjectStatus = database.Accepted
-	testDb.SaveAssignmentProjects(&assignmentProject1)
+	assignmentProject1.Team = team1
+	assignment1.Projects = []*database.AssignmentProjects{&assignmentProject1}
 
 	t.Run("repo.GetAccessLevelOfUserInProject throws error -> restore old permissions", func(t *testing.T) {
-		dueDate := time.Now().Add(-1 * time.Hour)
-		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
 
@@ -158,7 +170,7 @@ func TestCloseDueAssignments(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := CloseDueAssignments(repo, context.Background())
+		err := worker.closeAssignment(&assignment1, repo)
 		assert.Error(t, err)
 
 		repo.AssertExpectations(t)
@@ -172,8 +184,6 @@ func TestCloseDueAssignments(t *testing.T) {
 	})
 
 	t.Run("repo.ChangeUserAccessLevelInProject throws error", func(t *testing.T) {
-		dueDate := time.Now().Add(-1 * time.Hour)
-		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
 
@@ -187,7 +197,7 @@ func TestCloseDueAssignments(t *testing.T) {
 			Return(assert.AnError).
 			Times(1)
 
-		err := CloseDueAssignments(repo, context.Background())
+		err := worker.closeAssignment(&assignment1, repo)
 		assert.Error(t, err)
 
 		repo.AssertExpectations(t)
@@ -201,19 +211,8 @@ func TestCloseDueAssignments(t *testing.T) {
 	})
 
 	t.Run("Close due Assignment", func(t *testing.T) {
-		dueDate := time.Now().Add(-1 * time.Hour)
-		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
-
-		dueDate2 := time.Now().Add(1 * time.Hour)
-		assignment2 := database.Assignment{
-			ID:          uuid.New(),
-			ClassroomID: classroom.ID,
-			DueDate:     &dueDate2,
-			Closed:      false,
-		}
-		testDb.InsertAssignment(&assignment2)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
@@ -235,7 +234,7 @@ func TestCloseDueAssignments(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := CloseDueAssignments(repo, context.Background())
+		err := worker.closeAssignment(&assignment1, repo)
 		assert.NoError(t, err)
 
 		repo.AssertExpectations(t)
@@ -246,12 +245,5 @@ func TestCloseDueAssignments(t *testing.T) {
 			First()
 		assert.NoError(t, err)
 		assert.True(t, assignment1After.Closed)
-
-		assignment2After, err := query.Assignment.
-			WithContext(context.Background()).
-			Where(query.Assignment.ID.Eq(assignment2.ID)).
-			First()
-		assert.NoError(t, err)
-		assert.False(t, assignment2After.Closed)
 	})
 }
