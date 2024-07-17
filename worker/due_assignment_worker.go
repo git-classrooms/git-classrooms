@@ -43,6 +43,7 @@ func (w *DueAssignmentWorker) getAssignments2Close() []*database.Assignment {
 		Preload(query.Assignment.Projects).
 		Preload(query.Assignment.Projects.Team).
 		Preload(query.Assignment.Projects.Team.Member).
+		Preload(query.Assignment.Classroom).
 		Where(query.Assignment.DueDate.Lt(time.Now())).
 		Where(query.Assignment.Closed.Is(false)).
 		Find()
