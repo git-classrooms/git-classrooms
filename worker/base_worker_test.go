@@ -17,7 +17,7 @@ func (mw *MockWorker) doWork() {
 	mw.doWorkCalled++
 }
 
-func TestAbstractWorker(t *testing.T) {
+func TestBaseWorker(t *testing.T) {
 	t.Run("calls doWork periodically", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

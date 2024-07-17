@@ -138,8 +138,8 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		dueAssignmentCloser := worker.NewDueAssignmentCloser(appConfig.GitLab)
-		dueAssignmentCloser.Start(ctx, 10*time.Second)
+		dueAssignmentWorker := worker.NewDueAssignmentWorker(appConfig.GitLab)
+		dueAssignmentWorker.Start(ctx, 1*time.Minute)
 	}()
 
 	wg.Wait()

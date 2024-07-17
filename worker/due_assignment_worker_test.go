@@ -89,7 +89,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 	}
 	testDb.InsertAssignment(&assignment2)
 
-	worker := NewDueAssignmentCloser(&gitlab.GitlabConfig{})
+	worker := NewDueAssignmentWorker(&gitlab.GitlabConfig{})
 
 	t.Run("All Assignments already closed", func(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)

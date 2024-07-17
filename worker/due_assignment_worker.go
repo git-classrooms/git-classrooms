@@ -16,7 +16,7 @@ type DueAssignmentWorker struct {
 	gitlabConfig gitlabConfig.Config
 }
 
-func NewDueAssignmentCloser(config gitlabConfig.Config) *DueAssignmentWorker {
+func NewDueAssignmentWorker(config gitlabConfig.Config) *DueAssignmentWorker {
 	a := &BaseWorker{}
 	r := &DueAssignmentWorker{BaseWorker: a, gitlabConfig: config}
 	a.Worker = r
@@ -24,7 +24,6 @@ func NewDueAssignmentCloser(config gitlabConfig.Config) *DueAssignmentWorker {
 }
 
 func (w *DueAssignmentWorker) doWork() {
-	log.Default().Println("DueAssignmentWorker: doWork has been called")
 	assignments := w.getAssignments2Close()
 	for _, assignment := range assignments {
 		repo, err := w.getLoggedInRepo(assignment)
@@ -72,7 +71,7 @@ type RestoreCache struct {
 }
 
 func (w *DueAssignmentWorker) closeAssignment(assignment *database.Assignment, repo gitlab.Repository) (err error) {
-	log.Default().Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
+	log.Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
 
 	caches := []RestoreCache{}
 	defer func() {
@@ -109,6 +108,6 @@ func (w *DueAssignmentWorker) closeAssignment(assignment *database.Assignment, r
 		return err
 	}
 
-	log.Default().Printf("DueAssignmentWorker: Assignment %s has been closed", assignment.Name)
+	log.Printf("DueAssignmentWorker: Assignment %s has been closed", assignment.Name)
 	return nil
 }
