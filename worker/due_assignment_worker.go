@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -23,8 +24,8 @@ func NewDueAssignmentWorker(config gitlabConfig.Config) *DueAssignmentWorker {
 	return r
 }
 
-func (w *DueAssignmentWorker) doWork() {
-	assignments := w.getAssignments2Close()
+func (w *DueAssignmentWorker) doWork(ctx context.Context) {
+	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
 		repo, err := w.getLoggedInRepo(assignment)
 		if err != nil {
@@ -32,13 +33,13 @@ func (w *DueAssignmentWorker) doWork() {
 			continue
 		}
 
-		w.closeAssignment(assignment, repo)
+		w.closeAssignment(ctx, assignment, repo)
 	}
 }
 
-func (w *DueAssignmentWorker) getAssignments2Close() []*database.Assignment {
+func (w *DueAssignmentWorker) getAssignments2Close(ctx context.Context) []*database.Assignment {
 	assignments, err := query.Assignment.
-		WithContext(w.ctx).
+		WithContext(ctx).
 		Preload(query.Assignment.Projects).
 		Preload(query.Assignment.Projects.Team).
 		Preload(query.Assignment.Projects.Team.Member).
@@ -70,7 +71,7 @@ type RestoreCache struct {
 	oldPermission model.AccessLevelValue
 }
 
-func (w *DueAssignmentWorker) closeAssignment(assignment *database.Assignment, repo gitlab.Repository) (err error) {
+func (w *DueAssignmentWorker) closeAssignment(ctx context.Context, assignment *database.Assignment, repo gitlab.Repository) (err error) {
 	log.Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
 
 	caches := []RestoreCache{}
@@ -79,6 +80,7 @@ func (w *DueAssignmentWorker) closeAssignment(assignment *database.Assignment, r
 			log.Default().Printf("DueAssignmentWorker: Error occurred while closing assignment %s: %s", assignment.Name, err.Error())
 			for _, cache := range caches {
 				repo.ChangeUserAccessLevelInProject(cache.projectID, cache.userID, cache.oldPermission)
+				// TODO: when this fails, we lose the sync between our database and the gitlab. We should handle this in the future
 			}
 		}
 	}()
@@ -103,7 +105,7 @@ func (w *DueAssignmentWorker) closeAssignment(assignment *database.Assignment, r
 	}
 
 	assignment.Closed = true
-	_, err = query.Assignment.WithContext(w.ctx).Updates(assignment)
+	_, err = query.Assignment.WithContext(ctx).Updates(assignment)
 	if err != nil {
 		return err
 	}

@@ -13,7 +13,7 @@ type MockWorker struct {
 	doWorkCalled int
 }
 
-func (mw *MockWorker) doWork() {
+func (mw *MockWorker) doWork(ctx context.Context) {
 	mw.doWorkCalled++
 }
 
@@ -28,8 +28,7 @@ func TestBaseWorker(t *testing.T) {
 		workInterval := 10 * time.Millisecond
 		mockWorker.Start(ctx, workInterval)
 
-		// Warte einige Intervalle und überprüfe, ob doWork aufgerufen wurde
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond) // wait for some intervals, if doWork has been called
 
 		assert.NotEqual(t, 0, mockWorker.doWorkCalled, "Expected doWork to be called at least once")
 	})
