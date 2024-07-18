@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"log"
 	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -14,13 +15,16 @@ func ProjectFromGoGitlab(gitlabProject goGitlab.Project) *model.Project {
 		owner = UserFromGoGitlab(*gitlabProject.Owner)
 	}
 
+	log.Printf("%s defaultBranch: %s", gitlabProject.Name, gitlabProject.DefaultBranch)
+
 	return &model.Project{
-		Name:        gitlabProject.Name,
-		ID:          gitlabProject.ID,
-		Visibility:  VisibilityFromGoGitlab(gitlabProject.Visibility),
-		WebUrl:      gitlabProject.WebURL,
-		Description: gitlabProject.Description,
-		Owner:       owner,
+		Name:          gitlabProject.Name,
+		ID:            gitlabProject.ID,
+		Visibility:    VisibilityFromGoGitlab(gitlabProject.Visibility),
+		WebUrl:        gitlabProject.WebURL,
+		Description:   gitlabProject.Description,
+		Owner:         owner,
+		DefaultBranch: gitlabProject.DefaultBranch,
 	}
 }
 
@@ -36,13 +40,16 @@ func ProjectFromGoGitlabWithProjectMembers(gitlabProject goGitlab.Project, gitla
 	}
 
 	return &model.Project{
-		Name:        gitlabProject.Name,
-		ID:          gitlabProject.ID,
-		Visibility:  VisibilityFromGoGitlab(gitlabProject.Visibility),
-		WebUrl:      gitlabProject.WebURL,
-		Description: gitlabProject.Description,
-		Owner:       owner,
-		Members:     members,
+		Name:          gitlabProject.Name,
+		ID:            gitlabProject.ID,
+		Visibility:    VisibilityFromGoGitlab(gitlabProject.Visibility),
+		WebUrl:        gitlabProject.WebURL,
+		Description:   gitlabProject.Description,
+		Owner:         owner,
+		Members:       members,
+		DefaultBranch: gitlabProject.DefaultBranch,
+		HTTPURLToRepo: gitlabProject.HTTPURLToRepo,
+		SSHURLToRepo:  gitlabProject.SSHURLToRepo,
 	}
 }
 

@@ -138,6 +138,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 
 	v2 := (*api).Group("/v2")
 
+	v2.Get("/info/gitlab", apiController.GetGitlabInfo)
 	v2.Post("/auth/sign-in", authController.SignIn)
 	v2.Post("/auth/sign-out", authController.SignOut)
 	v2.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v2", "", 1), authController.Callback)
@@ -154,9 +155,10 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/invitations/:invitationId", apiController.GetClassroomInvitation)
 	v2.Post("/classrooms/:classroomId/join", apiController.JoinClassroom) // with invitation id in the body
 
-	v2.Use("/classrooms/:classroomId", apiController.ClassroomMiddleware)
+	v2.Use("/classrooms/:classroomId", apiController.ClassroomMiddleware, apiController.ArchivedMiddleware)
 	v2.Get("/classrooms/:classroomId", apiController.GetClassroom)
 	v2.Put("/classrooms/:classroomId", apiController.CreatorMiddleware(), apiController.UpdateClassroom)
+	v2.Patch("/classrooms/:classroomId/archive", apiController.CreatorMiddleware(), apiController.ArchiveClassroom)
 	v2.Get("/classrooms/:classroomId/gitlab", apiController.RedirectGroupGitlab)
 
 	v2.Get("/classrooms/:classroomId/templateProjects", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomTemplates)
@@ -168,11 +170,13 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
 	v2.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignment)
 
+	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/repos", apiController.GetMultipleProjectCloneUrls)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.GetClassroomAssignmentProjects)
 	v2.Post("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.RoleMiddleware(database.Owner), apiController.InviteToAssignment)
 	v2.Use("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.ClassroomAssignmentProjectMiddleware)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId", apiController.GetClassroomAssignmentProject)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/repo", apiController.GetProjectCloneUrls)
 
 	v2.Use("/classrooms/:classroomId/projects", apiController.RoleMiddleware(database.Student))
 	v2.Get("/classrooms/:classroomId/projects", apiController.GetClassroomProjects)
@@ -180,10 +184,12 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/projects/:projectId", apiController.GetClassroomProject)
 	v2.Post("/classrooms/:classroomId/projects/:projectId/accept", apiController.AcceptAssignment)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/projects/:projectId/repo", apiController.GetProjectCloneUrls)
 
-	v2.Get("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomInvitations)
-	v2.Post("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.InviteToClassroom)
-	// v2.Delete("/classrooms/:classroomId/invitations/:invitationId", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.RevokeInvitation)
+	v2.Use("/classrooms/:classroomId/invitations", apiController.RoleMiddleware(database.Owner, database.Moderator))
+	v2.Get("/classrooms/:classroomId/invitations", apiController.GetClassroomInvitations)
+	v2.Post("/classrooms/:classroomId/invitations", apiController.InviteToClassroom)
+	v2.Delete("/classrooms/:classroomId/invitations/:invitationId", apiController.RevokeClassroomInvitation)
 
 	v2.Get("/classrooms/:classroomId/members", apiController.GetClassroomMembers)
 	v2.Use("/classrooms/:classroomId/members/:memberId", apiController.ClassroomMemberMiddleware)

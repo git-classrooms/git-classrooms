@@ -86,16 +86,30 @@ func (testDb *TestDB) InsertTeam(team *database.Team) {
 	}
 }
 
-func (testDb *TestDB) InsertAssignmentProjects(assignmentProject *database.AssignmentProjects) {
+func (testDb *TestDB) InsertAssignmentProject(assignmentProject *database.AssignmentProjects) {
 	err := query.AssignmentProjects.WithContext(context.Background()).Create(assignmentProject)
 	if err != nil {
 		testDb.t.Fatalf("could not insert assignment project: %s", err.Error())
 	}
 }
 
-func (db *TestDB) SaveAssignmentProjects(project *database.AssignmentProjects) {
+func (db *TestDB) SaveAssignmentProject(project *database.AssignmentProjects) {
 	err := query.AssignmentProjects.WithContext(context.Background()).Save(project)
 	if err != nil {
 		db.t.Fatalf("could not update assignment project: %s", err.Error())
+	}
+}
+
+func (testDb *TestDB) InsertInvitation(invitation *database.ClassroomInvitation) {
+	err := query.ClassroomInvitation.WithContext(context.Background()).Create(invitation)
+	if err != nil {
+		testDb.t.Fatalf("could not insert invitation: %s", err.Error())
+	}
+}
+
+func (testDb *TestDB) SaveInvitation(invitation *database.ClassroomInvitation) {
+	err := query.ClassroomInvitation.WithContext(context.Background()).Save(invitation)
+	if err != nil {
+		testDb.t.Fatalf("could not update invitation: %s", err.Error())
 	}
 }

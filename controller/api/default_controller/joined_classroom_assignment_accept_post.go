@@ -36,7 +36,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	team := classroom.Team
 	assignmentProject := ctx.GetJoinedClassroomAssignment()
 
-	if assignmentProject.AssignmentAccepted {
+	if assignmentProject.ProjectStatus == database.Accepted {
 		return c.SendStatus(fiber.StatusNoContent) // You or your teammate have already accepted the assignment
 	}
 
@@ -146,7 +146,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	// We don't need to clean up this step because the project will be deleted
 
 	assignmentProject.ProjectID = project.ID
-	assignmentProject.AssignmentAccepted = true
+	assignmentProject.ProjectStatus = database.Accepted
 	queryAssignmentProjects := query.AssignmentProjects
 	err = queryAssignmentProjects.WithContext(c.Context()).Save(assignmentProject)
 	if err != nil {

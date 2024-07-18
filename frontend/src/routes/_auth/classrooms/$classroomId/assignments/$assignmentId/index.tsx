@@ -78,9 +78,9 @@ function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: Pr
         {assignmentProjects.map((a) => (
           <TableRow key={`${a.assignment.id}-${a.team.id}`}>
             <TableHead>{a.team.name}</TableHead>
-            <TableCell>{a.assignmentAccepted ? "Accepted" : "Pending"}</TableCell>
+            <TableCell>{a.projectStatus}</TableCell>
             <TableCell>
-              {a.assignmentAccepted ? (
+              {a.projectStatus === "accepted" ? (
                 <a href={a.webUrl} target="_blank" rel="noreferrer">
                   <Code />
                 </a>

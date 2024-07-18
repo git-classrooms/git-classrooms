@@ -7,6 +7,8 @@ export * from './classroom-invitation-status';
 export * from './create-assignment-request';
 export * from './create-classroom-request';
 export * from './create-team-request';
+export * from './get-info-gitlab-response';
+export * from './database-status';
 export * from './get-me-response';
 export * from './httperror';
 export * from './invite-to-classroom-request';

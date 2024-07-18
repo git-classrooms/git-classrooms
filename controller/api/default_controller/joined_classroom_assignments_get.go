@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -29,7 +30,7 @@ func (ctrl *DefaultController) GetJoinedClassroomAssignments(c *fiber.Ctx) error
 	responses := make([]*getJoinedClassroomAssignmentResponse, len(assignments))
 	for i, project := range assignments {
 		webURL := ""
-		if project.AssignmentAccepted {
+		if project.ProjectStatus == database.Accepted {
 			projectFromGitLab, err := repo.GetProjectById(project.ProjectID)
 			if err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())

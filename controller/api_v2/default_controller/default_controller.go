@@ -1,6 +1,7 @@
 package api
 
 import (
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,11 +22,12 @@ type Params struct {
 }
 
 type DefaultController struct {
+	config   config.ApplicationConfig
 	mailRepo mailRepo.Repository
 }
 
-func NewApiV2Controller(mailRepo mailRepo.Repository) *DefaultController {
-	return &DefaultController{mailRepo: mailRepo}
+func NewApiV2Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
+	return &DefaultController{mailRepo: mailRepo, config: config}
 }
 
 func (ctrl *DefaultController) RotateAccessToken(c *fiber.Ctx, classroom *database.Classroom) error {

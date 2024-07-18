@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -20,19 +19,21 @@ const (
 )
 
 type classroomRequestQuery struct {
-	Filter filter `query:"filter"`
+	Filter   filter `query:"filter"`
+	Archived bool   `query:"archived"`
 }
 
-// @Summary		Get classrooms
-// @Description	Get classrooms
-// @Id				GetClassrooms
-// @Tags			classroom
-// @Produce		json
-// @Param			filter	query		api.filter	false	"Filter Options"
-// @Success		200		{array}		api.UserClassroomResponse
-// @Failure		401		{object}	HTTPError
-// @Failure		500		{object}	HTTPError
-// @Router			/api/v2/classrooms [get]
+//	@Summary		Get classrooms
+//	@Description	Get classrooms
+//	@Id				GetClassrooms
+//	@Tags			classroom
+//	@Produce		json
+//	@Param			filter		query		api.filter	false	"Filter Options"
+//	@Param			archived	query		bool		false	"Archived"
+//	@Success		200			{array}		api.UserClassroomResponse
+//	@Failure		401			{object}	HTTPError
+//	@Failure		500			{object}	HTTPError
+//	@Router			/api/v2/classrooms [get]
 func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
@@ -43,8 +44,6 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	log.Println("GetClassrooms", urlQuery)
-
 	dbQuery := userClassroomQuery(c, userID)
 	switch urlQuery.Filter {
 	case ownedClassrooms:
@@ -54,6 +53,12 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	case studentClassrooms:
 		dbQuery = dbQuery.Where(query.UserClassrooms.Role.Eq(uint8(database.Student)))
 	default:
+	}
+
+	if urlQuery.Archived {
+		dbQuery = dbQuery.Join(query.Classroom, query.UserClassrooms.ClassroomID.EqCol(query.Classroom.ID)).Where(query.Classroom.Archived)
+	} else {
+		dbQuery = dbQuery.Join(query.Classroom, query.UserClassrooms.ClassroomID.EqCol(query.Classroom.ID)).Where(query.Classroom.Archived.Not())
 	}
 
 	classrooms, err := dbQuery.Find()

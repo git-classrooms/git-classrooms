@@ -12,7 +12,7 @@ import { useMemo } from "react";
 import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
-import { Avatar } from "@/components/avatar.tsx";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -67,9 +67,6 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
             <ListItem
               leftContent={
                 <ListLeftContent
-                  avatarName={"Test"}
-                  avatarUrl={"Test"}
-                  avatarFallbackUrl={"Test"}
                   classroomName={item.classroom.name}
                   assignmentsCount={item.assignmentsCount}
                 />
@@ -165,10 +162,7 @@ function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomRespo
   );
 }
 
-function ListLeftContent({ avatarUrl, avatarFallbackUrl, avatarName, classroomName, assignmentsCount }: {
-  avatarUrl: string,
-  avatarFallbackUrl: string,
-  avatarName: string,
+function ListLeftContent({ classroomName, assignmentsCount }: {
   classroomName: string,
   assignmentsCount: number
 }) {
@@ -178,11 +172,11 @@ function ListLeftContent({ avatarUrl, avatarFallbackUrl, avatarName, classroomNa
   return (
     <div className="cursor-default flex">
       <div className="pr-2">
-        <Avatar
-          avatarUrl={avatarUrl}
-          fallbackUrl={avatarFallbackUrl}
-          name={avatarName}
-        />
+        <Avatar>
+          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">
+            {classroomName.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
       </div>
       <div>
         <div className="font-medium">{classroomName}</div>
@@ -199,12 +193,12 @@ function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string, class
     <>
       <Button variant="ghost" size="icon" asChild>
         <a href={gitlabUrl} target="_blank" rel="noreferrer">
-          <Gitlab className="h-6 w-6 text-gray-600" />
+          <Gitlab className="h-6 w-6 text-slate-500 dark:text-white" />
         </a>
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link to="/classrooms/$classroomId" params={{ classroomId: classroomId }}>
-          <ArrowRight />
+          <ArrowRight className="text-slate-500 dark:text-white" />
         </Link>
       </Button>
     </>

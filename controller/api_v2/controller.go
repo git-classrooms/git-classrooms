@@ -13,9 +13,14 @@ type Controller interface {
 	CreatorMiddleware() fiber.Handler
 	ViewableClassroomMiddleware() fiber.Handler
 
+	ArchivedMiddleware(*fiber.Ctx) error
+
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error
 	RedirectProjectGitlab(*fiber.Ctx) error
+
+	GetProjectCloneUrls(*fiber.Ctx) error
+	GetMultipleProjectCloneUrls(*fiber.Ctx) error
 
 	GetMe(*fiber.Ctx) error
 	GetMeGitlab(*fiber.Ctx) error
@@ -25,6 +30,7 @@ type Controller interface {
 	ClassroomMiddleware(*fiber.Ctx) error
 	GetClassroom(*fiber.Ctx) error
 	UpdateClassroom(*fiber.Ctx) error
+	ArchiveClassroom(*fiber.Ctx) error
 
 	GetClassroomTemplates(*fiber.Ctx) error
 
@@ -48,6 +54,7 @@ type Controller interface {
 	JoinClassroom(*fiber.Ctx) error
 	GetClassroomInvitations(*fiber.Ctx) error
 	InviteToClassroom(*fiber.Ctx) error
+	RevokeClassroomInvitation(*fiber.Ctx) error
 
 	GetClassroomMembers(*fiber.Ctx) error
 	ClassroomMemberMiddleware(*fiber.Ctx) error
@@ -70,4 +77,5 @@ type Controller interface {
 	GetClassroomTeamProjects(*fiber.Ctx) error
 	ClassroomTeamProjectMiddleware(*fiber.Ctx) error
 	GetClassroomTeamProject(*fiber.Ctx) error
+	GetGitlabInfo(*fiber.Ctx) error
 }
