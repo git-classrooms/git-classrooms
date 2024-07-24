@@ -138,7 +138,8 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		dueAssignmentWorker := worker.NewDueAssignmentWorker(appConfig.GitLab)
+		dueAssignmentWork := worker.NewDueAssignmentWork(appConfig.GitLab)
+		dueAssignmentWorker := worker.NewWorker(dueAssignmentWork)
 		dueAssignmentWorker.Start(ctx, 1*time.Minute)
 	}()
 

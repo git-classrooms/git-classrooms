@@ -89,7 +89,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 	}
 	testDb.InsertAssignment(&assignment2)
 
-	worker := NewDueAssignmentWorker(&gitlab.GitlabConfig{})
+	work := NewDueAssignmentWork(&gitlab.GitlabConfig{})
 
 	t.Run("All Assignments already closed", func(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
@@ -97,7 +97,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 		assignment1.Closed = true
 		testDb.SaveAssignment(&assignment1)
 
-		assignments := worker.getAssignments2Close(context.Background())
+		assignments := work.getAssignments2Close(context.Background())
 		assert.Empty(t, assignments)
 	})
 
@@ -107,7 +107,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
 
-		assignments := worker.getAssignments2Close(context.Background())
+		assignments := work.getAssignments2Close(context.Background())
 		assert.Empty(t, assignments)
 	})
 
@@ -117,7 +117,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
 
-		assignments := worker.getAssignments2Close(context.Background())
+		assignments := work.getAssignments2Close(context.Background())
 		assert.Len(t, assignments, 1)
 		assert.Equal(t, assignment1.ID, assignments[0].ID)
 	})
@@ -131,7 +131,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 		assignmentProject1.ProjectStatus = database.Pending
 		testDb.SaveAssignmentProjects(&assignmentProject1)
 
-		err := worker.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), &assignment1, repo)
 		assert.NoError(t, err)
 
 		assignment1After, err := query.Assignment.
@@ -170,7 +170,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := worker.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), &assignment1, repo)
 		assert.Error(t, err)
 
 		repo.AssertExpectations(t)
@@ -197,7 +197,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 			Return(assert.AnError).
 			Times(1)
 
-		err := worker.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), &assignment1, repo)
 		assert.Error(t, err)
 
 		repo.AssertExpectations(t)
@@ -234,7 +234,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := worker.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), &assignment1, repo)
 		assert.NoError(t, err)
 
 		repo.AssertExpectations(t)

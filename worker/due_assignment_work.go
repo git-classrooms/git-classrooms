@@ -12,19 +12,15 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
-type DueAssignmentWorker struct {
-	*BaseWorker
+type DueAssignmentWork struct {
 	gitlabConfig gitlabConfig.Config
 }
 
-func NewDueAssignmentWorker(config gitlabConfig.Config) *DueAssignmentWorker {
-	a := &BaseWorker{}
-	r := &DueAssignmentWorker{BaseWorker: a, gitlabConfig: config}
-	a.Worker = r
-	return r
+func NewDueAssignmentWork(config gitlabConfig.Config) *DueAssignmentWork {
+	return &DueAssignmentWork{gitlabConfig: config}
 }
 
-func (w *DueAssignmentWorker) doWork(ctx context.Context) {
+func (w *DueAssignmentWork) Do(ctx context.Context) {
 	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
 		repo, err := w.getLoggedInRepo(assignment)
@@ -37,7 +33,7 @@ func (w *DueAssignmentWorker) doWork(ctx context.Context) {
 	}
 }
 
-func (w *DueAssignmentWorker) getAssignments2Close(ctx context.Context) []*database.Assignment {
+func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*database.Assignment {
 	assignments, err := query.Assignment.
 		WithContext(ctx).
 		Preload(query.Assignment.Projects).
@@ -55,7 +51,7 @@ func (w *DueAssignmentWorker) getAssignments2Close(ctx context.Context) []*datab
 	return assignments
 }
 
-func (w *DueAssignmentWorker) getLoggedInRepo(assignment *database.Assignment) (gitlab.Repository, error) {
+func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gitlab.Repository, error) {
 	repo := gitlab.NewGitlabRepo(w.gitlabConfig)
 	err := repo.GroupAccessLogin(assignment.Classroom.GroupAccessToken)
 	if err != nil {
@@ -71,7 +67,7 @@ type RestoreCache struct {
 	oldPermission model.AccessLevelValue
 }
 
-func (w *DueAssignmentWorker) closeAssignment(ctx context.Context, assignment *database.Assignment, repo gitlab.Repository) (err error) {
+func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *database.Assignment, repo gitlab.Repository) (err error) {
 	log.Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
 
 	caches := []RestoreCache{}

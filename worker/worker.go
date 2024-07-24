@@ -5,17 +5,20 @@ import (
 	"time"
 )
 
-type Worker interface {
-	Start(ctx context.Context, workInterval time.Duration)
-	doWork(ctx context.Context)
+type Work interface {
+	Do(context.Context)
 }
 
-type BaseWorker struct {
-	Worker
+type Worker struct {
+	work   Work
 	ticker *time.Ticker
 }
 
-func (w *BaseWorker) Start(ctx context.Context, workInterval time.Duration) {
+func NewWorker(work Work) *Worker {
+	return &Worker{work, nil}
+}
+
+func (w *Worker) Start(ctx context.Context, workInterval time.Duration) {
 	w.ticker = time.NewTicker(workInterval)
 
 	go func() {
@@ -25,7 +28,7 @@ func (w *BaseWorker) Start(ctx context.Context, workInterval time.Duration) {
 				w.ticker.Stop()
 				return
 			case <-w.ticker.C:
-				w.doWork(ctx)
+				w.work.Do(ctx)
 			}
 		}
 	}()
