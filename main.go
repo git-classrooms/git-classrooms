@@ -5,9 +5,13 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -21,6 +25,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	"gitlab.hs-flensburg.de/gitlab-classroom/worker"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -108,5 +113,35 @@ func main() {
 
 	router.Routes(app, authCtrl, apiCtrl, v2Controller, appConfig.FrontendPath, appConfig.Auth)
 
-	log.Fatal(app.Listen(fmt.Sprintf(":%d", appConfig.Port)))
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer cancel()
+
+	go func() {
+		<-ctx.Done()
+		log.Println("Shutting down server...")
+		if err := app.Shutdown(); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := app.Listen(fmt.Sprintf(":%d", appConfig.Port)); err != nil {
+			log.Println(err)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		dueAssignmentWork := worker.NewDueAssignmentWork(appConfig.GitLab)
+		dueAssignmentWorker := worker.NewWorker(dueAssignmentWork)
+		dueAssignmentWorker.Start(ctx, 1*time.Minute)
+	}()
+
+	wg.Wait()
 }

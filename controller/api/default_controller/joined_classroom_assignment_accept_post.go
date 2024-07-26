@@ -40,6 +40,9 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 		return c.SendStatus(fiber.StatusNoContent) // You or your teammate have already accepted the assignment
 	}
 
+	if assignmentProject.Assignment.Closed {
+		return fiber.NewError(fiber.StatusBadRequest, "Assignment is already closed")
+	}
 	if assignmentProject.Assignment.DueDate.Before(time.Now()) {
 		return fiber.NewError(fiber.StatusBadRequest, "Assignment is already overdue")
 	}

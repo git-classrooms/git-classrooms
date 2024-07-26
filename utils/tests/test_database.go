@@ -79,6 +79,13 @@ func (testDb *TestDB) InsertAssignment(assignment *database.Assignment) {
 	}
 }
 
+func (testDb *TestDB) SaveAssignment(assignment *database.Assignment) {
+	err := query.Assignment.WithContext(context.Background()).Save(assignment)
+	if err != nil {
+		testDb.t.Fatalf("could not update assignment: %s", err.Error())
+	}
+}
+
 func (testDb *TestDB) InsertTeam(team *database.Team) {
 	err := query.Team.WithContext(context.Background()).Create(team)
 	if err != nil {
