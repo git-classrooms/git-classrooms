@@ -23,11 +23,11 @@ type ReportDataItem struct {
 	Percentage       float64           `json:"percentage,omitempty"`
 }
 
-func GenerateReports(classroom *database.Classroom, assignments []*database.Assignment) ([][]*ReportDataItem, error) {
+func GenerateReports(assignments []*database.Assignment) ([][]*ReportDataItem, error) {
 	reports := make([][]*ReportDataItem, len(assignments))
 
 	for i, assignment := range assignments {
-		report, err := GenerateReport(classroom, assignment)
+		report, err := GenerateReport(assignment)
 		if err != nil {
 			return nil, err
 		}
@@ -37,17 +37,17 @@ func GenerateReports(classroom *database.Classroom, assignments []*database.Assi
 	return reports, nil
 }
 
-func GenerateReport(classroom *database.Classroom, assignment *database.Assignment) ([]*ReportDataItem, error) {
-	reportData := createReportDataItems(classroom, assignment)
+func GenerateReport(assignment *database.Assignment) ([]*ReportDataItem, error) {
+	reportData := createReportDataItems(assignment)
 
 	return reportData, nil
 }
 
-func GenerateCSVReports(classroom *database.Classroom, assignments []*database.Assignment) ([]string, error) {
+func GenerateCSVReports(assignments []*database.Assignment) ([]string, error) {
 	reports := make([]string, len(assignments))
 
 	for i, assignment := range assignments {
-		report, err := GenerateCSVReport(classroom, assignment)
+		report, err := GenerateCSVReport(assignment)
 		if err != nil {
 			return nil, err
 		}
@@ -57,8 +57,8 @@ func GenerateCSVReports(classroom *database.Classroom, assignments []*database.A
 	return reports, nil
 }
 
-func GenerateCSVReport(classroom *database.Classroom, assignment *database.Assignment) (string, error) {
-	reportData := createReportDataItems(classroom, assignment)
+func GenerateCSVReport(assignment *database.Assignment) (string, error) {
+	reportData := createReportDataItems(assignment)
 
 	var b strings.Builder
 	writer := csv.NewWriter(&b)
@@ -70,7 +70,7 @@ func GenerateCSVReport(classroom *database.Classroom, assignment *database.Assig
 
 	// Add headers for manual rubric scores
 	for _, rubric := range assignment.GradingManualRubrics {
-		header = append(header, rubric.Name+" Score", rubric.Name+" Feedback")
+		header = append(header, rubric.Name+"Score", rubric.Name+"Feedback")
 	}
 
 	header = append(header, "AutogradingScore", "MaxScore", "Score", "Percentage")
@@ -87,7 +87,7 @@ func GenerateCSVReport(classroom *database.Classroom, assignment *database.Assig
 
 		// Add manual rubric scores
 		for _, rubric := range assignment.GradingManualRubrics {
-			row = append(row, rubric.Name, strconv.Itoa(item.RubricScores[rubric.Name]), item.RubricFeedback[rubric.Name])
+			row = append(row, strconv.Itoa(item.RubricScores[rubric.Name]), item.RubricFeedback[rubric.Name])
 		}
 
 		row = append(row, strconv.Itoa(item.AutogradingScore), strconv.Itoa(item.MaxScore), strconv.Itoa(item.Score), fmt.Sprintf("%.2f", item.Percentage))
@@ -105,7 +105,7 @@ func GenerateCSVReport(classroom *database.Classroom, assignment *database.Assig
 	return b.String(), nil
 }
 
-func createReportDataItems(classroom *database.Classroom, assignment *database.Assignment) []*ReportDataItem {
+func createReportDataItems(assignment *database.Assignment) []*ReportDataItem {
 	reportData := make([]*ReportDataItem, 0)
 
 	for _, project := range assignment.Projects {
@@ -157,7 +157,11 @@ func createManualRubricScoresMap(project *database.AssignmentProjects) map[strin
 func createManualRubricFeedbacksMap(project *database.AssignmentProjects) map[string]string {
 	feedback := make(map[string]string)
 	for _, result := range project.GradingManualResults {
-		feedback[result.Rubric.Name] = *result.Feedback
+		if result.Feedback != nil {
+			feedback[result.Rubric.Name] = *result.Feedback
+		} else {
+			feedback[result.Rubric.Name] = ""
+		}
 	}
 	return feedback
 }
