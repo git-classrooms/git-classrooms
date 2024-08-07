@@ -84,7 +84,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		TeamID:       team1.ID,
 		ProjectID:    15,
 	}
-	testDb.InsertAssignmentProject(&assignment1Project)
+	testDb.InsertAssignmentProjects(&assignment1Project)
 
 	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{})
 
