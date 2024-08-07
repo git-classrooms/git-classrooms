@@ -3,9 +3,10 @@ package api
 import (
 	"context"
 	"fmt"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"net/http/httptest"
 	"testing"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -77,7 +78,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 		AssignmentID: assignment.ID,
 		ProjectID:    1,
 	}
-	testDb.InsertAssignmentProject(&assignmentProject)
+	testDb.InsertAssignmentProjects(&assignmentProject)
 
 	userClassroom := database.UserClassrooms{
 		UserID:      user1.ID,

@@ -50,6 +50,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 	assignment1 := database.Assignment{
 		ID:          uuid.New(),
 		ClassroomID: classroom.ID,
+		Name:        "Assignment1",
 	}
 	testDb.InsertAssignment(&assignment1)
 
