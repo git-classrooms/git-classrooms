@@ -10,7 +10,8 @@ import { classroomQueryOptions } from "@/api/classroom";
 import { assignmentsQueryOptions } from "@/api/assignment";
 import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
-import { UserClassroomResponse } from "@/swagger-client";
+import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
+// import { Button } from "@/components/ui/button.tsx";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -23,12 +24,13 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
         params,
       });
     }
+    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId)
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
     if(userClassroom.role !== Role.Student) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
-      return { userClassroom, assignments, members, teams };
+      return { userClassroom, assignments, members, teams, reportDownloadUrl };
     }else{
-      return { userClassroom, members, teams };
+      return { userClassroom, members, teams, reportDownloadUrl };
     }
   },
   pendingComponent: Loader,
@@ -55,13 +57,17 @@ function ClassroomStudentView(){
 }
 function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroomResponse}){
   const { classroomId } = Route.useParams();
+  // const { reportDownloadUrl } = Route.useLoaderData()
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
+
   return (
     <div>
       <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
+        { /*<Button asChild><a href={reportDownloadUrl}>Download Report</a></Button>*/ }
+
         <AssignmentListCard
           assignments={assignments}
           classroomId={classroomId}

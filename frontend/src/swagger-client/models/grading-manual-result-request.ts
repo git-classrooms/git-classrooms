@@ -16,31 +16,25 @@
  * 
  *
  * @export
- * @interface ManualGradingRubric
+ * @interface GradingManualResultRequest
  */
-export interface ManualGradingRubric {
+export interface GradingManualResultRequest {
 
     /**
      * @type {string}
-     * @memberof ManualGradingRubric
+     * @memberof GradingManualResultRequest
      */
-    description: string;
+    feedback?: string;
 
     /**
      * @type {string}
-     * @memberof ManualGradingRubric
+     * @memberof GradingManualResultRequest
      */
     id: string;
 
     /**
      * @type {number}
-     * @memberof ManualGradingRubric
+     * @memberof GradingManualResultRequest
      */
-    maxScore: number;
-
-    /**
-     * @type {string}
-     * @memberof ManualGradingRubric
-     */
-    name: string;
+    score: number;
 }

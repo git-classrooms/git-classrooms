@@ -12,18 +12,17 @@
  * Do not edit the class manually.
  */
 
-import { GradingManualResultRequest } from './grading-manual-result-request';
  /**
  * 
  *
  * @export
- * @interface UpdateAssignmentGradingRequest
+ * @interface StartAutoGradingRequest
  */
-export interface UpdateAssignmentGradingRequest {
+export interface StartAutoGradingRequest {
 
     /**
-     * @type {Array<GradingManualResultRequest>}
-     * @memberof UpdateAssignmentGradingRequest
+     * @type {boolean}
+     * @memberof StartAutoGradingRequest
      */
-    gradingManualRubrics: Array<GradingManualResultRequest>;
+    jUnitAutoGrading: boolean;
 }

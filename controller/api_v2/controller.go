@@ -54,6 +54,10 @@ type Controller interface {
 	StartAutoGrading(c *fiber.Ctx) (err error)
 	StartAutoGradingForProject(c *fiber.Ctx) (err error)
 
+	GetClassroomReport(c *fiber.Ctx) (err error)
+	GetClassroomAssignmentReport(c *fiber.Ctx) (err error)
+	GetClassroomTeamReport(c *fiber.Ctx) (err error)
+
 	GetClassroomProjects(*fiber.Ctx) error
 	AcceptAssignment(*fiber.Ctx) error
 	ClassroomProjectMiddleware(*fiber.Ctx) error

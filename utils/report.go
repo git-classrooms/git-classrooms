@@ -14,17 +14,17 @@ import (
 )
 
 type ReportDataItem struct {
-	AssignmentName   string            `json:"assignmentName,omitempty"`
-	TeamName         string            `json:"teamName,omitempty"`
-	Name             string            `json:"name,omitempty"`
-	Username         string            `json:"username,omitempty"`
-	Email            string            `json:"email,omitempty"`
-	RubricScores     map[string]int    `json:"rubricScores,omitempty"`
-	RubricFeedback   map[string]string `json:"rubricFeedback,omitempty"`
-	AutogradingScore int               `json:"autogradingScore,omitempty"`
-	MaxScore         int               `json:"maxScore,omitempty"`
-	Score            int               `json:"score,omitempty"`
-	Percentage       float64           `json:"percentage,omitempty"`
+	AssignmentName   string            `json:"assignmentName"`
+	TeamName         string            `json:"teamName"`
+	Name             string            `json:"name"`
+	Username         string            `json:"username"`
+	Email            string            `json:"email"`
+	RubricScores     map[string]int    `json:"rubricScores"`
+	RubricFeedback   map[string]string `json:"rubricFeedback"`
+	AutogradingScore int               `json:"autogradingScore"`
+	MaxScore         int               `json:"maxScore"`
+	Score            int               `json:"score"`
+	Percentage       float64           `json:"percentage"`
 }
 
 func GenerateReports(assignments []*database.Assignment, teamID *uuid.UUID) ([][]*ReportDataItem, error) {
@@ -122,11 +122,17 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 		autogradingScore := calculateAutogradingScore(project)
 		maxScore := calculateMaxScore(project)
 		score := calculateScore(project)
-		percentage := float64(score) / float64(maxScore) * 100
+		var percentage float64
+
+		if maxScore == 0.0 {
+			percentage = 0.0
+		} else {
+			percentage = float64(score) / float64(maxScore) * 100
+		}
 
 		for _, member := range project.Team.Member {
 			reportData = append(reportData, &ReportDataItem{
-				AssignmentName:   project.Assignment.Name,
+				AssignmentName:   assignment.Name,
 				TeamName:         project.Team.Name,
 				Name:             member.User.Name,
 				Username:         member.User.GitlabUsername,

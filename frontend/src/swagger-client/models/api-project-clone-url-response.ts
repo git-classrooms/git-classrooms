@@ -16,31 +16,25 @@
  * 
  *
  * @export
- * @interface ManualGradingRubric
+ * @interface ApiProjectCloneUrlResponse
  */
-export interface ManualGradingRubric {
+export interface ApiProjectCloneUrlResponse {
 
     /**
      * @type {string}
-     * @memberof ManualGradingRubric
+     * @memberof ApiProjectCloneUrlResponse
      */
-    description: string;
-
-    /**
-     * @type {string}
-     * @memberof ManualGradingRubric
-     */
-    id: string;
+    httpUrlToRepo: string;
 
     /**
      * @type {number}
-     * @memberof ManualGradingRubric
+     * @memberof ApiProjectCloneUrlResponse
      */
-    maxScore: number;
+    projectId: number;
 
     /**
      * @type {string}
-     * @memberof ManualGradingRubric
+     * @memberof ApiProjectCloneUrlResponse
      */
-    name: string;
+    sshUrlToRepo: string;
 }
