@@ -1,12 +1,16 @@
 package utils
 
 import (
+	"archive/zip"
 	"encoding/csv"
 	"fmt"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"io"
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type ReportDataItem struct {
@@ -23,11 +27,11 @@ type ReportDataItem struct {
 	Percentage       float64           `json:"percentage,omitempty"`
 }
 
-func GenerateReports(assignments []*database.Assignment) ([][]*ReportDataItem, error) {
+func GenerateReports(assignments []*database.Assignment, teamID *uuid.UUID) ([][]*ReportDataItem, error) {
 	reports := make([][]*ReportDataItem, len(assignments))
 
 	for i, assignment := range assignments {
-		report, err := GenerateReport(assignment)
+		report, err := GenerateReport(assignment, teamID)
 		if err != nil {
 			return nil, err
 		}
@@ -37,31 +41,35 @@ func GenerateReports(assignments []*database.Assignment) ([][]*ReportDataItem, e
 	return reports, nil
 }
 
-func GenerateReport(assignment *database.Assignment) ([]*ReportDataItem, error) {
-	reportData := createReportDataItems(assignment)
+func GenerateReport(assignment *database.Assignment, teamID *uuid.UUID) ([]*ReportDataItem, error) {
+	reportData := createReportDataItems(assignment, teamID)
 
 	return reportData, nil
 }
 
-func GenerateCSVReports(assignments []*database.Assignment) ([]string, error) {
-	reports := make([]string, len(assignments))
+func GenerateCSVReports(w io.Writer, assignments []*database.Assignment, teamID *uuid.UUID) error {
+	zipArchive := zip.NewWriter(w)
+	defer zipArchive.Close()
 
-	for i, assignment := range assignments {
-		report, err := GenerateCSVReport(assignment)
+	for _, assignment := range assignments {
+		filename := fmt.Sprintf("reports/report_%s_%s.csv", time.Now().Format(time.DateOnly), assignment.Name)
+		fileWriter, err := zipArchive.Create(filename)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		reports[i] = report
+
+		if err := GenerateCSVReport(fileWriter, assignment, teamID); err != nil {
+			return err
+		}
 	}
 
-	return reports, nil
+	return nil
 }
 
-func GenerateCSVReport(assignment *database.Assignment) (string, error) {
-	reportData := createReportDataItems(assignment)
+func GenerateCSVReport(w io.Writer, assignment *database.Assignment, teamID *uuid.UUID) error {
+	reportData := createReportDataItems(assignment, teamID)
 
-	var b strings.Builder
-	writer := csv.NewWriter(&b)
+	writer := csv.NewWriter(w)
 
 	header := []string{
 		// 1               2	       3       4           5
@@ -75,9 +83,8 @@ func GenerateCSVReport(assignment *database.Assignment) (string, error) {
 
 	header = append(header, "AutogradingScore", "MaxScore", "Score", "Percentage")
 
-	err := writer.Write(header)
-	if err != nil {
-		return "", err
+	if err := writer.Write(header); err != nil {
+		return err
 	}
 
 	for _, item := range reportData {
@@ -91,24 +98,25 @@ func GenerateCSVReport(assignment *database.Assignment) (string, error) {
 		}
 
 		row = append(row, strconv.Itoa(item.AutogradingScore), strconv.Itoa(item.MaxScore), strconv.Itoa(item.Score), fmt.Sprintf("%.2f", item.Percentage))
-		err := writer.Write(row)
-		if err != nil {
-			return "", err
+		if err := writer.Write(row); err != nil {
+			return err
 		}
 	}
 
 	writer.Flush()
 	if err := writer.Error(); err != nil {
-		return "", err
+		return err
 	}
-
-	return b.String(), nil
+	return nil
 }
 
-func createReportDataItems(assignment *database.Assignment) []*ReportDataItem {
+func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) []*ReportDataItem {
 	reportData := make([]*ReportDataItem, 0)
 
 	for _, project := range assignment.Projects {
+		if teamID != nil && project.TeamID != *teamID {
+			continue
+		}
 		manualRubricScores := createManualRubricScoresMap(project)
 		manualRubricFeedbacks := createManualRubricFeedbacksMap(project)
 		autogradingScore := calculateAutogradingScore(project)

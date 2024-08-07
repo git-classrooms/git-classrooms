@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"archive/zip"
+	"bytes"
 	"encoding/csv"
 	"strings"
 	"testing"
@@ -36,7 +38,7 @@ func TestGenerateReports(t *testing.T) {
 		},
 	}
 
-	reports, err := GenerateReports(assignments)
+	reports, err := GenerateReports(assignments, nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, reports)
 	assert.Equal(t, 1, len(reports))
@@ -94,14 +96,27 @@ func TestGenerateCSVReports(t *testing.T) {
 		},
 	}
 
-	csvReports, err := GenerateCSVReports(assignments)
+	var buffer bytes.Buffer
+	err := GenerateCSVReports(&buffer, assignments, nil)
 	assert.NoError(t, err)
-	assert.NotNil(t, csvReports)
-	assert.Equal(t, 2, len(csvReports))
+	r, err := zip.NewReader(bytes.NewReader(buffer.Bytes()), int64(buffer.Len()))
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(r.File))
 
-	r := csv.NewReader(strings.NewReader(csvReports[0]))
-	records, err := r.ReadAll()
-	assert.NoError(t, err)
+	csvRecords := make([][][]string, len(r.File))
+
+	for i, file := range r.File {
+		rc, err := file.Open()
+		assert.NoError(t, err)
+
+		csvReader := csv.NewReader(rc)
+		records, err := csvReader.ReadAll()
+		assert.NoError(t, err)
+		csvRecords[i] = records
+		rc.Close()
+	}
+
+	records := csvRecords[0]
 	assert.Equal(t, "AssignmentName", records[0][0])
 	assert.Equal(t, "Assignment 1", records[1][0])
 	assert.Equal(t, "TeamName", records[0][1])
@@ -120,8 +135,7 @@ func TestGenerateCSVReports(t *testing.T) {
 	assert.Equal(t, "12", records[1][9])
 	assert.Equal(t, "Percentage", records[0][10])
 
-	r = csv.NewReader(strings.NewReader(csvReports[1]))
-	records, err = r.ReadAll()
+	records = csvRecords[1]
 	assert.Equal(t, "AssignmentName", records[0][0])
 	assert.Equal(t, "Assignment 2", records[1][0])
 	assert.Equal(t, "TeamName", records[0][1])
@@ -142,25 +156,23 @@ func TestGenerateCSVReports(t *testing.T) {
 }
 
 func TestGenerateCSVReport(t *testing.T) {
-	assignments := []*database.Assignment{
-		{
-			Name: "Assignment 1",
-			GradingManualRubrics: []*database.ManualGradingRubric{
-				{Name: "Quality", MaxScore: 10},
-			},
-			Projects: []*database.AssignmentProjects{
-				{
-					Assignment: database.Assignment{Name: "Assignment 1"},
-					GradingManualResults: []*database.ManualGradingResult{
-						{Rubric: database.ManualGradingRubric{Name: "Quality", MaxScore: 10}, Score: 8},
-					},
-					GradingJUnitTestResult: &database.JUnitTestResult{TotalCount: 5, SuccessCount: 4},
-					Team: database.Team{
-						Name: "Team A",
-						Member: []*database.UserClassrooms{
-							{
-								User: database.User{Name: "John Doe", GitlabUsername: "johndoe", GitlabEmail: "john.doe@example.com"},
-							},
+	assignments := &database.Assignment{
+		Name: "Assignment 1",
+		GradingManualRubrics: []*database.ManualGradingRubric{
+			{Name: "Quality", MaxScore: 10},
+		},
+		Projects: []*database.AssignmentProjects{
+			{
+				Assignment: database.Assignment{Name: "Assignment 1"},
+				GradingManualResults: []*database.ManualGradingResult{
+					{Rubric: database.ManualGradingRubric{Name: "Quality", MaxScore: 10}, Score: 8},
+				},
+				GradingJUnitTestResult: &database.JUnitTestResult{TotalCount: 5, SuccessCount: 4},
+				Team: database.Team{
+					Name: "Team A",
+					Member: []*database.UserClassrooms{
+						{
+							User: database.User{Name: "John Doe", GitlabUsername: "johndoe", GitlabEmail: "john.doe@example.com"},
 						},
 					},
 				},
@@ -168,12 +180,14 @@ func TestGenerateCSVReport(t *testing.T) {
 		},
 	}
 
-	csvReports, err := GenerateCSVReports(assignments)
+	var reports strings.Builder
+
+	err := GenerateCSVReport(&reports, assignments, nil)
+	csvReports := reports.String()
 	assert.NoError(t, err)
 	assert.NotNil(t, csvReports)
-	assert.Equal(t, 1, len(csvReports))
 
-	r := csv.NewReader(strings.NewReader(csvReports[0]))
+	r := csv.NewReader(strings.NewReader(csvReports))
 	records, err := r.ReadAll()
 	assert.NoError(t, err)
 	assert.Equal(t, "AssignmentName", records[0][0])
