@@ -7,6 +7,7 @@ import { getUUIDFromLocation } from "@/lib/utils";
 import { Action } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classroom";
+import { AxiosError } from "axios";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -21,8 +22,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations
 function JoinClassroom() {
   const navigate = useNavigate();
   const { classroomId, invitationId } = Route.useParams();
-  const { data } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId));
-  const { mutateAsync, isError, isPending } = useJoinClassroom(classroomId, invitationId);
+  const { data: invitation } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId));
+  const { mutateAsync, isError, isPending, error } = useJoinClassroom(classroomId, invitationId);
 
   const onAccept = async () => {
     const location = await mutateAsync(Action.Accept);
@@ -40,11 +41,11 @@ function JoinClassroom() {
       <h1 className="text-5xl font-bold text-center mb-5">Join Classroom</h1>
       <Separator />
       <p className="text-slate-500">
-        You have been invited to join the classroom <span className="font-bold">{data.classroom.name}</span> by{" "}
-        <span className="font-bold">{data.classroom.owner.name}</span>
+        You have been invited to join the classroom <span className="font-bold">{invitation.classroom.name}</span> by{" "}
+        <span className="font-bold">{invitation.classroom.owner.name}</span>
       </p>
       <Separator />
-      <p className="text-slate-500">{data.classroom.description}</p>
+      <p className="text-slate-500">{invitation.classroom.description}</p>
       <Separator />
       <div className="flex justify-between">
         <Button onClick={onReject} variant="destructive" disabled={isPending}>
@@ -60,7 +61,13 @@ function JoinClassroom() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Can't join classroom!</AlertDescription>
+            <AlertDescription>
+              {error instanceof AxiosError
+                ? error.response?.data.error
+                  ? error.response.data.error
+                  : "Can't join classroom!"
+                : "Can't join classroom!"}
+            </AlertDescription>
           </Alert>
         </>
       )}
