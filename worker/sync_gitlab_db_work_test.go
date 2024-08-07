@@ -69,7 +69,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 	}
 	testDb.InsertTeam(&team1)
 
-	w := NewSyncClassroomsWork(&gitlabConfig.GitlabConfig{})
+	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{})
 
 	t.Run("getUnarchivedClassrooms", func(t *testing.T) {
 		classroom2 := database.Classroom{

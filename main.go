@@ -143,5 +143,14 @@ func main() {
 		dueAssignmentWorker.Start(ctx, 1*time.Minute)
 	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab)
+		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
+		syncGitlabDbWorker.Start(ctx, 20*time.Second)
+	}()
+
 	wg.Wait()
 }

@@ -79,7 +79,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		ProjectID:     1,
 		ProjectStatus: database.Accepted,
 	}
-	testDb.InsertAssignmentProject(&assignmentProject1)
+	testDb.InsertAssignmentProjects(&assignmentProject1)
 
 	dueDate2 := time.Now().Add(1 * time.Hour)
 	assignment2 := database.Assignment{
@@ -130,7 +130,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		testDb.SaveAssignment(&assignment1)
 
 		assignmentProject1.ProjectStatus = database.Pending
-		testDb.SaveAssignmentProject(&assignmentProject1)
+		testDb.SaveAssignmentProjects(&assignmentProject1)
 
 		err := work.closeAssignment(context.Background(), &assignment1, repo)
 		assert.NoError(t, err)
