@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gorm.io/gen/field"
 )
 
 func joinedClassroomAssignmentQuery(classroomID uuid.UUID, teamID uuid.UUID, c *fiber.Ctx) query.IAssignmentProjectsDo {
@@ -14,7 +15,7 @@ func joinedClassroomAssignmentQuery(classroomID uuid.UUID, teamID uuid.UUID, c *
 		WithContext(c.Context()).
 		Preload(queryAssignmentProjects.Assignment).
 		Preload(queryAssignmentProjects.Team).
-		Preload(queryAssignmentProjects.Team.Member).
+		Preload(field.NewRelation("Team.Member", "")).
 		Join(queryAssignment, queryAssignment.ID.EqCol(queryAssignmentProjects.AssignmentID)).
 		Where(queryAssignment.ClassroomID.Eq(classroomID)).
 		Where(queryAssignmentProjects.TeamID.Eq(teamID))

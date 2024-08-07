@@ -25,6 +25,12 @@ export interface Classroom {
      * @type {boolean}
      * @memberof Classroom
      */
+    archived: boolean;
+
+    /**
+     * @type {boolean}
+     * @memberof Classroom
+     */
     createTeams: boolean;
 
     /**

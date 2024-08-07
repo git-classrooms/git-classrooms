@@ -14,12 +14,15 @@ type Assignment struct {
 	CreatedAt         time.Time             `json:"createdAt"`
 	UpdatedAt         time.Time             `json:"updatedAt"`
 	DeletedAt         gorm.DeletedAt        `gorm:"index" json:"-"`
-	ClassroomID       uuid.UUID             `gorm:"not null" json:"classroomId"`
+	ClassroomID       uuid.UUID             `gorm:"not null;uniqueIndex:idx_unique_classroom_assignmentName" json:"classroomId"`
 	Classroom         Classroom             `json:"-"`
 	TemplateProjectID int                   `gorm:"<-:create;not null" json:"templateProjectId"`
-	Name              string                `gorm:"not null" json:"name"`
+	Name              string                `gorm:"not null;uniqueIndex:idx_unique_classroom_assignmentName" json:"name"`
 	Description       string                `json:"description"`
 	DueDate           *time.Time            `json:"dueDate" validate:"optional"`
 	Closed            bool                  `gorm:"default:false" json:"closed"`
 	Projects          []*AssignmentProjects `json:"-"`
+
+	GradingJUnitAutoGradingActive bool                   `json:"gradingJUnitAutoGradingActive"`
+	GradingManualRubrics          []*ManualGradingRubric `gorm:"foreignKey:AssignmentID" json:"gradingManualRubrics"`
 } //@Name Assignment

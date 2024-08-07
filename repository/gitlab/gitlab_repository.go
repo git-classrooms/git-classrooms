@@ -96,6 +96,36 @@ func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, 
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+func (repo *GitlabRepo) ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
+	repo.assertIsConnected()
+
+	templateProject, _, err := repo.client.Projects.GetProject(projectId, &goGitlab.GetProjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	opts := &goGitlab.ForkProjectOptions{
+		Name:                          goGitlab.String(name),
+		Path:                          goGitlab.String(convertToGitLabPath(name)),
+		NamespaceID:                   goGitlab.Int(namespaceId),
+		Visibility:                    goGitlab.Visibility(VisibilityFromModel(visibility)),
+		Description:                   goGitlab.String(description),
+		MergeRequestDefaultTargetSelf: goGitlab.Bool(true),
+	}
+
+	gitlabProject, _, err := repo.client.Projects.ForkProject(projectId, opts, func(r *retryablehttp.Request) error {
+		query := r.URL.Query()
+		query.Add("branches", templateProject.DefaultBranch)
+		r.URL.RawQuery = query.Encode()
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.convertGitlabProject(gitlabProject)
+}
+
 func (repo *GitlabRepo) CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error) {
 	repo.assertIsConnected()
 
@@ -132,10 +162,10 @@ func (repo *GitlabRepo) UnprotectBranch(projectId int, branchName string) error 
 	return err
 }
 
-func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error {
+func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, reviewerId int) error {
 	repo.assertIsConnected()
 
-	reviewers := []int{recviewerId}
+	reviewers := []int{reviewerId}
 
 	opts := &goGitlab.CreateMergeRequestOptions{
 		Title:        goGitlab.String(title),
@@ -702,7 +732,7 @@ TODO:
 func (repo *GitlabRepo) DenyPushingToProject(projectId int) error {
 	log.Panic("No working option to close an assignment")
 
-	permission := goGitlab.AccessLevelValue(goGitlab.MinimalAccessPermissions)
+	permission := goGitlab.MinimalAccessPermissions
 
 	return repo.changeProjectMemberPermissions(projectId, permission)
 }
@@ -710,7 +740,7 @@ func (repo *GitlabRepo) DenyPushingToProject(projectId int) error {
 func (repo *GitlabRepo) AllowPushingToProject(projectId int) error {
 	log.Panic("No working option to reopen an assignment")
 
-	permission := goGitlab.AccessLevelValue(goGitlab.DeveloperPermissions)
+	permission := goGitlab.DeveloperPermissions
 
 	return repo.changeProjectMemberPermissions(projectId, permission)
 }
@@ -737,6 +767,39 @@ func (repo *GitlabRepo) changeProjectMemberPermissions(projectId int, accessLeve
 	return nil
 }
 
+func (repo *GitlabRepo) GetAvailableRunnersForGitLab() ([]*model.Runner, error) {
+	repo.assertIsConnected()
+
+	availableRunners, _, err := repo.client.Runners.ListRunners(
+		&goGitlab.ListRunnersOptions{
+			Status: goGitlab.String("online"), Paused: goGitlab.Bool(false),
+			Type: goGitlab.String("instance_type")})
+	if err != nil {
+		return nil, err
+	}
+
+	return convertRunners(availableRunners), nil
+}
+
+func (repo *GitlabRepo) GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error) {
+	repo.assertIsConnected()
+
+	runners, _, err := repo.client.Runners.ListGroupsRunners(groupId,
+		&goGitlab.ListGroupsRunnersOptions{Status: goGitlab.String("online")})
+	if err != nil {
+		return nil, err
+	}
+
+	var availableRunners []*goGitlab.Runner
+	for _, runner := range runners {
+		if !runner.Paused {
+			availableRunners = append(availableRunners, runner)
+		}
+	}
+
+	return convertRunners(availableRunners), nil
+}
+
 func (repo *GitlabRepo) assertIsConnected() {
 	if repo.client == nil {
 		panic("No connection to Gitlab! Make sure you have executed Login()")
@@ -754,7 +817,7 @@ func (repo *GitlabRepo) getUserByUsername(username string) (*model.User, error) 
 	}
 
 	if len(users) == 0 {
-		return nil, fmt.Errorf("User with username [%s] not found", username)
+		return nil, fmt.Errorf("user with username [%s] not found", username)
 	}
 
 	return UserFromGoGitlab(*users[0]), nil
@@ -875,4 +938,15 @@ func convertToGitLabPath(s string) string {
 	}
 
 	return s
+}
+
+func convertRunners(runners []*goGitlab.Runner) []*model.Runner {
+	convertedRunners := make([]*model.Runner, len(runners))
+	for i, r := range runners {
+		if r != nil {
+			rConverted := model.Runner(*r)
+			convertedRunners[i] = &rConverted
+		}
+	}
+	return convertedRunners
 }

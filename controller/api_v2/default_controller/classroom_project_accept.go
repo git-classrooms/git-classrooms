@@ -119,7 +119,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 		}
 	}()
 
-	project, err := repo.ForkProject(assignmentProject.Assignment.TemplateProjectID, gitlabModel.Private, assignmentProject.Team.GroupID, assignmentProject.Assignment.Name, assignmentProject.Assignment.Description)
+	project, err := repo.ForkProjectWithOnlyDefaultBranch(assignmentProject.Assignment.TemplateProjectID, gitlabModel.Private, assignmentProject.Team.GroupID, assignmentProject.Assignment.Name, assignmentProject.Assignment.Description)
 	if err != nil {
 		log.Println("Error while forking the template Project", err)
 		return

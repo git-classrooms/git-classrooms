@@ -14,6 +14,8 @@
 
 import { Assignment } from './assignment';
 import { DatabaseStatus } from './database-status';
+import { JUnitTestResult } from './junit-test-result';
+import { ManualGradingResult } from './manual-grading-result';
 import { Team } from './team';
  /**
  * 
@@ -34,6 +36,18 @@ export interface ProjectResponse {
      * @memberof ProjectResponse
      */
     createdAt: string;
+
+    /**
+     * @type {JUnitTestResult}
+     * @memberof ProjectResponse
+     */
+    gradingJUnitTestResult?: JUnitTestResult;
+
+    /**
+     * @type {Array<ManualGradingResult>}
+     * @memberof ProjectResponse
+     */
+    gradingManualResults: Array<ManualGradingResult>;
 
     /**
      * @type {string}

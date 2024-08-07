@@ -40,10 +40,23 @@ type Controller interface {
 	GetClassroomAssignment(*fiber.Ctx) error
 	UpdateAssignment(*fiber.Ctx) error
 
+	GetGradingRubrics(c *fiber.Ctx) (err error)
+	UpdateGradingRubrics(c *fiber.Ctx) (err error)
+
 	GetClassroomAssignmentProjects(*fiber.Ctx) error
 	InviteToAssignment(*fiber.Ctx) error
 	ClassroomAssignmentProjectMiddleware(*fiber.Ctx) error
 	GetClassroomAssignmentProject(*fiber.Ctx) error
+
+	GetGradingResults(c *fiber.Ctx) (err error)
+	UpdateGradingResults(c *fiber.Ctx) (err error)
+
+	StartAutoGrading(c *fiber.Ctx) (err error)
+	StartAutoGradingForProject(c *fiber.Ctx) (err error)
+
+	GetClassroomReport(c *fiber.Ctx) (err error)
+	GetClassroomAssignmentReport(c *fiber.Ctx) (err error)
+	GetClassroomTeamReport(c *fiber.Ctx) (err error)
 
 	GetClassroomProjects(*fiber.Ctx) error
 	AcceptAssignment(*fiber.Ctx) error
@@ -61,6 +74,9 @@ type Controller interface {
 	GetClassroomMember(*fiber.Ctx) error
 	UpdateMemberTeam(*fiber.Ctx) error
 	UpdateMemberRole(*fiber.Ctx) error
+
+	GetClassroomRunners(c *fiber.Ctx) error
+	GetClassroomRunnersAreAvailable(c *fiber.Ctx) error
 
 	GetClassroomTeams(*fiber.Ctx) error
 	CreateTeam(*fiber.Ctx) error
