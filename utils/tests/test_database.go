@@ -120,3 +120,10 @@ func (testDb *TestDB) SaveInvitation(invitation *database.ClassroomInvitation) {
 		testDb.t.Fatalf("could not update invitation: %s", err.Error())
 	}
 }
+
+func (testDb *TestDB) InsertUserClassrooms(userClassroom *database.UserClassrooms) {
+	err := query.UserClassrooms.WithContext(context.Background()).Create(userClassroom)
+	if err != nil {
+		testDb.t.Fatalf("could not insert user classroom: %s", err.Error())
+	}
+}

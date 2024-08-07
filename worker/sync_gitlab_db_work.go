@@ -21,12 +21,8 @@ func NewSyncGitlabDbWork(config gitlabConfig.Config) *SyncGitlabDbWork {
 }
 
 func (w *SyncGitlabDbWork) Do(ctx context.Context) {
-	log.Default().Println("Starting sync gitlab db work")
-
 	classrooms := w.getUnarchivedClassrooms(ctx)
 	for _, classroom := range classrooms {
-		log.Default().Printf("Syncing classroom %s", classroom.Name)
-
 		repo, err := GetWorkerRepo(w.gitlabConfig, classroom.GroupAccessToken)
 		if err != nil {
 			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
@@ -41,12 +37,6 @@ func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 		w.syncClassroomMember(ctx, classroom.GroupID, classroom.Member, repo)
 
 		for _, team := range classroom.Teams {
-			if team.Deleted {
-				continue
-			}
-
-			log.Default().Printf("Syncing team %s", team.Name)
-
 			err = w.syncTeam(ctx, *team, repo)
 			if err != nil {
 				continue
@@ -58,8 +48,6 @@ func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 		for _, assignment := range classroom.Assignments {
 			projects := w.getAssignmentProjects(ctx, assignment.ID)
 			for _, project := range projects {
-				log.Default().Printf("Syncing assignment %s, project %d", assignment.ID.String(), project.ProjectID)
-
 				w.syncProject(ctx, *project, repo)
 			}
 		}
@@ -86,10 +74,9 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 	gitlabClassroom, err := repo.GetGroupById(dbClassroom.GroupID)
 	if err != nil {
 		if strings.Contains(err.Error(), "401 {message: 401 Unauthorized}") {
-			dbClassroom.Deleted = true
-			_, err := query.Classroom.WithContext(ctx).Updates(dbClassroom)
+			_, err := query.Classroom.WithContext(ctx).Delete(&dbClassroom)
 			if err == nil {
-				log.Default().Printf("Classroom %s marked as deleted via gitlab", dbClassroom.Name)
+				log.Default().Printf("Classroom %s deleted via gitlab", dbClassroom.Name)
 			}
 		} else {
 			log.Default().Printf("Error while fetching group with id %d. ErrorMsg: %s", dbClassroom.GroupID, err.Error())
@@ -133,14 +120,12 @@ func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int,
 			}
 		}
 
-		if !found && !dbMember.LeftClassroom {
-			dbMember.LeftClassroom = true
-			dbMember.LeftTeam = true
-			_, err := query.UserClassrooms.WithContext(ctx).Updates(dbMember)
+		if !found {
+			_, err := query.UserClassrooms.WithContext(ctx).Delete(dbMember)
 			if err != nil {
-				log.Default().Printf("Error could not mark user as left of classroom %d: %s", groupId, err.Error())
+				log.Default().Printf("Error could not remove member [%d] from classroom %d: %s", dbMember.UserID, groupId, err.Error())
 			} else {
-				log.Default().Printf("Marked user %d as left of classroom %d", dbMember.UserID, groupId)
+				log.Default().Printf("Removed member %d from classroom %d", dbMember.UserID, groupId)
 			}
 		}
 	}
@@ -167,15 +152,23 @@ func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMe
 			}
 		}
 
-		if !found && !dbMember.LeftTeam {
-			dbMember.LeftTeam = true
-			_, err := query.UserClassrooms.WithContext(ctx).Updates(dbMember)
+		if !found {
+			_, err := query.UserClassrooms.WithContext(ctx).Delete(dbMember)
 			if err != nil {
-				log.Default().Printf("Error could not mark user as left of classroom %d: %s", groupId, err.Error())
-			} else {
-				log.Default().Printf("Marked user %d as left of team %d", dbMember.UserID, groupId)
+				log.Default().Printf("Error could not remove member [%d] from team %d: %s", dbMember.UserID, groupId, err.Error())
+				break
+			}
+
+			err = query.UserClassrooms.WithContext(ctx).Create(&database.UserClassrooms{
+				UserID:      dbMember.UserID,
+				ClassroomID: dbMember.ClassroomID,
+				Role:        dbMember.Role,
+			})
+			if err != nil {
+				log.Default().Printf("Error could not remove member [%d] from team %d: %s", dbMember.UserID, groupId, err.Error())
 			}
 		}
+
 	}
 
 	// TODO: what about new members, which got added to the classroom via gitlab?
@@ -187,8 +180,7 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, r
 	gitlabTeam, err := repo.GetGroupById(dbTeam.GroupID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
-			dbTeam.Deleted = true
-			_, err := query.Team.WithContext(ctx).Updates(dbTeam)
+			_, err := query.Team.WithContext(ctx).Delete(&dbTeam)
 			if err == nil {
 				log.Default().Printf("Team %s marked as deleted via gitlab", dbTeam.Name)
 			}
@@ -227,9 +219,9 @@ func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.A
 	}
 
 	if strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
-		_, err := query.AssignmentProjects.WithContext(ctx).Updates(dbProject)
+		_, err := query.AssignmentProjects.WithContext(ctx).Delete(&dbProject)
 		if err == nil {
-			log.Default().Printf("Project with id %d marked as deleted via gitlab", dbProject.ProjectID)
+			log.Default().Printf("Project with id %d deleted via gitlab", dbProject.ProjectID)
 		}
 	} else {
 		log.Default().Printf("Error while fetching project with id %s. ErrorMsg: %s", dbProject.ID.String(), err.Error())

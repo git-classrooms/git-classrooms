@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
@@ -68,6 +69,22 @@ func TestSyncClassroomsWork(t *testing.T) {
 		},
 	}
 	testDb.InsertTeam(&team1)
+
+	assignment1 := database.Assignment{
+		ID:          uuid.New(),
+		Name:        "Assignment1",
+		ClassroomID: classroom1.ID,
+	}
+	testDb.InsertAssignment(&assignment1)
+
+	assignment1Project := database.AssignmentProjects{
+		ID:           uuid.New(),
+		AssignmentID: assignment1.ID,
+		Assignment:   assignment1,
+		TeamID:       team1.ID,
+		ProjectID:    15,
+	}
+	testDb.InsertAssignmentProject(&assignment1Project)
 
 	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{})
 
@@ -154,12 +171,14 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Where(query.UserClassrooms.UserID.Eq(member2.ID)).
 			Where(query.UserClassrooms.ClassroomID.Eq(classroom1.ID)).
 			First()
-		assert.NoError(t, err)
-		assert.True(t, leftMember.LeftClassroom)
+		assert.Error(t, err)
+		assert.Nil(t, leftMember)
 
-		// revert changes of db object for next tests
-		leftMember.LeftClassroom = false
-		query.UserClassrooms.WithContext(context.Background()).Updates(leftMember)
+		// revert changes for next tests
+		testDb.InsertUserClassrooms(&database.UserClassrooms{
+			UserID:      member2.ID,
+			ClassroomID: classroom1.ID,
+		})
 	})
 
 	t.Run("syncTeam", func(t *testing.T) {
@@ -211,14 +230,46 @@ func TestSyncClassroomsWork(t *testing.T) {
 
 		leftMember, err := query.UserClassrooms.WithContext(context.Background()).
 			Where(query.UserClassrooms.UserID.Eq(member2.ID)).
-			Where(query.UserClassrooms.TeamID.Eq(team1.ID)).
+			Where(query.UserClassrooms.ClassroomID.Eq(classroom1.ID)).
 			First()
 		assert.NoError(t, err)
-		assert.True(t, leftMember.LeftTeam)
+		assert.Nil(t, leftMember.TeamID)
+		assert.Nil(t, leftMember.Team)
 
-		// revert changes of db object for next tests
-		leftMember.LeftTeam = false
+		// revert changes of db object for next
+		leftMember, err = query.UserClassrooms.WithContext(context.Background()).
+			Where(query.UserClassrooms.UserID.Eq(member2.ID)).
+			Where(query.UserClassrooms.ClassroomID.Eq(classroom1.ID)).
+			First()
+		assert.NoError(t, err)
+		leftMember.TeamID = &team1.ID
+		leftMember.Team = &team1
 		query.UserClassrooms.WithContext(context.Background()).Updates(leftMember)
 	})
 
+	t.Run("getAssignmentProjectes", func(t *testing.T) {
+		dbAssignments := w.getAssignmentProjects(context.Background(), assignment1.ID)
+
+		if len(dbAssignments) != 1 {
+			t.Errorf("Expected 1 assignment, got %d", len(dbAssignments))
+		}
+		assert.Equal(t, 15, dbAssignments[0].ProjectID)
+	})
+
+	t.Run("syncProject", func(t *testing.T) {
+		repo.EXPECT().
+			GetProjectById(assignment1Project.ProjectID).
+			Return(nil, fiber.NewError(404, "404 {message: 404 Project Not Found}")).
+			Times(1)
+
+		w.syncProject(context.Background(), assignment1Project, repo)
+
+		repo.AssertExpectations(t)
+
+		deletedProject, err := query.AssignmentProjects.WithContext(context.Background()).
+			Where(query.AssignmentProjects.ID.Eq(assignment1Project.ID)).
+			First()
+		assert.Error(t, err)
+		assert.Nil(t, deletedProject)
+	})
 }

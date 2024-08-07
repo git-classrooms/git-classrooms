@@ -22,6 +22,4 @@ type Team struct {
 	Member []*UserClassrooms `gorm:"foreignKey:TeamID" json:"-"`
 
 	AssignmentProjects []*AssignmentProjects `json:"-"`
-
-	Deleted bool `gorm:"not null;default:false" json:"deleted"` // TODO: In meinen Augen ist dieser zusätzliche State unnutz und wir sollten den entsprechenden eintrag einfach löschen, durch deletedAt kann man es ja immer noch nachvollziehen
 } //@Name Team

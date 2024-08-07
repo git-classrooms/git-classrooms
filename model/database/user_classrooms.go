@@ -19,7 +19,4 @@ type UserClassrooms struct {
 	TeamID      *uuid.UUID `gorm:"type:uuid;index" json:"-"`
 	Team        *Team      `json:"team" validate:"optional"`
 	Role        Role       `gorm:"not null" json:"role"`
-
-	LeftClassroom bool `gorm:"not null;default:false" json:"leftClassroom"`
-	LeftTeam      bool `gorm:"not null;default:false" json:"leftTeam"` // TODO: In meinen Augen sind diese zusätzlichen States unnutz und wir sollten den entsprechenden eintrag einfach löschen, durch deletedAt kann man es ja immer noch nachvollziehen
 } //@Name UserClassrooms
