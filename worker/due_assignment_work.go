@@ -23,7 +23,7 @@ func NewDueAssignmentWork(config gitlabConfig.Config) *DueAssignmentWork {
 func (w *DueAssignmentWork) Do(ctx context.Context) {
 	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
-		repo, err := w.getLoggedInRepo(assignment)
+		repo, err := GetWorkerRepo(w.gitlabConfig, assignment.Classroom.GroupAccessToken)
 		if err != nil {
 			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
 			continue
@@ -49,16 +49,6 @@ func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*databas
 	}
 
 	return assignments
-}
-
-func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gitlab.Repository, error) {
-	repo := gitlab.NewGitlabRepo(w.gitlabConfig)
-	err := repo.GroupAccessLogin(assignment.Classroom.GroupAccessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo, nil
 }
 
 type RestoreCache struct {

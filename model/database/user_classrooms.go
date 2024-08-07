@@ -19,4 +19,5 @@ type UserClassrooms struct {
 	TeamID      *uuid.UUID `gorm:"type:uuid;index" json:"-"`
 	Team        *Team      `json:"team" validate:"optional"`
 	Role        Role       `gorm:"not null" json:"role"`
+	Left        bool       `gorm:"not null;default:false" json:"left"`
 } //@Name UserClassrooms
