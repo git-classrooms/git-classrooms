@@ -45,7 +45,7 @@ export function TeamListCard({
         )}
       </CardHeader>
       <CardContent>
-        <TeamTable teams={teams} classroomId={classroomId} userRole={userRole} />
+        <TeamTable teams={teams} classroomId={classroomId} userRole={userRole} maxTeamSize={maxTeamSize} />
       </CardContent>
       {userRole != Role.Student && (
         <CardFooter className="flex justify-end">
@@ -60,14 +60,24 @@ export function TeamListCard({
   );
 }
 
-function TeamTable({ teams, classroomId, userRole }: { teams: TeamResponse[]; classroomId: string; userRole: Role }) {
+function TeamTable({ 
+  teams, 
+  classroomId, 
+  userRole, 
+  maxTeamSize 
+}: { 
+  teams: TeamResponse[]; 
+  classroomId: string; 
+  userRole: Role; 
+  maxTeamSize: number; 
+}) {
   return (
     <Table>
       <TableBody>
         {teams.map((t) => (
           <TableRow key={t.id}>
             <TableCell className="p-2">
-              <TeamListElement team={t} />
+              <TeamListElement team={t} maxTeamSize={maxTeamSize} />
             </TableCell>
             <TableCell className="p-2 flex justify-end align-middle">
               <Button variant="ghost" size="icon" asChild>
@@ -93,21 +103,27 @@ function TeamTable({ teams, classroomId, userRole }: { teams: TeamResponse[]; cl
   );
 }
 
-function TeamListElement({ team }: { team: TeamResponse }) {
+function TeamListElement({ 
+  team,  
+  maxTeamSize,
+}: { 
+  team: TeamResponse;
+  maxTeamSize: number; 
+}) {
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">
         <div className="cursor-default">
           <div className="font-medium">{team.name}</div>
           <div className="text-sm text-muted-foreground md:inline">
-            {team.members.length} member{team.members.length != 1 ? "s" : ""}
+            {team.members.length} / {maxTeamSize} member
           </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{team.name}</p>
         <p className="text-sm text-muted-foreground mt-[-0.3rem]">
-          {team.members.length} member{team.members.length != 1 ? "s" : ""}
+          {team.members.length} / {maxTeamSize} member
         </p>
         {team.members.length >= 1 && (
           <>
