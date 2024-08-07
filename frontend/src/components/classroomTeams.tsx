@@ -31,7 +31,7 @@ export function TeamListCard({
   maxTeamSize: number;
   numInvitedMembers: number;
 }): JSX.Element {
-  var teamSlots = teams.length * maxTeamSize;
+  const teamSlots = teams.length * maxTeamSize;
   return (
     <Card className="p-2">
       <CardHeader>
