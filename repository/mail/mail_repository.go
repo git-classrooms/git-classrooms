@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"embed"
-	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
-	"gopkg.in/gomail.v2"
 	"html/template"
 	"net/url"
+
+	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
+	"gopkg.in/gomail.v2"
 )
 
 //go:embed templates

@@ -1,16 +1,18 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/mail"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type inviteToClassroomRequest struct {
@@ -37,7 +39,7 @@ func (r inviteToClassroomRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/invitations [post]
 func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
 
 	if err := ctrl.RotateAccessToken(c, &classroom.Classroom); err != nil {
@@ -103,25 +105,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	// Send invitations
-	for i, email := range invitableEmails {
-		log.Println("Sending invitation to", email.Address)
-
-		invitePath := fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ClassroomID.String(), invitations[i].ID.String())
-		err = ctrl.mailRepo.SendClassroomInvitation(email.Address,
-			fmt.Sprintf(`New Invitation for Classroom "%s"`,
-				classroom.Classroom.Name),
-			mailRepo.ClassroomInvitationData{
-				ClassroomName:      classroom.Classroom.Name,
-				ClassroomOwnerName: classroom.Classroom.Owner.Name,
-				RecipientEmail:     invitations[i].Email,
-				InvitationPath:     invitePath,
-				ExpireDate:         invitations[i].ExpiryDate,
-			})
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-	}
+	go ctrl.sendMailsWorker(&classroom.Classroom, invitableEmails, invitations)
 
 	return c.SendStatus(fiber.StatusCreated)
 }
@@ -146,4 +130,43 @@ func filterInvitableEmails(emails []*mail.Address, invitations []*database.Class
 	}
 
 	return invitableEmails
+}
+
+func (ctrl *DefaultController) sendMailsWorker(classroom *database.Classroom, invitableEmails []*mail.Address, invitations []*database.ClassroomInvitation) {
+	var wg sync.WaitGroup
+	wg.Add(len(invitableEmails))
+
+	for i, email := range invitableEmails {
+		go func(classroom *database.Classroom, email string, invitation *database.ClassroomInvitation) {
+			defer wg.Done()
+
+			log.Println("Sending invitation to", email)
+			data := mailRepo.ClassroomInvitationData{
+				ClassroomName:      classroom.Name,
+				ClassroomOwnerName: classroom.Owner.Name,
+				RecipientEmail:     invitation.Email,
+				InvitationPath:     fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ID.String(), invitation.ID.String()),
+				ExpireDate:         invitation.ExpiryDate,
+			}
+			for range 3 {
+				if err := ctrl.mailRepo.SendClassroomInvitation(
+					email,
+					fmt.Sprintf(`New Invitation for Classroom "%s"`, classroom.Name),
+					data,
+				); err == nil {
+					log.Println("Sent invitation to", email)
+					return
+				}
+			}
+
+			log.Println("Could not send invitation to", email)
+			invitation.Status = database.ClassroomInvitationFailed
+			if _, err := query.ClassroomInvitation.WithContext(context.Background()).Updates(invitation); err != nil {
+				log.Println("Could not update invitation status")
+			}
+		}(classroom, email.Address, invitations[i])
+	}
+
+	wg.Wait()
+	log.Println("All invitations have been processed")
 }
