@@ -1,5 +1,5 @@
 import { Role } from "@/types/classroom.ts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardWarning, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
@@ -22,16 +22,27 @@ export function TeamListCard({
   teams,
   classroomId,
   userRole,
+  maxTeamSize,
+  numInvitedMembers,
 }: {
   teams: TeamResponse[];
   classroomId: string;
   userRole: Role;
+  maxTeamSize: number;
+  numInvitedMembers: number;
 }): JSX.Element {
+  var teamSlots = teams.length * maxTeamSize;
   return (
     <Card className="p-2">
       <CardHeader>
         <CardTitle>Teams</CardTitle>
         <CardDescription>Every team in this classroom</CardDescription>
+        {teamSlots < numInvitedMembers && userRole != Role.Student && (
+          <div>
+            <CardWarning>Not enough team spots to accommodate all classroom members.</CardWarning>
+            <CardWarning>Please add more Teams!</CardWarning>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <TeamTable teams={teams} classroomId={classroomId} userRole={userRole} />
