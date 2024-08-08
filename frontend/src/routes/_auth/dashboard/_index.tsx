@@ -87,7 +87,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
           </Link>
         </Button>
         <Button asChild variant="default">
-          <Link to="/classrooms/create/modal" replace>
+          <Link to="/classrooms" replace>
             View all your Classrooms
           </Link>
         </Button>
