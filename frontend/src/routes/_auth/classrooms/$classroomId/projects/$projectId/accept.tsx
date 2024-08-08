@@ -35,7 +35,7 @@ function AcceptAssignment() {
 
   const onClick = async () => {
     await mutateAsync();
-    await navigate({ to: "/classrooms" });
+    await navigate({ to: "/dashboard" });
   };
 
   return (
