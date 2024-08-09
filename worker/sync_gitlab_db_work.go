@@ -10,6 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 type SyncGitlabDbWork struct {
@@ -104,42 +105,83 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 }
 
 func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
-	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
-	if err != nil {
-		log.Default().Printf("Could not retive members of group with id %d, this could indicate a deleted group. ErrorMsg: %s", groupId, err.Error())
-		return
-	}
-
-	for _, dbMember := range dbMember {
-		found := false
-
-		for _, gitlabMember := range gitlabMember {
-			if dbMember.UserID == gitlabMember.ID {
-				found = true
-				break
-			}
-		}
-
-		if !found {
-			_, err := query.UserClassrooms.WithContext(ctx).Delete(dbMember)
-			if err != nil {
-				log.Default().Printf("Error could not remove member [%d] from classroom %d: %s", dbMember.UserID, groupId, err.Error())
-			} else {
-				log.Default().Printf("Removed member %d from classroom %d", dbMember.UserID, groupId)
-			}
+	handleLeftMembers := func(context context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository) {
+		_, err := query.UserClassrooms.WithContext(ctx).Delete(&member)
+		if err != nil {
+			log.Default().Printf("Error could not remove member [%d] from classroom %d: %s", member.UserID, groupId, err.Error())
+		} else {
+			log.Default().Printf("Removed member %d from classroom %d", member.UserID, groupId)
 		}
 	}
 
-	// TODO: what about new members, which got added to the classroom via gitlab?
+	handleAddedMembers := func(context context.Context, member model.User, groupId int, repo gitlab.Repository) {
+		err := repo.RemoveUserFromGroup(groupId, member.ID)
+		if err != nil {
+			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
+		} else {
+			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupId)
+		}
+	}
 
-	// TODO: should we reacte to changes in access level via gitlab?
+	w.syncMember(groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
 }
 
 func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
+	handleLeftMembers := func(context context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository) {
+		_, err := query.UserClassrooms.WithContext(ctx).Delete(&member)
+		if err != nil {
+			log.Default().Printf("Error could not remove member [%d] from team %d: %s", member.UserID, groupId, err.Error())
+			return
+		}
+
+		err = query.UserClassrooms.WithContext(ctx).Create(&database.UserClassrooms{
+			UserID:      member.UserID,
+			ClassroomID: member.ClassroomID,
+			Role:        member.Role,
+		})
+		if err != nil {
+			log.Default().Printf("Error could not remove member [%d] from team %d: %s", member.UserID, groupId, err.Error())
+		}
+	}
+
+	handleAddedMembers := func(context context.Context, member model.User, groupId int, repo gitlab.Repository) {
+		err := repo.RemoveUserFromGroup(groupId, member.ID)
+		if err != nil {
+			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
+		} else {
+			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupId)
+		}
+	}
+
+	w.syncMember(groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
+}
+
+func (w *SyncGitlabDbWork) syncMember(
+	groupId int,
+	dbMember []*database.UserClassrooms,
+	repo gitlab.Repository,
+	handleLeftMembers func(context context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository),
+	handleAddedMembers func(context context.Context, member model.User, groupId int, repo gitlab.Repository),
+) {
+
+	leftMember := w.leftMembersViaGitlab(groupId, dbMember, repo)
+	for _, member := range leftMember {
+		handleLeftMembers(context.Background(), member, groupId, repo)
+	}
+
+	addedMember := w.addedMembersViaGitlab(groupId, dbMember, repo)
+	for _, member := range addedMember {
+		handleAddedMembers(context.Background(), member, groupId, repo)
+	}
+}
+
+func (w *SyncGitlabDbWork) leftMembersViaGitlab(groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) []database.UserClassrooms {
+	leftMember := []database.UserClassrooms{}
+
 	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
 	if err != nil {
 		log.Default().Printf("Could not retive members of group with id %d, this could indicate a deleted group. ErrorMsg: %s", groupId, err.Error())
-		return
+		return leftMember
 	}
 
 	for _, dbMember := range dbMember {
@@ -153,27 +195,38 @@ func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMe
 		}
 
 		if !found {
-			_, err := query.UserClassrooms.WithContext(ctx).Delete(dbMember)
-			if err != nil {
-				log.Default().Printf("Error could not remove member [%d] from team %d: %s", dbMember.UserID, groupId, err.Error())
-				break
-			}
+			leftMember = append(leftMember, *dbMember)
+		}
+	}
 
-			err = query.UserClassrooms.WithContext(ctx).Create(&database.UserClassrooms{
-				UserID:      dbMember.UserID,
-				ClassroomID: dbMember.ClassroomID,
-				Role:        dbMember.Role,
-			})
-			if err != nil {
-				log.Default().Printf("Error could not remove member [%d] from team %d: %s", dbMember.UserID, groupId, err.Error())
+	return leftMember
+}
+
+func (w *SyncGitlabDbWork) addedMembersViaGitlab(groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) []model.User {
+	addedMember := []model.User{}
+
+	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
+	if err != nil {
+		log.Default().Printf("Could not retive members of group with id %d, this could indicate a deleted group. ErrorMsg: %s", groupId, err.Error())
+		return addedMember
+	}
+
+	for _, gitlabMember := range gitlabMember {
+		found := false
+
+		for _, dbMember := range dbMember {
+			if dbMember.UserID == gitlabMember.ID {
+				found = true
+				break
 			}
 		}
 
+		if !found {
+			addedMember = append(addedMember, *gitlabMember)
+		}
 	}
 
-	// TODO: what about new members, which got added to the classroom via gitlab?
-
-	// TODO: should we reacte to changes in access level via gitlab?
+	return addedMember
 }
 
 func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, repo gitlab.Repository) error {

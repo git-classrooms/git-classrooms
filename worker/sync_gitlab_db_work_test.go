@@ -140,7 +140,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		query.UserClassrooms.WithContext(context.Background()).Updates(dbClassroom1)
 	})
 
-	t.Run("syncClassroomMember", func(t *testing.T) {
+	t.Run("syncClassroomMember - left via gitlab", func(t *testing.T) {
 		repo.EXPECT().
 			GetAllUsersOfGroup(classroom1.GroupID).
 			Return([]*model.User{
@@ -155,7 +155,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 					Email:    member1.GitlabEmail,
 				},
 			}, nil).
-			Times(1)
+			Times(2)
 
 		classroom, err := query.Classroom.WithContext(context.Background()).
 			Preload(query.Classroom.Member).
@@ -181,6 +181,49 @@ func TestSyncClassroomsWork(t *testing.T) {
 		})
 	})
 
+	t.Run("syncClassroomMember - added via gitlab", func(t *testing.T) {
+		repo.EXPECT().
+			GetAllUsersOfGroup(classroom1.GroupID).
+			Return([]*model.User{
+				{
+					ID:       owner.ID,
+					Username: owner.GitlabUsername,
+					Email:    owner.GitlabEmail,
+				},
+				{
+					ID:       member1.ID,
+					Username: member1.GitlabUsername,
+					Email:    member1.GitlabEmail,
+				},
+				{
+					ID:       member2.ID,
+					Username: member2.GitlabUsername,
+					Email:    member2.GitlabEmail,
+				},
+				{
+					ID:       4,
+					Username: "new",
+					Email:    "new",
+				},
+			}, nil).
+			Times(2)
+
+		repo.EXPECT().
+			RemoveUserFromGroup(classroom1.GroupID, 4).
+			Return(nil).
+			Times(1)
+
+		classroom, err := query.Classroom.WithContext(context.Background()).
+			Preload(query.Classroom.Member).
+			Where(query.Classroom.ID.Eq(classroom1.ID)).
+			First()
+		assert.NoError(t, err)
+
+		w.syncClassroomMember(context.Background(), classroom1.GroupID, classroom.Member, repo)
+
+		repo.AssertExpectations(t)
+	})
+
 	t.Run("syncTeam", func(t *testing.T) {
 		newName := "new name"
 		repo.EXPECT().
@@ -201,7 +244,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Equal(t, newName, dbTeam1.Name)
 	})
 
-	t.Run("syncTeamMember", func(t *testing.T) {
+	t.Run("syncTeamMember - left via gitlab", func(t *testing.T) {
 		repo.EXPECT().
 			GetAllUsersOfGroup(team1.GroupID).
 			Return([]*model.User{
@@ -216,7 +259,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 					Email:    member1.GitlabEmail,
 				},
 			}, nil).
-			Times(1)
+			Times(2)
 
 		team, err := query.Team.WithContext(context.Background()).
 			Preload(query.Team.Member).
@@ -245,6 +288,49 @@ func TestSyncClassroomsWork(t *testing.T) {
 		leftMember.TeamID = &team1.ID
 		leftMember.Team = &team1
 		query.UserClassrooms.WithContext(context.Background()).Updates(leftMember)
+	})
+
+	t.Run("syncTeamMember - added via gitlab", func(t *testing.T) {
+		repo.EXPECT().
+			GetAllUsersOfGroup(team1.GroupID).
+			Return([]*model.User{
+				{
+					ID:       owner.ID,
+					Username: owner.GitlabUsername,
+					Email:    owner.GitlabEmail,
+				},
+				{
+					ID:       member1.ID,
+					Username: member1.GitlabUsername,
+					Email:    member1.GitlabEmail,
+				},
+				{
+					ID:       member2.ID,
+					Username: member2.GitlabUsername,
+					Email:    member2.GitlabEmail,
+				},
+				{
+					ID:       4,
+					Username: "new",
+					Email:    "new",
+				},
+			}, nil).
+			Times(2)
+
+		repo.EXPECT().
+			RemoveUserFromGroup(team1.GroupID, 4).
+			Return(nil).
+			Times(1)
+
+		team, err := query.Team.WithContext(context.Background()).
+			Preload(query.Team.Member).
+			Where(query.Team.ID.Eq(team1.ID)).
+			First()
+		assert.NoError(t, err)
+
+		w.syncTeamMember(context.Background(), team1.GroupID, team.Member, repo)
+
+		repo.AssertExpectations(t)
 	})
 
 	t.Run("getAssignmentProjectes", func(t *testing.T) {
