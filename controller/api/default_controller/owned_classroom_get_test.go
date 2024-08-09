@@ -23,7 +23,7 @@ import (
 
 func TestGetClassroomById(t *testing.T) {
 	// --------------- DB SETUP -----------------
-	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
+	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 	pq, err := tests.StartPostgres()
 
 	if err != nil {
