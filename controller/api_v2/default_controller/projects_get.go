@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,38 +10,27 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-type ActiveProjectResponse struct {
-	*database.AssignmentProjects
-	WebURL      string `json:"webUrl"`
-	ClassroomID string `json:"classroomId"`
-} //@Name ActiveProjectResponse
-
-// @Summary		GetActiveProjects
-// @Description	GetActiveProjects
-// @Id				GetActiveProjects
-// @Tags			project
+// @Summary		GetActiveAssignments
+// @Description	GetActiveAssignments
+// @Id				GetActiveAssignments
+// @Tags			assignment
 // @Produce		json
-// @Success		200	{array}		ActiveProjectResponse
+// @Success		200	{array}		AssignmentResponse
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/projects [get]
-func (ctrl *DefaultController) GetActiveProjects(c *fiber.Ctx) (err error) {
+// @Router			/api/v2/assignments [get]
+func (ctrl *DefaultController) GetActiveAssignments(c *fiber.Ctx) (err error) {
 
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
 
-	queryAssignmentProjects := query.AssignmentProjects
 	queryAssignment := query.Assignment
-	queryTeam := query.Team
 	queryUserClassrooms := query.UserClassrooms
-	projects, err := queryAssignmentProjects.
+	assignments, err := queryAssignment.
 		WithContext(c.Context()).
-		Preload(queryAssignmentProjects.Assignment).
-		Join(queryTeam, queryAssignmentProjects.TeamID.EqCol(queryTeam.ID)).
-		Join(queryAssignment, queryAssignmentProjects.AssignmentID.EqCol(queryAssignment.ID)).
-		Join(queryUserClassrooms, queryTeam.ID.EqCol(queryUserClassrooms.TeamID)).
+		Join(queryUserClassrooms, queryAssignment.ClassroomID.EqCol(queryUserClassrooms.ClassroomID)).
 		Where(queryUserClassrooms.UserID.Eq(userID)).
-		Where(queryAssignmentProjects.
+		Where(queryAssignment.
 			WithContext(c.Context()).
 			Where(queryAssignment.DueDate.IsNull()).
 			Or(queryAssignment.DueDate.Lt(time.Now())),
@@ -52,11 +40,9 @@ func (ctrl *DefaultController) GetActiveProjects(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	response := utils.Map(projects, func(project *database.AssignmentProjects) *ActiveProjectResponse {
-		return &ActiveProjectResponse{
-			AssignmentProjects: project,
-			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/projects/%s/gitlab", project.Assignment.ClassroomID.String(), project.ID.String()),
-			ClassroomID:        project.Assignment.ClassroomID.String(),
+	response := utils.Map(assignments, func(assignment *database.Assignment) *AssignmentResponse {
+		return &AssignmentResponse{
+			Assignment: assignment,
 		}
 	})
 

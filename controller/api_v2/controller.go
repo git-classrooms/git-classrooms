@@ -24,7 +24,7 @@ type Controller interface {
 
 	GetMe(*fiber.Ctx) error
 	GetMeGitlab(*fiber.Ctx) error
-	GetActiveProjects(*fiber.Ctx) error
+	GetActiveAssignments(*fiber.Ctx) error
 
 	GetClassrooms(*fiber.Ctx) error
 	CreateClassroom(*fiber.Ctx) error

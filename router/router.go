@@ -149,7 +149,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/me", apiController.GetMe)
 	v2.Get("/me/gitlab", apiController.GetMeGitlab)
 
-	v2.Get("/projects", apiController.GetActiveProjects)
+	v2.Get("/assignments", apiController.GetActiveAssignments)
 
 	v2.Get("/classrooms", apiController.GetClassrooms)
 	v2.Post("/classrooms", apiController.CreateClassroom)
