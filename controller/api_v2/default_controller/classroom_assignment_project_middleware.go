@@ -12,6 +12,9 @@ func assignmentProjectQuery(c *fiber.Ctx, assignmentID uuid.UUID) query.IAssignm
 	return queryAssignmentProject.
 		WithContext(c.Context()).
 		Preload(queryAssignmentProject.Team).
+		Preload(queryAssignmentProject.GradingManualResults).
+		Preload(queryAssignmentProject.GradingManualResults.Rubric).
+		Preload(queryAssignmentProject.GradingJUnitTestResult).
 		Where(queryAssignmentProject.AssignmentID.Eq(assignmentID))
 }
 

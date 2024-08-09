@@ -18,6 +18,7 @@ import { Configuration } from '../configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
+import { ApiProjectCloneUrlResponse } from '../models';
 import { HTTPError } from '../models';
 import { ProjectResponse } from '../models';
 /**
@@ -364,6 +365,58 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * GetProjectCloneUrls
+         * @summary GetProjectCloneUrls
+         * @param {string} classroomId Classroom ID
+         * @param {string} assignmentId Assignment ID
+         * @param {string} assignmentProjectId Assignment Project ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProjectCloneUrls: async (classroomId: string, assignmentId: string, assignmentProjectId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'classroomId' is not null or undefined
+            if (classroomId === null || classroomId === undefined) {
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getProjectCloneUrls.');
+            }
+            // verify required parameter 'assignmentId' is not null or undefined
+            if (assignmentId === null || assignmentId === undefined) {
+                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getProjectCloneUrls.');
+            }
+            // verify required parameter 'assignmentProjectId' is not null or undefined
+            if (assignmentProjectId === null || assignmentProjectId === undefined) {
+                throw new RequiredError('assignmentProjectId','Required parameter assignmentProjectId was null or undefined when calling getProjectCloneUrls.');
+            }
+            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo`
+                .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
+                .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
+                .replace(`{${"assignmentProjectId"}}`, encodeURIComponent(String(assignmentProjectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.params) {
+                query.set(key, options.params[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * InviteToAssignment
          * @summary InviteToAssignment
          * @param {string} classroomId Classroom ID
@@ -535,6 +588,22 @@ export const ProjectApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * GetProjectCloneUrls
+         * @summary GetProjectCloneUrls
+         * @param {string} classroomId Classroom ID
+         * @param {string} assignmentId Assignment ID
+         * @param {string} assignmentProjectId Assignment Project ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getProjectCloneUrls(classroomId: string, assignmentId: string, assignmentProjectId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<ApiProjectCloneUrlResponse>>> {
+            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).getProjectCloneUrls(classroomId, assignmentId, assignmentProjectId, options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * InviteToAssignment
          * @summary InviteToAssignment
          * @param {string} classroomId Classroom ID
@@ -637,6 +706,18 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          */
         async getClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ProjectResponse>>> {
             return ProjectApiFp(configuration).getClassroomTeamProjects(classroomId, teamId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * GetProjectCloneUrls
+         * @summary GetProjectCloneUrls
+         * @param {string} classroomId Classroom ID
+         * @param {string} assignmentId Assignment ID
+         * @param {string} assignmentProjectId Assignment Project ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getProjectCloneUrls(classroomId: string, assignmentId: string, assignmentProjectId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<ApiProjectCloneUrlResponse>> {
+            return ProjectApiFp(configuration).getProjectCloneUrls(classroomId, assignmentId, assignmentProjectId, options).then((request) => request(axios, basePath));
         },
         /**
          * InviteToAssignment
@@ -745,6 +826,19 @@ export class ProjectApi extends BaseAPI {
      */
     public async getClassroomTeamProjects(classroomId: string, teamId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ProjectResponse>>> {
         return ProjectApiFp(this.configuration).getClassroomTeamProjects(classroomId, teamId, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * GetProjectCloneUrls
+     * @summary GetProjectCloneUrls
+     * @param {string} classroomId Classroom ID
+     * @param {string} assignmentId Assignment ID
+     * @param {string} assignmentProjectId Assignment Project ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProjectApi
+     */
+    public async getProjectCloneUrls(classroomId: string, assignmentId: string, assignmentProjectId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<ApiProjectCloneUrlResponse>> {
+        return ProjectApiFp(this.configuration).getProjectCloneUrls(classroomId, assignmentId, assignmentProjectId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * InviteToAssignment

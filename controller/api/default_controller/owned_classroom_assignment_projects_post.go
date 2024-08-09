@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"fmt"
+	"gorm.io/gen/field"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -37,7 +38,7 @@ func (ctrl *DefaultController) InviteToAssignmentProject(c *fiber.Ctx) error {
 	assignmentProjects, err := queryAssignmentProject.
 		WithContext(c.Context()).
 		Preload(queryAssignmentProject.Team).
-		Preload(queryAssignmentProject.Team.Member).
+		Preload(field.NewRelation("Team.Member", "")).
 		Where(queryAssignmentProject.AssignmentID.Eq(assignment.ID)).
 		Find()
 	if err != nil {

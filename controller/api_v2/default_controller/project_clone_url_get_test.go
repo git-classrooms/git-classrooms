@@ -66,7 +66,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 		TeamID:        team.ID,
 		ProjectStatus: database.Accepted,
 	}
-	testDb.InsertAssignmentProject(assignmentProject)
+	testDb.InsertAssignmentProjects(assignmentProject)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -128,7 +128,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 
 	t.Run("GetProjectCloneUrls - assignment not accepted", func(t *testing.T) {
 		assignmentProject.ProjectStatus = database.Pending
-		testDb.SaveAssignmentProject(assignmentProject)
+		testDb.SaveAssignmentProjects(assignmentProject)
 
 		req := httptest.NewRequest("GET", "/api/v2/classrooms/:classroomId/projects/:projectId/repo", nil)
 		resp, err := app.Test(req)

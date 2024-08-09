@@ -51,12 +51,15 @@ type Repository interface {
 	DenyPushingToProject(projectId int) error
 	AllowPushingToProject(projectId int) error
 	ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
+	ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
 	GetNamespaceOfProject(projectId int) (*string, error)
 	ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error
 	GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error)
 	ChangeProjectName(projectId int, name string) (*model.Project, error)
 	ChangeProjectDescription(projectId int, description string) (*model.Project, error)
+	GetProjectPipelineTestReportSummary(projectId, pipelineId int) (*model.TestReport, error)
+	GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error)
 
 	// Branches
 	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
@@ -65,4 +68,8 @@ type Repository interface {
 	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
 	ProtectedBranchExists(projectId int, branchName string) (bool, error)
 	BranchExists(projectId int, branchName string) (bool, error)
+
+	// Runners
+	GetAvailableRunnersForGitLab() ([]*model.Runner, error)
+	GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error)
 }
