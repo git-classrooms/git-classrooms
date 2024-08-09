@@ -81,7 +81,7 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
         />
         {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
         {userClassroom.classroom.maxTeamSize > 1 && (
-          <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} />
+          <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} />
         )}
         <Outlet />
       </div>
