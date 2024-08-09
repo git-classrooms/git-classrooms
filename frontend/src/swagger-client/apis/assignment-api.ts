@@ -20,6 +20,7 @@ import { Configuration } from '../configuration';
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 import { ApiProjectCloneUrlResponse } from '../models';
 import { Assignment } from '../models';
+import { AssignmentResponse } from '../models';
 import { CreateAssignmentRequest } from '../models';
 import { HTTPError } from '../models';
 import { UpdateAssignmentRequest } from '../models';
@@ -81,6 +82,40 @@ export const AssignmentApiAxiosParamCreator = function (configuration?: Configur
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             const needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.data =  needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * GetActiveAssignments
+         * @summary GetActiveAssignments
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getActiveAssignments: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v2/assignments`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                query.set(key, localVarQueryParameter[key]);
+            }
+            for (const key in options.params) {
+                query.set(key, options.params[key]);
+            }
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
@@ -309,6 +344,19 @@ export const AssignmentApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * GetActiveAssignments
+         * @summary GetActiveAssignments
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getActiveAssignments(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<AssignmentResponse>>>> {
+            const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getActiveAssignments(options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * GetClassroomAssignment
          * @summary GetClassroomAssignment
          * @param {string} classroomId Classroom ID
@@ -391,6 +439,15 @@ export const AssignmentApiFactory = function (configuration?: Configuration, bas
             return AssignmentApiFp(configuration).createAssignmentV2(body, xCsrfToken, classroomId, options).then((request) => request(axios, basePath));
         },
         /**
+         * GetActiveAssignments
+         * @summary GetActiveAssignments
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getActiveAssignments(options?: AxiosRequestConfig): Promise<AxiosResponse<Array<AssignmentResponse>>> {
+            return AssignmentApiFp(configuration).getActiveAssignments(options).then((request) => request(axios, basePath));
+        },
+        /**
          * GetClassroomAssignment
          * @summary GetClassroomAssignment
          * @param {string} classroomId Classroom ID
@@ -457,6 +514,16 @@ export class AssignmentApi extends BaseAPI {
      */
     public async createAssignmentV2(body: CreateAssignmentRequest, xCsrfToken: string, classroomId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
         return AssignmentApiFp(this.configuration).createAssignmentV2(body, xCsrfToken, classroomId, options).then((request) => request(this.axios, this.basePath));
+    }
+    /**
+     * GetActiveAssignments
+     * @summary GetActiveAssignments
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AssignmentApi
+     */
+    public async getActiveAssignments(options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<AssignmentResponse>>> {
+        return AssignmentApiFp(this.configuration).getActiveAssignments(options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * GetClassroomAssignment
