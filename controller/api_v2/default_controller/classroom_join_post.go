@@ -100,6 +100,19 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	queryUserClassrooms := query.UserClassrooms
+	_, err = queryUserClassrooms.WithContext(c.Context()).
+		Where(queryUserClassrooms.UserID.Eq(userID)).
+		Where(queryUserClassrooms.ClassroomID.Eq(invitation.ClassroomID)).
+		First()
+	if err == nil {
+		if _, err := queryClassroomInvitation.WithContext(c.Context()).Delete(invitation); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+
+		return fiber.NewError(fiber.StatusForbidden, "You are already a member of this classroom.")
+	}
+
 	if requestBody.Action == reject {
 		invitation.Status = database.ClassroomInvitationRejected
 		invitation.Email = user.GitlabEmail
