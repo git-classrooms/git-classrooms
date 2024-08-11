@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 
@@ -61,7 +62,7 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 		Preload(query.Classroom.Member).
 		Preload(query.Classroom.Teams).
 		Preload(query.Classroom.Assignments).
-		Where(query.Classroom.Archived.Is(false)).
+		Where(query.Classroom.Archived.Not()).
 		Find()
 	if err != nil {
 		log.Default().Printf("Error occurred while fetching classrooms: %s", err.Error())
@@ -74,10 +75,16 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom database.Classroom, repo gitlab.Repository) error {
 	gitlabClassroom, err := repo.GetGroupById(dbClassroom.GroupID)
 	if err != nil {
-		if strings.Contains(err.Error(), "401 {message: 401 Unauthorized}") {
+		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
 			_, err := query.Classroom.WithContext(ctx).Delete(&dbClassroom)
 			if err == nil {
-				log.Default().Printf("Classroom %s deleted via gitlab", dbClassroom.Name)
+				log.Default().Printf("Classroom %s (ID=%d) deleted due to group deletion or member classroom_bot removal via GitLab.", dbClassroom.Name, dbClassroom.GroupID)
+			}
+		} else if strings.Contains(err.Error(), "401 {message: 401 Unauthorized}") || strings.Contains(err.Error(), "401 {error: invalid_token}") {
+			dbClassroom.Archived = true
+			_, err := query.Classroom.WithContext(ctx).Updates(dbClassroom)
+			if err == nil {
+				log.Default().Printf("Classroom %s (ID=%d) archived due to expired or revoked access token", dbClassroom.Name, dbClassroom.GroupID)
 			}
 		} else {
 			log.Default().Printf("Error while fetching group with id %d. ErrorMsg: %s", dbClassroom.GroupID, err.Error())
@@ -123,7 +130,7 @@ func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int,
 		}
 	}
 
-	w.syncMember(groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
+	w.syncMember(ctx, groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
 }
 
 func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
@@ -153,36 +160,36 @@ func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMe
 		}
 	}
 
-	w.syncMember(groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
+	w.syncMember(ctx, groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
 }
 
 func (w *SyncGitlabDbWork) syncMember(
+	ctx context.Context,
 	groupId int,
 	dbMember []*database.UserClassrooms,
 	repo gitlab.Repository,
-	handleLeftMembers func(context context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository),
-	handleAddedMembers func(context context.Context, member model.User, groupId int, repo gitlab.Repository),
+	handleLeftMembers func(ctx context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository),
+	handleAddedMembers func(ctx context.Context, member model.User, groupId int, repo gitlab.Repository),
 ) {
-
-	leftMember := w.leftMembersViaGitlab(groupId, dbMember, repo)
-	for _, member := range leftMember {
-		handleLeftMembers(context.Background(), member, groupId, repo)
+	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
+	if err != nil {
+		log.Default().Printf("Could not retive members of group with id %d. ErrorMsg: %s", groupId, err.Error())
+		return
 	}
 
-	addedMember := w.addedMembersViaGitlab(groupId, dbMember, repo)
+	leftMember := w.leftMembersViaGitlab(dbMember, gitlabMember)
+	for _, member := range leftMember {
+		handleLeftMembers(ctx, member, groupId, repo)
+	}
+
+	addedMember := w.addedMembersViaGitlab(dbMember, gitlabMember, groupId)
 	for _, member := range addedMember {
-		handleAddedMembers(context.Background(), member, groupId, repo)
+		handleAddedMembers(ctx, member, groupId, repo)
 	}
 }
 
-func (w *SyncGitlabDbWork) leftMembersViaGitlab(groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) []database.UserClassrooms {
+func (w *SyncGitlabDbWork) leftMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User) []database.UserClassrooms {
 	leftMember := []database.UserClassrooms{}
-
-	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
-	if err != nil {
-		log.Default().Printf("Could not retive members of group with id %d, this could indicate a deleted group. ErrorMsg: %s", groupId, err.Error())
-		return leftMember
-	}
 
 	for _, dbMember := range dbMember {
 		found := false
@@ -202,14 +209,8 @@ func (w *SyncGitlabDbWork) leftMembersViaGitlab(groupId int, dbMember []*databas
 	return leftMember
 }
 
-func (w *SyncGitlabDbWork) addedMembersViaGitlab(groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) []model.User {
+func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User, groupId int) []model.User {
 	addedMember := []model.User{}
-
-	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
-	if err != nil {
-		log.Default().Printf("Could not retive members of group with id %d, this could indicate a deleted group. ErrorMsg: %s", groupId, err.Error())
-		return addedMember
-	}
 
 	for _, gitlabMember := range gitlabMember {
 		found := false
@@ -221,12 +222,16 @@ func (w *SyncGitlabDbWork) addedMembersViaGitlab(groupId int, dbMember []*databa
 			}
 		}
 
-		if !found {
+		if !found && !w.isGroupBootUser(*gitlabMember, groupId) {
 			addedMember = append(addedMember, *gitlabMember)
 		}
 	}
 
 	return addedMember
+}
+
+func (w *SyncGitlabDbWork) isGroupBootUser(user model.User, groupId int) bool {
+	return strings.Contains(user.Username, fmt.Sprintf("group_%d_bot_", groupId))
 }
 
 func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, repo gitlab.Repository) error {
@@ -255,6 +260,7 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, r
 func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignmentId uuid.UUID) []*database.AssignmentProjects {
 	projects, err := query.AssignmentProjects.
 		WithContext(ctx).
+		Preload(query.AssignmentProjects.GradingJUnitTestResult).
 		Where(query.AssignmentProjects.AssignmentID.Eq(assignmentId)).
 		Find()
 	if err != nil {
@@ -267,16 +273,22 @@ func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignment
 
 func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.AssignmentProjects, repo gitlab.Repository) {
 	_, err := repo.GetProjectById(dbProject.ProjectID)
-	if err == nil {
+	if err == nil || !strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
 		return
 	}
 
-	if strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
-		_, err := query.AssignmentProjects.WithContext(ctx).Delete(&dbProject)
-		if err == nil {
-			log.Default().Printf("Project with id %d deleted via gitlab", dbProject.ProjectID)
+	if dbProject.GradingJUnitTestResult != nil {
+		_, err := query.JUnitTestResult.WithContext(ctx).Delete(dbProject.GradingJUnitTestResult)
+		if err != nil {
+			log.Default().Printf("Project with id %d deleted via gitlab, but failed to delete GradingJUnitTestResults of project", dbProject.ProjectID)
+			return
 		}
-	} else {
+	}
+
+	_, err = query.AssignmentProjects.WithContext(ctx).Delete(&dbProject)
+	if err != nil {
 		log.Default().Printf("Error while fetching project with id %s. ErrorMsg: %s", dbProject.ID.String(), err.Error())
 	}
+
+	log.Default().Printf("Project with id %d deleted via gitlab", dbProject.ProjectID)
 }

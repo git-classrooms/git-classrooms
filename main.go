@@ -149,7 +149,7 @@ func main() {
 
 		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab)
 		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
-		syncGitlabDbWorker.Start(ctx, time.Duration(appConfig.GitLab.SyncIntervalSeconds)*time.Second)
+		syncGitlabDbWorker.Start(ctx, appConfig.GitLab.SyncInterval)
 	}()
 
 	wg.Wait()

@@ -24,7 +24,7 @@ type AssignmentProjects struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 
 	TeamID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"teamId"`
-	Team   Team      `json:"team"`
+	Team   Team      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"team"`
 
 	AssignmentID uuid.UUID  `gorm:"<-:create;not null" json:"-"`
 	Assignment   Assignment `json:"assignment"`
