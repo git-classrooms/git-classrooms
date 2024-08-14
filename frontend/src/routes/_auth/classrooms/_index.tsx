@@ -13,6 +13,8 @@ import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
+import { activeAssignmentQueryOptions } from "@/api/assignment";
+import { ActiveAssignmentListCard } from "@/components/activeAssignments";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -20,10 +22,13 @@ export const Route = createFileRoute("/_auth/classrooms/_index")({
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
     const studentClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Student));
+    const activeAssignments = await queryClient.ensureQueryData(activeAssignmentQueryOptions());
+    
     return {
       ownedClassrooms,
       moderatorClassrooms,
       studentClassrooms,
+      activeAssignments,
     };
   },
   pendingComponent: Loader,
@@ -33,6 +38,7 @@ function Classrooms() {
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
+  const { data: activeAssignments } = useSuspenseQuery(activeAssignmentQueryOptions());
 
   const joinedClassrooms = useMemo(
     () => [...moderatorClassrooms, ...studentClassrooms],
@@ -45,7 +51,7 @@ function Classrooms() {
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
         <OwnedClassroomTable classrooms={ownedClassrooms} />
         <JoinedClassroomTable classrooms={joinedClassrooms} />
-        <ActiveAssignmentsTable classrooms={joinedClassrooms} />
+        <ActiveAssignmentListCard activeAssignments={activeAssignments} />
         <Outlet />
       </div>
     </div>
@@ -102,39 +108,6 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
       <CardHeader>
         <CardTitle>Joined Classrooms</CardTitle>
         <CardDescription>Classrooms which you have joined</CardDescription>
-      </CardHeader>
-      <Table className="flex-auto">
-        <TableBody>
-          {classrooms.map((c) => (
-            <TableRow key={c.classroom.id}>
-              <TableCell>{c.classroom.name}</TableCell>
-              <TableCell>{c.classroom.owner.name}</TableCell>
-              <TableCell>
-                <a href={c.webUrl} target="_blank" rel="noreferrer">
-                  <Code />
-                </a>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline">
-                  <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
-                    <ArrowRight />
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Card>
-  );
-}
-
-function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Active Assignments</CardTitle>
-        <CardDescription>Your assignments thaht are not overdue</CardDescription>
       </CardHeader>
       <Table className="flex-auto">
         <TableBody>
