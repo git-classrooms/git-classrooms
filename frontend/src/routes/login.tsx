@@ -16,7 +16,7 @@ export const Route = createFileRoute("/login")({
   beforeLoad: async ({ context }) => {
     if (context.auth) {
       throw redirect({
-        to: "/classrooms",
+        to: "/dashboard",
       });
     }
   },

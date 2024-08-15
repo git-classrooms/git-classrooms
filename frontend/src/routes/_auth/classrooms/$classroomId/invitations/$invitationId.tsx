@@ -33,7 +33,7 @@ function JoinClassroom() {
 
   const onReject = async () => {
     await mutateAsync(Action.Reject);
-    await navigate({ to: "/classrooms" });
+    await navigate({ to: "/dashboard" });
   };
 
   return (

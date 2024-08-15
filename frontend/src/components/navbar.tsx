@@ -66,6 +66,13 @@ function DesktopNavbar(props: NavbarProps) {
               >
                 Dashboard
               </Link>
+              <Link
+                to="/classrooms"
+                className="font-medium text-sm px-4 py-2 hover:underline"
+                activeProps={{ className: "!font-bold" }}
+              >
+                Classrooms
+              </Link>
             </li>
           </ul>
         ) : (
@@ -178,6 +185,13 @@ function MobileNavbar(props: NavbarProps) {
                 activeProps={{ className: "!font-bold" }}
               >
                 <p className="font-medium px-4 py-2 hover:underline">Dashboard</p>
+              </Link>
+              <Link
+                to="/classrooms"
+                className="font-medium text-sm px-4 py-2 hover:underline"
+                activeProps={{ className: "!font-bold" }}
+              >
+                Classrooms
               </Link>
               <Separator />
             </nav>
