@@ -2,6 +2,7 @@ export * from './action';
 export * from './api-project-clone-url-response';
 export * from './assignment';
 export * from './assignment-grading-response';
+export * from './assignment-response';
 export * from './auth-get-csrf-response';
 export * from './classroom';
 export * from './classroom-invitation';

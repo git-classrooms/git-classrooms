@@ -64,9 +64,9 @@ export const useCreateClassroom = () => {
         name: values.name,
         description: values.description,
         studentsViewAllProjects: values.studentsViewAllProjects,
-        createTeams: values.teamsEnabled? values.createTeams : false,
-        maxTeamSize: values.teamsEnabled? values.maxTeamSize : 1,
-        maxTeams: values.teamsEnabled? values.maxTeams : 0,
+        createTeams: values.teamsEnabled ? values.createTeams : false,
+        maxTeamSize: values.teamsEnabled ? values.maxTeamSize : 1,
+        maxTeams: values.teamsEnabled ? values.maxTeams : 0,
       };
       const res = await apiClient.createClassroomV2(body, csrfToken);
       return res.headers.location as string;

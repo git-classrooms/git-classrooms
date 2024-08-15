@@ -8,6 +8,7 @@ import { Action } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classroom";
 import GitlabLogo from "@/assets/gitlab_logo.svg";
+import { AxiosError } from "axios";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -22,8 +23,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations
 function JoinClassroom() {
   const navigate = useNavigate();
   const { classroomId, invitationId } = Route.useParams();
-  const { data } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId));
-  const { mutateAsync, isError, isPending } = useJoinClassroom(classroomId, invitationId);
+  const { data: invitation } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId));
+  const { mutateAsync, isError, isPending, error } = useJoinClassroom(classroomId, invitationId);
 
   const onAccept = async () => {
     const location = await mutateAsync(Action.Accept);
@@ -45,13 +46,13 @@ function JoinClassroom() {
       <div className="p-6 rounded-lg border flex flex-col gap-5">
         <h1 className="text-5xl font-bold text-center mb-5">Join Classroom</h1>
         <p className="text-slate-500 text-lg">
-          You have been invited to join the classroom <span className="font-bold">{data.classroom.name}</span> by{" "}
-          <span className="font-bold">{data.classroom.owner.name}</span>
+          You have been invited to join the classroom <span className="font-bold">{invitation.classroom.name}</span> by{" "}
+          <span className="font-bold">{invitation.classroom.owner.name}</span>
         </p>
         <Separator />
         <p className="text-slate-500">
           <p className="text-slate-500 ">Classroom Description:</p>
-          <p className="text-slate-500 italic ml-5">{data.classroom.description}</p>
+          <p className="text-slate-500 italic ml-5">{invitation.classroom.description}</p>
         </p>
         <Separator />
         <div className="flex justify-between">
@@ -68,7 +69,13 @@ function JoinClassroom() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>Can't join classroom!</AlertDescription>
+              <AlertDescription>
+                {error instanceof AxiosError
+                  ? error.response?.data.error
+                    ? error.response.data.error
+                    : "Can't join classroom!"
+                  : "Can't join classroom!"}
+              </AlertDescription>
             </Alert>
           </>
         )}
