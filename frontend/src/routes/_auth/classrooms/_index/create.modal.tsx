@@ -14,7 +14,7 @@ function CreateModal() {
       onOpenChange={(open) => {
         if (!open) {
           navigate({
-            to: "/dashboard",
+            to: "/classrooms",
             replace: true,
           });
         }

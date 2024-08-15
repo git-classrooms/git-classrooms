@@ -82,7 +82,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
 
       <CardFooter className="flex justify-end gap-2">
         <Button asChild variant="default">
-          <Link to="/classrooms/create/modal" replace>
+          <Link to="/dashboard/create/modal" replace>
             Create a new Classroom
           </Link>
         </Button>
