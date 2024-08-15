@@ -155,7 +155,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 					Email:    member1.GitlabEmail,
 				},
 			}, nil).
-			Times(2)
+			Times(1)
 
 		classroom, err := query.Classroom.WithContext(context.Background()).
 			Preload(query.Classroom.Member).
@@ -206,7 +206,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 					Email:    "new",
 				},
 			}, nil).
-			Times(2)
+			Times(1)
 
 		repo.EXPECT().
 			RemoveUserFromGroup(classroom1.GroupID, 4).
@@ -259,7 +259,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 					Email:    member1.GitlabEmail,
 				},
 			}, nil).
-			Times(2)
+			Times(1)
 
 		team, err := query.Team.WithContext(context.Background()).
 			Preload(query.Team.Member).
@@ -315,7 +315,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 					Email:    "new",
 				},
 			}, nil).
-			Times(2)
+			Times(1)
 
 		repo.EXPECT().
 			RemoveUserFromGroup(team1.GroupID, 4).

@@ -75,7 +75,7 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom database.Classroom, repo gitlab.Repository) error {
 	gitlabClassroom, err := repo.GetGroupById(dbClassroom.GroupID)
 	if err != nil {
-		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
+		if strings.Contains(err.Error(), "403 {message: 403 Forbidden}") {
 			_, err := query.Classroom.WithContext(ctx).Delete(&dbClassroom)
 			if err == nil {
 				log.Default().Printf("Classroom %s (ID=%d) deleted due to group deletion or member classroom_bot removal via GitLab.", dbClassroom.Name, dbClassroom.GroupID)
@@ -84,7 +84,7 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 			dbClassroom.Archived = true
 			_, err := query.Classroom.WithContext(ctx).Updates(dbClassroom)
 			if err == nil {
-				log.Default().Printf("Classroom %s (ID=%d) archived due to expired or revoked access token", dbClassroom.Name, dbClassroom.GroupID)
+				log.Default().Printf("Classroom %s (ID=%d) archived due to revoked access token", dbClassroom.Name, dbClassroom.GroupID)
 			}
 		} else {
 			log.Default().Printf("Error while fetching group with id %d. ErrorMsg: %s", dbClassroom.GroupID, err.Error())
@@ -112,8 +112,8 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 }
 
 func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
-	handleLeftMembers := func(context context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository) {
-		_, err := query.UserClassrooms.WithContext(ctx).Delete(&member)
+	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository) {
+		_, err := query.UserClassrooms.WithContext(ctx).Delete(member)
 		if err != nil {
 			log.Default().Printf("Error could not remove member [%d] from classroom %d: %s", member.UserID, groupId, err.Error())
 		} else {
@@ -121,7 +121,7 @@ func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int,
 		}
 	}
 
-	handleAddedMembers := func(context context.Context, member model.User, groupId int, repo gitlab.Repository) {
+	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
 		err := repo.RemoveUserFromGroup(groupId, member.ID)
 		if err != nil {
 			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
@@ -134,24 +134,17 @@ func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int,
 }
 
 func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
-	handleLeftMembers := func(context context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository) {
-		_, err := query.UserClassrooms.WithContext(ctx).Delete(&member)
+	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository) {
+		member.TeamID = nil
+		member.Team = nil
+		err := query.UserClassrooms.WithContext(ctx).Save(member)
 		if err != nil {
 			log.Default().Printf("Error could not remove member [%d] from team %d: %s", member.UserID, groupId, err.Error())
 			return
 		}
-
-		err = query.UserClassrooms.WithContext(ctx).Create(&database.UserClassrooms{
-			UserID:      member.UserID,
-			ClassroomID: member.ClassroomID,
-			Role:        member.Role,
-		})
-		if err != nil {
-			log.Default().Printf("Error could not remove member [%d] from team %d: %s", member.UserID, groupId, err.Error())
-		}
 	}
 
-	handleAddedMembers := func(context context.Context, member model.User, groupId int, repo gitlab.Repository) {
+	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
 		err := repo.RemoveUserFromGroup(groupId, member.ID)
 		if err != nil {
 			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
@@ -168,8 +161,8 @@ func (w *SyncGitlabDbWork) syncMember(
 	groupId int,
 	dbMember []*database.UserClassrooms,
 	repo gitlab.Repository,
-	handleLeftMembers func(ctx context.Context, member database.UserClassrooms, groupId int, repo gitlab.Repository),
-	handleAddedMembers func(ctx context.Context, member model.User, groupId int, repo gitlab.Repository),
+	handleLeftMembers func(ctx context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository),
+	handleAddedMembers func(ctx context.Context, member *model.User, groupId int, repo gitlab.Repository),
 ) {
 	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
 	if err != nil {
@@ -188,8 +181,8 @@ func (w *SyncGitlabDbWork) syncMember(
 	}
 }
 
-func (w *SyncGitlabDbWork) leftMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User) []database.UserClassrooms {
-	leftMember := []database.UserClassrooms{}
+func (w *SyncGitlabDbWork) leftMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User) []*database.UserClassrooms {
+	leftMember := []*database.UserClassrooms{}
 
 	for _, dbMember := range dbMember {
 		found := false
@@ -202,15 +195,15 @@ func (w *SyncGitlabDbWork) leftMembersViaGitlab(dbMember []*database.UserClassro
 		}
 
 		if !found {
-			leftMember = append(leftMember, *dbMember)
+			leftMember = append(leftMember, dbMember)
 		}
 	}
 
 	return leftMember
 }
 
-func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User, groupId int) []model.User {
-	addedMember := []model.User{}
+func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User, groupId int) []*model.User {
+	addedMember := []*model.User{}
 
 	for _, gitlabMember := range gitlabMember {
 		found := false
@@ -223,7 +216,7 @@ func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassr
 		}
 
 		if !found && !w.isGroupBootUser(*gitlabMember, groupId) {
-			addedMember = append(addedMember, *gitlabMember)
+			addedMember = append(addedMember, gitlabMember)
 		}
 	}
 
