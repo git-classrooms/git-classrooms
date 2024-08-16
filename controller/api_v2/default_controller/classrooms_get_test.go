@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
@@ -47,7 +48,7 @@ func TestGetClassrooms(t *testing.T) {
 			return c.Next()
 		})
 
-		handler := NewApiV2Controller(mailRepo)
+		handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 		app.Get("/api/v2/classrooms", handler.GetClassrooms)
 
 		// prepare request
@@ -85,7 +86,7 @@ func TestGetClassrooms(t *testing.T) {
 			return c.Next()
 		})
 
-		handler := NewApiV2Controller(mailRepo)
+		handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 		app.Get("/api/v2/classrooms", handler.GetClassrooms)
 
 		// prepare request
@@ -123,7 +124,7 @@ func TestGetClassrooms(t *testing.T) {
 			return c.Next()
 		})
 
-		handler := NewApiV2Controller(mailRepo)
+		handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 		app.Get("/api/v2/classrooms", handler.GetClassrooms)
 
 		// prepare request

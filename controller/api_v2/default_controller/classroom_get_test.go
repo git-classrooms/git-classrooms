@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
@@ -19,8 +20,6 @@ import (
 
 func TestGetClassroom(t *testing.T) {
 	restoreDatabase(t)
-
-	mailRepo := mailRepoMock.NewMockRepository(t)
 
 	db, err := gorm.Open(postgres.Open(integrationTest.dbURL))
 	if err != nil {
@@ -38,12 +37,13 @@ func TestGetClassroom(t *testing.T) {
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := context.Get(c)
 		ctx.SetUserID(owner.ID)
-		ctx.SetUserClassroom(&userClassroom)
+		ctx.SetUserClassroom(userClassroom)
 		return c.Next()
 
 	})
 
-	handler := NewApiV2Controller(mailRepo)
+	mailRepo := mailRepoMock.NewMockRepository(t)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 	app.Get("/api/v2/classrooms/:classroomId", handler.GetClassroom)
 
 	t.Run("return a classroom by id", func(t *testing.T) {

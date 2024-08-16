@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
@@ -43,8 +44,8 @@ func TestGetClassroomAssignment(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(&classroom)
-		ctx.SetAssignment(&assignment)
+		ctx.SetOwnedClassroom(classroom)
+		ctx.SetAssignment(assignment)
 
 		fiberContext.Get(c).SetGitlabRepository(gitlabRepo)
 		s := session.Get(c)
@@ -54,7 +55,7 @@ func TestGetClassroomAssignment(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewApiV2Controller(mailRepo)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 
 	t.Run("GetClassroomAssignment", func(t *testing.T) {
 		app.Get("/api/v2/classrooms/:classroomId/assignments/:assignmentId", handler.GetClassroomAssignment)

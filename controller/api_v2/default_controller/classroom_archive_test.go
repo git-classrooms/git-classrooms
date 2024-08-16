@@ -9,83 +9,34 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 func TestPatchClassroomArchive(t *testing.T) {
-	testDb := db_tests.NewTestDB(t)
+	restoreDatabase(t)
 
-	user1 := database.User{
-		ID:             1,
-		GitlabUsername: "user1",
-		GitlabEmail:    "user1",
-	}
-	testDb.InsertUser(&user1)
-
-	user2 := database.User{
-		ID:             2,
-		GitlabUsername: "user2",
-		GitlabEmail:    "user2",
-	}
-	testDb.InsertUser(&user2)
-
-	user3 := database.User{
-		ID:             3,
-		GitlabUsername: "user3",
-		GitlabEmail:    "user3",
-	}
-	testDb.InsertUser(&user3)
+	owner := factory.User()
+	user2 := factory.User()
+	user3 := factory.User()
+	classroom := factory.Classroom(owner.ID)
 
 	members := []*database.UserClassrooms{
-		{UserID: user1.ID, Role: database.Owner},
-		{UserID: user2.ID, Role: database.Student},
-		{UserID: user3.ID, Role: database.Student},
+		factory.UserClassroom(user2.ID, classroom.ID, database.Student),
+		factory.UserClassroom(user3.ID, classroom.ID, database.Student),
 	}
 
-	classroom := database.Classroom{
-		ID:       uuid.New(),
-		OwnerID:  user1.ID,
-		Member:   members,
-		Archived: false,
-		GroupID:  12,
-	}
-	testDb.InsertClassroom(&classroom)
+	assignment := factory.Assignment(classroom.ID)
+	team := factory.Team(classroom.ID, members)
+	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 
-	assignment := database.Assignment{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-	}
-	testDb.InsertAssignment(&assignment)
-
-	team := database.Team{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-		Member:      members,
-	}
-	testDb.InsertTeam(&team)
-
-	assignmentProject := database.AssignmentProjects{
-		ID:           uuid.New(),
-		TeamID:       team.ID,
-		AssignmentID: assignment.ID,
-		ProjectID:    1,
-	}
-	testDb.InsertAssignmentProjects(&assignmentProject)
-
-	userClassroom := database.UserClassrooms{
-		UserID:      user1.ID,
-		User:        user1,
-		ClassroomID: classroom.ID,
-		Classroom:   classroom,
-	}
+	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
@@ -93,7 +44,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := contextWrapper.Get(c)
-		ctx.SetUserClassroom(&userClassroom)
+		ctx.SetUserClassroom(userClassroom)
 		ctx.SetGitlabRepository(gitlabRepo)
 
 		return c.Next()

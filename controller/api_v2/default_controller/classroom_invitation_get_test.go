@@ -8,7 +8,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
@@ -24,16 +26,17 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetUserClassroom(&userClassroom)
+		ctx.SetUserClassroom(userClassroom)
 
 		return c.Next()
 	})
 
-	handler := NewApiV2Controller(nil)
+	mailRepo := mailRepoMock.NewMockRepository(t)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 
 	t.Run("GetClassroomInvitations", func(t *testing.T) {
 		app.Get("/api/v2/classrooms/:classroomId/invitations", handler.GetClassroomInvitations)
-		route := fmt.Sprintf("/api/v2/classrooms/%s/invitations", classroom.ID)
+		route := fmt.Sprintf("/api/v2/classrooms/%s/invitations", classroom.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)

@@ -11,7 +11,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 )
 
-func Classroom(ownerID int) database.Classroom {
+func Classroom(ownerID int) *database.Classroom {
 	classroom := database.Classroom{}
 	classroom.Name = gofakeit.Name()
 	classroom.OwnerID = ownerID
@@ -25,10 +25,10 @@ func Classroom(ownerID int) database.Classroom {
 		log.Fatalf("could not insert classroom: %s", err.Error())
 	}
 
-	return classroom
+	return &classroom
 }
 
-func UserClassroom(userID int, classroomID uuid.UUID, role database.Role) database.UserClassrooms {
+func UserClassroom(userID int, classroomID uuid.UUID, role database.Role) *database.UserClassrooms {
 	userClassroom := database.UserClassrooms{}
 	userClassroom.UserID = userID
 	userClassroom.ClassroomID = classroomID
@@ -39,20 +39,20 @@ func UserClassroom(userID int, classroomID uuid.UUID, role database.Role) databa
 		log.Fatalf("could not insert classroom: %s", err.Error())
 	}
 
-	return userClassroom
+	return &userClassroom
 }
 
-func Invitation(classroomID uuid.UUID) database.ClassroomInvitation {
+func Invitation(classroomID uuid.UUID) *database.ClassroomInvitation {
 	invitation := database.ClassroomInvitation{}
 	invitation.ClassroomID = classroomID
 	invitation.Email = gofakeit.Email()
 	invitation.ExpiryDate = time.Now().Add(24 * time.Hour)
 	invitation.Status = database.ClassroomInvitationPending
 
-	return invitation
+	return &invitation
 }
 
-func User() database.User {
+func User() *database.User {
 	usr := database.User{}
 	usr.GitlabEmail = gofakeit.Email()
 	usr.GitlabUsername = gofakeit.Username()
@@ -70,36 +70,36 @@ func User() database.User {
 		log.Fatalf("could not insert user: %s", err.Error())
 	}
 
-	return usr
+	return &usr
 }
 
-func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID) database.AssignmentProjects {
+func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID) *database.AssignmentProjects {
 	project := database.AssignmentProjects{}
 	project.TeamID = teamID
 	project.AssignmentID = assignmentID
 	project.ProjectID = 1
-	project.AssignmentAccepted = true
 
 	err := query.AssignmentProjects.WithContext(context.Background()).Create(&project)
 	if err != nil {
 		log.Fatalf("could not insert assignment project: %s", err.Error())
 	}
 
-	return project
+	return &project
 }
 
-func Team(classroomID uuid.UUID) database.Team {
+func Team(classroomID uuid.UUID, member []*database.UserClassrooms) *database.Team {
 	team := database.Team{}
 	team.ClassroomID = classroomID
+	team.Member = member
 
 	err := query.Team.WithContext(context.Background()).Create(&team)
 	if err != nil {
 		log.Fatalf("could not insert team: %s", err.Error())
 	}
-	return team
+	return &team
 }
 
-func Assignment(classroomID uuid.UUID) database.Assignment {
+func Assignment(classroomID uuid.UUID) *database.Assignment {
 	assignment := database.Assignment{}
 	assignment.ClassroomID = classroomID
 	assignment.TemplateProjectID = 1234
@@ -114,5 +114,5 @@ func Assignment(classroomID uuid.UUID) database.Assignment {
 	if err != nil {
 		log.Fatalf("could not insert assignment: %s", err.Error())
 	}
-	return assignment
+	return &assignment
 }

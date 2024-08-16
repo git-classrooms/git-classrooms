@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
@@ -35,7 +36,7 @@ func TestGetClassroomAssignmentProjects(t *testing.T) {
 	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	assignment := factory.Assignment(classroom.ID)
-	team := factory.Team(classroom.ID)
+	team := factory.Team(classroom.ID, []*database.UserClassrooms{userClassroom})
 	project := factory.AssignmentProject(assignment.ID, team.ID)
 
 	// setup app
@@ -43,9 +44,9 @@ func TestGetClassroomAssignmentProjects(t *testing.T) {
 	app := fiber.New()
 	app.Use("/api", func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		ctx.SetOwnedClassroom(&classroom)
-		ctx.SetUserClassroom(&userClassroom)
-		ctx.SetAssignment(&assignment)
+		ctx.SetOwnedClassroom(classroom)
+		ctx.SetUserClassroom(userClassroom)
+		ctx.SetAssignment(assignment)
 
 		s := session.Get(c)
 		s.SetUserState(session.LoggedIn)
@@ -54,7 +55,7 @@ func TestGetClassroomAssignmentProjects(t *testing.T) {
 		return c.Next()
 	})
 
-	handler := NewApiV2Controller(mailRepo)
+	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
 
 	t.Run("GetOwnedClassroomAssignmentProjects", func(t *testing.T) {
 		app.Get("/api/v2/classrooms/:classroomId/assignments/:assignmentId/projects", handler.GetClassroomAssignmentProjects)
@@ -75,7 +76,6 @@ func TestGetClassroomAssignmentProjects(t *testing.T) {
 		projectResponse := projectsResponse[0]
 
 		assert.Equal(t, project.ID, projectResponse.ID)
-		assert.Equal(t, project.AssignmentAccepted, projectResponse.AssignmentAccepted)
 		assert.Equal(t, project.ProjectID, projectResponse.ProjectID)
 	})
 }
