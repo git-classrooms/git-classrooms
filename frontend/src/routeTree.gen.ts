@@ -23,6 +23,7 @@ import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/_i
 import { Route as AuthDashboardIndexIndexImport } from "./routes/_auth/dashboard/_index/index"
 import { Route as AuthClassroomsIndexIndexImport } from "./routes/_auth/classrooms/_index/index"
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
+import { Route as AuthClassroomsClassroomIdEditImport } from "./routes/_auth/classrooms/$classroomId/edit"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/_index"
 import { Route as AuthClassroomsClassroomIdTeamsRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/route"
 import { Route as AuthClassroomsClassroomIdIndexIndexImport } from "./routes/_auth/classrooms/$classroomId/_index/index"
@@ -114,6 +115,12 @@ const AuthClassroomsIndexIndexRoute = AuthClassroomsIndexIndexImport.update({
 const AuthClassroomsClassroomIdInviteRoute =
   AuthClassroomsClassroomIdInviteImport.update({
     path: "/invite",
+    getParentRoute: () => AuthClassroomsClassroomIdRoute,
+  } as any)
+
+const AuthClassroomsClassroomIdEditRoute =
+  AuthClassroomsClassroomIdEditImport.update({
+    path: "/edit",
     getParentRoute: () => AuthClassroomsClassroomIdRoute,
   } as any)
 
@@ -271,6 +278,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdRoute
     }
+    "/_auth/classrooms/$classroomId/edit": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdEditImport
+      parentRoute: typeof AuthClassroomsClassroomIdImport
+    }
     "/_auth/classrooms/$classroomId/invite": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdInviteImport
       parentRoute: typeof AuthClassroomsClassroomIdImport
@@ -372,6 +383,7 @@ export const routeTree = rootRoute.addChildren([
           AuthClassroomsClassroomIdIndexTeamCreateModalRoute,
           AuthClassroomsClassroomIdIndexTeamsTeamIdModalRoute,
         ]),
+        AuthClassroomsClassroomIdEditRoute,
         AuthClassroomsClassroomIdInviteRoute,
         AuthClassroomsClassroomIdAssignmentsCreateRoute,
         AuthClassroomsClassroomIdInvitationsInvitationIdRoute,
