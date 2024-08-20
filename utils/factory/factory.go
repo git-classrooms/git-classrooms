@@ -49,6 +49,11 @@ func Invitation(classroomID uuid.UUID) *database.ClassroomInvitation {
 	invitation.ExpiryDate = time.Now().Add(24 * time.Hour)
 	invitation.Status = database.ClassroomInvitationPending
 
+	err := query.ClassroomInvitation.WithContext(context.Background()).Create(&invitation)
+	if err != nil {
+		log.Fatalf("could not insert invitation: %s", err.Error())
+	}
+
 	return &invitation
 }
 

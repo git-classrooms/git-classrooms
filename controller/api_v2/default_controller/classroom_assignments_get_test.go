@@ -7,13 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -34,29 +30,15 @@ func TestGetClassroomAssignments(t *testing.T) {
 
 	owner := factory.User()
 	classroom := factory.Classroom(owner.ID)
-	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
+	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 	assignment := factory.Assignment(classroom.ID)
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	mailRepo := mailRepoMock.NewMockRepository(t)
 
-	app := fiber.New()
-	app.Use("/api", func(c *fiber.Ctx) error {
-		ctx := fiberContext.Get(c)
-		ctx.SetUserClassroom(userClassroom)
-
-		s := session.Get(c)
-		s.SetUserState(session.LoggedIn)
-		s.SetUserID(owner.ID)
-		s.Save()
-		return c.Next()
-	})
-
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
+	app := setupApp(t, owner, nil)
 
 	t.Run("GetClassroomAssignments", func(t *testing.T) {
-		app.Get("/api/v2/classrooms/:classroomId/assignments", handler.GetClassroomAssignments)
 		route := fmt.Sprintf("/api/v2/classrooms/%s/assignments", classroom.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)

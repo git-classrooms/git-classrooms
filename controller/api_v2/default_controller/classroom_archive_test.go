@@ -6,17 +6,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 func TestPatchClassroomArchive(t *testing.T) {
@@ -39,20 +35,8 @@ func TestPatchClassroomArchive(t *testing.T) {
 	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
-	mailRepo := mailRepoMock.NewMockRepository(t)
 
-	app := fiber.New()
-	app.Use("/api", func(c *fiber.Ctx) error {
-		ctx := contextWrapper.Get(c)
-		ctx.SetUserClassroom(userClassroom)
-		ctx.SetGitlabRepository(gitlabRepo)
-
-		return c.Next()
-	})
-
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-	app.Patch("/api/classrooms/:classroomId/archive", handler.ArchiveClassroom)
-
+	app := setupApp(t, owner, nil)
 	targetRoute := fmt.Sprintf("/api/classrooms/%s/archive", classroom.ID.String())
 
 	t.Run("classroom already archived", func(t *testing.T) {

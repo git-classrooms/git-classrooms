@@ -6,28 +6,32 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	test_db "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestDeleteClassroomInvitation(t *testing.T) {
-	testDb := db_tests.NewTestDB(t)
+	restoreDatabase(t)
+
+	db, err := gorm.Open(postgres.Open(integrationTest.dbURL))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	query.SetDefault(db)
 	user := factory.User()
 	classroom := factory.Classroom(user.ID)
 	invitation := factory.Invitation(classroom.ID)
 
-	app := fiber.New()
-	mailRepo := mailRepoMock.NewMockRepository(t)
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-	app.Delete("/classrooms/:classroomId/invitations/:invitationId", handler.RevokeClassroomInvitation)
+	app := setupApp(t, user, nil)
 
 	targetRoute := fmt.Sprintf("/classrooms/%s/invitations/%s", invitation.ClassroomID, invitation.ID)
 
@@ -44,7 +48,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation - Already Revoked", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationRevoked
-		testDb.SaveInvitation(invitation)
+		test_db.SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -57,7 +61,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation - Already Accepted", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationAccepted
-		testDb.SaveInvitation(invitation)
+		test_db.SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -70,7 +74,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation - Already Rejected", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationRejected
-		testDb.SaveInvitation(invitation)
+		test_db.SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -83,7 +87,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationPending
-		testDb.SaveInvitation(invitation)
+		test_db.SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)

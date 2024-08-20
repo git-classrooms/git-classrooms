@@ -122,10 +122,10 @@ func (testDb *TestDB) InsertInvitation(invitation *database.ClassroomInvitation)
 	}
 }
 
-func (testDb *TestDB) SaveInvitation(invitation *database.ClassroomInvitation) {
+func SaveInvitation(t *testing.T, invitation *database.ClassroomInvitation) {
 	err := query.ClassroomInvitation.WithContext(context.Background()).Save(invitation)
 	if err != nil {
-		testDb.t.Fatalf("could not update invitation: %s", err.Error())
+		t.Fatalf("could not update invitation: %s", err.Error())
 	}
 }
 

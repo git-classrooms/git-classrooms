@@ -12,6 +12,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
@@ -20,39 +21,11 @@ func TestDueAssignmentWork(t *testing.T) {
 
 	testDb := db_tests.NewTestDB(t)
 
-	owner := database.User{
-		ID:             1,
-		GitlabUsername: "owner",
-		GitlabEmail:    "owner",
-	}
-	testDb.InsertUser(&owner)
-
-	student1 := database.User{
-		ID:             2,
-		GitlabUsername: "student1",
-		GitlabEmail:    "student1",
-	}
-	testDb.InsertUser(&student1)
-
-	student2 := database.User{
-		ID:             3,
-		GitlabUsername: "student2",
-		GitlabEmail:    "student2",
-	}
-	testDb.InsertUser(&student2)
-
-	classroom := database.Classroom{
-		ID:      uuid.New(),
-		OwnerID: owner.ID,
-	}
-	testDb.InsertClassroom(&classroom)
-
-	assignment1 := database.Assignment{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-		Name:        "Assignment1",
-	}
-	testDb.InsertAssignment(&assignment1)
+	owner := factory.User()
+	student1 := factory.User()
+	student2 := factory.User()
+	classroom := factory.Classroom(owner.ID)
+	assignment1 := factory.Assignment(classroom.ID)
 
 	team1 := database.Team{
 		ID:          uuid.New(),
@@ -101,7 +74,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = true
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		assignments := work.getAssignments2Close(context.Background())
 		assert.Empty(t, assignments)
@@ -111,7 +84,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		assignments := work.getAssignments2Close(context.Background())
 		assert.Empty(t, assignments)
@@ -121,7 +94,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		assignments := work.getAssignments2Close(context.Background())
 		assert.Len(t, assignments, 1)
@@ -132,12 +105,12 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		assignmentProject1.ProjectStatus = database.Pending
 		testDb.SaveAssignmentProjects(&assignmentProject1)
 
-		err := work.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), assignment1, repo)
 		assert.NoError(t, err)
 
 		assignment1After, err := query.Assignment.
@@ -154,7 +127,7 @@ func TestDueAssignmentWork(t *testing.T) {
 
 	t.Run("repo.GetAccessLevelOfUserInProject throws error -> restore old permissions", func(t *testing.T) {
 		assignment1.Closed = false
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
@@ -181,7 +154,7 @@ func TestDueAssignmentWork(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := work.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), assignment1, repo)
 		assert.Error(t, err)
 
 		repo.AssertExpectations(t)
@@ -196,7 +169,7 @@ func TestDueAssignmentWork(t *testing.T) {
 
 	t.Run("repo.ChangeUserAccessLevelInProject throws error", func(t *testing.T) {
 		assignment1.Closed = false
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
@@ -213,7 +186,7 @@ func TestDueAssignmentWork(t *testing.T) {
 			Return(assert.AnError).
 			Times(1)
 
-		err := work.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), assignment1, repo)
 		assert.Error(t, err)
 
 		repo.AssertExpectations(t)
@@ -228,7 +201,7 @@ func TestDueAssignmentWork(t *testing.T) {
 
 	t.Run("Close due Assignment", func(t *testing.T) {
 		assignment1.Closed = false
-		testDb.SaveAssignment(&assignment1)
+		testDb.SaveAssignment(assignment1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
@@ -255,7 +228,7 @@ func TestDueAssignmentWork(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		err := work.closeAssignment(context.Background(), &assignment1, repo)
+		err := work.closeAssignment(context.Background(), assignment1, repo)
 		assert.NoError(t, err)
 
 		repo.AssertExpectations(t)

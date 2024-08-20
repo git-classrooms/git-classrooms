@@ -31,7 +31,7 @@ func (ctrl *DefaultController) GetClassroomInvitation(c *fiber.Ctx) (err error) 
 	}
 
 	queryInvitation := query.ClassroomInvitation
-	invitations, err := queryInvitation.
+	invitation, err := queryInvitation.
 		WithContext(c.Context()).
 		Preload(queryInvitation.Classroom).
 		Preload(queryInvitation.Classroom.Owner).
@@ -43,5 +43,5 @@ func (ctrl *DefaultController) GetClassroomInvitation(c *fiber.Ctx) (err error) 
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	return c.JSON(invitations)
+	return c.JSON(invitation)
 }

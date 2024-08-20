@@ -7,12 +7,22 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
+	apiControllerMock "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/_mock"
+	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
+	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
@@ -110,4 +120,21 @@ func restoreDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not restore container snapshot: %s", err.Error())
 	}
+}
+
+func setupApp(t *testing.T, user *database.User, gitlabRepo gitlabRepo.Repository) *fiber.App {
+	mailRepo := mailRepoMock.NewMockRepository(t)
+	session.InitSessionStore(&integrationTest.dbURL)
+
+	app := fiber.New()
+
+	apiCtrl := apiControllerMock.NewMockController(t)
+	v2Controller := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
+	authCtrl := authController.NewTestAuthController(user, gitlabRepo)
+
+	redirectUrl, _ := url.Parse("http://example.com")
+
+	router.Routes(app, authCtrl, apiCtrl, v2Controller, "public", &auth.OAuthConfig{RedirectURL: redirectUrl})
+
+	return app
 }

@@ -7,12 +7,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
+	//"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	// mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	//"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ import (
 func TestGetClassrooms(t *testing.T) {
 	restoreDatabase(t)
 
-	mailRepo := mailRepoMock.NewMockRepository(t)
+	//mailRepo := mailRepoMock.NewMockRepository(t)
 
 	db, err := gorm.Open(postgres.Open(integrationTest.dbURL))
 	if err != nil {
@@ -39,18 +39,7 @@ func TestGetClassrooms(t *testing.T) {
 	factory.UserClassroom(student.ID, classroom.ID, database.Student)
 
 	t.Run("return all classrooms where the user is the owner", func(t *testing.T) {
-
-		// Setup fiber
-		app := fiber.New()
-		app.Use("/api", func(c *fiber.Ctx) error {
-			ctx := context.Get(c)
-			ctx.SetUserID(owner.ID)
-			return c.Next()
-		})
-
-		handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-		app.Get("/api/v2/classrooms", handler.GetClassrooms)
-
+		app := setupApp(t, owner, nil)
 		// prepare request
 		route := "/api/v2/classrooms?filter=owned"
 		req := httptest.NewRequest("GET", route, nil)
@@ -78,17 +67,7 @@ func TestGetClassrooms(t *testing.T) {
 	})
 
 	t.Run("return all classrooms where the user is moderator", func(t *testing.T) {
-		// Setup fiber
-		app := fiber.New()
-		app.Use("/api", func(c *fiber.Ctx) error {
-			ctx := context.Get(c)
-			ctx.SetUserID(moderator.ID)
-			return c.Next()
-		})
-
-		handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-		app.Get("/api/v2/classrooms", handler.GetClassrooms)
-
+		app := setupApp(t, moderator, nil)
 		// prepare request
 		route := "/api/v2/classrooms?filter=moderator"
 		req := httptest.NewRequest("GET", route, nil)
@@ -116,17 +95,7 @@ func TestGetClassrooms(t *testing.T) {
 	})
 
 	t.Run("return all classrooms where the user is student", func(t *testing.T) {
-		// Setup fiber
-		app := fiber.New()
-		app.Use("/api", func(c *fiber.Ctx) error {
-			ctx := context.Get(c)
-			ctx.SetUserID(student.ID)
-			return c.Next()
-		})
-
-		handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-		app.Get("/api/v2/classrooms", handler.GetClassrooms)
-
+		app := setupApp(t, student, nil)
 		// prepare request
 		route := "/api/v2/classrooms?filter=student"
 		req := httptest.NewRequest("GET", route, nil)

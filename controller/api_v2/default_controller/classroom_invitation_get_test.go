@@ -8,48 +8,45 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func TestGetOwnedClassroomInvitations(t *testing.T) {
+func TestGetClassroomInvitation(t *testing.T) {
 	restoreDatabase(t)
+
+	db, err := gorm.Open(postgres.Open(integrationTest.dbURL))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	query.SetDefault(db)
 
 	user := factory.User()
 	classroom := factory.Classroom(user.ID)
-	userClassroom := factory.UserClassroom(user.ID, classroom.ID, database.Owner)
+	factory.UserClassroom(user.ID, classroom.ID, database.Owner)
 	invitation := factory.Invitation(classroom.ID)
 
-	app := fiber.New()
-	app.Use("/api", func(c *fiber.Ctx) error {
-		ctx := fiberContext.Get(c)
-		ctx.SetUserClassroom(userClassroom)
+	app := setupApp(t, user, nil)
 
-		return c.Next()
-	})
+	route := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", classroom.ID, invitation.ID)
 
-	mailRepo := mailRepoMock.NewMockRepository(t)
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
+	req := httptest.NewRequest("GET", route, nil)
+	resp, err := app.Test(req)
 
-	t.Run("GetClassroomInvitations", func(t *testing.T) {
-		app.Get("/api/v2/classrooms/:classroomId/invitations", handler.GetClassroomInvitations)
-		route := fmt.Sprintf("/api/v2/classrooms/%s/invitations", classroom.ID.String())
+	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
+	assert.NoError(t, err)
 
-		req := httptest.NewRequest("GET", route, nil)
-		resp, err := app.Test(req)
+	t.Log(resp.Body)
 
-		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
-		assert.NoError(t, err)
+	var invitationResponse *database.ClassroomInvitation
 
-		var invitations []*database.ClassroomInvitation
+	err = json.NewDecoder(resp.Body).Decode(&invitation)
+	t.Log(invitationResponse)
+	assert.NoError(t, err)
 
-		err = json.NewDecoder(resp.Body).Decode(&invitations)
-		assert.NoError(t, err)
-
-		assert.Len(t, invitations, 1)
-		assert.Equal(t, invitation.Email, invitations[0].Email)
-	})
+	// t.Log(invitation.Status)
 }
