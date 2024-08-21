@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Assignment is a struct that represents an assignment in the database
@@ -26,3 +27,9 @@ type Assignment struct {
 	GradingJUnitAutoGradingActive bool                   `json:"gradingJUnitAutoGradingActive"`
 	GradingManualRubrics          []*ManualGradingRubric `gorm:"foreignKey:AssignmentID" json:"gradingManualRubrics"`
 } //@Name Assignment
+
+func (a *Assignment) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("assignment_id = ?", a.ID).Delete(&AssignmentProjects{})
+	tx.Clauses(clause.Returning{}).Where("assignment_id = ?", a.ID).Delete(&ManualGradingRubric{})
+	return
+}

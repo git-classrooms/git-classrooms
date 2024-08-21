@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type status string
@@ -36,3 +37,8 @@ type AssignmentProjects struct {
 	GradingJUnitTestResult   *JUnitTestResult       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"gradingJUnitTestResult" validate:"optional"`
 	GradingManualResults     []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID" json:"gradingManualResults"`
 } //@Name AssignmentProjects
+
+func (ap *AssignmentProjects) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("assignment_project_id = ?", ap.ID).Delete(&ManualGradingResult{})
+	return
+}
