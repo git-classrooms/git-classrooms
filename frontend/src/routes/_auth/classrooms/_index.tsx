@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
-import { ArrowRight as ArrowRight, Code, Gitlab, Pen } from "lucide-react";
+import { ArrowRight as ArrowRight, Code, Gitlab } from "lucide-react";
 import { Header } from "@/components/header";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
@@ -165,11 +165,6 @@ function ListLeftContent({ classroomName, assignmentsCount }: {
 function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string, classroomId: string }) {
   return (
     <>
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/classrooms/$classroomId/edit" params={{ classroomId: classroomId }} replace>
-          <Pen className="text-slate-500 dark:text-white" />
-        </Link>
-      </Button>
       <Button variant="ghost" size="icon" asChild>
         <a href={gitlabUrl} target="_blank" rel="noreferrer">
           <Gitlab className="h-6 w-6 text-slate-500 dark:text-white" />

@@ -1,5 +1,5 @@
 import { classroomQueryOptions } from "@/api/classroom";
-import { ClassroomsForm } from "@/components/classroomsForm";
+import { ClassroomEditForm } from "@/components/classroomsForm";
 import { Role } from "@/types/classroom";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
@@ -10,15 +10,16 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/edit")({
     console.log(userClassroom);
     if (userClassroom.role !== Role.Owner) {
       throw redirect({
-        to: "/classrooms",
+        to: "/classrooms/$classroomId",
         params,
+        replace: true,
       });
     }
   },
   pendingComponent: Loader,
   component: () => (
     <div className="max-w-3xl mx-auto">
-      <ClassroomsForm />
+      <ClassroomEditForm classroomId={Route.useParams().classroomId} />
     </div>
   ),
 });

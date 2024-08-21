@@ -1,4 +1,4 @@
-import { ClassroomsForm } from "@/components/classroomsForm";
+import { ClassroomCreateForm } from "@/components/classroomsForm";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
@@ -21,7 +21,7 @@ function CreateModal() {
       }}
     >
       <DialogContent>
-        <ClassroomsForm />
+        <ClassroomCreateForm />
       </DialogContent>
     </Dialog>
   );

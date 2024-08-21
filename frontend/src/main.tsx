@@ -45,6 +45,13 @@ const classroomCreateModalToClassroomCreateMask = createRouteMask({
 });
 
 
+const classroomEditMask = createRouteMask({
+  routeTree,
+  from: "/classrooms/$classroomId/edit/modal",
+  to: "/classrooms/$classroomId/edit",
+  params: true,
+});
+
 const classroomTeamCreateMask = createRouteMask({
   routeTree,
   from: "/classrooms/$classroomId/team/create/modal",
@@ -75,6 +82,7 @@ const router = createRouter({
   },
   routeMasks: [
     classroomCreateModalToClassroomCreateMask,
+    classroomEditMask,
     classroomTeamCreateMask,
     classroomTeamsCreateMask,
     dashboardCreateModalToDashboardCreateMask,

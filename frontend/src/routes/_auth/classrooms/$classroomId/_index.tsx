@@ -1,6 +1,6 @@
 import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, Link } from "@tanstack/react-router";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
@@ -11,7 +11,8 @@ import { assignmentsQueryOptions } from "@/api/assignment";
 import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
-// import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Settings } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -55,6 +56,7 @@ function ClassroomStudentView(){
     </div>
   );
 }
+
 function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroomResponse}){
   const { classroomId } = Route.useParams();
   // const { reportDownloadUrl } = Route.useLoaderData()
@@ -64,7 +66,15 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
 
   return (
     <div>
-      <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
+      <div className="grid grid-cols-[1fr,auto] justify-between gap-1">
+        <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
+        <Button variant="ghost" size="icon" asChild>
+          <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
+            <Settings className="text-slate-500 dark:text-white h-28 w-28" />
+          </Link>
+        </Button>
+      </div>
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
         { /*<Button asChild><a href={reportDownloadUrl}>Download Report</a></Button>*/ }
 
