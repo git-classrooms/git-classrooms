@@ -90,7 +90,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 			).
 			Times(1)
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
@@ -106,7 +106,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 	t.Run("request body is emtpy", func(t *testing.T) {
 		requestBody := updateClassroomRequest{}
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
@@ -139,7 +139,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 			).
 			Times(1)
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
@@ -187,7 +187,7 @@ func TestPutOwnedClassroom(t *testing.T) {
 			).
 			Times(1)
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)

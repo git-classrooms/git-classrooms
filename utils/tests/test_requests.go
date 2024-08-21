@@ -1,4 +1,4 @@
-package default_controller
+package tests
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 )
 
-func newJsonRequest(route string, object any, httpType string) *http.Request {
+func NewJsonRequest(route string, object any, httpType string) *http.Request {
 	jsonData, err := json.Marshal(object)
 	if err != nil {
 		log.Fatalf("could not create json of object: %s", object)
@@ -20,10 +20,10 @@ func newJsonRequest(route string, object any, httpType string) *http.Request {
 	return req
 }
 
-func newPostJsonRequest(route string, object any) *http.Request {
-	return newJsonRequest(route, object, "POST")
+func NewPostJsonRequest(route string, object any) *http.Request {
+	return NewJsonRequest(route, object, "POST")
 }
 
-func newPutJsonRequest(route string, object any) *http.Request {
-	return newJsonRequest(route, object, "PUT")
+func NewPutJsonRequest(route string, object any) *http.Request {
+	return NewJsonRequest(route, object, "PUT")
 }
