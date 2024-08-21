@@ -17,9 +17,14 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/edit")({
     }
   },
   pendingComponent: Loader,
-  component: () => (
-    <div className="max-w-3xl mx-auto">
-      <ClassroomEditForm classroomId={Route.useParams().classroomId} />
-    </div>
-  ),
+  component: ClassroomEdit,
 });
+
+function ClassroomEdit() {
+  const { classroomId } = Route.useParams();
+  return (
+    <div className="max-w-3xl mx-auto">
+      <ClassroomEditForm classroomId={classroomId} />
+    </div>
+  )
+}
