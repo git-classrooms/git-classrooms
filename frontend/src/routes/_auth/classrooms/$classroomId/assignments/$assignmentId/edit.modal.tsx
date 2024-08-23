@@ -1,0 +1,194 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Dialog, DialogContent } from "@/components/ui/dialog.tsx";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form.tsx";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { cn } from "@/lib/utils.ts";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar.tsx";
+import { assignmentQueryOptions, useUpdateAssignment } from "@/api/assignment.ts";
+import { UpdateAssignmentForm, updateAssignmentFormSchema } from "@/types/assignments.ts";
+import { Loader } from "@/components/loader.tsx";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { assignmentProjectsQueryOptions } from "@/api/project.ts";
+import { DatabaseStatus, ProjectResponse } from "@/swagger-client";
+
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/edit/modal")({
+  component: EditAssignmentModal,
+  loader: async ({ context: { queryClient }, params }) => {
+    const assignment = await queryClient.ensureQueryData(
+      assignmentQueryOptions(params.classroomId, params.assignmentId),
+    );
+    const assignmentProjects = await queryClient.ensureQueryData(
+      assignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
+    );
+    return { assignment, assignmentProjects };
+  },
+  pendingComponent: Loader,
+});
+
+function EditAssignmentModal() {
+  const { assignmentId } = Route.useParams();
+  const { classroomId } = Route.useParams();
+  const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
+  const { data: assignmentProjects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
+  const navigate = useNavigate();
+  const { mutateAsync, isError, isPending } = useUpdateAssignment(classroomId, assignmentId);
+  const isAccepted = hasAcceptedAssignment(assignmentProjects);
+  const form = useForm<UpdateAssignmentForm>({
+    resolver: zodResolver(updateAssignmentFormSchema(isAccepted)),
+    defaultValues: {
+      name: assignment.name,
+      description: assignment.description,
+      dueDate: assignment.dueDate ? new Date(assignment.dueDate) : null,
+    },
+  });
+
+
+  async function onSubmit(values: UpdateAssignmentForm) {
+    await mutateAsync({
+      name: values.name ? values.name : "",
+      description: values.description ? values.description : "",
+      dueDate: values.dueDate?.toISOString(),
+    });
+    await navigate({
+      to: "/classrooms/$classroomId/assignments/$assignmentId",
+      params: { classroomId, assignmentId },
+    });
+  }
+
+  function hasAcceptedAssignment(projects: ProjectResponse[]) {
+    return projects.some(project => project.projectStatus === DatabaseStatus.Accepted);
+  }
+
+  return (
+    <Dialog
+      defaultOpen
+      onOpenChange={(open) => {
+        if (!open) {
+          navigate({
+            to: "/classrooms/$classroomId/assignments/$assignmentId",
+            params: { classroomId, assignmentId },
+            replace: true,
+          });
+        }
+      }}
+    >
+      <DialogContent>
+        <div className="p-2">
+          <div className="flex flex-row justify-between">
+            <h1 className="text-xl font-bold">Edit assignment</h1>
+          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="name"
+                disabled={isAccepted}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Programming Assignment" {...field} />
+                    </FormControl>
+                    <FormDescription>This is your Assignment name.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                disabled={isAccepted}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
+                    </FormControl>
+                    <FormDescription>This is the description of your classroom.</FormDescription>
+                    <FormMessage />
+                    {isAccepted &&
+                      <FormMessage>Name and description cannot be changed once the Assignment has been accepted at least
+                        one team</FormMessage>}
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={"dueDate"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Due Date</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-[280px] justify-start text-left font-normal",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              ISOWeek
+                              fromDate={new Date()}
+                              mode="single"
+                              selected={field.value ? field.value : undefined}
+                              onSelect={field.onChange}
+                              initialFocus
+                              defaultMonth={field.value ? field.value : undefined}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <Button
+                          type="button"
+                          onClick={() => field.onChange(null, { shouldValidate: false })
+                          }
+                          variant="outline"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormDescription>This is the due date of your assignment.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" disabled={isPending}>
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
+              </Button>
+
+              {isError && <div className="text-red-500">An error occurred. Please try again. </div>}
+
+            </form>
+          </Form>
+
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

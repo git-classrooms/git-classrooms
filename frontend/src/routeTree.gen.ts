@@ -38,6 +38,7 @@ import { Route as AuthClassroomsClassroomIdTeamsIndexIndexImport } from "./route
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
 import { Route as AuthClassroomsClassroomIdProjectsProjectIdAcceptImport } from "./routes/_auth/classrooms/$classroomId/projects/$projectId/accept"
 import { Route as AuthClassroomsClassroomIdTeamsIndexCreateModalImport } from "./routes/_auth/classrooms/$classroomId/teams/_index/create.modal"
+import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdEditModalImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/edit.modal"
 import { Route as AuthClassroomsClassroomIdIndexTeamsTeamIdModalImport } from "./routes/_auth/classrooms/$classroomId/_index/teams.$teamId.modal"
 import { Route as AuthClassroomsClassroomIdIndexTeamCreateModalImport } from "./routes/_auth/classrooms/$classroomId/_index/team.create.modal"
 
@@ -207,6 +208,12 @@ const AuthClassroomsClassroomIdTeamsIndexCreateModalRoute =
     getParentRoute: () => AuthClassroomsClassroomIdTeamsIndexRoute,
   } as any)
 
+const AuthClassroomsClassroomIdAssignmentsAssignmentIdEditModalRoute =
+  AuthClassroomsClassroomIdAssignmentsAssignmentIdEditModalImport.update({
+    path: "/assignments/$assignmentId/edit/modal",
+    getParentRoute: () => AuthClassroomsClassroomIdRoute,
+  } as any)
+
 const AuthClassroomsClassroomIdIndexTeamsTeamIdModalRoute =
   AuthClassroomsClassroomIdIndexTeamsTeamIdModalImport.update({
     path: "/teams/$teamId/modal",
@@ -339,6 +346,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexTeamsTeamIdModalImport
       parentRoute: typeof AuthClassroomsClassroomIdIndexImport
     }
+    "/_auth/classrooms/$classroomId/assignments/$assignmentId/edit/modal": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdEditModalImport
+      parentRoute: typeof AuthClassroomsClassroomIdImport
+    }
     "/_auth/classrooms/$classroomId/teams/_index/create/modal": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsIndexCreateModalImport
       parentRoute: typeof AuthClassroomsClassroomIdTeamsIndexImport
@@ -377,6 +388,7 @@ export const routeTree = rootRoute.addChildren([
         AuthClassroomsClassroomIdInvitationsInvitationIdRoute,
         AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute,
         AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
+        AuthClassroomsClassroomIdAssignmentsAssignmentIdEditModalRoute,
       ]),
     ]),
     AuthDashboardRoute.addChildren([

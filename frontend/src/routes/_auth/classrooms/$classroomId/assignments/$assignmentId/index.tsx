@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { AlertCircle, Code, Loader2 } from "lucide-react";
+import { AlertCircle, Code, Edit, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { formatDate } from "@/lib/utils.ts";
 import { assignmentQueryOptions } from "@/api/assignment";
@@ -39,7 +39,17 @@ function AssignmentDetail() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{assignment.name}</CardTitle>
+          <CardTitle className="flex items-center">
+            {assignment.name}
+            <Button className="mx-2" variant="ghost" size="icon" asChild>
+              <Link
+                to="/classrooms/$classroomId/assignments/$assignmentId/edit/modal"
+                params={{ classroomId, assignmentId: assignmentId }}
+              >
+                <Edit className="h-6 w-6 text-gray-600" />
+              </Link>
+            </Button>
+          </CardTitle>
           <CardDescription>{assignment.description}</CardDescription>
           <CardFooter>Due date: {assignment.dueDate ? formatDate(assignment.dueDate) : "No Due Date"}</CardFooter>
         </CardHeader>
