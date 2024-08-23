@@ -30,7 +30,7 @@ export interface UpdateAssignmentRequest {
      * @type {string}
      * @memberof UpdateAssignmentRequest
      */
-    dueDate: string;
+    dueDate?: string;
 
     /**
      * @type {string}
