@@ -13,22 +13,8 @@ import (
 func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 
-	var params Params
-	if err = c.ParamsParser(&params); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	if params.ClassroomID == nil {
-		return fiber.ErrBadRequest
-	}
-
-	classroom, err := query.Classroom.
-		WithContext(ctx.Context()).
-		Where(query.Classroom.ID.Eq(params.ClassroomID)).
-		First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	}
+	// this requires that this middleware is called after the classroom middleware, so that the userClassroom is available
+	classroom := ctx.GetUserClassroom().Classroom
 
 	if !classroom.PotentiallyDeleted {
 		return c.Next()
@@ -41,7 +27,7 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 
 		classroom.PotentiallyDeleted = false
 		classroom.Archived = true
-		err := query.Classroom.WithContext(ctx.Context()).Save(classroom)
+		err := query.Classroom.WithContext(ctx.Context()).Save(&classroom)
 		if err != nil {
 			return c.Next()
 		}
@@ -56,7 +42,7 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 	}
 
 	if gitLabError.Response.StatusCode == 404 {
-		_, err := query.Classroom.WithContext(ctx.Context()).Delete(classroom)
+		_, err := query.Classroom.WithContext(ctx.Context()).Delete(&classroom)
 		if err != nil {
 			return c.Next()
 		}
