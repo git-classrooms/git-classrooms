@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql/driver"
 	"slices"
 
 	"github.com/gofiber/fiber/v2"
@@ -64,28 +65,14 @@ func (ctrl *DefaultController) UpdateGradingResults(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, "Request Body is not valid")
 	}
 
-	rubricIDs := make([]uuid.UUID, 0)
-	for _, e := range requestBody.GradingManualResults {
-		rubricIDs = append(rubricIDs, *e.RubricID)
-	}
+	rubricIDs := utils.Map(requestBody.GradingManualResults, func(e gradingManualResultRequest) driver.Valuer { return *e.RubricID })
 
-	queryManualGradingRubric := query.ManualGradingRubric
-	rubrics, err := queryManualGradingRubric.
-		WithContext(c.Context()).
-		Where(queryManualGradingRubric.AssignmentID.Eq(assignment.ID)).
-		Find()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	if len(rubrics) != len(rubricIDs) {
+	if len(assignment.GradingManualRubrics) != len(rubricIDs) {
 		return fiber.NewError(fiber.StatusBadRequest, "Body includes not enough rubrics")
 	}
 
-	if !utils.All(rubricIDs, func(e uuid.UUID) bool {
-		return slices.ContainsFunc(rubrics, func(r *database.ManualGradingRubric) bool {
-			return r.ID == e
-		})
+	if !utils.All(rubricIDs, func(e driver.Valuer) bool {
+		return slices.ContainsFunc(assignment.GradingManualRubrics, func(rubric *database.ManualGradingRubric) bool { return rubric.ID == e.(uuid.UUID) })
 	}) {
 		return fiber.NewError(fiber.StatusBadRequest, "Body includes invalid IDs")
 	}

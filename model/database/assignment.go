@@ -14,7 +14,6 @@ type Assignment struct {
 	ID                uuid.UUID             `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
 	CreatedAt         time.Time             `json:"createdAt"`
 	UpdatedAt         time.Time             `json:"updatedAt"`
-	DeletedAt         gorm.DeletedAt        `gorm:"index" json:"-"`
 	ClassroomID       uuid.UUID             `gorm:"not null;uniqueIndex:idx_unique_classroom_assignmentName" json:"classroomId"`
 	Classroom         Classroom             `json:"-"`
 	TemplateProjectID int                   `gorm:"<-:create;not null" json:"templateProjectId"`
@@ -25,7 +24,9 @@ type Assignment struct {
 	Projects          []*AssignmentProjects `json:"-"`
 
 	GradingJUnitAutoGradingActive bool                   `json:"gradingJUnitAutoGradingActive"`
-	GradingManualRubrics          []*ManualGradingRubric `gorm:"foreignKey:AssignmentID" json:"gradingManualRubrics"`
+	JUnitTests                    []*AssignmentJunitTest `json:"-"`
+
+	GradingManualRubrics []*ManualGradingRubric `gorm:"many2many:assignment_manual_grading_rubrics;" json:"-"`
 } //@Name Assignment
 
 func (a *Assignment) AfterDelete(tx *gorm.DB) (err error) {

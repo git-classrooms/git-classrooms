@@ -162,6 +162,9 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Put("/classrooms/:classroomId", apiController.CreatorMiddleware(), apiController.UpdateClassroom)
 	v2.Patch("/classrooms/:classroomId/archive", apiController.CreatorMiddleware(), apiController.ArchiveClassroom)
 	v2.Get("/classrooms/:classroomId/gitlab", apiController.RedirectGroupGitlab)
+
+	v2.Get("/classrooms/:classroomId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetGradingRubrics)
+	v2.Put("/classrooms/:classroomId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateGradingRubrics)
 	v2.Get("/classrooms/:classroomId/grading/report", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomReport)
 
 	v2.Get("/classrooms/:classroomId/templateProjects", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomTemplates)
@@ -173,8 +176,8 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
 	v2.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignment)
 
-	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetGradingRubrics)
-	v2.Put("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateGradingRubrics)
+	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetAssignmentGradingRubrics)
+	v2.Put("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentGradingRubrics)
 	v2.Post("/classrooms/:classroomId/assignments/:assignmentId/grading/auto", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.StartAutoGrading)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/grading/report", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomAssignmentReport)
 

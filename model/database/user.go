@@ -17,7 +17,6 @@ type User struct {
 	Name            string            `gorm:"not null" json:"name"`
 	CreatedAt       time.Time         `json:"-"`
 	UpdatedAt       time.Time         `json:"-"`
-	DeletedAt       gorm.DeletedAt    `gorm:"index" json:"-"`
 	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID" json:"-"`
 	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID" json:"-"`
 } //@Name User
