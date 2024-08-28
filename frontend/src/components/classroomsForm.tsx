@@ -183,7 +183,7 @@ export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
   return (
     <div className="p-2">
       <div>
-        <h1 className="text-xl font-bold">Edit a classroom</h1>
+        <h1 className="text-xl font-bold">Edit the classroom</h1>
         <p className="text-sm text-muted-foreground">Change the details you want and submit when you're done.</p>
       </div>
       <Form {...form}>
@@ -216,6 +216,7 @@ export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
               </FormItem>
             )}
           />
+
           <Button type="submit" disabled={isPending}>
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
           </Button>
@@ -224,7 +225,7 @@ export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>The classroom could not be created!</AlertDescription>
+              <AlertDescription>The classroom could not be updated!</AlertDescription>
             </Alert>
           )}
         </form>

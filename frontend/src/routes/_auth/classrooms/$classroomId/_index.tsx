@@ -12,7 +12,9 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Settings } from "lucide-react";
+import { Pen, Archive } from "lucide-react";
+import { useState, useCallback } from "react";
+import { useArchiveClassroom } from "@/api/classroom";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -64,15 +66,39 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
 
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const archiveClassroom = useArchiveClassroom(classroomId);
+
+  const handleArchiveClick = useCallback(() => {
+    setDialogOpen(true);
+  }, []);
+
+  const handleConfirmArchive = useCallback(() => {
+    archiveClassroom.mutate();
+    setDialogOpen(false);
+  }, [archiveClassroom]);
+
+  const handleCancel = useCallback(() => {
+    setDialogOpen(false);
+  }, []);
+
   return (
     <div>
       <div className="grid grid-cols-[1fr,auto] justify-between gap-1">
         <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
-        <Button variant="ghost" size="icon" asChild>
-          <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
-            <Settings className="text-slate-500 dark:text-white h-28 w-28" />
-          </Link>
-        </Button>
+        <div className="grid grid-cols-2 gap-3">
+          {!userClassroom.classroom.archived && (
+            <Button variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
+              <Archive className="text-slate-500 dark:text-white h-28 w-28" />
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" asChild title="Edit classroom">
+            <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
+              <Pen className="text-slate-500 dark:text-white h-28 w-28" />
+            </Link>
+          </Button>
+        </div>
+        
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
@@ -94,6 +120,35 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
           <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} />
         )}
         <Outlet />
+      </div>
+
+      <SimpleDialog
+        isOpen={isDialogOpen}
+        onConfirm={handleConfirmArchive}
+        onCancel={handleCancel}
+      />
+    </div>
+  );
+}
+
+type SimpleDialogProps = {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+};
+
+function SimpleDialog({ isOpen, onConfirm, onCancel }: SimpleDialogProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded shadow-md">
+        <h2 className="text-lg font-semibold">Archive classroom</h2>
+        <p>Are you sure that you wanna archive this classroom? This action can not be undone!</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onCancel} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+          <button onClick={onConfirm} className="px-4 py-2 bg-blue-500 text-white rounded">Confirm</button>
+        </div>
       </div>
     </div>
   );

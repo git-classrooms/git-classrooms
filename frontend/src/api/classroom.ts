@@ -100,6 +100,25 @@ export const useUpdateClassroom = (classroomId: string) => {
   });
 };
 
+export const useArchiveClassroom = (classroomId: string) => {
+  const queryClient = useQueryClient();
+  const { csrfToken } = useCsrf();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.archiveClassroom(classroomId, csrfToken);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(classroomsQueryOptions());
+      queryClient.invalidateQueries(classroomsQueryOptions(Filter.Owned));
+      queryClient.invalidateQueries(classroomQueryOptions(classroomId));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
+  });
+};
+
 export const useInviteClassroomMembers = (classroomId: string) => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
