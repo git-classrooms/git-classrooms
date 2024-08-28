@@ -88,11 +88,11 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
         <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
         <div className="grid grid-cols-2 gap-3">
           {!userClassroom.classroom.archived && (
-            <Button variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
+            <Button className="col-start-1" variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
               <Archive className="text-slate-500 dark:text-white h-28 w-28" />
             </Button>
           )}
-          <Button variant="ghost" size="icon" asChild title="Edit classroom">
+          <Button className="col-start-2" variant="ghost" size="icon" asChild title="Edit classroom">
             <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
               <Pen className="text-slate-500 dark:text-white h-28 w-28" />
             </Link>
