@@ -14,7 +14,6 @@ func assignmentProjectQuery(c *fiber.Ctx, assignmentID uuid.UUID) query.IAssignm
 		Preload(queryAssignmentProject.Team).
 		Preload(queryAssignmentProject.GradingManualResults).
 		Preload(queryAssignmentProject.GradingManualResults.Rubric).
-		Preload(queryAssignmentProject.GradingJUnitTestResult).
 		Where(queryAssignmentProject.AssignmentID.Eq(assignmentID))
 }
 

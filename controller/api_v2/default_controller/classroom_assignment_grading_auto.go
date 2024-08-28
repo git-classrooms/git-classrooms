@@ -1,12 +1,9 @@
 package api
 
 import (
-	"context"
-
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -63,47 +60,18 @@ func (ctrl *DefaultController) StartAutoGrading(c *fiber.Ctx) (err error) {
 		}
 
 		for _, project := range projects {
-			if err = InsertJUnitTestResultForProject(c.Context(), repo, project); err != nil {
+			report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+
+			project.GradingJUnitTestResult = &database.JUnitTestResult{TestReport: *report}
+
+			if err := query.AssignmentProjects.WithContext(c.Context()).Save(project); err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 		}
 	}
 
 	return c.SendStatus(fiber.StatusAccepted)
-}
-
-func InsertJUnitTestResultForProject(ctx context.Context, repo gitlab.Repository, project *database.AssignmentProjects) error {
-	report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	return query.Q.Transaction(func(tx *query.Query) (err error) {
-		if project.GradingJUnitTestResultID != nil {
-			_, err = tx.JUnitTestResult.
-				WithContext(ctx).
-				Where(tx.JUnitTestResult.ID.Eq(*project.GradingJUnitTestResultID)).
-				Delete()
-			if err != nil {
-				return err
-			}
-		}
-
-		result := database.JUnitTestResult{
-			TotalTime:    report.TotalTime,
-			TotalCount:   report.TotalCount,
-			SuccessCount: report.SuccessCount,
-			FailedCount:  report.FailedCount,
-			SkippedCount: report.SkippedCount,
-			ErrorCount:   report.ErrorCount,
-		}
-
-		err = tx.JUnitTestResult.WithContext(ctx).Create(&result)
-		if err != nil {
-			return err
-		}
-
-		project.GradingJUnitTestResultID = &result.ID
-		return tx.AssignmentProjects.WithContext(ctx).Save(project)
-	})
 }

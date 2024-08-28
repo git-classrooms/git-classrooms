@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 func TestGenerateReports(t *testing.T) {
@@ -24,7 +25,7 @@ func TestGenerateReports(t *testing.T) {
 					GradingManualResults: []*database.ManualGradingResult{
 						{Rubric: database.ManualGradingRubric{Name: "Quality", MaxScore: 10}, Score: 8},
 					},
-					GradingJUnitTestResult: &database.JUnitTestResult{TotalCount: 5, SuccessCount: 4},
+					GradingJUnitTestResult: &database.JUnitTestResult{TestReport: model.TestReport{TotalCount: 5, SuccessCount: 4}},
 					Team: database.Team{
 						Name: "Team A",
 						Member: []*database.UserClassrooms{
@@ -59,7 +60,7 @@ func TestGenerateCSVReports(t *testing.T) {
 					GradingManualResults: []*database.ManualGradingResult{
 						{Rubric: database.ManualGradingRubric{Name: "Quality", MaxScore: 10}, Score: 8},
 					},
-					GradingJUnitTestResult: &database.JUnitTestResult{TotalCount: 5, SuccessCount: 4},
+					GradingJUnitTestResult: &database.JUnitTestResult{TestReport: model.TestReport{TotalCount: 5, SuccessCount: 4}},
 					Team: database.Team{
 						Name: "Team A",
 						Member: []*database.UserClassrooms{
@@ -82,7 +83,7 @@ func TestGenerateCSVReports(t *testing.T) {
 					GradingManualResults: []*database.ManualGradingResult{
 						{Rubric: database.ManualGradingRubric{Name: "Beauty", MaxScore: 20}, Score: 15},
 					},
-					GradingJUnitTestResult: &database.JUnitTestResult{TotalCount: 11, SuccessCount: 7},
+					GradingJUnitTestResult: &database.JUnitTestResult{TestReport: model.TestReport{TotalCount: 11, SuccessCount: 7}},
 					Team: database.Team{
 						Name: "Team A",
 						Member: []*database.UserClassrooms{
@@ -167,7 +168,7 @@ func TestGenerateCSVReport(t *testing.T) {
 				GradingManualResults: []*database.ManualGradingResult{
 					{Rubric: database.ManualGradingRubric{Name: "Quality", MaxScore: 10}, Score: 8},
 				},
-				GradingJUnitTestResult: &database.JUnitTestResult{TotalCount: 5, SuccessCount: 4},
+				GradingJUnitTestResult: &database.JUnitTestResult{TestReport: model.TestReport{TotalCount: 5, SuccessCount: 4}},
 				Team: database.Team{
 					Name: "Team A",
 					Member: []*database.UserClassrooms{

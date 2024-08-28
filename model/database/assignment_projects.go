@@ -1,9 +1,13 @@
 package database
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -33,12 +37,27 @@ type AssignmentProjects struct {
 	ProjectStatus status `gorm:"not null;default:pending" json:"projectStatus"`
 	ProjectID     int    `json:"projectId"`
 
-	GradingJUnitTestResultID *uuid.UUID             `json:"-"`
-	GradingJUnitTestResult   *JUnitTestResult       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"gradingJUnitTestResult" validate:"optional"`
-	GradingManualResults     []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID" json:"gradingManualResults"`
+	GradingJUnitTestResult *JUnitTestResult       `gorm:"type:jsonb;" json:"gradingJUnitTestResult" validate:"optional"`
+	GradingManualResults   []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID" json:"gradingManualResults"`
 } //@Name AssignmentProjects
 
 func (ap *AssignmentProjects) AfterDelete(tx *gorm.DB) (err error) {
 	tx.Clauses(clause.Returning{}).Where("assignment_project_id = ?", ap.ID).Delete(&ManualGradingResult{})
 	return
+}
+
+type JUnitTestResult struct {
+	model.TestReport
+}
+
+func (a JUnitTestResult) Value() (driver.Value, error) {
+	return json.Marshal(a)
+}
+
+func (a *JUnitTestResult) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+	return json.Unmarshal(b, &a)
 }

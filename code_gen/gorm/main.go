@@ -57,7 +57,6 @@ func main() {
 		&dbModel.ClassroomInvitation{},
 		&dbModel.ManualGradingRubric{},
 		&dbModel.ManualGradingResult{},
-		&dbModel.JUnitTestResult{},
 	)
 
 	g.ApplyInterface(func(TeamQuerier) {}, dbModel.Team{})

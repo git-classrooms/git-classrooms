@@ -22,6 +22,5 @@ func MigrateDatabase(db *gorm.DB) error {
 		&dbModel.ClassroomInvitation{},
 		&dbModel.ManualGradingRubric{},
 		&dbModel.ManualGradingResult{},
-		&dbModel.JUnitTestResult{},
 	)
 }

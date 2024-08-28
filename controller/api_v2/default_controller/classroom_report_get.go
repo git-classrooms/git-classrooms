@@ -2,13 +2,14 @@ package api
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gorm.io/gen/field"
-	"time"
 )
 
 // @Summary		GetClassroomReport
@@ -63,6 +64,5 @@ func assignmentGradingQuery(c *fiber.Ctx, classroomID uuid.UUID) query.IAssignme
 		Preload(field.NewRelation("Projects.Team.Member.User", "")).
 		Preload(queryAssignment.Projects.GradingManualResults).
 		Preload(field.NewRelation("Projects.GradingManualResults.Rubric", "")).
-		Preload(queryAssignment.Projects.GradingJUnitTestResult).
 		Where(queryAssignment.ClassroomID.Eq(classroomID))
 }

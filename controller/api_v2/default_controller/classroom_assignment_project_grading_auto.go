@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -46,7 +48,14 @@ func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err err
 			return fiber.NewError(fiber.StatusBadRequest, "JUnit Auto Grading is not active")
 		}
 
-		if err = InsertJUnitTestResultForProject(c.Context(), repo, project); err != nil {
+		report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+
+		project.GradingJUnitTestResult = &database.JUnitTestResult{TestReport: *report}
+
+		if err := query.AssignmentProjects.WithContext(c.Context()).Save(project); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 	}
