@@ -15,5 +15,5 @@ type AssignmentJunitTest struct {
 	AssignmentID uuid.UUID  `gorm:"not null;uniqueIndex:idx_unique_assignment_assignmentjunittestName" json:"-"`
 	Assignment   Assignment `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 
-	Score int `gorm:"not null" json:"maxScore"`
+	Score int `gorm:"not null" json:"score"`
 } //@Name AssignmentJunitTest

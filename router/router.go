@@ -177,6 +177,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignment)
 
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomAssignmentTests)
+	v2.Put("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentTests)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetAssignmentGradingRubrics)
 	v2.Put("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentGradingRubrics)
 	v2.Post("/classrooms/:classroomId/assignments/:assignmentId/grading/auto", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.StartAutoGrading)

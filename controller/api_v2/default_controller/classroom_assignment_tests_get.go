@@ -1,17 +1,28 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/examples"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+type assignmentTestReport struct {
+	Name      string `json:"name"`
+	TestName  string `json:"testName"`
+	TestSuite string `json:"testSuite"`
+} // @Name AssignmentTestReport
+
 type assignmentTestResponse struct {
-	Activatible bool                       `json:"activatible"`
-	PipelineRan bool                       `json:"pipelineRan"`
-	Example     examples.LanguageCIExample `json:"example"`
-	Report      *model.TestReport          `json:"report"`
+	Activatible   bool                            `json:"activatible"`
+	PipelineRan   bool                            `json:"pipelineRan"`
+	Example       examples.LanguageCIExample      `json:"example"`
+	Report        []*assignmentTestReport         `json:"report"`
+	SelectedTests []*database.AssignmentJunitTest `json:"selectedTests"`
 } // @Name AssignmentTestResponse
 
 // @Summary		GetClassroomAssignmentTests
@@ -58,7 +69,23 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 		return c.JSON(response)
 	}
 
-	response.Report, err = repo.GetProjectLatestPipelineTestReportSummary(assignment.TemplateProjectID, nil)
+	report, err := repo.GetProjectLatestPipelineTestReportSummary(assignment.TemplateProjectID, nil)
 	response.PipelineRan = err == nil
+	if !response.PipelineRan {
+		return c.JSON(response)
+	}
+
+	response.Report = utils.FlatMap(report.TestSuites, func(ts model.TestReportTestSuite) []*assignmentTestReport {
+		return utils.Map(ts.TestCases, func(tc model.TestReportTestCase) *assignmentTestReport {
+			return &assignmentTestReport{
+				Name:      fmt.Sprintf("%s/%s", ts.Name, tc.Name),
+				TestName:  tc.Name,
+				TestSuite: ts.Name,
+			}
+		})
+	})
+
+	response.SelectedTests = assignment.JUnitTests
+
 	return c.JSON(response)
 }
