@@ -59,6 +59,13 @@ const classroomTeamsCreateMask = createRouteMask({
   params: true,
 });
 
+const dashboardCreateModalToDashboardCreateMask = createRouteMask({
+  routeTree,
+  from: "/dashboard/create/modal",
+  to: "/dashboard/create",
+  params: true,
+});
+
 // Create a new router instance
 const router = createRouter({
   routeTree,
@@ -70,6 +77,7 @@ const router = createRouter({
     classroomCreateModalToClassroomCreateMask,
     classroomTeamCreateMask,
     classroomTeamsCreateMask,
+    dashboardCreateModalToDashboardCreateMask,
   ],
   defaultPreload: "intent",
   unmaskOnReload: true,

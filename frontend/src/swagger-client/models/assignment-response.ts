@@ -17,73 +17,73 @@ import { ManualGradingRubric } from './manual-grading-rubric';
  * 
  *
  * @export
- * @interface Assignment
+ * @interface AssignmentResponse
  */
-export interface Assignment {
+export interface AssignmentResponse {
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     classroomId: string;
 
     /**
      * @type {boolean}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     closed: boolean;
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     createdAt: string;
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     description: string;
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     dueDate?: string;
 
     /**
      * @type {boolean}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     gradingJUnitAutoGradingActive: boolean;
 
     /**
      * @type {Array<ManualGradingRubric>}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     gradingManualRubrics: Array<ManualGradingRubric>;
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     id: string;
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     name: string;
 
     /**
      * @type {number}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     templateProjectId: number;
 
     /**
      * @type {string}
-     * @memberof Assignment
+     * @memberof AssignmentResponse
      */
     updatedAt: string;
 }

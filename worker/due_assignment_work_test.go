@@ -60,6 +60,11 @@ func TestDueAssignmentWork(t *testing.T) {
 		GroupID:     1,
 		Member: []*database.UserClassrooms{
 			{
+				UserID:      owner.ID,
+				ClassroomID: classroom.ID,
+				Role:        database.Owner,
+			},
+			{
 				UserID:      student1.ID,
 				ClassroomID: classroom.ID,
 				Role:        database.Student,
@@ -152,6 +157,11 @@ func TestDueAssignmentWork(t *testing.T) {
 		testDb.SaveAssignment(&assignment1)
 
 		repo.EXPECT().
+			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
+			Return(model.OwnerPermissions, nil).
+			Times(1)
+
+		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
@@ -189,6 +199,11 @@ func TestDueAssignmentWork(t *testing.T) {
 		testDb.SaveAssignment(&assignment1)
 
 		repo.EXPECT().
+			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
+			Return(model.OwnerPermissions, nil).
+			Times(1)
+
+		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
@@ -214,6 +229,11 @@ func TestDueAssignmentWork(t *testing.T) {
 	t.Run("Close due Assignment", func(t *testing.T) {
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
+
+		repo.EXPECT().
+			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
+			Return(model.OwnerPermissions, nil).
+			Times(1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).

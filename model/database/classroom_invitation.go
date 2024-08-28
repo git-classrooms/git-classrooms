@@ -13,6 +13,7 @@ const (
 	ClassroomInvitationAccepted
 	ClassroomInvitationRejected
 	ClassroomInvitationRevoked
+	ClassroomInvitationFailed
 )
 
 type ClassroomInvitation struct {

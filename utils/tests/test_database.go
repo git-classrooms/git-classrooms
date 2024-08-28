@@ -30,7 +30,7 @@ func NewTestDB(t *testing.T) *TestDB {
 }
 
 func (testDb *TestDB) Setup() {
-	testDb.t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "false")
+	testDb.t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 	pq, err := StartPostgres()
 	if err != nil {
 		testDb.t.Fatalf("could not start database container: %s", err.Error())

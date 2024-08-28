@@ -16,13 +16,17 @@ import { Route as rootRoute } from "./routes/__root"
 import { Route as LoginImport } from "./routes/login"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
+import { Route as AuthDashboardCreateImport } from "./routes/_auth/dashboard/create"
+import { Route as AuthDashboardIndexImport } from "./routes/_auth/dashboard/_index"
 import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/create"
 import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/_index"
+import { Route as AuthDashboardIndexIndexImport } from "./routes/_auth/dashboard/_index/index"
 import { Route as AuthClassroomsIndexIndexImport } from "./routes/_auth/classrooms/_index/index"
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/_index"
 import { Route as AuthClassroomsClassroomIdTeamsRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/route"
 import { Route as AuthClassroomsClassroomIdIndexIndexImport } from "./routes/_auth/classrooms/$classroomId/_index/index"
+import { Route as AuthDashboardIndexCreateModalImport } from "./routes/_auth/dashboard/_index/create.modal"
 import { Route as AuthClassroomsIndexCreateModalImport } from "./routes/_auth/classrooms/_index/create.modal"
 import { Route as AuthClassroomsClassroomIdTeamsCreateImport } from "./routes/_auth/classrooms/$classroomId/teams/create"
 import { Route as AuthClassroomsClassroomIdTeamsIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/_index"
@@ -39,6 +43,7 @@ import { Route as AuthClassroomsClassroomIdIndexTeamCreateModalImport } from "./
 
 // Create Virtual Routes
 
+const AuthDashboardImport = createFileRoute("/_auth/dashboard")()
 const AuthClassroomsImport = createFileRoute("/_auth/classrooms")()
 const AuthClassroomsClassroomIdImport = createFileRoute(
   "/_auth/classrooms/$classroomId",
@@ -61,6 +66,11 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AuthDashboardRoute = AuthDashboardImport.update({
+  path: "/dashboard",
+  getParentRoute: () => AuthRoute,
+} as any)
+
 const AuthClassroomsRoute = AuthClassroomsImport.update({
   path: "/classrooms",
   getParentRoute: () => AuthRoute,
@@ -71,6 +81,16 @@ const AuthClassroomsClassroomIdRoute = AuthClassroomsClassroomIdImport.update({
   getParentRoute: () => AuthClassroomsRoute,
 } as any)
 
+const AuthDashboardCreateRoute = AuthDashboardCreateImport.update({
+  path: "/create",
+  getParentRoute: () => AuthDashboardRoute,
+} as any)
+
+const AuthDashboardIndexRoute = AuthDashboardIndexImport.update({
+  id: "/_index",
+  getParentRoute: () => AuthDashboardRoute,
+} as any)
+
 const AuthClassroomsCreateRoute = AuthClassroomsCreateImport.update({
   path: "/create",
   getParentRoute: () => AuthClassroomsRoute,
@@ -79,6 +99,11 @@ const AuthClassroomsCreateRoute = AuthClassroomsCreateImport.update({
 const AuthClassroomsIndexRoute = AuthClassroomsIndexImport.update({
   id: "/_index",
   getParentRoute: () => AuthClassroomsRoute,
+} as any)
+
+const AuthDashboardIndexIndexRoute = AuthDashboardIndexIndexImport.update({
+  path: "/",
+  getParentRoute: () => AuthDashboardIndexRoute,
 } as any)
 
 const AuthClassroomsIndexIndexRoute = AuthClassroomsIndexIndexImport.update({
@@ -108,6 +133,12 @@ const AuthClassroomsClassroomIdIndexIndexRoute =
   AuthClassroomsClassroomIdIndexIndexImport.update({
     path: "/",
     getParentRoute: () => AuthClassroomsClassroomIdIndexRoute,
+  } as any)
+
+const AuthDashboardIndexCreateModalRoute =
+  AuthDashboardIndexCreateModalImport.update({
+    path: "/create/modal",
+    getParentRoute: () => AuthDashboardIndexRoute,
   } as any)
 
 const AuthClassroomsIndexCreateModalRoute =
@@ -216,6 +247,18 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsCreateImport
       parentRoute: typeof AuthClassroomsImport
     }
+    "/_auth/dashboard": {
+      preLoaderRoute: typeof AuthDashboardImport
+      parentRoute: typeof AuthImport
+    }
+    "/_auth/dashboard/_index": {
+      preLoaderRoute: typeof AuthDashboardIndexImport
+      parentRoute: typeof AuthDashboardRoute
+    }
+    "/_auth/dashboard/create": {
+      preLoaderRoute: typeof AuthDashboardCreateImport
+      parentRoute: typeof AuthDashboardImport
+    }
     "/_auth/classrooms/$classroomId/teams": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsRouteImport
       parentRoute: typeof AuthClassroomsImport
@@ -235,6 +278,10 @@ declare module "@tanstack/react-router" {
     "/_auth/classrooms/_index/": {
       preLoaderRoute: typeof AuthClassroomsIndexIndexImport
       parentRoute: typeof AuthClassroomsIndexImport
+    }
+    "/_auth/dashboard/_index/": {
+      preLoaderRoute: typeof AuthDashboardIndexIndexImport
+      parentRoute: typeof AuthDashboardIndexImport
     }
     "/_auth/classrooms/$classroomId/teams/$teamId": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsTeamIdRouteImport
@@ -259,6 +306,10 @@ declare module "@tanstack/react-router" {
     "/_auth/classrooms/_index/create/modal": {
       preLoaderRoute: typeof AuthClassroomsIndexCreateModalImport
       parentRoute: typeof AuthClassroomsIndexImport
+    }
+    "/_auth/dashboard/_index/create/modal": {
+      preLoaderRoute: typeof AuthDashboardIndexCreateModalImport
+      parentRoute: typeof AuthDashboardIndexImport
     }
     "/_auth/classrooms/$classroomId/_index/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexIndexImport
@@ -327,6 +378,13 @@ export const routeTree = rootRoute.addChildren([
         AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute,
         AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
       ]),
+    ]),
+    AuthDashboardRoute.addChildren([
+      AuthDashboardIndexRoute.addChildren([
+        AuthDashboardIndexIndexRoute,
+        AuthDashboardIndexCreateModalRoute,
+      ]),
+      AuthDashboardCreateRoute,
     ]),
   ]),
   LoginRoute,

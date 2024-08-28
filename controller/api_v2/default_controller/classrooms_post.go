@@ -58,6 +58,12 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 		return fiber.ErrBadRequest
 	}
 
+	queryUser := query.User
+	user, err := queryUser.WithContext(c.Context()).Where(queryUser.ID.Eq(userID)).First()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	group, err := repo.CreateGroup(
 		requestBody.Name,
 		model.Private,
@@ -82,22 +88,39 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	}
 	// We don't need to delete the accessToken because it will be deleted when the group is deleted
 
-	classroomQuery := query.Classroom
-	classroom := &database.Classroom{
-		Name:                    requestBody.Name,
-		Description:             requestBody.Description,
-		OwnerID:                 userID,
-		CreateTeams:             *requestBody.CreateTeams,
-		MaxTeamSize:             requestBody.MaxTeamSize,
-		MaxTeams:                *requestBody.MaxTeams,
-		GroupID:                 group.ID,
-		GroupAccessTokenID:      accessToken.ID,
-		GroupAccessToken:        accessToken.Token,
-		StudentsViewAllProjects: *requestBody.StudentsViewAllProjects,
-		Member:                  []*database.UserClassrooms{{UserID: userID, Role: database.Owner}},
-	}
+	var classroom *database.Classroom
+	err = query.Q.Transaction(func(tx *query.Query) error {
+		classroomQuery := tx.Classroom
+		classroom = &database.Classroom{
+			Name:                    requestBody.Name,
+			Description:             requestBody.Description,
+			OwnerID:                 userID,
+			CreateTeams:             *requestBody.CreateTeams,
+			MaxTeamSize:             requestBody.MaxTeamSize,
+			MaxTeams:                *requestBody.MaxTeams,
+			GroupID:                 group.ID,
+			GroupAccessTokenID:      accessToken.ID,
+			GroupAccessToken:        accessToken.Token,
+			StudentsViewAllProjects: *requestBody.StudentsViewAllProjects,
+			Member:                  []*database.UserClassrooms{{UserID: userID, Role: database.Owner}},
+		}
 
-	if err = classroomQuery.WithContext(c.Context()).Create(classroom); err != nil {
+		if err = classroomQuery.WithContext(c.Context()).Create(classroom); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+
+		invitation := &database.ClassroomInvitation{
+			Status:      database.ClassroomInvitationAccepted,
+			ClassroomID: classroom.ID,
+			Email:       user.GitlabEmail,
+			ExpiryDate:  time.Now().AddDate(0, 0, 14),
+		}
+		if err = tx.ClassroomInvitation.WithContext(c.Context()).Create(invitation); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
