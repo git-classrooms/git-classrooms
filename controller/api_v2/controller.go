@@ -47,6 +47,7 @@ type Controller interface {
 
 	GetAssignmentGradingRubrics(c *fiber.Ctx) (err error)
 	UpdateAssignmentGradingRubrics(c *fiber.Ctx) (err error)
+	GetClassroomAssignmentTests(c *fiber.Ctx) (err error)
 
 	GetClassroomAssignmentProjects(*fiber.Ctx) error
 	InviteToAssignment(*fiber.Ctx) error

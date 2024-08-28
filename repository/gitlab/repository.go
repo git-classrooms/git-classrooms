@@ -72,4 +72,6 @@ type Repository interface {
 	// Runners
 	GetAvailableRunnersForGitLab() ([]*model.Runner, error)
 	GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error)
+	CheckIfFileExistsInProject(projectId int, filePath string) (bool, error)
+	GetProjectLanguages(projectId int) (map[string]float32, error)
 }
