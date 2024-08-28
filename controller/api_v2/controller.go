@@ -14,6 +14,7 @@ type Controller interface {
 	ViewableClassroomMiddleware() fiber.Handler
 
 	ArchivedMiddleware(*fiber.Ctx) error
+	PotentiallyDeletedClassroomMiddleware(*fiber.Ctx) error
 
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error

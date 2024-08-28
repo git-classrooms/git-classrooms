@@ -24,7 +24,7 @@ func NewDueAssignmentWork(config gitlabConfig.Config) *DueAssignmentWork {
 func (w *DueAssignmentWork) Do(ctx context.Context) {
 	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
-		repo, err := w.getLoggedInRepo(assignment)
+		repo, err := GetWorkerRepo(w.gitlabConfig, assignment.Classroom.GroupAccessToken)
 		if err != nil {
 			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
 			continue

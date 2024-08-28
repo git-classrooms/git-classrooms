@@ -15,7 +15,7 @@ import (
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
-func TestDueAssignmentWorker(t *testing.T) {
+func TestDueAssignmentWork(t *testing.T) {
 	repo := gitlabRepoMock.NewMockRepository(t)
 
 	testDb := db_tests.NewTestDB(t)

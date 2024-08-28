@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Classroom is a struct that represents a classroom in the database
@@ -34,5 +35,14 @@ type Classroom struct {
 	Invitations             []*ClassroomInvitation `json:"-"`
 	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
 
-	Archived bool `gorm:"not null;default:false" json:"archived"`
+	Archived           bool `gorm:"not null;default:false" json:"archived"`
+	PotentiallyDeleted bool `gorm:"not null;default:false" json:"potentiallyDeleted"`
 } //@Name Classroom
+
+func (c *Classroom) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&UserClassrooms{})
+	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&Team{})
+	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&Assignment{})
+	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&ClassroomInvitation{})
+	return
+}
