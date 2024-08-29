@@ -168,10 +168,12 @@ function RoleDropdown({ role, memberID, classroomID }: { role: Role, memberID: n
     await mutateAsync(values);
   }
 
+  const currentrole = role.toString();
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Select onValueChange={onSubmit}>
+        <Select onValueChange={onSubmit} value={currentrole}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={role === 2 ? "Student" : role === 1 ? "Moderator" : "Owner"} />
           </SelectTrigger>
