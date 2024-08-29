@@ -5,14 +5,9 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
-
-type OldPermission struct {
-	UserID     int
-	ProjectID  int
-	Permission model.AccessLevelValue
-}
 
 // @Summary		ArchiveClassroom
 // @Description	ArchiveClassroom
@@ -50,11 +45,11 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	oldPermissions := []OldPermission{}
+	caches := []utils.ProjectAccessLevelCache{}
 	defer func() {
 		if recover() != nil || err != nil {
-			for _, oldPermission := range oldPermissions {
-				repo.ChangeUserAccessLevelInProject(oldPermission.ProjectID, oldPermission.UserID, oldPermission.Permission)
+			for _, cache := range caches {
+				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
 			}
 		}
 	}()
@@ -74,7 +69,7 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 				}
 
-				oldPermissions = append(oldPermissions, OldPermission{UserID: member.UserID, ProjectID: project.ProjectID, Permission: permission})
+				caches = append(caches, utils.ProjectAccessLevelCache{UserID: member.UserID, ProjectID: project.ProjectID, AccessLevel: permission})
 			}
 		}
 	}

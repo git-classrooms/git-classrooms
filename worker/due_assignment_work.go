@@ -10,6 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 )
 
 type DueAssignmentWork struct {
@@ -23,7 +24,7 @@ func NewDueAssignmentWork(config gitlabConfig.Config) *DueAssignmentWork {
 func (w *DueAssignmentWork) Do(ctx context.Context) {
 	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
-		repo, err := w.getLoggedInRepo(assignment)
+		repo, err := GetWorkerRepo(w.gitlabConfig, assignment.Classroom.GroupAccessToken)
 		if err != nil {
 			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
 			continue
@@ -61,21 +62,15 @@ func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gi
 	return repo, nil
 }
 
-type RestoreCache struct {
-	userID        int
-	projectID     int
-	oldPermission model.AccessLevelValue
-}
-
 func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *database.Assignment, repo gitlab.Repository) (err error) {
 	log.Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
 
-	caches := []RestoreCache{}
+	caches := []utils.ProjectAccessLevelCache{}
 	defer func() {
 		if recover() != nil || err != nil {
 			log.Default().Printf("DueAssignmentWorker: Error occurred while closing assignment %s: %s", assignment.Name, err.Error())
 			for _, cache := range caches {
-				repo.ChangeUserAccessLevelInProject(cache.projectID, cache.userID, cache.oldPermission)
+				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
 				// TODO: when this fails, we lose the sync between our database and the gitlab. We should handle this in the future
 			}
 		}
@@ -87,16 +82,19 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *dat
 		}
 
 		for _, member := range project.Team.Member {
-			oldPermission, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, member.UserID)
+			oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, member.UserID)
 			if err != nil {
 				return err
+			}
+			if oldAccessLevel == model.OwnerPermissions {
+				continue
 			}
 
 			if err := repo.ChangeUserAccessLevelInProject(project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
 				return err
 			}
 
-			caches = append(caches, RestoreCache{userID: member.UserID, projectID: project.ProjectID, oldPermission: oldPermission})
+			caches = append(caches, utils.ProjectAccessLevelCache{UserID: member.UserID, ProjectID: project.ProjectID, AccessLevel: oldAccessLevel})
 		}
 	}
 

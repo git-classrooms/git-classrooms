@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ManualGradingRubric struct {
@@ -23,3 +24,8 @@ type ManualGradingRubric struct {
 
 	Results []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
 } //@Name ManualGradingRubric
+
+func (m *ManualGradingRubric) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("rubric_id = ?", m.ID).Delete(&ManualGradingResult{})
+	return
+}

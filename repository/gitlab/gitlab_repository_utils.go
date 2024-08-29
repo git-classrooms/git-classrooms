@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"errors"
 	"log"
 	"time"
 
@@ -8,6 +9,23 @@ import (
 
 	goGitlab "github.com/xanzy/go-gitlab"
 )
+
+func ErrorFromGoGitlab(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var e *goGitlab.ErrorResponse
+	if errors.As(err, &e) {
+		return &model.GitLabError{
+			Body:     e.Body,
+			Response: e.Response,
+			Message:  e.Message,
+		}
+	}
+
+	return err
+}
 
 func ProjectFromGoGitlab(gitlabProject goGitlab.Project) *model.Project {
 	var owner *model.User = nil

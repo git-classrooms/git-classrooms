@@ -15,7 +15,7 @@ import (
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
-func TestDueAssignmentWorker(t *testing.T) {
+func TestDueAssignmentWork(t *testing.T) {
 	repo := gitlabRepoMock.NewMockRepository(t)
 
 	testDb := db_tests.NewTestDB(t)
@@ -59,6 +59,11 @@ func TestDueAssignmentWorker(t *testing.T) {
 		ClassroomID: classroom.ID,
 		GroupID:     1,
 		Member: []*database.UserClassrooms{
+			{
+				UserID:      owner.ID,
+				ClassroomID: classroom.ID,
+				Role:        database.Owner,
+			},
 			{
 				UserID:      student1.ID,
 				ClassroomID: classroom.ID,
@@ -152,6 +157,11 @@ func TestDueAssignmentWorker(t *testing.T) {
 		testDb.SaveAssignment(&assignment1)
 
 		repo.EXPECT().
+			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
+			Return(model.OwnerPermissions, nil).
+			Times(1)
+
+		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
@@ -189,6 +199,11 @@ func TestDueAssignmentWorker(t *testing.T) {
 		testDb.SaveAssignment(&assignment1)
 
 		repo.EXPECT().
+			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
+			Return(model.OwnerPermissions, nil).
+			Times(1)
+
+		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
@@ -214,6 +229,11 @@ func TestDueAssignmentWorker(t *testing.T) {
 	t.Run("Close due Assignment", func(t *testing.T) {
 		assignment1.Closed = false
 		testDb.SaveAssignment(&assignment1)
+
+		repo.EXPECT().
+			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
+			Return(model.OwnerPermissions, nil).
+			Times(1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // User is the representation of the user in database
@@ -20,3 +21,9 @@ type User struct {
 	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID" json:"-"`
 	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID" json:"-"`
 } //@Name User
+
+func (u *User) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("user_id = ?", u.ID).Delete(&UserClassrooms{})
+	tx.Clauses(clause.Returning{}).Where("owner_id = ?", u.ID).Delete(&Classroom{})
+	return
+}

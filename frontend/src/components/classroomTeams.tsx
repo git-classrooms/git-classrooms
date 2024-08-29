@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { Clipboard, Gitlab } from "lucide-react";
+import { Clipboard, Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { TeamResponse } from "@/swagger-client";
@@ -60,16 +60,20 @@ export function TeamListCard({
   );
 }
 
-function TeamTable({ 
-  teams, 
-  classroomId, 
-  userRole, 
-  maxTeamSize 
-}: { 
-  teams: TeamResponse[]; 
-  classroomId: string; 
-  userRole: Role; 
-  maxTeamSize: number; 
+export function TeamTable({
+  teams,
+  classroomId,
+  userRole,
+  maxTeamSize,
+  isPending,
+  onTeamSelect,
+}: {
+  teams: TeamResponse[];
+  classroomId: string;
+  userRole: Role;
+  maxTeamSize: number;
+  isPending?: boolean;
+  onTeamSelect?: (teamId: string) => void;
 }) {
   return (
     <Table>
@@ -82,7 +86,7 @@ function TeamTable({
             <TableCell className="p-2 flex justify-end align-middle">
               <Button variant="ghost" size="icon" asChild>
                 <a href={t.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600" />
+                  <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
                 </a>
               </Button>
               {userRole != Role.Student && (
@@ -91,8 +95,18 @@ function TeamTable({
                     to="/classrooms/$classroomId/teams/$teamId/modal"
                     params={{ classroomId: classroomId, teamId: t.id }}
                   >
-                    <Clipboard className="h-6 w-6 text-gray-600" />
+                    <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
                   </Link>
+                </Button>
+              )}
+              {onTeamSelect && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onTeamSelect?.(t.id)}
+                  disabled={isPending || t.members.length >= maxTeamSize}
+                >
+                  <UserPlus className="text-gray-600 dark:text-white" />
                 </Button>
               )}
             </TableCell>
@@ -103,12 +117,12 @@ function TeamTable({
   );
 }
 
-function TeamListElement({ 
-  team,  
+function TeamListElement({
+  team,
   maxTeamSize,
-}: { 
+}: {
   team: TeamResponse;
-  maxTeamSize: number; 
+  maxTeamSize: number;
 }) {
   return (
     <HoverCard>
