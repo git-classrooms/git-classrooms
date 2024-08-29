@@ -3,6 +3,7 @@ import { useCsrf } from "@/provider/csrfProvider";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "./auth";
 import { Role } from "@/types/classroom";
+import { MemberForm } from "@/types/member";
 
 const apiClient = createMemberApi();
 
@@ -50,7 +51,10 @@ export const useUpdateMemberRole = (classroomId: string, memberId: number) => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
   return useMutation({
-    mutationFn: async (role: Role) => {
+    mutationFn: async (values: MemberForm) => {
+      console.log(values.toString())
+      const role = values.toString() === "2" ? Role.Student : values.toString() === "1" ? Role.Moderator : Role.Owner;
+      console.log(role)
       const res = await apiClient.updateMemberRole({ role }, csrfToken, classroomId, memberId);
       return res.data;
     },
