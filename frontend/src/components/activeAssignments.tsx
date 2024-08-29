@@ -1,12 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { ArrowRight as ArrowRight, Gitlab } from "lucide-react";
+import { Gitlab } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { AssignmentResponse } from "@/swagger-client";
-import { Link } from "@tanstack/react-router";
 
 /**
  * ActiveAssignmentListCard is a React component that displays a list of active assignments in a classroom.
@@ -54,9 +53,6 @@ function AssignmentTable({ assignments }: { assignments: AssignmentResponse[] })
                 </a>
               </Button>
               <Button variant="ghost" size="icon" asChild>
-        <Link to="/classrooms/$classroomId" params={{ classroomId: assignment.classroomId }}>
-          <ArrowRight className="text-slate-500 dark:text-white" />
-        </Link>
       </Button>
             </div>
           }

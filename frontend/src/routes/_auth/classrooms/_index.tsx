@@ -14,8 +14,7 @@ import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger, } from "@/components/ui/tabs"
-import { activeAssignmentQueryOptions } from "@/api/assignment";
-import { ActiveAssignmentListCard } from "@/components/activeAssignments";
+
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -23,13 +22,11 @@ export const Route = createFileRoute("/_auth/classrooms/_index")({
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
     const studentClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Student));
-    const activeAssignments = await queryClient.ensureQueryData(activeAssignmentQueryOptions());
     
     return {
       ownedClassrooms,
       moderatorClassrooms,
       studentClassrooms,
-      activeAssignments,
     };
   },
   pendingComponent: Loader,
@@ -39,7 +36,6 @@ function Classrooms() {
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
-  const { data: activeAssignments } = useSuspenseQuery(activeAssignmentQueryOptions());
 
   const joinedClassrooms = useMemo(
     () => [...moderatorClassrooms, ...studentClassrooms],
