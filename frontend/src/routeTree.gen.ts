@@ -25,6 +25,7 @@ import { Route as AuthClassroomsIndexIndexImport } from "./routes/_auth/classroo
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/_index"
 import { Route as AuthClassroomsClassroomIdTeamsRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/route"
+import { Route as AuthClassroomsClassroomIdAssignmentsIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/index"
 import { Route as AuthClassroomsClassroomIdIndexIndexImport } from "./routes/_auth/classrooms/$classroomId/_index/index"
 import { Route as AuthDashboardIndexCreateModalImport } from "./routes/_auth/dashboard/_index/create.modal"
 import { Route as AuthClassroomsIndexCreateModalImport } from "./routes/_auth/classrooms/_index/create.modal"
@@ -127,6 +128,12 @@ const AuthClassroomsClassroomIdTeamsRouteRoute =
   AuthClassroomsClassroomIdTeamsRouteImport.update({
     path: "/$classroomId/teams",
     getParentRoute: () => AuthClassroomsRoute,
+  } as any)
+
+const AuthClassroomsClassroomIdAssignmentsIndexRoute =
+  AuthClassroomsClassroomIdAssignmentsIndexImport.update({
+    path: "/assignments/",
+    getParentRoute: () => AuthClassroomsClassroomIdRoute,
   } as any)
 
 const AuthClassroomsClassroomIdIndexIndexRoute =
@@ -315,6 +322,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdIndexImport
     }
+    "/_auth/classrooms/$classroomId/assignments/": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsIndexImport
+      parentRoute: typeof AuthClassroomsClassroomIdImport
+    }
     "/_auth/classrooms/$classroomId/projects/$projectId/accept": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdProjectsProjectIdAcceptImport
       parentRoute: typeof AuthClassroomsClassroomIdImport
@@ -375,6 +386,7 @@ export const routeTree = rootRoute.addChildren([
         AuthClassroomsClassroomIdInviteRoute,
         AuthClassroomsClassroomIdAssignmentsCreateRoute,
         AuthClassroomsClassroomIdInvitationsInvitationIdRoute,
+        AuthClassroomsClassroomIdAssignmentsIndexRoute,
         AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute,
         AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
       ]),
