@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils.ts";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
-import { assignmentQueryOptions, useUpdateAssignment } from "@/api/assignment.ts";
+import { assignmentQueryOptions, assignmentsQueryOptions, useUpdateAssignment } from "@/api/assignment.ts";
 import { UpdateAssignmentForm, updateAssignmentFormSchema } from "@/types/assignments.ts";
 import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -35,7 +35,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
     const assignmentProjects = await queryClient.ensureQueryData(
       assignmentProjectsQueryOptions(params.classroomId, params.assignmentId),
     );
-    return { assignment, assignmentProjects };
+    const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
+    return { assignment, assignmentProjects, assignments };
   },
   pendingComponent: Loader,
 });
@@ -45,6 +46,7 @@ function EditAssignmentModal() {
   const { classroomId } = Route.useParams();
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
   const { data: assignmentProjects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
+  const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
   const navigate = useNavigate();
   const { mutateAsync, isError, isPending } = useUpdateAssignment(classroomId, assignmentId);
   const isAccepted = hasAcceptedAssignment(assignmentProjects);
@@ -72,6 +74,12 @@ function EditAssignmentModal() {
 
   function hasAcceptedAssignment(projects: ProjectResponse[]) {
     return projects.some(project => project.projectStatus === DatabaseStatus.Accepted);
+  }
+
+  function checkNewAssignmentNameValid(name: string) {
+    return (
+      name === assignment.name ||
+      !assignments.some(assignment => assignment.name === name));
   }
 
   return (
@@ -102,7 +110,21 @@ function EditAssignmentModal() {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Programming Assignment" {...field} />
+                      <Input
+                        placeholder="Programming Assignment"
+                        {...field}
+                        onBlur={async (e) => {
+                          field.onBlur();
+                          if (checkNewAssignmentNameValid(e.target.value)) {
+                            form.clearErrors("name");
+                          } else {
+                            form.setError("name", {
+                              type: "manual",
+                              message: "This name is already taken.",
+                            });
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormDescription>This is your Assignment name.</FormDescription>
                     <FormMessage />
