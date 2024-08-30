@@ -52,10 +52,7 @@ export const useUpdateMemberRole = (classroomId: string, memberId: number) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: MemberForm) => {
-      console.log(values.toString())
-      const role = values.toString() === "2" ? Role.Student : values.toString() === "1" ? Role.Moderator : Role.Owner;
-      console.log(role)
-      const res = await apiClient.updateMemberRole({ role }, csrfToken, classroomId, memberId);
+      const res = await apiClient.updateMemberRole({ role: Role[values.role] }, csrfToken, classroomId, memberId);
       return res.data;
     },
     onSuccess: () => {

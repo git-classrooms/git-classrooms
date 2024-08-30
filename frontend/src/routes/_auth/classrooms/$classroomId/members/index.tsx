@@ -14,15 +14,15 @@ import { teamsQueryOptions } from "@/api/team.ts";
 import { classroomQueryOptions } from "@/api/classroom.ts";
 import { assignmentsQueryOptions } from "@/api/assignment.ts";
 import { Loader } from "@/components/loader.tsx";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 
-export const Route = createFileRoute('/_auth/classrooms/$classroomId/members/')({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
@@ -33,12 +33,12 @@ export const Route = createFileRoute('/_auth/classrooms/$classroomId/members/')(
         params,
       });
     }
-    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId)
+    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-    if(userClassroom.role !== Role.Student) {
+    if (userClassroom.role !== Role.Student) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
       return { userClassroom, assignments, members, teams, reportDownloadUrl };
-    }else{
+    } else {
       return { userClassroom, members, teams, reportDownloadUrl };
     }
   },
@@ -67,7 +67,7 @@ function Members() {
   return (
     <div>
       <Header title="Members" />
-      <div className="justify-between gap-10" >
+      <div className="justify-between gap-10">
         <MemberTable
           members={classroomMembersSorted}
           classroomId={classroomId}
@@ -77,35 +77,34 @@ function Members() {
         <Outlet />
       </div>
     </div>
-  )
+  );
 }
 
 function MemberTable({
-                       members,
-                       classroomId,
-                       userRole,
-                       showTeams,
-                     }: {
+  members,
+  classroomId,
+  userRole,
+  showTeams,
+}: {
   members: UserClassroomResponse[];
   classroomId: string;
   userRole: Role;
   showTeams: boolean;
 }) {
+  const { userClassroom } = Route.useLoaderData();
   return (
     <List
       items={members}
       renderItem={(m) => (
         <ListItem
-          leftContent={
-            <MemberListElement member={m} showTeams={showTeams} />
-          }
+          leftContent={<MemberListElement member={m} showTeams={showTeams} />}
           rightContent={
             <>
-              {userRole == Role.Owner && m.role != Role.Owner ? (
-                <RoleDropdown role={m.role} memberID={m.user.id} classroomID={classroomId}/>
-              ) : (
-                ""
-              )}
+              {m.user.id !== userClassroom.user.id &&
+                (userClassroom.classroom.ownerId === userClassroom.user.id ||
+                  (userRole === Role.Owner && m.role !== Role.Owner)) && (
+                  <RoleDropdown role={m.role} memberID={m.user.id} classroomID={classroomId} />
+                )}
             </>
           }
         />
@@ -154,13 +153,15 @@ function MemberListElement({ member, showTeams }: { member: UserClassroomRespons
   );
 }
 
-function RoleDropdown({ role, memberID, classroomID }: { role: Role, memberID: number, classroomID: string }) {
-  const { mutateAsync, isError } = useUpdateMemberRole(classroomID, memberID);
+function RoleDropdown({ role, memberID, classroomID }: { role: Role; memberID: number; classroomID: string }) {
+  const { mutateAsync, isError, isPending } = useUpdateMemberRole(classroomID, memberID);
+
+  const { userClassroom } = Route.useLoaderData();
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
     defaultValues: {
-      role: role,
+      role: getRole(role),
     },
   });
 
@@ -168,20 +169,35 @@ function RoleDropdown({ role, memberID, classroomID }: { role: Role, memberID: n
     await mutateAsync(values);
   }
 
-  const currentrole = role.toString();
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Select onValueChange={onSubmit} value={currentrole}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={role === 2 ? "Student" : role === 1 ? "Moderator" : "Owner"} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2">Student</SelectItem>
-            <SelectItem value="1">Moderator</SelectItem>
-          </SelectContent>
-        </Select>
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <Select
+                disabled={isPending}
+                onValueChange={(role: keyof typeof Role) => onSubmit({ role })}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Change the role from the person" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={getRole(Role.Student)}>{getRole(Role.Student)}</SelectItem>
+                  <SelectItem value={getRole(Role.Moderator)}>{getRole(Role.Moderator)}</SelectItem>
+                  {userClassroom.classroom.ownerId === userClassroom.user.id && (
+                    <SelectItem value={getRole(Role.Owner)}>{getRole(Role.Owner)}</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </FormItem>
+          )}
+        />
 
         {isError && (
           <Alert variant="destructive">
