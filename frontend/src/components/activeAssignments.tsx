@@ -1,11 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Gitlab } from "lucide-react";
+import { ArrowRight as ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
-import { AssignmentResponse } from "@/swagger-client";
+import { ActiveAssignmentResponse } from "@/swagger-client";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 
 /**
  * ActiveAssignmentListCard is a React component that displays a list of active assignments in a classroom.
@@ -17,7 +19,7 @@ import { AssignmentResponse } from "@/swagger-client";
 export function ActiveAssignmentListCard({
   activeAssignments,
 }: {
-  activeAssignments: AssignmentResponse[];
+  activeAssignments: ActiveAssignmentResponse[];
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -32,7 +34,7 @@ export function ActiveAssignmentListCard({
   );
 }
 
-function AssignmentTable({ assignments }: { assignments: AssignmentResponse[] }) {
+function AssignmentTable({ assignments }: { assignments: ActiveAssignmentResponse[] }) {
   return (
     <List
       items={assignments}
@@ -48,12 +50,10 @@ function AssignmentTable({ assignments }: { assignments: AssignmentResponse[] })
                 </div>
               </div>
               <Button variant="ghost" size="icon" asChild>
-                <a href="#" target="_blank" rel="noreferrer"> {/* TODO: Replace with GitLab URL */}
-                  <Gitlab className="h-6 w-6 text-gray-600" />
-                </a>
+                <Link to="/classrooms/$classroomId/assignments/$assignmentId" params={{ classroomId: assignment.classroomId, assignmentId: assignment.id }}>
+                  <ArrowRight className="text-slate-500 dark:text-white" />
+                </Link>
               </Button>
-              <Button variant="ghost" size="icon" asChild>
-      </Button>
             </div>
           }
         />
@@ -62,16 +62,29 @@ function AssignmentTable({ assignments }: { assignments: AssignmentResponse[] })
   );
 }
 
-function AssignmentListElement({ assignment }: { assignment: AssignmentResponse }) {
+function AssignmentListElement({ assignment }: { assignment: ActiveAssignmentResponse }) {
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">
+      <div className="pr-2">
+        <Avatar>
+          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">
+            {assignment.name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+      </div>
         <div>
           <div className="font-medium">{assignment.name}</div>
+          <div className="text-sm text-muted-foreground md:inline">
+          {assignment.classroom.name}
+        </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{assignment.name}</p>
+        <div className="text-sm text-muted-foreground md:inline">
+          {assignment.classroom.name}
+        </div>
         <p className="text-sm text-muted-foreground my-1">
           Created at: {new Date(assignment.createdAt).toLocaleDateString()}
         </p>

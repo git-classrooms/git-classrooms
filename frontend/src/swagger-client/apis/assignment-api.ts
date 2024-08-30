@@ -18,9 +18,9 @@ import { Configuration } from '../configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
+import { ActiveAssignmentResponse } from '../models';
 import { ApiProjectCloneUrlResponse } from '../models';
 import { Assignment } from '../models';
-import { AssignmentResponse } from '../models';
 import { CreateAssignmentRequest } from '../models';
 import { HTTPError } from '../models';
 import { UpdateAssignmentRequest } from '../models';
@@ -349,7 +349,7 @@ export const AssignmentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getActiveAssignments(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<AssignmentResponse>>>> {
+        async getActiveAssignments(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<ActiveAssignmentResponse>>>> {
             const localVarAxiosArgs = await AssignmentApiAxiosParamCreator(configuration).getActiveAssignments(options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -444,7 +444,7 @@ export const AssignmentApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getActiveAssignments(options?: AxiosRequestConfig): Promise<AxiosResponse<Array<AssignmentResponse>>> {
+        async getActiveAssignments(options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ActiveAssignmentResponse>>> {
             return AssignmentApiFp(configuration).getActiveAssignments(options).then((request) => request(axios, basePath));
         },
         /**
@@ -522,7 +522,7 @@ export class AssignmentApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AssignmentApi
      */
-    public async getActiveAssignments(options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<AssignmentResponse>>> {
+    public async getActiveAssignments(options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ActiveAssignmentResponse>>> {
         return AssignmentApiFp(this.configuration).getActiveAssignments(options).then((request) => request(this.axios, this.basePath));
     }
     /**
