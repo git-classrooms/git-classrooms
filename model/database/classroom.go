@@ -32,6 +32,7 @@ type Classroom struct {
 	Teams                   []*Team                `gorm:"foreignKey:ClassroomID" json:"-"`
 	Assignments             []*Assignment          `json:"-"`
 	Invitations             []*ClassroomInvitation `json:"-"`
+	ManualGradingRubrics    []*ManualGradingRubric `json:"-"`
 	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
 
 	Archived           bool `gorm:"not null;default:false" json:"archived"`

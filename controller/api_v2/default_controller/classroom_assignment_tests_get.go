@@ -19,7 +19,6 @@ type assignmentTestReport struct {
 
 type assignmentTestResponse struct {
 	Activatible   bool                            `json:"activatible"`
-	PipelineRan   bool                            `json:"pipelineRan"`
 	Example       examples.LanguageCIExample      `json:"example"`
 	Report        []*assignmentTestReport         `json:"report"`
 	SelectedTests []*database.AssignmentJunitTest `json:"selectedTests"`
@@ -70,9 +69,8 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 	}
 
 	report, err := repo.GetProjectLatestPipelineTestReportSummary(assignment.TemplateProjectID, nil)
-	response.PipelineRan = err == nil
-	if !response.PipelineRan {
-		return c.JSON(response)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	response.Report = utils.FlatMap(report.TestSuites, func(ts model.TestReportTestSuite) []*assignmentTestReport {

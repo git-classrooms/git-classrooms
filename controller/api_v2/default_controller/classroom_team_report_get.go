@@ -2,22 +2,23 @@ package api
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"time"
 )
 
 // @Summary		GetClassroomTeamReport
 // @Description	GetClassroomTeamReport
 // @Id				GetClassroomTeamReport
 // @Tags			report
-// @Produce		application/zip
+// @Produce		text/csv
 // @Produce		json
 // @Param			classroomId	path		string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId		path		string	true	"Team ID"		Format(uuid)
-// @Success		200			{file}		application/zip
+// @Success		200			{file}		text/csv
 // @Success		200			{array}		utils.ReportDataItem
 // @Failure		400			{object}	HTTPError
 // @Failure		401			{object}	HTTPError
@@ -41,14 +42,13 @@ func (ctrl *DefaultController) GetClassroomTeamReport(c *fiber.Ctx) (err error) 
 
 	acceptHeader := c.Get("Accept")
 	if acceptHeader == "application/json" {
-		jsonReports, err := utils.GenerateReports(assignments, &team.ID)
+		jsonReports, err := utils.GenerateReports(assignments, classroom.Classroom.ManualGradingRubrics, &team.ID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		return c.JSON(jsonReports)
 	}
-
-	c.Set(fiber.HeaderContentType, "application/zip")
-	c.Set(fiber.HeaderContentDisposition, fmt.Sprintf("attachment; filename=report_%s_%s_%s.zip", time.Now().Format(time.DateOnly), classroom.Classroom.Name, team.Name))
-	return utils.GenerateCSVReports(c.Response().BodyWriter(), assignments, &team.ID)
+	c.Set(fiber.HeaderContentType, "text/csv; charset=utf-8")
+	c.Set(fiber.HeaderContentDisposition, fmt.Sprintf("attachment; filename=report_%s_%s_%s.csv", time.Now().Format(time.DateOnly), classroom.Classroom.Name, team.Name))
+	return utils.GenerateCSVReports(c.Response().BodyWriter(), assignments, classroom.Classroom.ManualGradingRubrics, &team.ID)
 }
