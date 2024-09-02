@@ -23,6 +23,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 	user2 := factory.User()
 	user3 := factory.User()
 	classroom := factory.Classroom(owner.ID)
+	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	members := []*database.UserClassrooms{
 		factory.UserClassroom(user2.ID, classroom.ID, database.Student),
@@ -35,24 +36,27 @@ func TestPatchClassroomArchive(t *testing.T) {
 	team := factory.Team(classroom.ID, members)
 	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 
-	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 
-	app := setupApp(t, owner, nil)
-	targetRoute := fmt.Sprintf("/api/classrooms/%s/archive", classroom.ID.String())
+	app := setupApp(t, owner, gitlabRepo)
+	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/archive", classroom.ID.String())
 
 	t.Run("classroom already archived", func(t *testing.T) {
-		userClassroom.Classroom.Archived = true
+		classroom.Archived = true
+		saveClassroom(t, classroom)
+
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
+		assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 		assert.NoError(t, err)
 	})
 
 	t.Run("gitlab throws error in changing access level", func(t *testing.T) {
-		userClassroom.Classroom.Archived = false
+		classroom.Archived = false
+		saveClassroom(t, classroom)
+
 		gitlabRepo.
 			EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user2.ID).
@@ -93,7 +97,9 @@ func TestPatchClassroomArchive(t *testing.T) {
 	})
 
 	t.Run("updates classroom in db", func(t *testing.T) {
-		userClassroom.Classroom.Archived = false
+		classroom.Archived = false
+		saveClassroom(t, classroom)
+
 		gitlabRepo.
 			EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject.ProjectID, user2.ID).
@@ -131,4 +137,11 @@ func TestPatchClassroomArchive(t *testing.T) {
 		assert.Equal(t, true, dbClassroom.Archived)
 	})
 
+}
+
+func saveClassroom(t *testing.T, classroom *database.Classroom) {
+	err := query.Classroom.WithContext(context.Background()).Save(classroom)
+	if err != nil {
+		t.Fatal("Could not save classroom!")
+	}
 }
