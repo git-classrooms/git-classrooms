@@ -36,7 +36,6 @@ func TestPatchClassroomArchive(t *testing.T) {
 	team := factory.Team(classroom.ID, members)
 	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 
-
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 
 	app := setupApp(t, owner, gitlabRepo)

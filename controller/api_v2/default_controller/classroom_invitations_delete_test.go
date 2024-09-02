@@ -6,37 +6,28 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	test_db "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestDeleteClassroomInvitation(t *testing.T) {
 	restoreDatabase(t)
 
-	db, err := gorm.Open(postgres.Open(integrationTest.dbURL))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	query.SetDefault(db)
-	user := factory.User()
-	classroom := factory.Classroom(user.ID)
+	owner := factory.User() // id 0
+	classroom := factory.Classroom(owner.ID)
+	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 	invitation := factory.Invitation(classroom.ID)
 
-	app := setupApp(t, user, nil)
+	app := setupApp(t, owner, nil)
 
-	targetRoute := fmt.Sprintf("/classrooms/%s/invitations/%s", invitation.ClassroomID, invitation.ID)
+	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", invitation.ClassroomID.String(), invitation.ID.String())
 
 	t.Run("Revoke Classroom Invitation - Not Found", func(t *testing.T) {
-		newTarget := fmt.Sprintf("/classrooms/%s/invitations/%s", uuid.New(), uuid.New())
+		newTarget := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", uuid.New(), uuid.New())
 		req := httptest.NewRequest("DELETE", newTarget, nil)
 		resp, err := app.Test(req)
 		if err != nil {
@@ -48,7 +39,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation - Already Revoked", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationRevoked
-		test_db.SaveInvitation(t, invitation)
+		SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -61,7 +52,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation - Already Accepted", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationAccepted
-		test_db.SaveInvitation(t, invitation)
+		SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -74,7 +65,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation - Already Rejected", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationRejected
-		test_db.SaveInvitation(t, invitation)
+		SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -87,7 +78,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	t.Run("Revoke Classroom Invitation", func(t *testing.T) {
 		invitation.Status = database.ClassroomInvitationPending
-		test_db.SaveInvitation(t, invitation)
+		SaveInvitation(t, invitation)
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
@@ -102,4 +93,11 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 		assert.Equal(t, database.ClassroomInvitationRevoked, dbInvitation.Status)
 	})
 
+}
+
+func SaveInvitation(t *testing.T, invitation *database.ClassroomInvitation) {
+	err := query.ClassroomInvitation.WithContext(context.Background()).Save(invitation)
+	if err != nil {
+		t.Fatalf("could not update invitation: %s", err.Error())
+	}
 }
