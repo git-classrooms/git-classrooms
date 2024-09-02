@@ -104,16 +104,13 @@ func Team(classroomID uuid.UUID, member []*database.UserClassrooms) *database.Te
 	return &team
 }
 
-func Assignment(classroomID uuid.UUID) *database.Assignment {
+func Assignment(classroomID uuid.UUID, dueDate *time.Time) *database.Assignment {
 	assignment := database.Assignment{}
 	assignment.ClassroomID = classroomID
 	assignment.TemplateProjectID = 1234
 	assignment.Name = "Test Assignment"
 	assignment.Description = "Test Assignment Description"
-
-	dueDate := time.Date(1970, 1, 1, 0, 0, 0, 0, time.Local).Truncate(time.Second)
-
-	assignment.DueDate = &dueDate
+	assignment.DueDate = dueDate
 
 	err := query.Assignment.WithContext(context.Background()).Create(&assignment)
 	if err != nil {

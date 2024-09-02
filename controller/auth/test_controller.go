@@ -50,11 +50,14 @@ func (ctrl *TestAuthController) GetAuth(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func (ctrl *TestAuthController) AuthMiddleware(c *fiber.Ctx) error {
-	ctx := fiberContext.Get(c)
-	if ctx == nil {
+func (ctrl *TestAuthController) AuthMiddleware(c *fiber.Ctx) error { ctx := fiberContext.Get(c)
 	ctx.SetGitlabRepository(ctrl.gitlabRepo)
 	ctx.SetUserID(ctrl.user.ID)
+
+	s := session.Get(c)
+	s.SetUserState(session.LoggedIn)
+	s.SetUserID(ctrl.user.ID)
+	s.Save()
 	return c.Next()
 }
 

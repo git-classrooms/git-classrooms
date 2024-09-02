@@ -5,68 +5,72 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
-func TestDueAssignmentWork(t *testing.T) {
-	repo := gitlabRepoMock.NewMockRepository(t)
+func TestDueAssignmentWorker(t *testing.T) {
+	pg, err := db_tests.StartPostgres()
+	if err != nil {
+		t.Fatalf("Failed to start postgres container: %s", err.Error())
+	}
 
-	testDb := db_tests.NewTestDB(t)
+	dbURL, err := pg.ConnectionString(context.Background())
+	if err != nil {
+		t.Fatalf("Failed to obtain connection string: %s", err.Error())
+	}
+
+	db, err := gorm.Open(postgres.Open(dbURL))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 1. Migrate database
+	err = utils.MigrateDatabase(db)
+	if err != nil {
+		t.Fatalf("could not migrate database: %s", err.Error())
+	}
+
+	db, err := gorm.Open(postgres.Open(dbURL))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// 1. Migrate database
+	err = utils.MigrateDatabase(db)
+	if err != nil {
+		t.Fatalf("could not migrate database: %s", err.Error())
+	}
+
+	query.SetDefault(db)
+	repo := gitlabRepoMock.NewMockRepository(t)
 
 	owner := factory.User()
 	student1 := factory.User()
 	student2 := factory.User()
 	classroom := factory.Classroom(owner.ID)
-	assignment1 := factory.Assignment(classroom.ID)
 
-	team1 := database.Team{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-		GroupID:     1,
-		Member: []*database.UserClassrooms{
-			{
-				UserID:      owner.ID,
-				ClassroomID: classroom.ID,
-				Role:        database.Owner,
-			},
-			{
-				UserID:      student1.ID,
-				ClassroomID: classroom.ID,
-				Role:        database.Student,
-			},
-			{
-				UserID:      student2.ID,
-				ClassroomID: classroom.ID,
-				Role:        database.Student,
-			},
-		},
-	}
-	testDb.InsertTeam(&team1)
+	dueDate := time.Now().Add(1 * time.Hour)
+	assignment1 := factory.Assignment(classroom.ID, &dueDate)
 
-	assignmentProject1 := database.AssignmentProjects{
-		AssignmentID:  assignment1.ID,
-		TeamID:        team1.ID,
-		ProjectID:     1,
-		ProjectStatus: database.Accepted,
+	members := []*database.UserClassrooms{
+		factory.UserClassroom(student1.ID, classroom.ID, database.Student),
+		factory.UserClassroom(student2.ID, classroom.ID, database.Student),
 	}
-	testDb.InsertAssignmentProjects(&assignmentProject1)
 
-	dueDate2 := time.Now().Add(1 * time.Hour)
-	assignment2 := database.Assignment{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-		DueDate:     &dueDate2,
-		Closed:      true,
-	}
-	testDb.InsertAssignment(&assignment2)
+	team1 := factory.Team(classroom.ID, members)
+
+	assignmentProject1 := factory.AssignmentProject(assignment1.ID, team1.ID)
 
 	work := NewDueAssignmentWork(&gitlab.GitlabConfig{})
 
@@ -74,7 +78,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = true
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		assignments := work.getAssignments2Close(context.Background())
 		assert.Empty(t, assignments)
@@ -84,7 +88,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		assignments := work.getAssignments2Close(context.Background())
 		assert.Empty(t, assignments)
@@ -94,7 +98,7 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		assignments := work.getAssignments2Close(context.Background())
 		assert.Len(t, assignments, 1)
@@ -105,12 +109,15 @@ func TestDueAssignmentWork(t *testing.T) {
 		dueDate := time.Now().Add(-1 * time.Hour)
 		assignment1.DueDate = &dueDate
 		assignment1.Closed = false
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		assignmentProject1.ProjectStatus = database.Pending
-		testDb.SaveAssignmentProjects(&assignmentProject1)
+		err := query.AssignmentProjects.WithContext(context.Background()).Save(assignmentProject1)
+		if err != nil {
+			t.Fatalf("could not update assignment project: %s", err.Error())
+		}
 
-		err := work.closeAssignment(context.Background(), assignment1, repo)
+		err = work.closeAssignment(context.Background(), assignment1, repo)
 		assert.NoError(t, err)
 
 		assignment1After, err := query.Assignment.
@@ -122,12 +129,12 @@ func TestDueAssignmentWork(t *testing.T) {
 	})
 
 	assignmentProject1.ProjectStatus = database.Accepted
-	assignmentProject1.Team = team1
-	assignment1.Projects = []*database.AssignmentProjects{&assignmentProject1}
+	assignmentProject1.Team = *team1
+	assignment1.Projects = []*database.AssignmentProjects{assignmentProject1}
 
 	t.Run("repo.GetAccessLevelOfUserInProject throws error -> restore old permissions", func(t *testing.T) {
 		assignment1.Closed = false
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
@@ -169,7 +176,7 @@ func TestDueAssignmentWork(t *testing.T) {
 
 	t.Run("repo.ChangeUserAccessLevelInProject throws error", func(t *testing.T) {
 		assignment1.Closed = false
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
@@ -201,7 +208,7 @@ func TestDueAssignmentWork(t *testing.T) {
 
 	t.Run("Close due Assignment", func(t *testing.T) {
 		assignment1.Closed = false
-		testDb.SaveAssignment(assignment1)
+		SaveAssignment(t, assignment1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
@@ -240,4 +247,18 @@ func TestDueAssignmentWork(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, assignment1After.Closed)
 	})
+}
+
+func SaveAssignment(t *testing.T, assignment *database.Assignment) {
+	err := query.Assignment.WithContext(context.Background()).Save(assignment)
+	if err != nil {
+		t.Fatalf("could not update assignment: %s", err.Error())
+	}
+}
+
+func SaveAssignmentProjects(t *testing.T, project *database.AssignmentProjects) {
+	err := query.AssignmentProjects.WithContext(context.Background()).Save(project)
+	if err != nil {
+		t.Fatalf("could not update assignment project: %s", err.Error())
+	}
 }

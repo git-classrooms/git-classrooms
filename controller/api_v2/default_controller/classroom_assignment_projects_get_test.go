@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -31,7 +32,8 @@ func TestGetClassroomAssignmentProjects(t *testing.T) {
 	classroom := factory.Classroom(owner.ID)
 	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
-	assignment := factory.Assignment(classroom.ID)
+	dueDate := time.Now().Add(1 * time.Hour)
+	assignment := factory.Assignment(classroom.ID, &dueDate)
 	team := factory.Team(classroom.ID, []*database.UserClassrooms{userClassroom})
 	project := factory.AssignmentProject(assignment.ID, team.ID)
 

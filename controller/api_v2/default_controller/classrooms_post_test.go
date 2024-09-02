@@ -74,9 +74,7 @@ func TestCreateClassroom(t *testing.T) {
 
 		req := newPostJsonRequest("/api/v2/classrooms", requestBody)
 		resp, err := app.Test(req)
-		if assert.Equal(t, fiber.StatusCreated, resp.StatusCode) {
-			t.FailNow()
-		}
+		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assert.NoError(t, err)
 

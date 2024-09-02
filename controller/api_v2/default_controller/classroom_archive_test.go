@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +29,9 @@ func TestPatchClassroomArchive(t *testing.T) {
 		factory.UserClassroom(user3.ID, classroom.ID, database.Student),
 	}
 
-	assignment := factory.Assignment(classroom.ID)
+	dueDate := time.Now().Add(1 * time.Hour)
+
+	assignment := factory.Assignment(classroom.ID, &dueDate)
 	team := factory.Team(classroom.ID, members)
 	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 

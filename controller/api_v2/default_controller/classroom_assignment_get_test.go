@@ -31,7 +31,8 @@ func TestGetClassroomAssignment(t *testing.T) {
 	owner := factory.User()
 	classroom := factory.Classroom(owner.ID)
 	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
-	assignment := factory.Assignment(classroom.ID)
+	dueDate := time.Now().Add(1 * time.Hour)
+	assignment := factory.Assignment(classroom.ID, &dueDate)
 
 	// ------------ END OF SEEDING DATA -----------------
 	app := setupApp(t, owner, nil)

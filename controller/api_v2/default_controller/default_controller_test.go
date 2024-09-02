@@ -126,6 +126,8 @@ func setupApp(t *testing.T, user *database.User, gitlabRepo gitlabRepo.Repositor
 	mailRepo := mailRepoMock.NewMockRepository(t)
 	session.InitSessionStore(&integrationTest.dbURL)
 
+	session.CsrfConfig.Next = func(c *fiber.Ctx) bool { return true }
+
 	app := fiber.New()
 
 	apiCtrl := apiControllerMock.NewMockController(t)
