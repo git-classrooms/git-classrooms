@@ -85,18 +85,21 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
   return (
     <div>
       <div className="grid grid-cols-[1fr,auto] justify-between gap-1">
-        <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
+        <Header title={`${userClassroom.classroom.archived ? "Archived " : ""}Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
         <div className="grid grid-cols-2 gap-3">
           {!userClassroom.classroom.archived && (
-            <Button className="col-start-1" variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
-              <Archive className="text-slate-500 dark:text-white h-28 w-28" />
-            </Button>
+            <>
+              <Button className="col-start-1" variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
+                <Archive className="text-slate-500 dark:text-white h-28 w-28" />
+              </Button>
+              <Button className="col-start-2" variant="ghost" size="icon" asChild title="Edit classroom">
+                <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
+                  <Pen className="text-slate-500 dark:text-white h-28 w-28" />
+                </Link>
+              </Button>
+            </>
           )}
-          <Button className="col-start-2" variant="ghost" size="icon" asChild title="Edit classroom">
-            <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
-              <Pen className="text-slate-500 dark:text-white h-28 w-28" />
-            </Link>
-          </Button>
+          
         </div>
         
       </div>
@@ -108,16 +111,24 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
           assignments={assignments}
           classroomId={classroomId}
           classroomName={userClassroom.classroom.name}
+          deactivateInteraction={userClassroom.classroom.archived}
         />
         <MemberListCard
           classroomMembers={classroomMembers}
           classroomId={classroomId}
           userRole={Role.Owner}
           showTeams={userClassroom.classroom.maxTeamSize > 1}
+          deactivateInteraction={userClassroom.classroom.archived}
         />
         {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
         {userClassroom.classroom.maxTeamSize > 1 && (
-          <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} />
+          <TeamListCard
+            teams={teams} 
+            classroomId={classroomId} 
+            userRole={Role.Owner} 
+            maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} 
+            deactivateInteraction={userClassroom.classroom.archived}
+          />
         )}
         <Outlet />
       </div>
@@ -146,8 +157,8 @@ function SimpleDialog({ isOpen, onConfirm, onCancel }: SimpleDialogProps) {
         <h2 className="text-lg font-semibold">Archive classroom</h2>
         <p>Are you sure that you wanna archive this classroom? This action can not be undone!</p>
         <div className="mt-4 flex justify-end gap-2">
-          <button onClick={onCancel} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-          <button onClick={onConfirm} className="px-4 py-2 bg-blue-500 text-white rounded">Confirm</button>
+          <Button onClick={onCancel} variant="destructive">Cancel</Button>
+          <Button onClick={onConfirm} variant="default">Confirm</Button>
         </div>
       </div>
     </div>

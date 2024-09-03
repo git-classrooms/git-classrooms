@@ -24,12 +24,14 @@ export function TeamListCard({
   userRole,
   maxTeamSize,
   numInvitedMembers,
+  deactivateInteraction,
 }: {
   teams: TeamResponse[];
   classroomId: string;
   userRole: Role;
   maxTeamSize: number;
   numInvitedMembers: number;
+  deactivateInteraction: boolean;
 }): JSX.Element {
   const teamSlots = teams.length * maxTeamSize;
   return (
@@ -45,9 +47,15 @@ export function TeamListCard({
         )}
       </CardHeader>
       <CardContent>
-        <TeamTable teams={teams} classroomId={classroomId} userRole={userRole} maxTeamSize={maxTeamSize} />
+        <TeamTable 
+          teams={teams} 
+          classroomId={classroomId} 
+          userRole={userRole} 
+          maxTeamSize={maxTeamSize}
+          deactivateInteraction={deactivateInteraction} 
+        />
       </CardContent>
-      {userRole != Role.Student && (
+      {(userRole != Role.Student && !deactivateInteraction )&& (
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
             <Link to="/classrooms/$classroomId/team/create/modal" replace params={{ classroomId }}>
@@ -67,6 +75,7 @@ export function TeamTable({
   maxTeamSize,
   isPending,
   onTeamSelect,
+  deactivateInteraction,
 }: {
   teams: TeamResponse[];
   classroomId: string;
@@ -74,6 +83,7 @@ export function TeamTable({
   maxTeamSize: number;
   isPending?: boolean;
   onTeamSelect?: (teamId: string) => void;
+  deactivateInteraction: boolean;
 }) {
   return (
     <Table>
@@ -89,25 +99,29 @@ export function TeamTable({
                   <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
                 </a>
               </Button>
-              {userRole != Role.Student && (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/teams/$teamId/modal"
-                    params={{ classroomId: classroomId, teamId: t.id }}
+              {!deactivateInteraction && (
+                <>
+                {userRole != Role.Student && (
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link
+                      to="/classrooms/$classroomId/teams/$teamId/modal"
+                      params={{ classroomId: classroomId, teamId: t.id }}
+                    >
+                      <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
+                    </Link>
+                  </Button>
+                )}
+                {onTeamSelect && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onTeamSelect?.(t.id)}
+                    disabled={isPending || t.members.length >= maxTeamSize}
                   >
-                    <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
-                  </Link>
-                </Button>
-              )}
-              {onTeamSelect && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onTeamSelect?.(t.id)}
-                  disabled={isPending || t.members.length >= maxTeamSize}
-                >
-                  <UserPlus className="text-gray-600 dark:text-white" />
-                </Button>
+                    <UserPlus className="text-gray-600 dark:text-white" />
+                  </Button>
+                )}
+                </>
               )}
             </TableCell>
           </TableRow>

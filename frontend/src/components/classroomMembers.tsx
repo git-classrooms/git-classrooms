@@ -18,6 +18,8 @@ import ListItem from "@/components/ui/listItem.tsx";
  * @param {Array} props.classroomMembers - An array of UserClassroom objects representing the members of the classroom.
  * @param {string} props.classroomId - The ID of the classroom.
  * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
+ * @param {boolean} props.showTeams - A boolean indicating whether to show the teams of the members.
+ * @param {boolean} props.deactivateInteraction - A boolean indicating whether the user can interact with the members.
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
 export function MemberListCard({
@@ -25,11 +27,13 @@ export function MemberListCard({
   classroomId,
   userRole,
   showTeams,
+  deactivateInteraction,
 }: {
   classroomMembers: UserClassroomResponse[];
   classroomId: string;
   userRole: Role;
   showTeams: boolean;
+  deactivateInteraction: boolean;
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -40,7 +44,7 @@ export function MemberListCard({
       <CardContent>
         <MemberTable members={classroomMembers} classroomId={classroomId} userRole={userRole} showTeams={showTeams} />
       </CardContent>
-      {userRole != 2 && (
+      {(userRole != 2 && !deactivateInteraction) && (
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild>
             <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>

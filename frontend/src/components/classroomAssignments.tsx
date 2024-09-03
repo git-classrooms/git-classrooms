@@ -15,6 +15,7 @@ import { Assignment } from "@/swagger-client";
  * @param {Array} props.assignments - An array of Assignment objects representing the assignments in the classroom.
  * @param {string} props.classroomId - The ID of the classroom.
  * @param {string} props.classroomName - The name of the classroom.
+ * @param {boolean} props.deactivateInteraction - A boolean indicating whether the user can interact with the assignments.
  * @returns {JSX.Element} A React component that displays a card with the list of assignments in a classroom.
  * @constructor
  */
@@ -22,10 +23,12 @@ export function AssignmentListCard({
   assignments,
   classroomId,
   classroomName,
+  deactivateInteraction,
 }: {
   assignments: Assignment[];
   classroomId: string;
   classroomName: string;
+  deactivateInteraction: boolean;
 }): JSX.Element {
   return (
     <Card className="p-2">
@@ -34,15 +37,17 @@ export function AssignmentListCard({
         <CardDescription>Assignments you have created in this classroom</CardDescription>
       </CardHeader>
       <CardContent>
-        <AssignmentTable assignments={assignments} classroomId={classroomId} classroomName={classroomName} />
+        <AssignmentTable assignments={assignments} classroomId={classroomId} classroomName={classroomName} deactivateInteraction={deactivateInteraction} />
       </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button variant="default" asChild>
-          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
-            Create assignment
-          </Link>
-        </Button>
-      </CardFooter>
+      {!deactivateInteraction && (
+        <CardFooter className="flex justify-end">
+          <Button variant="default" asChild>
+            <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
+              Create assignment
+            </Link>
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
@@ -51,10 +56,12 @@ function AssignmentTable({
   assignments,
   classroomId,
   classroomName,
+  deactivateInteraction,
 }: {
   assignments: Assignment[];
   classroomId: string;
   classroomName: string;
+  deactivateInteraction: boolean;
 }) {
   return (
     <Table>
@@ -74,14 +81,16 @@ function AssignmentTable({
                       {a.dueDate ? formatDate(a.dueDate) : "No Due Date"}
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link
-                      to="/classrooms/$classroomId/assignments/$assignmentId"
-                      params={{ classroomId, assignmentId: a.id }}
-                    >
-                      <Edit className="h-6 w-6 text-gray-600" />
-                    </Link>
-                  </Button>
+                  {!deactivateInteraction && (
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link
+                        to="/classrooms/$classroomId/assignments/$assignmentId"
+                        params={{ classroomId, assignmentId: a.id }}
+                      >
+                        <Edit className="h-6 w-6 text-gray-600" />
+                      </Link>
+                    </Button>
+                  )}
                   <Button variant="ghost" size="icon" asChild>
                     <Link to="" params={{}}>
                       <Gitlab className="h-6 w-6 text-gray-600" />
