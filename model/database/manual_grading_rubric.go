@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type ManualGradingRubric struct {
@@ -17,16 +15,10 @@ type ManualGradingRubric struct {
 	Description string `gorm:"not null" json:"description"`
 
 	ClassroomID uuid.UUID `gorm:"not null" json:"-"`
-	Classroom   Classroom `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
+	Classroom   Classroom `gorm:";" json:"-"`
 
 	MaxScore int `gorm:"not null" json:"maxScore"`
 
-	Assignments []*Assignment `gorm:"many2many:assignment_manual_grading_rubrics;" json:"-"`
-
-	Results []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnDelete:CASCADE" json:"-"`
+	Assignments []*Assignment          `gorm:"many2many:assignment_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
+	Results     []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnDelete:CASCADE;" json:"-"`
 } //@Name ManualGradingRubric
-
-func (m *ManualGradingRubric) AfterDelete(tx *gorm.DB) (err error) {
-	tx.Clauses(clause.Returning{}).Where("rubric_id = ?", m.ID).Delete(&ManualGradingResult{})
-	return
-}

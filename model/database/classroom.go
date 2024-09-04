@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // Classroom is a struct that represents a classroom in the database
@@ -18,7 +16,7 @@ type Classroom struct {
 	Name        string `gorm:"not null" json:"name"`
 	Description string `json:"description"`
 	OwnerID     int    `gorm:"not null" json:"ownerId"`
-	Owner       User   `json:"owner"`
+	Owner       User   `gorm:";" json:"owner"`
 
 	CreateTeams bool `gorm:"not null" json:"createTeams"`
 	MaxTeamSize int  `gorm:"not null;default:1" json:"maxTeamSize"`
@@ -28,21 +26,13 @@ type Classroom struct {
 	GroupAccessTokenID int    `gorm:"not null" json:"-"`
 	GroupAccessToken   string `gorm:"not null" json:"-"`
 
-	Member                  []*UserClassrooms      `gorm:"foreignKey:ClassroomID" json:"-"`
-	Teams                   []*Team                `gorm:"foreignKey:ClassroomID" json:"-"`
-	Assignments             []*Assignment          `json:"-"`
-	Invitations             []*ClassroomInvitation `json:"-"`
-	ManualGradingRubrics    []*ManualGradingRubric `json:"-"`
+	Member                  []*UserClassrooms      `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
+	Teams                   []*Team                `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
+	Assignments             []*Assignment          `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
+	Invitations             []*ClassroomInvitation `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
+	ManualGradingRubrics    []*ManualGradingRubric `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
 
 	Archived           bool `gorm:"not null;default:false" json:"archived"`
 	PotentiallyDeleted bool `gorm:"not null;default:false" json:"potentiallyDeleted"`
 } //@Name Classroom
-
-func (c *Classroom) AfterDelete(tx *gorm.DB) (err error) {
-	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&UserClassrooms{})
-	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&Team{})
-	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&Assignment{})
-	tx.Clauses(clause.Returning{}).Where("classroom_id = ?", c.ID).Delete(&ClassroomInvitation{})
-	return
-}

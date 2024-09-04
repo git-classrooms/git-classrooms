@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Team struct {
@@ -17,14 +15,8 @@ type Team struct {
 	GroupID int    `gorm:"<-:create;not null" json:"groupId"`
 
 	ClassroomID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"-"`
-	Classroom   Classroom `json:"-"`
+	Classroom   Classroom `gorm:";" json:"-"`
 
-	Member []*UserClassrooms `gorm:"foreignKey:TeamID" json:"-"`
-
-	AssignmentProjects []*AssignmentProjects `json:"-"`
+	Member             []*UserClassrooms     `gorm:"foreignKey:TeamID;constraint:OnDelete:CASCADE;" json:"-"`
+	AssignmentProjects []*AssignmentProjects `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 } //@Name Team
-
-func (t *Team) AfterDelete(tx *gorm.DB) (err error) {
-	tx.Clauses(clause.Returning{}).Where("team_id = ?", t.ID).Delete(&AssignmentProjects{})
-	return
-}

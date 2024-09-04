@@ -8,8 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type status string
@@ -28,7 +26,7 @@ type AssignmentProjects struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 
 	TeamID uuid.UUID `gorm:"<-:create;type:uuid;not null" json:"teamId"`
-	Team   Team      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"team"`
+	Team   Team      `json:"team"`
 
 	AssignmentID uuid.UUID  `gorm:"<-:create;not null" json:"-"`
 	Assignment   Assignment `json:"assignment"`
@@ -37,13 +35,8 @@ type AssignmentProjects struct {
 	ProjectID     int    `json:"projectId"`
 
 	GradingJUnitTestResult *JUnitTestResult       `gorm:"type:jsonb;" json:"gradingJUnitTestResult" validate:"optional"`
-	GradingManualResults   []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID" json:"gradingManualResults"`
+	GradingManualResults   []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID;constraint:OnDelete:CASCADE;" json:"gradingManualResults"`
 } //@Name AssignmentProjects
-
-func (ap *AssignmentProjects) AfterDelete(tx *gorm.DB) (err error) {
-	tx.Clauses(clause.Returning{}).Where("assignment_project_id = ?", ap.ID).Delete(&ManualGradingResult{})
-	return
-}
 
 type JUnitTestResult struct {
 	model.TestReport
