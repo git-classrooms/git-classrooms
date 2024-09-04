@@ -270,7 +270,6 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, r
 func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignmentId uuid.UUID) []*database.AssignmentProjects {
 	projects, err := query.AssignmentProjects.
 		WithContext(ctx).
-		Preload(query.AssignmentProjects.GradingJUnitTestResult).
 		Where(query.AssignmentProjects.AssignmentID.Eq(assignmentId)).
 		Find()
 	if err != nil {
@@ -285,14 +284,6 @@ func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.A
 	_, err := repo.GetProjectById(dbProject.ProjectID)
 	if err == nil || !strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
 		return
-	}
-
-	if dbProject.GradingJUnitTestResult != nil {
-		_, err := query.JUnitTestResult.WithContext(ctx).Delete(dbProject.GradingJUnitTestResult)
-		if err != nil {
-			log.Default().Printf("Project with id %d deleted via gitlab, but failed to delete GradingJUnitTestResults of project", dbProject.ProjectID)
-			return
-		}
 	}
 
 	_, err = query.AssignmentProjects.WithContext(ctx).Delete(&dbProject)
