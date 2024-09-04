@@ -24,6 +24,7 @@ export type DeepRequired<T> = {
 
 export type SubPartial<T, K extends keyof T> = Simplify<Omit<T, K> & Partial<Pick<T, K>>>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const zodEnumFromObjectKeys = <K extends string>(obj: Record<K, any>) => {
   const [fistKey, ...otherKeys] = Object.keys(obj) as K[];
   return z.enum([fistKey!, ...otherKeys]);
