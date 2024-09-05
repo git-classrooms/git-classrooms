@@ -14,18 +14,15 @@ import (
 type updateAssignmentRequest struct {
 	Name        string     `json:"name,omitempty"`
 	Description string     `json:"description,omitempty"`
-	DueDate     *time.Time `json:"dueDate,omitempty"`
+	DueDate     *time.Time `json:"dueDate,omitempty" validate:"optional"`
 } //@Name UpdateAssignmentRequest
 
 func (r updateAssignmentRequest) isValid() (bool, string) {
-	if r.Name == "" && r.Description == "" && r.DueDate == nil {
-		return false, "Request can not be empty, requires name, description or dueDate"
+	if r.DueDate != nil {
+		if r.DueDate.Before(time.Now()) {
+			return false, "DueDate must be in the future"
+		}
 	}
-
-	if r.DueDate.Before(time.Now()) {
-		return false, "DueDate must be in the future"
-	}
-
 	return true, ""
 }
 
@@ -87,9 +84,9 @@ func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 		}
 	}
 
-	if requestBody.DueDate != nil {
-		assignment.DueDate = requestBody.DueDate
+	assignment.DueDate = requestBody.DueDate
 
+	if requestBody.DueDate != nil {
 		if assignment.DueDate.After(time.Now()) && assignment.Closed {
 			assignment.Closed = false
 
