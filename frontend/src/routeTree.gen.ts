@@ -336,13 +336,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdIndexImport
     }
-    "/_auth/classrooms/$classroomId/_index/edit/modal": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdIndexEditModalImport
-      parentRoute: typeof AuthClassroomsClassroomIdIndexImport
-    }
     "/_auth/classrooms/$classroomId/members/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdMembersIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdImport
+    }
+    "/_auth/classrooms/$classroomId/_index/edit/modal": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdIndexEditModalImport
+      parentRoute: typeof AuthClassroomsClassroomIdIndexImport
     }
     "/_auth/classrooms/$classroomId/projects/$projectId/accept": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdProjectsProjectIdAcceptImport

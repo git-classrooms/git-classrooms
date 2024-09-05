@@ -13,8 +13,18 @@ import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
 import { Pen, Archive } from "lucide-react";
-import { useState, useCallback } from "react";
 import { useArchiveClassroom } from "@/api/classroom";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+  AlertDialogHeader,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -27,12 +37,12 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
         params,
       });
     }
-    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId)
+    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-    if(userClassroom.role !== Role.Student) {
+    if (userClassroom.role !== Role.Student) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
       return { userClassroom, assignments, members, teams, reportDownloadUrl };
-    }else{
+    } else {
       return { userClassroom, members, teams, reportDownloadUrl };
     }
   },
@@ -44,12 +54,12 @@ function ClassroomDetail() {
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   if (userClassroom.role === Role.Student) {
     return <ClassroomStudentView />;
-  } else if (userClassroom.role === Role.Owner || userClassroom.role === Role.Moderator){
+  } else if (userClassroom.role === Role.Owner || userClassroom.role === Role.Moderator) {
     return <ClassroomSupervisorView userClassroom={userClassroom} />;
   }
 }
 
-function ClassroomStudentView(){
+function ClassroomStudentView() {
   // Role.Student does not have access to assignments
   // This is a placeholder
   return (
@@ -59,53 +69,70 @@ function ClassroomStudentView(){
   );
 }
 
-function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroomResponse}){
+function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassroomResponse }) {
   const { classroomId } = Route.useParams();
   // const { reportDownloadUrl } = Route.useLoaderData()
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
 
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const archiveClassroom = useArchiveClassroom(classroomId);
+  const { mutate } = useArchiveClassroom(classroomId);
 
-  const handleArchiveClick = useCallback(() => {
-    setDialogOpen(true);
-  }, []);
-
-  const handleConfirmArchive = useCallback(() => {
-    archiveClassroom.mutate();
-    setDialogOpen(false);
-  }, [archiveClassroom]);
-
-  const handleCancel = useCallback(() => {
-    setDialogOpen(false);
-  }, []);
+  const handleConfirmArchive = () => {
+    mutate();
+  };
 
   return (
     <div>
       <div className="grid grid-cols-[1fr,auto] justify-between gap-1">
-        <Header title={`${userClassroom.classroom.archived ? "Archived " : ""}Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
+        <Header
+          title={`${userClassroom.classroom.archived ? "Archived " : ""}Classroom: ${userClassroom.classroom.name}`}
+          subtitle={userClassroom.classroom.description}
+        />
         <div className="grid grid-cols-2 gap-3">
           {!userClassroom.classroom.archived && (
             <>
-              <Button className="col-start-1" variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
-                <Archive className="text-slate-500 dark:text-white h-28 w-28" />
-              </Button>
-              <Button className="col-start-2" variant="ghost" size="icon" asChild title="Edit classroom">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    className="col-start-1"
+                    variant="secondary"
+                    size="sm"
+                    // onClick={handleArchiveClick}
+                    title="Archive classroom"
+                  >
+                    <Archive className="mr-2 h-4 w-4" /> Archive
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure that you wanna archive this classroom? This action can not be undone!
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleConfirmArchive} variant="destructive">
+                      Confirm
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <Button className="col-start-2" variant="secondary" asChild size="sm" title="Edit classroom">
                 <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
-                  <Pen className="text-slate-500 dark:text-white h-28 w-28" />
+                  <Pen className="mr-2 h-4 w-4" />
+                  Edit
                 </Link>
               </Button>
             </>
           )}
-          
         </div>
-        
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        { /*<Button asChild><a href={reportDownloadUrl}>Download Report</a></Button>*/ }
+        {/*<Button asChild><a href={reportDownloadUrl}>Download Report</a></Button>*/}
 
         <AssignmentListCard
           assignments={assignments}
@@ -123,43 +150,15 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
         {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
         {userClassroom.classroom.maxTeamSize > 1 && (
           <TeamListCard
-            teams={teams} 
-            classroomId={classroomId} 
-            userRole={Role.Owner} 
-            maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} 
+            teams={teams}
+            classroomId={classroomId}
+            userRole={Role.Owner}
+            maxTeamSize={userClassroom.classroom.maxTeamSize}
+            numInvitedMembers={classroomMembers.length}
             deactivateInteraction={userClassroom.classroom.archived}
           />
         )}
         <Outlet />
-      </div>
-
-      <SimpleDialog
-        isOpen={isDialogOpen}
-        onConfirm={handleConfirmArchive}
-        onCancel={handleCancel}
-      />
-    </div>
-  );
-}
-
-type SimpleDialogProps = {
-  isOpen: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-};
-
-function SimpleDialog({ isOpen, onConfirm, onCancel }: SimpleDialogProps) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded shadow-md">
-        <h2 className="text-lg font-semibold">Archive classroom</h2>
-        <p>Are you sure that you wanna archive this classroom? This action can not be undone!</p>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button onClick={onCancel} variant="destructive">Cancel</Button>
-          <Button onClick={onConfirm} variant="default">Confirm</Button>
-        </div>
       </div>
     </div>
   );
