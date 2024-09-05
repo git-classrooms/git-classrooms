@@ -1,6 +1,6 @@
 import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, Link } from "@tanstack/react-router";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
@@ -11,7 +11,10 @@ import { assignmentsQueryOptions } from "@/api/assignment";
 import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
-// import { Button } from "@/components/ui/button.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Pen, Archive } from "lucide-react";
+import { useState, useCallback } from "react";
+import { useArchiveClassroom } from "@/api/classroom";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -55,6 +58,7 @@ function ClassroomStudentView(){
     </div>
   );
 }
+
 function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroomResponse}){
   const { classroomId } = Route.useParams();
   // const { reportDownloadUrl } = Route.useLoaderData()
@@ -62,9 +66,44 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
 
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const archiveClassroom = useArchiveClassroom(classroomId);
+
+  const handleArchiveClick = useCallback(() => {
+    setDialogOpen(true);
+  }, []);
+
+  const handleConfirmArchive = useCallback(() => {
+    archiveClassroom.mutate();
+    setDialogOpen(false);
+  }, [archiveClassroom]);
+
+  const handleCancel = useCallback(() => {
+    setDialogOpen(false);
+  }, []);
+
   return (
     <div>
-      <Header title={`Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
+      <div className="grid grid-cols-[1fr,auto] justify-between gap-1">
+        <Header title={`${userClassroom.classroom.archived ? "Archived " : ""}Classroom: ${userClassroom.classroom.name}`} subtitle={userClassroom.classroom.description} />
+        <div className="grid grid-cols-2 gap-3">
+          {!userClassroom.classroom.archived && (
+            <>
+              <Button className="col-start-1" variant="ghost" size="icon" onClick={handleArchiveClick} title="Archive classroom">
+                <Archive className="text-slate-500 dark:text-white h-28 w-28" />
+              </Button>
+              <Button className="col-start-2" variant="ghost" size="icon" asChild title="Edit classroom">
+                <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
+                  <Pen className="text-slate-500 dark:text-white h-28 w-28" />
+                </Link>
+              </Button>
+            </>
+          )}
+          
+        </div>
+        
+      </div>
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
         { /*<Button asChild><a href={reportDownloadUrl}>Download Report</a></Button>*/ }
 
@@ -72,18 +111,55 @@ function ClassroomSupervisorView( {userClassroom}: {userClassroom: UserClassroom
           assignments={assignments}
           classroomId={classroomId}
           classroomName={userClassroom.classroom.name}
+          deactivateInteraction={userClassroom.classroom.archived}
         />
         <MemberListCard
           classroomMembers={classroomMembers}
           classroomId={classroomId}
           userRole={Role.Owner}
           showTeams={userClassroom.classroom.maxTeamSize > 1}
+          deactivateInteraction={userClassroom.classroom.archived}
         />
         {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
         {userClassroom.classroom.maxTeamSize > 1 && (
-          <TeamListCard teams={teams} classroomId={classroomId} userRole={Role.Owner} maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} />
+          <TeamListCard
+            teams={teams} 
+            classroomId={classroomId} 
+            userRole={Role.Owner} 
+            maxTeamSize={userClassroom.classroom.maxTeamSize} numInvitedMembers={classroomMembers.length} 
+            deactivateInteraction={userClassroom.classroom.archived}
+          />
         )}
         <Outlet />
+      </div>
+
+      <SimpleDialog
+        isOpen={isDialogOpen}
+        onConfirm={handleConfirmArchive}
+        onCancel={handleCancel}
+      />
+    </div>
+  );
+}
+
+type SimpleDialogProps = {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+};
+
+function SimpleDialog({ isOpen, onConfirm, onCancel }: SimpleDialogProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded shadow-md">
+        <h2 className="text-lg font-semibold">Archive classroom</h2>
+        <p>Are you sure that you wanna archive this classroom? This action can not be undone!</p>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button onClick={onCancel} variant="destructive">Cancel</Button>
+          <Button onClick={onConfirm} variant="default">Confirm</Button>
+        </div>
       </div>
     </div>
   );

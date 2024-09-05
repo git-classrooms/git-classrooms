@@ -42,7 +42,13 @@ export const createFormSchema = z
       .extend(createFormBase),
   );
 
-export type ClassroomForm = z.infer<typeof createFormSchema>;
+export type ClassroomCreateForm = z.infer<typeof createFormSchema>;
+
+export const updateFormSchema = z.object({
+  name: z.string().min(3),
+  description: z.string().min(3),
+});
+export type ClassroomUpdateForm = z.infer<typeof updateFormSchema>;
 
 export const inviteFormSchema = z.object({
   memberEmails: z
