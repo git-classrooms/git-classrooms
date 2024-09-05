@@ -63,6 +63,7 @@ function JoinTeam() {
             userRole={Role.Student}
             maxTeamSize={joinedClassroom.classroom.maxTeamSize}
             onTeamSelect={joinTeam}
+            deactivateInteraction={false}
           />
         </CardContent>
         <CardFooter className="flex justify-end">
