@@ -25,12 +25,15 @@ import { Route as AuthClassroomsIndexIndexImport } from "./routes/_auth/classroo
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/_index"
 import { Route as AuthClassroomsClassroomIdTeamsRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/route"
+import { Route as AuthClassroomsClassroomIdSettingsRouteImport } from "./routes/_auth/classrooms/$classroomId/settings/route"
+import { Route as AuthClassroomsClassroomIdSettingsIndexImport } from "./routes/_auth/classrooms/$classroomId/settings/index"
 import { Route as AuthClassroomsClassroomIdMembersIndexImport } from "./routes/_auth/classrooms/$classroomId/members/index"
 import { Route as AuthClassroomsClassroomIdIndexIndexImport } from "./routes/_auth/classrooms/$classroomId/_index/index"
 import { Route as AuthDashboardIndexCreateModalImport } from "./routes/_auth/dashboard/_index/create.modal"
 import { Route as AuthClassroomsIndexCreateModalImport } from "./routes/_auth/classrooms/_index/create.modal"
 import { Route as AuthClassroomsClassroomIdTeamsCreateImport } from "./routes/_auth/classrooms/$classroomId/teams/create"
 import { Route as AuthClassroomsClassroomIdTeamsIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/_index"
+import { Route as AuthClassroomsClassroomIdSettingsGradingImport } from "./routes/_auth/classrooms/$classroomId/settings/grading"
 import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from "./routes/_auth/classrooms/$classroomId/invitations/$invitationId"
 import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
 import { Route as AuthClassroomsClassroomIdTeamsTeamIdRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/$teamId/route"
@@ -38,7 +41,6 @@ import { Route as AuthClassroomsClassroomIdTeamsJoinIndexImport } from "./routes
 import { Route as AuthClassroomsClassroomIdTeamsIndexIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/_index/index"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
 import { Route as AuthClassroomsClassroomIdProjectsProjectIdAcceptImport } from "./routes/_auth/classrooms/$classroomId/projects/$projectId/accept"
-import { Route as AuthClassroomsClassroomIdIndexEditModalImport } from "./routes/_auth/classrooms/$classroomId/_index/edit.modal"
 import { Route as AuthClassroomsClassroomIdTeamsIndexCreateModalImport } from "./routes/_auth/classrooms/$classroomId/teams/_index/create.modal"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdEditModalImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/edit.modal"
 import { Route as AuthClassroomsClassroomIdIndexTeamsTeamIdModalImport } from "./routes/_auth/classrooms/$classroomId/_index/teams.$teamId.modal"
@@ -132,6 +134,18 @@ const AuthClassroomsClassroomIdTeamsRouteRoute =
     getParentRoute: () => AuthClassroomsRoute,
   } as any)
 
+const AuthClassroomsClassroomIdSettingsRouteRoute =
+  AuthClassroomsClassroomIdSettingsRouteImport.update({
+    path: "/$classroomId/settings",
+    getParentRoute: () => AuthClassroomsRoute,
+  } as any)
+
+const AuthClassroomsClassroomIdSettingsIndexRoute =
+  AuthClassroomsClassroomIdSettingsIndexImport.update({
+    path: "/",
+    getParentRoute: () => AuthClassroomsClassroomIdSettingsRouteRoute,
+  } as any)
+
 const AuthClassroomsClassroomIdMembersIndexRoute =
   AuthClassroomsClassroomIdMembersIndexImport.update({
     path: "/members/",
@@ -166,6 +180,12 @@ const AuthClassroomsClassroomIdTeamsIndexRoute =
   AuthClassroomsClassroomIdTeamsIndexImport.update({
     id: "/_index",
     getParentRoute: () => AuthClassroomsClassroomIdTeamsRouteRoute,
+  } as any)
+
+const AuthClassroomsClassroomIdSettingsGradingRoute =
+  AuthClassroomsClassroomIdSettingsGradingImport.update({
+    path: "/grading",
+    getParentRoute: () => AuthClassroomsClassroomIdSettingsRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdInvitationsInvitationIdRoute =
@@ -208,12 +228,6 @@ const AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute =
   AuthClassroomsClassroomIdProjectsProjectIdAcceptImport.update({
     path: "/projects/$projectId/accept",
     getParentRoute: () => AuthClassroomsClassroomIdRoute,
-  } as any)
-
-const AuthClassroomsClassroomIdIndexEditModalRoute =
-  AuthClassroomsClassroomIdIndexEditModalImport.update({
-    path: "/edit/modal",
-    getParentRoute: () => AuthClassroomsClassroomIdIndexRoute,
   } as any)
 
 const AuthClassroomsClassroomIdTeamsIndexCreateModalRoute =
@@ -280,6 +294,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthDashboardCreateImport
       parentRoute: typeof AuthDashboardImport
     }
+    "/_auth/classrooms/$classroomId/settings": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdSettingsRouteImport
+      parentRoute: typeof AuthClassroomsImport
+    }
     "/_auth/classrooms/$classroomId/teams": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsRouteImport
       parentRoute: typeof AuthClassroomsImport
@@ -316,6 +334,10 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdInvitationsInvitationIdImport
       parentRoute: typeof AuthClassroomsClassroomIdImport
     }
+    "/_auth/classrooms/$classroomId/settings/grading": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdSettingsGradingImport
+      parentRoute: typeof AuthClassroomsClassroomIdSettingsRouteImport
+    }
     "/_auth/classrooms/$classroomId/teams/_index": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdTeamsRouteImport
@@ -340,9 +362,9 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdMembersIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdImport
     }
-    "/_auth/classrooms/$classroomId/_index/edit/modal": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdIndexEditModalImport
-      parentRoute: typeof AuthClassroomsClassroomIdIndexImport
+    "/_auth/classrooms/$classroomId/settings/": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdSettingsIndexImport
+      parentRoute: typeof AuthClassroomsClassroomIdSettingsRouteImport
     }
     "/_auth/classrooms/$classroomId/projects/$projectId/accept": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdProjectsProjectIdAcceptImport
@@ -390,6 +412,10 @@ export const routeTree = rootRoute.addChildren([
         AuthClassroomsIndexCreateModalRoute,
       ]),
       AuthClassroomsCreateRoute,
+      AuthClassroomsClassroomIdSettingsRouteRoute.addChildren([
+        AuthClassroomsClassroomIdSettingsGradingRoute,
+        AuthClassroomsClassroomIdSettingsIndexRoute,
+      ]),
       AuthClassroomsClassroomIdTeamsRouteRoute.addChildren([
         AuthClassroomsClassroomIdTeamsTeamIdRouteRoute,
         AuthClassroomsClassroomIdTeamsIndexRoute.addChildren([
@@ -402,7 +428,6 @@ export const routeTree = rootRoute.addChildren([
       AuthClassroomsClassroomIdRoute.addChildren([
         AuthClassroomsClassroomIdIndexRoute.addChildren([
           AuthClassroomsClassroomIdIndexIndexRoute,
-          AuthClassroomsClassroomIdIndexEditModalRoute,
           AuthClassroomsClassroomIdIndexTeamCreateModalRoute,
           AuthClassroomsClassroomIdIndexTeamsTeamIdModalRoute,
         ]),

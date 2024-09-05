@@ -30,6 +30,12 @@ export interface UtilsReportDataItem {
      * @type {number}
      * @memberof UtilsReportDataItem
      */
+    autogradingMaxScore: number;
+
+    /**
+     * @type {number}
+     * @memberof UtilsReportDataItem
+     */
     autogradingScore: number;
 
     /**
@@ -61,6 +67,12 @@ export interface UtilsReportDataItem {
      * @memberof UtilsReportDataItem
      */
     rubricFeedback: { [key: string]: string; };
+
+    /**
+     * @type {{ [key: string]: number; }}
+     * @memberof UtilsReportDataItem
+     */
+    rubricMaxScores: { [key: string]: number; };
 
     /**
      * @type {{ [key: string]: number; }}

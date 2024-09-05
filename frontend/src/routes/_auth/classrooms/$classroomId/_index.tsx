@@ -12,7 +12,7 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Pen, Archive } from "lucide-react";
+import { Archive, Settings } from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import {
   AlertDialog,
@@ -71,7 +71,7 @@ function ClassroomStudentView() {
 
 function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassroomResponse }) {
   const { classroomId } = Route.useParams();
-  // const { reportDownloadUrl } = Route.useLoaderData()
+  const { reportDownloadUrl } = Route.useLoaderData();
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
@@ -94,13 +94,7 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
             <>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button
-                    className="col-start-1"
-                    variant="secondary"
-                    size="sm"
-                    // onClick={handleArchiveClick}
-                    title="Archive classroom"
-                  >
+                  <Button className="col-start-1" variant="secondary" size="sm" title="Archive classroom">
                     <Archive className="mr-2 h-4 w-4" /> Archive
                   </Button>
                 </AlertDialogTrigger>
@@ -120,10 +114,10 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
                 </AlertDialogContent>
               </AlertDialog>
 
-              <Button className="col-start-2" variant="secondary" asChild size="sm" title="Edit classroom">
-                <Link to="/classrooms/$classroomId/edit/modal" params={{ classroomId: classroomId }} replace>
-                  <Pen className="mr-2 h-4 w-4" />
-                  Edit
+              <Button className="col-start-2" variant="secondary" asChild size="sm" title="Settings">
+                <Link to="/classrooms/$classroomId/settings/" params={{ classroomId: classroomId }}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
                 </Link>
               </Button>
             </>
@@ -132,7 +126,11 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        {/*<Button asChild><a href={reportDownloadUrl}>Download Report</a></Button>*/}
+        <Button asChild>
+          <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
+            Download Report
+          </a>
+        </Button>
 
         <AssignmentListCard
           assignments={assignments}

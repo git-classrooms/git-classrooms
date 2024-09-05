@@ -36,6 +36,7 @@ import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./api/auth";
 import { Loader } from "./components/loader";
 import { ThemeProvider } from "./provider/themeProvider";
+import { Toaster } from "./components/ui/sonner";
 
 const classroomCreateModalToClassroomCreateMask = createRouteMask({
   routeTree,
@@ -105,6 +106,7 @@ function App() {
           <Suspense fallback={<Loader />}>
             <InnerApp />
           </Suspense>
+          <Toaster position="bottom-center" />
         </QueryClientProvider>
       </ThemeProvider>
     </React.StrictMode>

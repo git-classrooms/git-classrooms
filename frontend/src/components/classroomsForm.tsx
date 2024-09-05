@@ -12,8 +12,9 @@ import { classroomQueryOptions, useCreateClassroom, useUpdateClassroom } from "@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
-import { Switch } from "@/components/ui/switch"
+import { Switch } from "@/components/ui/switch";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const ClassroomCreateForm = () => {
   const navigate = useNavigate();
@@ -87,35 +88,37 @@ export const ClassroomCreateForm = () => {
               </FormItem>
             )}
           />
-          <div className ="border-l px-4" hidden={!form.getValues("teamsEnabled")}>
-          <FormField
-            control={form.control}
-            name="maxTeams"
-            render={({ field }) => (
-              <FormItem className="space-y-1  my-2">
-                <FormLabel>Max Teams</FormLabel>
-                <FormControl>
-                  <Input type="number" min={0} step={1} {...field} />
-                </FormControl>
-                <FormDescription>The maximum amount of teams. Keep at 0 to have no limit.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="maxTeamSize"
-            render={({ field }) => (
-              <FormItem className="space-y-1 my-2">
-                <FormLabel>Max Team Size</FormLabel>
-                <FormControl>
-                  <Input type="number" min={2} step={1} {...field} />
-                </FormControl>
-                <FormDescription>The maximum amount of members per team. Must be at least 2. For one-person teams deactivate teams.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="border-l px-4" hidden={!form.getValues("teamsEnabled")}>
+            <FormField
+              control={form.control}
+              name="maxTeams"
+              render={({ field }) => (
+                <FormItem className="space-y-1  my-2">
+                  <FormLabel>Max Teams</FormLabel>
+                  <FormControl>
+                    <Input type="number" min={0} step={1} {...field} />
+                  </FormControl>
+                  <FormDescription>The maximum amount of teams. Keep at 0 to have no limit.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxTeamSize"
+              render={({ field }) => (
+                <FormItem className="space-y-1 my-2">
+                  <FormLabel>Max Team Size</FormLabel>
+                  <FormControl>
+                    <Input type="number" min={2} step={1} {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    The maximum amount of members per team. Must be at least 2. For one-person teams deactivate teams.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="createTeams"
@@ -161,8 +164,7 @@ export const ClassroomCreateForm = () => {
 };
 
 export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
-  const { data: userClaasroom } = useSuspenseQuery(classroomQueryOptions(classroomId))
-  const navigate = useNavigate();
+  const { data: userClaasroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { mutateAsync, isError, isPending } = useUpdateClassroom(classroomId);
 
   const form = useForm<z.infer<typeof updateFormSchema>>({
@@ -174,17 +176,15 @@ export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
   });
 
   async function onSubmit(values: z.infer<typeof updateFormSchema>) {
-    console.log("Test")
-    console.log(values)
     await mutateAsync(values);
-    await navigate({ to: "/classrooms/$classroomId", params: { classroomId } });
+    toast.success("Classroom updated!");
   }
 
   return (
     <div className="p-2">
       <div>
-        <h1 className="text-xl font-bold">Edit the classroom</h1>
-        <p className="text-sm text-muted-foreground">Change the details you want and submit when you're done.</p>
+        <h2 className="text-xl font-bold">Edit the classroom</h2>
+        <p className="text-sm text-muted-foreground">Change the details of this classroom.</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -218,7 +218,7 @@ export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
           />
 
           <Button type="submit" disabled={isPending}>
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save"}
           </Button>
 
           {isError && (

@@ -85,5 +85,11 @@ export interface Classroom {
      * @type {boolean}
      * @memberof Classroom
      */
+    potentiallyDeleted: boolean;
+
+    /**
+     * @type {boolean}
+     * @memberof Classroom
+     */
     studentsViewAllProjects: boolean;
 }

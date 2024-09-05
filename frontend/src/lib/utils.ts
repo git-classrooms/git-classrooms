@@ -2,7 +2,18 @@ import axios from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format } from "date-fns";
-import { AssignmentApi, AuthApi, ClassroomApi, InfoApi, MemberApi, ProjectApi, TeamApi, GradingApi, ReportApi } from "@/swagger-client";
+import {
+  AssignmentApi,
+  AuthApi,
+  ClassroomApi,
+  InfoApi,
+  MemberApi,
+  ProjectApi,
+  TeamApi,
+  GradingApi,
+  ReportApi,
+  RunnersApi,
+} from "@/swagger-client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -29,3 +40,4 @@ export const createTeamApi = () => new TeamApi(undefined, "", apiClient);
 export const createInfoApi = () => new InfoApi(undefined, "", apiClient);
 export const createGradingApi = () => new GradingApi(undefined, "", apiClient);
 export const createReportApi = () => new ReportApi(undefined, "", apiClient);
+export const createRunnersApi = () => new RunnersApi(undefined, "", apiClient);

@@ -37,7 +37,7 @@ function RootComponent() {
         <Navbar auth={auth} />
         <div className="flex flex-col w-full items-center">
           <div className="w-full xl:max-w-[90rem]">
-            <div className="mx-6 md:px-10">
+            <div className="mx-6 md:px-10 mt-3">
               <Outlet />
             </div>
             <ReactQueryDevtools initialIsOpen={false} />

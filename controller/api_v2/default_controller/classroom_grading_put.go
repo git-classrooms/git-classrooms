@@ -19,7 +19,7 @@ type gradingManualRubricRequest struct {
 } //@Name GradingManualRubricRequest
 
 func (r gradingManualRubricRequest) isValid() bool {
-	return r.Name != "" && r.Description != "" && r.MaxScore > 0
+	return r.Name != "" && r.MaxScore > 0
 }
 
 func rubricRequestIsValid(r gradingManualRubricRequest) bool {
@@ -82,6 +82,11 @@ func (ctrl *DefaultController) UpdateGradingRubrics(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, "Body includes invalid IDs")
 	}
 
+	rubricMap := make(map[uuid.UUID]*database.ManualGradingRubric)
+	for _, r := range rubrics {
+		rubricMap[r.ID] = r
+	}
+
 	err = query.Q.Transaction(func(tx *query.Query) error {
 		queryManualGradingRubric := tx.ManualGradingRubric
 		if _, err := queryManualGradingRubric.
@@ -93,15 +98,17 @@ func (ctrl *DefaultController) UpdateGradingRubrics(c *fiber.Ctx) (err error) {
 
 		for _, e := range requestBody.GradingManualRubrics {
 			if e.ID != nil {
-				if _, err := queryManualGradingRubric.
+				rubric, ok := rubricMap[*e.ID]
+				if !ok {
+					return fiber.NewError(fiber.StatusBadRequest, "Body includes invalid IDs")
+				}
+
+				rubric.Name = e.Name
+				rubric.Description = e.Description
+				rubric.MaxScore = e.MaxScore
+				if err := queryManualGradingRubric.
 					WithContext(c.Context()).
-					Where(queryManualGradingRubric.ClassroomID.Eq(classroom.ID)).
-					Where(queryManualGradingRubric.ID.Eq(*e.ID)).
-					Updates(database.ManualGradingRubric{
-						Name:        e.Name,
-						Description: e.Description,
-						MaxScore:    e.MaxScore,
-					}); err != nil {
+					Save(rubric); err != nil {
 					return err
 				}
 			} else {

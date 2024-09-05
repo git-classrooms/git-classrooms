@@ -66,19 +66,13 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
           renderItem={(item) => (
             <ListItem
               leftContent={
-                <ListLeftContent
-                  classroomName={item.classroom.name}
-                  assignmentsCount={item.assignmentsCount}
-                />
+                <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
               }
-              rightContent={
-                <ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />
-              }
+              rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
             />
           )}
         />
       </CardContent>
-
 
       <CardFooter className="flex justify-end gap-2">
         <Button asChild variant="default">
@@ -162,33 +156,24 @@ function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomRespo
   );
 }
 
-function ListLeftContent({ classroomName, assignmentsCount }: {
-  classroomName: string,
-  assignmentsCount: number
-}) {
-  const assignmentsText = assignmentsCount === 1
-    ? `${assignmentsCount} Assignment`
-    : `${assignmentsCount} Assignments`;
+function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: string; assignmentsCount: number }) {
+  const assignmentsText = assignmentsCount === 1 ? `${assignmentsCount} Assignment` : `${assignmentsCount} Assignments`;
   return (
     <div className="cursor-default flex">
       <div className="pr-2">
         <Avatar>
-          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">
-            {classroomName.charAt(0)}
-          </AvatarFallback>
+          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
         </Avatar>
       </div>
       <div>
         <div className="font-medium">{classroomName}</div>
-        <div className="text-sm text-muted-foreground md:inline">
-          {assignmentsText}
-        </div>
+        <div className="text-sm text-muted-foreground md:inline">{assignmentsText}</div>
       </div>
     </div>
   );
 }
 
-function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string, classroomId: string }) {
+function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; classroomId: string }) {
   return (
     <>
       <Button variant="ghost" size="icon" asChild>
