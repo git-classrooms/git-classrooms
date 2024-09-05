@@ -20,7 +20,7 @@ import (
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
+	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
@@ -122,7 +122,8 @@ func restoreDatabase(t *testing.T) {
 	}
 }
 
-func setupApp(t *testing.T, user *database.User, gitlabRepo gitlabRepo.Repository) *fiber.App {
+func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.MockRepository, *mailRepoMock.MockRepository) {
+	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 	session.InitSessionStore(&integrationTest.dbURL)
 
@@ -138,5 +139,5 @@ func setupApp(t *testing.T, user *database.User, gitlabRepo gitlabRepo.Repositor
 
 	router.Routes(app, authCtrl, apiCtrl, v2Controller, "public", &auth.OAuthConfig{RedirectURL: redirectUrl})
 
-	return app
+	return app, gitlabRepo, mailRepo
 }

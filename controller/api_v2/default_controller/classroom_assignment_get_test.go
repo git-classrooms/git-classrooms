@@ -32,10 +32,10 @@ func TestGetClassroomAssignment(t *testing.T) {
 	classroom := factory.Classroom(owner.ID)
 	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 	dueDate := time.Now().Add(1 * time.Hour)
-	assignment := factory.Assignment(classroom.ID, &dueDate)
+	assignment := factory.Assignment(classroom.ID, &dueDate, false)
 
 	// ------------ END OF SEEDING DATA -----------------
-	app := setupApp(t, owner, nil)
+	app, _, _ := setupApp(t, owner)
 
 	t.Run("GetClassroomAssignment", func(t *testing.T) {
 		route := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ID, assignment.ID)

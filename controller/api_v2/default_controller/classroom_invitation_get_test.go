@@ -30,7 +30,7 @@ func TestGetClassroomInvitation(t *testing.T) {
 	factory.UserClassroom(user.ID, classroom.ID, database.Owner)
 	invitation := factory.Invitation(classroom.ID)
 
-	app := setupApp(t, user, nil)
+	app, _, _ := setupApp(t, user)
 
 	route := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", classroom.ID, invitation.ID)
 

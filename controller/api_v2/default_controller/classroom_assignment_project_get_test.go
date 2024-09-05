@@ -33,11 +33,11 @@ func TestGetClassroomAssignmentProject(t *testing.T) {
 	userClassroom := factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	dueDate := time.Now().Add(1 * time.Hour)
-	assignment := factory.Assignment(classroom.ID, &dueDate)
+	assignment := factory.Assignment(classroom.ID, &dueDate, false)
 	team := factory.Team(classroom.ID, []*database.UserClassrooms{userClassroom})
 	project := factory.AssignmentProject(assignment.ID, team.ID)
 
-	app := setupApp(t, owner, nil)
+	app, _, _ := setupApp(t, owner)
 
 	t.Run("GetOwnedClassroomAssignmentProject", func(t *testing.T) {
 		route := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects/%s", classroom.ID.String(), assignment.ID.String(), project.ID.String())

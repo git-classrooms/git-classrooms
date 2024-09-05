@@ -104,13 +104,14 @@ func Team(classroomID uuid.UUID, member []*database.UserClassrooms) *database.Te
 	return &team
 }
 
-func Assignment(classroomID uuid.UUID, dueDate *time.Time) *database.Assignment {
+func Assignment(classroomID uuid.UUID, dueDate *time.Time, autograding bool) *database.Assignment {
 	assignment := database.Assignment{}
 	assignment.ClassroomID = classroomID
 	assignment.TemplateProjectID = 1234
-	assignment.Name = "Test Assignment"
-	assignment.Description = "Test Assignment Description"
+	assignment.Name = gofakeit.Name()
+	assignment.Description = gofakeit.EmojiDescription()
 	assignment.DueDate = dueDate
+	assignment.GradingJUnitAutoGradingActive = autograding
 
 	err := query.Assignment.WithContext(context.Background()).Create(&assignment)
 	if err != nil {
@@ -118,3 +119,4 @@ func Assignment(classroomID uuid.UUID, dueDate *time.Time) *database.Assignment 
 	}
 	return &assignment
 }
+

@@ -30,7 +30,7 @@ func TestGetClassroom(t *testing.T) {
 	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 
 	// Setup fiber
-	app := setupApp(t, owner, nil)
+	app, _, _ := setupApp(t, owner)
 
 	t.Run("return a classroom by id", func(t *testing.T) {
 		// prepare request

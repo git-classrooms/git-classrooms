@@ -22,7 +22,7 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 	factory.UserClassroom(owner.ID, classroom.ID, database.Owner)
 	invitation := factory.Invitation(classroom.ID)
 
-	app := setupApp(t, owner, nil)
+	app, _, _ := setupApp(t, owner)
 
 	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", invitation.ClassroomID.String(), invitation.ID.String())
 

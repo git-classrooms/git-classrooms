@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
@@ -32,13 +31,11 @@ func TestPatchClassroomArchive(t *testing.T) {
 
 	dueDate := time.Now().Add(1 * time.Hour)
 
-	assignment := factory.Assignment(classroom.ID, &dueDate)
+	assignment := factory.Assignment(classroom.ID, &dueDate, false)
 	team := factory.Team(classroom.ID, members)
 	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 
-	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
-
-	app := setupApp(t, owner, gitlabRepo)
+	app, gitlabRepo, _ := setupApp(t, owner)
 	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/archive", classroom.ID.String())
 
 	t.Run("classroom already archived", func(t *testing.T) {

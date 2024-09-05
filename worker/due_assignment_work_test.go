@@ -41,7 +41,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 		t.Fatalf("could not migrate database: %s", err.Error())
 	}
 
-	db, err := gorm.Open(postgres.Open(dbURL))
+	db, err = gorm.Open(postgres.Open(dbURL))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 	classroom := factory.Classroom(owner.ID)
 
 	dueDate := time.Now().Add(1 * time.Hour)
-	assignment1 := factory.Assignment(classroom.ID, &dueDate)
+	assignment1 := factory.Assignment(classroom.ID, &dueDate, false)
 
 	members := []*database.UserClassrooms{
 		factory.UserClassroom(student1.ID, classroom.ID, database.Student),

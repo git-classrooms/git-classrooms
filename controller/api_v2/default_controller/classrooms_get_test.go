@@ -39,7 +39,7 @@ func TestGetClassrooms(t *testing.T) {
 	factory.UserClassroom(student.ID, classroom.ID, database.Student)
 
 	t.Run("return all classrooms where the user is the owner", func(t *testing.T) {
-		app := setupApp(t, owner, nil)
+		app, _,_ := setupApp(t, owner)
 		// prepare request
 		route := "/api/v2/classrooms?filter=owned"
 		req := httptest.NewRequest("GET", route, nil)
@@ -67,7 +67,7 @@ func TestGetClassrooms(t *testing.T) {
 	})
 
 	t.Run("return all classrooms where the user is moderator", func(t *testing.T) {
-		app := setupApp(t, moderator, nil)
+		app, _,_ := setupApp(t, moderator)
 		// prepare request
 		route := "/api/v2/classrooms?filter=moderator"
 		req := httptest.NewRequest("GET", route, nil)
@@ -95,7 +95,7 @@ func TestGetClassrooms(t *testing.T) {
 	})
 
 	t.Run("return all classrooms where the user is student", func(t *testing.T) {
-		app := setupApp(t, student, nil)
+		app, _,_ := setupApp(t, student)
 		// prepare request
 		route := "/api/v2/classrooms?filter=student"
 		req := httptest.NewRequest("GET", route, nil)

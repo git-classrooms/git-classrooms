@@ -20,7 +20,7 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 	factory.UserClassroom(user.ID, classroom.ID, database.Owner)
 	invitation := factory.Invitation(classroom.ID)
 
-	app := setupApp(t, user, nil)
+	app, _,_ := setupApp(t, user)
 
 	t.Run("GetClassroomInvitations", func(t *testing.T) {
 		route := fmt.Sprintf("/api/v2/classrooms/%s/invitations", classroom.ID.String())

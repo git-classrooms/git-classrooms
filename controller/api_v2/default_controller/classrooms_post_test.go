@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
@@ -30,9 +29,8 @@ func TestCreateClassroom(t *testing.T) {
 	query.SetDefault(db)
 
 	user := factory.User()
-	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 
-	app := setupApp(t, user, gitlabRepo)
+	app, gitlabRepo, _ := setupApp(t, user)
 
 	t.Run("CreateClassroom", func(t *testing.T) {
 		requestBody := createClassroomRequest{
