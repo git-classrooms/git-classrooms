@@ -46,6 +46,11 @@ export function MemberListCard({
       </CardContent>
       {(userRole != 2 && !deactivateInteraction) && (
         <CardFooter className="flex justify-end">
+          <Button variant="default" asChild className="mr-2">
+            <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
+              Show all members
+            </Link>
+          </Button>
           <Button variant="default" asChild>
             <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
               Invite members

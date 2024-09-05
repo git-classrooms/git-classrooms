@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Team struct {
@@ -23,3 +24,8 @@ type Team struct {
 
 	AssignmentProjects []*AssignmentProjects `json:"-"`
 } //@Name Team
+
+func (t *Team) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Clauses(clause.Returning{}).Where("team_id = ?", t.ID).Delete(&AssignmentProjects{})
+	return
+}

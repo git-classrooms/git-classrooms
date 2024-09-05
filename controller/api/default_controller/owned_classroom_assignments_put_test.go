@@ -82,7 +82,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			DueDate:     &newTime,
 		}
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
@@ -98,7 +98,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	t.Run("request body is empty", func(t *testing.T) {
 		requestBody := updateAssignmentRequest{}
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
@@ -118,7 +118,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			DueDate: &newTime,
 		}
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
@@ -143,7 +143,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 		project.ProjectStatus = database.Accepted
 		testDb.SaveAssignmentProjects(&project)
 
-		req := newPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)

@@ -43,6 +43,9 @@ function JoinTeam() {
       params: { classroomId },
     });
   };
+  const freeTeamSlot = (): boolean => {
+    return teams.some(team => team.members.length < joinedClassroom.classroom.maxTeamSize);
+  };
 
   return (
     <>
@@ -54,6 +57,12 @@ function JoinTeam() {
             ? "Choose a team you want to join or create a new team."
             : "Please select a team. "
           }
+          { !joinedClassroom.classroom.createTeams && !freeTeamSlot() && (
+            <div>
+              <p className="text-sm text-muted-foreground text-red-600">There currently are no teams you can join.</p>
+              <p className="text-sm text-muted-foreground text-red-600">Please contact the owner of this classroom to add more teams or raise the team-size</p>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <TeamTable
