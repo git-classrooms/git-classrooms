@@ -54,10 +54,9 @@ func TestPostClassroomAssignmentProjects(t *testing.T) {
 			).
 			RunAndReturn(func(gitlabEmail, mailTitle string, notificationData mailRepo.AssignmentNotificationData) error {
 				assert.Equal(t, notificationData.ClassroomName, classroom.Name)
-				assert.Equal(t, notificationData.ClassroomOwnerName , owner.Name)
+				assert.Equal(t, notificationData.ClassroomOwnerName, owner.Name)
 				assert.Equal(t, notificationData.RecipientName, user.Name)
 				assert.Equal(t, notificationData.AssignmentName, assignment.Name)
-
 
 				return nil
 			})

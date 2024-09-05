@@ -71,6 +71,6 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignment.ID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignment.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
 }

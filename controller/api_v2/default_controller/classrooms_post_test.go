@@ -27,9 +27,7 @@ func TestCreateClassroom(t *testing.T) {
 	}
 
 	query.SetDefault(db)
-
 	user := factory.User()
-
 	app, gitlabRepo, _ := setupApp(t, user)
 
 	t.Run("CreateClassroom", func(t *testing.T) {
