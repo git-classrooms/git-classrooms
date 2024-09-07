@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
   loader: async ({ context: { queryClient }, params }) => {
     const templateProjects = await queryClient.ensureQueryData(classroomTemplatesQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role !== Role.Owner ) {
+    if (userClassroom.role !== Role.Owner) {
       throw redirect({
         to: "/classrooms/$classroomId",
         params,
@@ -177,8 +177,8 @@ function CreateAssignment() {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
-                          <CommandInput placeholder="Search framework..." />
-                          <CommandEmpty>No framework found.</CommandEmpty>
+                          <CommandInput placeholder="Search project..." />
+                          <CommandEmpty>No projects found.</CommandEmpty>
                           <CommandGroup>
                             {templateProjects.map((template) => (
                               <CommandItem

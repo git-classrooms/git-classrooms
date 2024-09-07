@@ -12,7 +12,7 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Archive, Settings } from "lucide-react";
+import { Archive, Download, Settings } from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import {
   AlertDialog,
@@ -25,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
+import { isModerator } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -39,7 +40,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
     }
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-    if (userClassroom.role !== Role.Student) {
+
+    if (isModerator(userClassroom)) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
       return { userClassroom, assignments, members, teams, reportDownloadUrl };
     } else {
@@ -52,11 +54,12 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
 function ClassroomDetail() {
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
-  if (userClassroom.role === Role.Student) {
-    return <ClassroomStudentView />;
-  } else if (userClassroom.role === Role.Owner || userClassroom.role === Role.Moderator) {
-    return <ClassroomSupervisorView userClassroom={userClassroom} />;
-  }
+
+  return isModerator(userClassroom) ? (
+    <ClassroomSupervisorView userClassroom={userClassroom} />
+  ) : (
+    <ClassroomStudentView />
+  );
 }
 
 function ClassroomStudentView() {
@@ -84,17 +87,23 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
 
   return (
     <div>
-      <div className="grid grid-cols-[1fr,auto] justify-between gap-1">
+      <div className="md:flex justify-between gap-1">
         <Header
           title={`${userClassroom.classroom.archived ? "Archived " : ""}Classroom: ${userClassroom.classroom.name}`}
           subtitle={userClassroom.classroom.description}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {!userClassroom.classroom.archived && (
             <>
+              <Button variant="secondary" asChild size="sm" title="Download Report">
+                <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Report
+                </a>
+              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button className="col-start-1" variant="secondary" size="sm" title="Archive classroom">
+                  <Button variant="secondary" size="sm" title="Archive classroom">
                     <Archive className="mr-2 h-4 w-4" /> Archive
                   </Button>
                 </AlertDialogTrigger>
@@ -114,8 +123,8 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
                 </AlertDialogContent>
               </AlertDialog>
 
-              <Button className="col-start-2" variant="secondary" asChild size="sm" title="Settings">
-                <Link to="/classrooms/$classroomId/settings/" params={{ classroomId: classroomId }}>
+              <Button variant="secondary" asChild size="sm" title="Settings">
+                <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </Link>
@@ -126,12 +135,6 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        <Button asChild>
-          <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
-            Download Report
-          </a>
-        </Button>
-
         <AssignmentListCard
           assignments={assignments}
           classroomId={classroomId}

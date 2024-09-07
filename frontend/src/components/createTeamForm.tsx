@@ -1,6 +1,5 @@
 import { createFormSchema } from "@/types/team";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "@tanstack/react-router";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,9 +8,14 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, For
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useCreateTeam } from "@/api/team";
+import React from "react";
 
-export const CreateTeamForm = ({ classroomId }: { classroomId: string }) => {
-  const navigate = useNavigate();
+interface CreateTeamFormProps {
+  classroomId: string;
+  onSuccess: () => Promise<void> | void;
+}
+
+export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onSuccess }) => {
   const { mutateAsync, isError, isPending } = useCreateTeam(classroomId);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -23,7 +27,7 @@ export const CreateTeamForm = ({ classroomId }: { classroomId: string }) => {
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     await mutateAsync(values);
-    navigate({ to: "/classrooms/$classroomId", params: { classroomId } });
+    onSuccess();
   }
 
   return (

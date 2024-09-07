@@ -7,6 +7,9 @@ import { Clipboard, Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { TeamResponse } from "@/swagger-client";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { CreateTeamForm } from "./createTeamForm";
+import { useState } from "react";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -34,6 +37,9 @@ export function TeamListCard({
   deactivateInteraction: boolean;
 }): JSX.Element {
   const teamSlots = teams.length * maxTeamSize;
+
+  const [open, setOpen] = useState(false);
+
   return (
     <Card className="p-2">
       <CardHeader>
@@ -41,27 +47,32 @@ export function TeamListCard({
         <CardDescription>Every team in this classroom</CardDescription>
         {teamSlots < numInvitedMembers && userRole != Role.Student && (
           <div>
-            <p className="text-sm text-muted-foreground text-red-600">Not enough team spots to accommodate all classroom members.</p>
+            <p className="text-sm text-muted-foreground text-red-600">
+              Not enough team spots to accommodate all classroom members.
+            </p>
             <p className="text-sm text-muted-foreground text-red-600">Please add more teams!</p>
           </div>
         )}
       </CardHeader>
       <CardContent>
-        <TeamTable 
-          teams={teams} 
-          classroomId={classroomId} 
-          userRole={userRole} 
+        <TeamTable
+          teams={teams}
+          classroomId={classroomId}
+          userRole={userRole}
           maxTeamSize={maxTeamSize}
-          deactivateInteraction={deactivateInteraction} 
+          deactivateInteraction={deactivateInteraction}
         />
       </CardContent>
-      {(userRole != Role.Student && !deactivateInteraction )&& (
+      {userRole != Role.Student && !deactivateInteraction && (
         <CardFooter className="flex justify-end">
-          <Button variant="default" asChild>
-            <Link to="/classrooms/$classroomId/team/create/modal" replace params={{ classroomId }}>
-              Create a team
-            </Link>
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default">Create a team</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
+            </DialogContent>
+          </Dialog>
         </CardFooter>
       )}
     </Card>
@@ -101,26 +112,26 @@ export function TeamTable({
               </Button>
               {!deactivateInteraction && (
                 <>
-                {userRole != Role.Student && (
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link
-                      to="/classrooms/$classroomId/teams/$teamId/modal"
-                      params={{ classroomId: classroomId, teamId: t.id }}
+                  {userRole != Role.Student && (
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link
+                        to="/classrooms/$classroomId/teams/$teamId/modal"
+                        params={{ classroomId: classroomId, teamId: t.id }}
+                      >
+                        <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
+                      </Link>
+                    </Button>
+                  )}
+                  {onTeamSelect && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onTeamSelect?.(t.id)}
+                      disabled={isPending || t.members.length >= maxTeamSize}
                     >
-                      <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
-                    </Link>
-                  </Button>
-                )}
-                {onTeamSelect && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onTeamSelect?.(t.id)}
-                    disabled={isPending || t.members.length >= maxTeamSize}
-                  >
-                    <UserPlus className="text-gray-600 dark:text-white" />
-                  </Button>
-                )}
+                      <UserPlus className="text-gray-600 dark:text-white" />
+                    </Button>
+                  )}
                 </>
               )}
             </TableCell>
@@ -131,13 +142,7 @@ export function TeamTable({
   );
 }
 
-function TeamListElement({
-  team,
-  maxTeamSize,
-}: {
-  team: TeamResponse;
-  maxTeamSize: number;
-}) {
+function TeamListElement({ team, maxTeamSize }: { team: TeamResponse; maxTeamSize: number }) {
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">

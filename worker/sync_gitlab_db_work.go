@@ -271,6 +271,7 @@ func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignment
 	projects, err := query.AssignmentProjects.
 		WithContext(ctx).
 		Where(query.AssignmentProjects.AssignmentID.Eq(assignmentId)).
+		Where(query.AssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
 		Find()
 	if err != nil {
 		log.Default().Printf("Error occurred while fetching classrooms: %s", err.Error())

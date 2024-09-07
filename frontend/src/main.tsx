@@ -37,25 +37,12 @@ import { useAuth } from "./api/auth";
 import { Loader } from "./components/loader";
 import { ThemeProvider } from "./provider/themeProvider";
 import { Toaster } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 const classroomCreateModalToClassroomCreateMask = createRouteMask({
   routeTree,
   from: "/classrooms/create/modal",
   to: "/classrooms/create",
-  params: true,
-});
-
-const classroomTeamCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/$classroomId/team/create/modal",
-  to: "/classrooms/$classroomId/teams/create",
-  params: true,
-});
-
-const classroomTeamsCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/$classroomId/teams/create/modal",
-  to: "/classrooms/$classroomId/teams/create",
   params: true,
 });
 
@@ -73,12 +60,7 @@ const router = createRouter({
     queryClient,
     auth: undefined!,
   },
-  routeMasks: [
-    classroomCreateModalToClassroomCreateMask,
-    classroomTeamCreateMask,
-    classroomTeamsCreateMask,
-    dashboardCreateModalToDashboardCreateMask,
-  ],
+  routeMasks: [classroomCreateModalToClassroomCreateMask, dashboardCreateModalToDashboardCreateMask],
   defaultPreload: "intent",
   unmaskOnReload: true,
   // Since we're using React Query, we don't want loader calls to ever be stale
@@ -102,12 +84,14 @@ function App() {
   return (
     <React.StrictMode>
       <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={<Loader />}>
-            <InnerApp />
-          </Suspense>
-          <Toaster position="bottom-center" />
-        </QueryClientProvider>
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <Suspense fallback={<Loader />}>
+              <InnerApp />
+            </Suspense>
+            <Toaster position="bottom-center" />
+          </QueryClientProvider>
+        </TooltipProvider>
       </ThemeProvider>
     </React.StrictMode>
   );

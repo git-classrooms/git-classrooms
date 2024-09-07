@@ -57,8 +57,11 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 		}
 	}
 
-	var response assignmentTestResponse
-	response.Example = examples.GetLanguageCIExample(maxLanguage)
+	response := &assignmentTestResponse{
+		SelectedTests: make([]*database.AssignmentJunitTest, 0),
+		Report:        make([]*assignmentTestReport, 0),
+		Example:       examples.GetLanguageCIExample(maxLanguage),
+	}
 	response.Activatible, err = repo.CheckIfFileExistsInProject(assignment.TemplateProjectID, ".gitlab-ci.yml")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
 });
 
 function JoinTeam() {
-  const navigate = useNavigate();
+  const navigate = Route.useNavigate();
   const { classroomId } = Route.useParams();
   const { data: joinedClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
@@ -44,23 +44,26 @@ function JoinTeam() {
     });
   };
   const freeTeamSlot = (): boolean => {
-    return teams.some(team => team.members.length < joinedClassroom.classroom.maxTeamSize);
+    return teams.some((team) => team.members.length < joinedClassroom.classroom.maxTeamSize);
   };
 
   return (
     <>
-      <Header title={`Join a team of ${joinedClassroom.classroom.name}`}
-              subtitle={joinedClassroom.classroom.description} />
+      <Header
+        title={`Join a team of ${joinedClassroom.classroom.name}`}
+        subtitle={joinedClassroom.classroom.description}
+      />
       <Card className="p-2">
         <CardHeader>
           {joinedClassroom.classroom.createTeams
             ? "Choose a team you want to join or create a new team."
-            : "Please select a team. "
-          }
-          { !joinedClassroom.classroom.createTeams && !freeTeamSlot() && (
+            : "Please select a team. "}
+          {!joinedClassroom.classroom.createTeams && !freeTeamSlot() && (
             <div>
               <p className="text-sm text-muted-foreground text-red-600">There currently are no teams you can join.</p>
-              <p className="text-sm text-muted-foreground text-red-600">Please contact the owner of this classroom to add more teams or raise the team-size</p>
+              <p className="text-sm text-muted-foreground text-red-600">
+                Please contact the owner of this classroom to add more teams or raise the team-size
+              </p>
             </div>
           )}
         </CardHeader>
@@ -83,7 +86,10 @@ function JoinTeam() {
                   <Button variant="default">Create new Team</Button>
                 </DialogTrigger>
                 <DialogContent>
-                  <CreateTeamForm classroomId={classroomId} />
+                  <CreateTeamForm
+                    onSuccess={() => navigate({ to: "/classrooms/$classroomId/", params: { classroomId } })}
+                    classroomId={classroomId}
+                  />
                 </DialogContent>
               </Dialog>
             )}

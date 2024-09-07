@@ -26,4 +26,10 @@ export interface UpdateAssignmentTestRequest {
      * @memberof UpdateAssignmentTestRequest
      */
     assignmentTests: Array<AssignmentTestRequest>;
+
+    /**
+     * @type {boolean}
+     * @memberof UpdateAssignmentTestRequest
+     */
+    junitAutoGradingActive: boolean;
 }

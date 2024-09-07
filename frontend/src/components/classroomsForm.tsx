@@ -181,7 +181,7 @@ export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
   }
 
   return (
-    <div className="p-2">
+    <div className="p-2 w-full">
       <div>
         <h2 className="text-xl font-bold">Edit the classroom</h2>
         <p className="text-sm text-muted-foreground">Change the details of this classroom.</p>

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -41,7 +42,7 @@ func (ctrl *DefaultController) GetClassroomTeamReport(c *fiber.Ctx) (err error) 
 	}
 
 	acceptHeader := c.Get("Accept")
-	if acceptHeader == "application/json" {
+	if strings.Contains(acceptHeader, "application/json") {
 		jsonReports, err := utils.GenerateReports(assignments, classroom.Classroom.ManualGradingRubrics, &team.ID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())

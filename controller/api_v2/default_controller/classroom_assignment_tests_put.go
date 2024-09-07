@@ -27,11 +27,12 @@ func assignmentTestRequestIsValid(r assignmentTestRequest) bool {
 }
 
 type updateAssignmentTestRequest struct {
-	AssignmentTests []assignmentTestRequest `json:"assignmentTests"`
+	JUnitAutoGradingActive *bool                   `json:"junitAutoGradingActive"`
+	AssignmentTests        []assignmentTestRequest `json:"assignmentTests"`
 } //@Name UpdateAssignmentTestRequest
 
 func (r updateAssignmentTestRequest) isValid() bool {
-	return utils.All(r.AssignmentTests, assignmentTestRequestIsValid)
+	return r.JUnitAutoGradingActive != nil && utils.All(r.AssignmentTests, assignmentTestRequestIsValid)
 }
 
 // @Summary		UpdateAssignmentTests
@@ -82,6 +83,13 @@ func (ctrl *DefaultController) UpdateAssignmentTests(c *fiber.Ctx) (err error) {
 	}
 
 	err = query.Q.Transaction(func(tx *query.Query) error {
+		if assignment.GradingJUnitAutoGradingActive != *requestBody.JUnitAutoGradingActive {
+			assignment.GradingJUnitAutoGradingActive = *requestBody.JUnitAutoGradingActive
+			if err := tx.Assignment.WithContext(c.Context()).Save(assignment); err != nil {
+				return err
+			}
+		}
+
 		queryAssignmentJunitTest := tx.AssignmentJunitTest
 
 		if _, err := queryAssignmentJunitTest.

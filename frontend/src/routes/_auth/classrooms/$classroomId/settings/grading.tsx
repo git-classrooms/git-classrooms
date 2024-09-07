@@ -1,17 +1,18 @@
 import { classroomGradingRubricsQueryOptions, useUpdateClassroomRubrics } from "@/api/grading";
 import { classroomAvailableRunnersQueryOptions } from "@/api/runners";
 import { Loader } from "@/components/loader";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { FolderPlus, Trash } from "lucide-react";
+import { AlertCircle, Edit2, FolderPlus, RefreshCcw, Trash } from "lucide-react";
 import React, { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -39,12 +40,14 @@ const formSchmema = z.object({
 function Grading() {
   const { classroomId } = Route.useParams();
 
-  const { data: isRunnerAvailable, isLoading: isRunnerAvailableLoading } = useQuery(
-    classroomAvailableRunnersQueryOptions(classroomId),
-  );
+  const {
+    data: isRunnerAvailable,
+    refetch: runnerStatusRefetch,
+    isFetching: isRunnerAvailableFetching,
+  } = useQuery(classroomAvailableRunnersQueryOptions(classroomId));
 
   const { data } = useSuspenseQuery(classroomGradingRubricsQueryOptions(classroomId));
-  const { mutateAsync, isPending } = useUpdateClassroomRubrics(classroomId);
+  const { mutateAsync, isPending, error } = useUpdateClassroomRubrics(classroomId);
 
   const [editing, setEditing] = React.useState(false);
 
@@ -80,16 +83,11 @@ function Grading() {
     <div className="p-2 w-full">
       <div className="flex mb-6">
         <div className="grow">
-          <h2 className="text-xl font-bold">Test-driven grading</h2>
-          <p className="text-sm text-muted-foreground">
-            Status of automatic test-driven grading using CI/CD test reports for this classroom.
-          </p>
-        </div>
-        <div className="flex items-center">
-          {isRunnerAvailableLoading ? (
-            <Skeleton className="rounded-full h-3 w-3" />
-          ) : (
-            <TooltipProvider>
+          <div className="flex items-center">
+            <h2 className="text-xl font-bold mr-2.5">Test-driven grading</h2>
+            {isRunnerAvailableFetching ? (
+              <Skeleton className="rounded-full h-3 w-3" />
+            ) : (
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                   <span className="relative flex h-3 w-3">
@@ -115,9 +113,20 @@ function Grading() {
                   )}
                 </TooltipContent>
               </Tooltip>
-            </TooltipProvider>
-          )}
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Status of automatic test-driven grading using CI/CD test reports for this classroom.
+          </p>
         </div>
+        <Button
+          className="flex-none items-center"
+          disabled={isRunnerAvailableFetching}
+          onClick={() => runnerStatusRefetch()}
+          variant="outline"
+        >
+          <RefreshCcw className="mr-2 h-4 w-4" /> Refresh
+        </Button>
       </div>
 
       <p className="mt-2">
@@ -125,18 +134,21 @@ function Grading() {
         pipeline in GitLab. The executed automated tests must generate a report artifact in JUnit XML report format.
       </p>
 
-      <p className="mt-2">
-        {isRunnerAvailableLoading ? (
+      <div className="mt-2">
+        {isRunnerAvailableFetching ? (
           <Skeleton className="h-6 rounded-lg w-full" />
         ) : isRunnerAvailable ? (
-          <b>At least one runner is available for the current classroom. Automatic evaluation is available.</b>
+          <p>
+            <b>
+              At least one runner is available for the current classroom. Automatic test-driven grading is available.
+            </b>
+          </p>
         ) : (
-          <b>
-            The associated GitLab group of this classroom does not yet have a runner. Switch to GitLab and add one to
-            use this feature.
-          </b>
+          <p>
+            <b>The associated GitLab group of this classroom does not yet have a runner or no runner is available.</b>
+          </p>
         )}
-      </p>
+      </div>
 
       <Separator className="my-6" />
 
@@ -147,7 +159,7 @@ function Grading() {
         </div>
         {!editing && (
           <Button className="flex-none items-center" onClick={() => setEditing(true)} variant="outline">
-            Edit
+            <Edit2 className="mr-2 h-4 w-4" /> Edit
           </Button>
         )}
       </div>
@@ -268,6 +280,13 @@ function Grading() {
             </div>
           )}
         </form>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error.message}</AlertDescription>
+          </Alert>
+        )}
       </Form>
     </div>
   );

@@ -13,8 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useState } from "react";
+import { CreateTeamForm } from "@/components/createTeamForm";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/_index")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/")({
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const classroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
@@ -29,15 +32,20 @@ function TeamsIndex() {
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
 
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="pt-2">
       <Header title="Teams">
         {classroom.role !== Role.Student && (
-          <Button variant="default" asChild>
-            <Link to="/classrooms/$classroomId/teams/create/modal" replace params={{ classroomId }}>
-              Create Teams
-            </Link>
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default">Create a team</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
+            </DialogContent>
+          </Dialog>
         )}
       </Header>
       <Table>

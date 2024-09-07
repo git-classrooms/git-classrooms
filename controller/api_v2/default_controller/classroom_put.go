@@ -47,8 +47,8 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 	}
 
 	if requestBody.Name != oldclassroom.Name {
-		group, err := repo.ChangeGroupName(classroom.GroupID, requestBody.Name)
-		if err != nil {
+		classroom.Name = requestBody.Name
+		if _, err := repo.ChangeGroupName(classroom.GroupID, requestBody.Name); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
@@ -57,13 +57,12 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 				repo.ChangeGroupName(classroom.GroupID, oldclassroom.Name)
 			}
 		}()
-
-		classroom.Name = group.Name
 	}
 
 	if requestBody.Description != oldclassroom.Description {
-		group, err := repo.ChangeGroupDescription(classroom.GroupID, requestBody.Description)
-		if err != nil {
+		classroom.Description = requestBody.Description
+
+		if _, err := repo.ChangeGroupDescription(classroom.GroupID, ctrl.createClassroomGitlabDescription(&classroom)); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
@@ -72,8 +71,6 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 				repo.ChangeGroupDescription(classroom.GroupID, oldclassroom.Description)
 			}
 		}()
-
-		classroom.Description = group.Description
 	}
 
 	if _, err = query.Classroom.WithContext(c.Context()).Updates(classroom); err != nil {

@@ -13,7 +13,9 @@ import {
   GradingApi,
   ReportApi,
   RunnersApi,
+  UserClassroomResponse,
 } from "@/swagger-client";
+import { Role } from "@/types/classroom";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -22,6 +24,8 @@ export function cn(...inputs: ClassValue[]) {
 export const getUUIDFromLocation = (location: string) => location.split("/").pop()!;
 
 export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
+
+export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm");
 
 const apiClient = axios.create({ withCredentials: true });
 
@@ -41,3 +45,8 @@ export const createInfoApi = () => new InfoApi(undefined, "", apiClient);
 export const createGradingApi = () => new GradingApi(undefined, "", apiClient);
 export const createReportApi = () => new ReportApi(undefined, "", apiClient);
 export const createRunnersApi = () => new RunnersApi(undefined, "", apiClient);
+
+export const isCreator = (user: UserClassroomResponse) => user.user.id === user.classroom.ownerId;
+export const isOwner = (user: UserClassroomResponse) => user.role === Role.Owner;
+export const isModerator = (user: UserClassroomResponse) => user.role <= Role.Moderator;
+export const isStudent = (user: UserClassroomResponse) => user.role === Role.Student;

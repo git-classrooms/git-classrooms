@@ -106,7 +106,11 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 		}
 
 		if err = classroomQuery.WithContext(c.Context()).Create(classroom); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			return err
+		}
+
+		if _, err = repo.ChangeGroupDescription(group.ID, ctrl.createClassroomGitlabDescription(classroom)); err != nil {
+			return err
 		}
 
 		invitation := &database.ClassroomInvitation{
@@ -126,4 +130,8 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 
 	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s", classroom.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
+}
+
+func (ctrl *DefaultController) createClassroomGitlabDescription(classroom *database.Classroom) string {
+	return fmt.Sprintf("%s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s)__", classroom.Description, ctrl.config.PublicURL, classroom.ID.String())
 }
