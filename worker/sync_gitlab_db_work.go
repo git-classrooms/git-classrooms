@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/url"
 	"strings"
 
 	"github.com/google/uuid"
@@ -13,14 +14,16 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 )
 
 type SyncGitlabDbWork struct {
 	gitlabConfig gitlabConfig.Config
+	publicURL    *url.URL
 }
 
-func NewSyncGitlabDbWork(config gitlabConfig.Config) *SyncGitlabDbWork {
-	return &SyncGitlabDbWork{gitlabConfig: config}
+func NewSyncGitlabDbWork(config gitlabConfig.Config, publicUrl *url.URL) *SyncGitlabDbWork {
+	return &SyncGitlabDbWork{gitlabConfig: config, publicURL: publicUrl}
 }
 
 func (w *SyncGitlabDbWork) Do(ctx context.Context) {
@@ -109,20 +112,18 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 		return err
 	}
 
-	needsUpdate := false
-
 	if dbClassroom.Name != gitlabClassroom.Name {
-		dbClassroom.Name = gitlabClassroom.Name
-		needsUpdate = true
+		if _, err := repo.ChangeGroupName(dbClassroom.GroupID, dbClassroom.Name); err != nil {
+			log.Default().Printf("Error could not update group name for classroom %d: %s", dbClassroom.GroupID, err.Error())
+		}
 	}
 
-	if dbClassroom.Description != gitlabClassroom.Description {
-		dbClassroom.Description = gitlabClassroom.Description
-		needsUpdate = true
-	}
+	shouldDescription := utils.CreateClassroomGitlabDescription(&dbClassroom, w.publicURL)
 
-	if needsUpdate {
-		query.Classroom.WithContext(ctx).Save(&dbClassroom)
+	if shouldDescription != gitlabClassroom.Description {
+		if _, err := repo.ChangeGroupDescription(dbClassroom.GroupID, shouldDescription); err != nil {
+			log.Default().Printf("Error could not update group name for classroom %d: %s", dbClassroom.GroupID, err.Error())
+		}
 	}
 
 	return nil
@@ -260,8 +261,16 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, r
 	}
 
 	if dbTeam.Name != gitlabTeam.Name {
-		dbTeam.Name = gitlabTeam.Name
-		query.Team.WithContext(ctx).Save(&dbTeam)
+		if _, err := repo.ChangeGroupName(dbTeam.GroupID, dbTeam.Name); err != nil {
+			log.Default().Printf("Error could not update group name for team %d: %s", dbTeam.GroupID, err.Error())
+		}
+	}
+
+	shouldDescription := utils.CreateTeamGitlabDescription(&dbTeam.Classroom, &dbTeam, w.publicURL)
+	if shouldDescription != gitlabTeam.Description {
+		if _, err := repo.ChangeGroupDescription(dbTeam.GroupID, shouldDescription); err != nil {
+			log.Default().Printf("Error could not update group name for team %d: %s", dbTeam.GroupID, err.Error())
+		}
 	}
 
 	return nil

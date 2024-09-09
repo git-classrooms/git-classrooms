@@ -79,7 +79,7 @@ func main() {
 		log.Fatal("failed to connect database", err)
 	}
 
-	session.InitSessionStore(utils.Ptr(appConfig.Database.Dsn()))
+	session.InitSessionStore(utils.Ptr(appConfig.Database.Dsn()), appConfig.PublicURL)
 
 	err = utils.MigrateDatabase(db)
 	if err != nil {
@@ -147,7 +147,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab)
+		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab, appConfig.PublicURL)
 		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
 		syncGitlabDbWorker.Start(ctx, appConfig.GitLab.SyncInterval)
 	}()

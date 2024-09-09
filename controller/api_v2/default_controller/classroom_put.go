@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -62,7 +63,7 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 	if requestBody.Description != oldclassroom.Description {
 		classroom.Description = requestBody.Description
 
-		if _, err := repo.ChangeGroupDescription(classroom.GroupID, ctrl.createClassroomGitlabDescription(&classroom)); err != nil {
+		if _, err := repo.ChangeGroupDescription(classroom.GroupID, utils.CreateClassroomGitlabDescription(&classroom, ctrl.config.PublicURL)); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 

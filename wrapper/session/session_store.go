@@ -1,6 +1,7 @@
 package session
 
 import (
+	"net/url"
 	"sync"
 	"time"
 
@@ -28,7 +29,7 @@ var store *session.Store
 var CsrfConfig csrf.Config
 var once sync.Once
 
-func InitSessionStore(dsn *string) {
+func InitSessionStore(dsn *string, publicURL *url.URL) {
 	once.Do(func() {
 		var storage fiber.Storage
 		if dsn == nil {
@@ -43,10 +44,21 @@ func InitSessionStore(dsn *string) {
 			})
 		}
 
+		var sesstionCookieName string
+		var csrfCookieName string
+		if publicURL.Scheme == "https" {
+			sesstionCookieName = "__Host-session_id"
+			csrfCookieName = "__Host-csrf_"
+		} else {
+			sesstionCookieName = "session_id"
+			csrfCookieName = "csrf_"
+		}
+
 		store = session.New(session.Config{
 			Expiration:     time.Hour * 24 * 7,
+			KeyLookup:      "cookie:" + sesstionCookieName,
 			CookieHTTPOnly: true,
-			CookieSecure:   true,
+			CookieSecure:   publicURL.Scheme == "https",
 			Storage:        storage,
 		})
 
@@ -60,9 +72,9 @@ func InitSessionStore(dsn *string) {
 			Next: func(c *fiber.Ctx) bool {
 				return false
 			},
-			CookieName:        "csrf_", // __Host-csrf_
+			CookieName:        csrfCookieName,
 			CookieSameSite:    "Lax",
-			CookieSecure:      true,
+			CookieSecure:      publicURL.Scheme == "https",
 			CookieSessionOnly: true,
 			CookieHTTPOnly:    true,
 			Expiration:        1 * time.Hour,

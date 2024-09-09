@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"net/url"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -86,7 +87,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 	}
 	testDb.InsertAssignmentProjects(&assignment1Project)
 
-	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{})
+	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{}, &url.URL{Scheme: "http", Host: "localhost"})
 
 	t.Run("getUnarchivedClassrooms", func(t *testing.T) {
 		classroom2 := database.Classroom{

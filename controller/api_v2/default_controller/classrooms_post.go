@@ -9,6 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -109,7 +110,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 			return err
 		}
 
-		if _, err = repo.ChangeGroupDescription(group.ID, ctrl.createClassroomGitlabDescription(classroom)); err != nil {
+		if _, err = repo.ChangeGroupDescription(group.ID, utils.CreateClassroomGitlabDescription(classroom, ctrl.config.PublicURL)); err != nil {
 			return err
 		}
 
@@ -130,8 +131,4 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 
 	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s", classroom.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
-}
-
-func (ctrl *DefaultController) createClassroomGitlabDescription(classroom *database.Classroom) string {
-	return fmt.Sprintf("%s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s)__", classroom.Description, ctrl.config.PublicURL, classroom.ID.String())
 }
