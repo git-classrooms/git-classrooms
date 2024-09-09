@@ -8,7 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
 
 /**
- * AssignmentListCard is a React component that displays a list of assignments in a classroom.
+ * AssignmentListSection is a React component that displays a list of assignments in a classroom.
  * It includes a table of assignments and a button to show more assignments.
  *
  * @param {Object} props - The properties passed to the component.
@@ -19,7 +19,7 @@ import { Assignment } from "@/swagger-client";
  * @returns {JSX.Element} A React component that displays a card with the list of assignments in a classroom.
  * @constructor
  */
-export function AssignmentListCard({
+export function AssignmentListSection({
   assignments,
   classroomId,
   classroomName,
@@ -31,24 +31,28 @@ export function AssignmentListCard({
   deactivateInteraction: boolean;
 }): JSX.Element {
   return (
-    <Card className="p-2">
-      <CardHeader>
-        <CardTitle>Created Assignments</CardTitle>
-        <CardDescription>Assignments you have created in this classroom</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <AssignmentTable assignments={assignments} classroomId={classroomId} classroomName={classroomName} deactivateInteraction={deactivateInteraction} />
-      </CardContent>
+    <>
+      <div className="flex mt-16 mb-6">
+        <div className="grow">
+          <h2 className="text-xl font-bold">Assignments</h2>
+          <p className="text-sm text-muted-foreground">Assignments managed by this classroom</p>
+        </div>
+      </div>
+      <AssignmentTable
+        assignments={assignments}
+        classroomId={classroomId}
+        classroomName={classroomName}
+        deactivateInteraction={deactivateInteraction}
+      />
+
       {!deactivateInteraction && (
-        <CardFooter className="flex justify-end">
-          <Button variant="default" asChild>
-            <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
-              Create assignment
-            </Link>
-          </Button>
-        </CardFooter>
+        <Button variant="default" asChild>
+          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
+            Create assignment
+          </Link>
+        </Button>
       )}
-    </Card>
+    </>
   );
 }
 

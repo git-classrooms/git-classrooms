@@ -10,7 +10,7 @@ import (
 // Classroom is a struct that represents a classroom in the database
 type Classroom struct {
 	ID        uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" json:"id"`
-	CreatedAt time.Time `json:"-"`
+	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"-"`
 
 	Name        string `gorm:"not null" json:"name"`

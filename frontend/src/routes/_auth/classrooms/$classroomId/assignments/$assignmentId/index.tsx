@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -9,10 +9,7 @@ import {
   Activity,
   AlertCircle,
   CalendarClock,
-  Code,
   Download,
-  Edit,
-  Edit2,
   FolderGit2,
   Info,
   Loader2,
@@ -21,13 +18,12 @@ import {
   SearchCode,
   Settings,
   Text,
-  Users,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { cn, formatDate, formatDateWithTime, isOwner } from "@/lib/utils.ts";
+import { cn, formatDate, formatDateWithTime, isModerator, isOwner } from "@/lib/utils.ts";
 import { assignmentQueryOptions } from "@/api/assignment";
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
-import { ProjectResponse, ReportApiAxiosParamCreator } from "@/swagger-client";
+import { ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { classroomQueryOptions } from "@/api/classroom";
 import {
   Breadcrumb,
@@ -38,7 +34,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { formatDistanceToNow } from "date-fns";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +57,13 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       classroomId,
       assignmentId,
     );
+
+    const urls = Promise.all(
+      assignmentProjects.map(
+        async (project) => (await ReportApiAxiosParamCreator().getClassroomTeamReport(classroomId, project.teamId)).url,
+      ),
+    );
+
     return { classroom, assignment, assignmentProjects, reportDownloadUrl };
   },
   component: AssignmentDetail,
@@ -95,18 +97,20 @@ function AssignmentDetail() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="md:flex justify-between gap-1">
+      <div className="md:flex justify-between gap-1 mb-4">
         <Header title={assignment.name} subtitle="Assignment overview" />
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="secondary" asChild size="sm" title="Grading">
-            <Link
-              to="/classrooms/$classroomId/assignments/$assignmentId/grading"
-              params={{ classroomId, assignmentId }}
-            >
-              <Scale className="mr-2 h-4 w-4" />
-              Grading
-            </Link>
-          </Button>
+          {isModerator(classroom) && (
+            <Button variant="secondary" asChild size="sm" title="Grading">
+              <Link
+                to="/classrooms/$classroomId/assignments/$assignmentId/grading"
+                params={{ classroomId, assignmentId }}
+              >
+                <Scale className="mr-2 h-4 w-4" />
+                Grading
+              </Link>
+            </Button>
+          )}
           {/* <Button variant="secondary" asChild size="sm" title="Download Report">
             <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
               <Download className="mr-2 h-4 w-4" />
@@ -126,8 +130,6 @@ function AssignmentDetail() {
           )}
         </div>
       </div>
-
-      <div className="mb-4"></div>
 
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -205,14 +207,16 @@ function AssignmentDetail() {
               : "All projects per team managed by the classroom"}
           </p>
         </div>
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>
-            <Button variant="outline" onClick={() => mutateAsync()} disabled={isPending}>
-              {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Invites"}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Sends invitations to members who have not yet accepted.</TooltipContent>
-        </Tooltip>
+        {isModerator(classroom) && (
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button variant="outline" onClick={() => mutateAsync()} disabled={isPending}>
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Invites"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Sends invitations to members who have not yet accepted.</TooltipContent>
+          </Tooltip>
+        )}
       </div>
 
       {isError && (
@@ -222,12 +226,18 @@ function AssignmentDetail() {
           <AlertDescription>The Invitation could not be send!</AlertDescription>
         </Alert>
       )}
-      <AssignmentProjectTable assignmentProjects={assignmentProjects} />
+      <AssignmentProjectTable assignmentProjects={assignmentProjects} classroom={classroom} />
     </div>
   );
 }
 
-function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: ProjectResponse[] }) {
+function AssignmentProjectTable({
+  classroom,
+  assignmentProjects,
+}: {
+  classroom: UserClassroomResponse;
+  assignmentProjects: ProjectResponse[];
+}) {
   return (
     <Table>
       <TableCaption>Projects</TableCaption>
@@ -236,6 +246,7 @@ function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: Pr
           <TableHead>Name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Invitet at</TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -276,11 +287,15 @@ function AssignmentProjectTable({ assignmentProjects }: { assignmentProjects: Pr
                           Go to project
                         </a>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <Download className="mr-2 h-4 w-4" />
-                        Download report
-                      </DropdownMenuItem>
+                      {isModerator(classroom) && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download report
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>

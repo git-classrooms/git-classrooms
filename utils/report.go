@@ -12,20 +12,26 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 
+type ManualResult struct {
+	RubricID   uuid.UUID `json:"rubricId"`
+	RubricName string    `json:"rubricName"`
+	Score      int       `json:"score"`
+	Feedback   string    `json:"feedback"`
+	MaxScore   int       `json:"maxScore"`
+}
 type ReportDataItem struct {
-	AssignmentName      string            `json:"assignmentName"`
-	TeamName            string            `json:"teamName"`
-	Name                string            `json:"name"`
-	Username            string            `json:"username"`
-	Email               string            `json:"email"`
-	RubricScores        map[string]int    `json:"rubricScores"`
-	RubricFeedback      map[string]string `json:"rubricFeedback"`
-	RubricMaxScores     map[string]int    `json:"rubricMaxScores"`
-	AutogradingScore    int               `json:"autogradingScore"`
-	AutogradingMaxScore int               `json:"autogradingMaxScore"`
-	MaxScore            int               `json:"maxScore"`
-	Score               int               `json:"score"`
-	Percentage          float64           `json:"percentage"`
+	ProjectID           uuid.UUID               `json:"projectId"`
+	AssignmentName      string                  `json:"assignmentName"`
+	TeamName            string                  `json:"teamName"`
+	Name                string                  `json:"name"`
+	Username            string                  `json:"username"`
+	Email               string                  `json:"email"`
+	RubricResults       map[string]ManualResult `json:"rubricScores"`
+	AutogradingScore    int                     `json:"autogradingScore"`
+	AutogradingMaxScore int                     `json:"autogradingMaxScore"`
+	MaxScore            int                     `json:"maxScore"`
+	Score               int                     `json:"score"`
+	Percentage          float64                 `json:"percentage"`
 }
 
 func GenerateReports(assignments []*database.Assignment, rubrics []*database.ManualGradingRubric, teamID *uuid.UUID) ([][]*ReportDataItem, error) {
@@ -83,15 +89,13 @@ func GenerateCSVReport(w io.Writer, assignment *database.Assignment, rubrics []*
 
 		// Add manual rubric scores
 		for _, rubric := range rubrics {
-			score, scoreOk := item.RubricScores[rubric.Name]
-			feedback, feedbackOk := item.RubricFeedback[rubric.Name]
-			maxScore, maxScoreOk := item.RubricMaxScores[rubric.Name]
-			if !scoreOk || !feedbackOk || !maxScoreOk {
+			result, ok := item.RubricResults[rubric.Name]
+			if !ok {
 				row = append(row, "", "", "")
 				continue
 			}
 
-			row = append(row, strconv.Itoa(score), feedback, strconv.Itoa(maxScore))
+			row = append(row, strconv.Itoa(result.Score), result.Feedback, strconv.Itoa(result.MaxScore))
 		}
 
 		row = append(row, strconv.Itoa(item.AutogradingScore), strconv.Itoa(item.AutogradingMaxScore), strconv.Itoa(item.MaxScore), strconv.Itoa(item.Score), fmt.Sprintf("%.2f", item.Percentage))
@@ -114,12 +118,13 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 		if teamID != nil && project.TeamID != *teamID {
 			continue
 		}
-		manualRubricScores := createManualRubricScoresMap(project)
-		manualRubricFeedbacks := createManualRubricFeedbacksMap(project)
-		manualRubricMaxScores := createManualRubricMaxScoresMap(project)
+
+		manualRubricResults := createManualRubricResults(project)
+
 		autogradingScore := calculateAutogradingScore(project, assignment.JUnitTests)
 		autogradingMaxScore := calculateAutogradingMaxScore(project, assignment.JUnitTests)
 		maxScore := calculateMaxScore(project, assignment.JUnitTests)
+
 		score := calculateScore(project, assignment.JUnitTests)
 		var percentage float64
 
@@ -131,14 +136,13 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 
 		for _, member := range project.Team.Member {
 			reportData = append(reportData, &ReportDataItem{
+				ProjectID:           project.ID,
 				AssignmentName:      assignment.Name,
 				TeamName:            project.Team.Name,
 				Name:                member.User.Name,
 				Username:            member.User.GitlabUsername,
 				Email:               member.User.GitlabEmail,
-				RubricScores:        manualRubricScores,
-				RubricFeedback:      manualRubricFeedbacks,
-				RubricMaxScores:     manualRubricMaxScores,
+				RubricResults:       manualRubricResults,
 				AutogradingScore:    autogradingScore,
 				AutogradingMaxScore: autogradingMaxScore,
 				MaxScore:            maxScore,
@@ -161,31 +165,22 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 	return reportData
 }
 
-func createManualRubricScoresMap(project *database.AssignmentProjects) map[string]int {
-	points := make(map[string]int)
+func createManualRubricResults(project *database.AssignmentProjects) map[string]ManualResult {
+	results := make(map[string]ManualResult)
 	for _, result := range project.GradingManualResults {
-		points[result.Rubric.Name] = result.Score
-	}
-	return points
-}
-func createManualRubricMaxScoresMap(project *database.AssignmentProjects) map[string]int {
-	points := make(map[string]int)
-	for _, result := range project.GradingManualResults {
-		points[result.Rubric.Name] = result.Rubric.MaxScore
-	}
-	return points
-}
-
-func createManualRubricFeedbacksMap(project *database.AssignmentProjects) map[string]string {
-	feedback := make(map[string]string)
-	for _, result := range project.GradingManualResults {
+		feedback := ""
 		if result.Feedback != nil {
-			feedback[result.Rubric.Name] = *result.Feedback
-		} else {
-			feedback[result.Rubric.Name] = ""
+			feedback = *result.Feedback
+		}
+		results[result.Rubric.Name] = ManualResult{
+			RubricID:   result.RubricID,
+			RubricName: result.Rubric.Name,
+			Score:      result.Score,
+			Feedback:   feedback,
+			MaxScore:   result.Rubric.MaxScore,
 		}
 	}
-	return feedback
+	return results
 }
 
 func calculateMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {

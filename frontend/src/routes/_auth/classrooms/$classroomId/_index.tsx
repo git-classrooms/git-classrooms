@@ -4,7 +4,7 @@ import { createFileRoute, Outlet, redirect, Link } from "@tanstack/react-router"
 import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
-import { AssignmentListCard } from "@/components/classroomAssignments.tsx";
+import { AssignmentListSection } from "@/components/classroomAssignments.tsx";
 import { Header } from "@/components/header";
 import { classroomQueryOptions } from "@/api/classroom";
 import { assignmentsQueryOptions } from "@/api/assignment";
@@ -12,8 +12,19 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Archive, Download, Settings } from "lucide-react";
+import {
+  Activity,
+  Archive,
+  CalendarCheck2,
+  CalendarClock,
+  Download,
+  FolderGit2,
+  Info,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
+import { Text } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -25,7 +36,9 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { isModerator } from "@/lib/utils";
+import { formatDate, isModerator } from "@/lib/utils";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
   component: ClassroomDetail,
@@ -86,11 +99,11 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
   };
 
   return (
-    <div>
-      <div className="md:flex justify-between gap-1">
+    <>
+      <div className="md:flex justify-between gap-1 mb-4">
         <Header
-          title={`${userClassroom.classroom.archived ? "Archived " : ""}Classroom: ${userClassroom.classroom.name}`}
-          subtitle={userClassroom.classroom.description}
+          title={`${userClassroom.classroom.archived ? "Archived " : ""}${userClassroom.classroom.name}`}
+          subtitle="Classroom overview"
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {!userClassroom.classroom.archived && (
@@ -134,13 +147,65 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
         </div>
       </div>
 
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Creation date</CardTitle>
+            <CalendarClock className="mr-2 h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatDate(userClassroom.classroom.createdAt)}</div>
+            <p className="text-xs text-muted-foreground">
+              {formatDistanceToNow(new Date(userClassroom.classroom.createdAt)) + " ago"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Members</CardTitle>
+            <Users className="mr-2 h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{classroomMembers.length}</div>
+            <p className="text-xs text-muted-foreground">{classroomMembers.length == 1 ? "member" : "members"}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Assignments</CardTitle>
+            <CalendarCheck2 className="mr-2 h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{userClassroom.assignmentsCount}</div>
+            <p className="text-xs text-muted-foreground">
+              {userClassroom.assignmentsCount == 1 ? "assignment" : "assignments"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            <Info className="mr-2 h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {userClassroom.classroom.archived === true ? "Archived" : "Active"}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Description</CardTitle>
+            <Text className="mr-2 h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <p>{userClassroom.classroom.description ?? <i>No description available</i>}</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        <AssignmentListCard
-          assignments={assignments}
-          classroomId={classroomId}
-          classroomName={userClassroom.classroom.name}
-          deactivateInteraction={userClassroom.classroom.archived}
-        />
         <MemberListCard
           classroomMembers={classroomMembers}
           classroomId={classroomId}
@@ -161,6 +226,13 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
         )}
         <Outlet />
       </div>
-    </div>
+
+      <AssignmentListSection
+        assignments={assignments}
+        classroomId={classroomId}
+        classroomName={userClassroom.classroom.name}
+        deactivateInteraction={userClassroom.classroom.archived}
+      />
+    </>
   );
 }
