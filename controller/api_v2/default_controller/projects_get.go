@@ -39,7 +39,7 @@ func (ctrl *DefaultController) GetActiveAssignments(c *fiber.Ctx) (err error) {
         Where(queryAssignment.
             WithContext(c.Context()).
             Where(queryAssignment.DueDate.IsNull()).
-            Or(queryAssignment.DueDate.Lt(time.Now())),
+            Or(queryAssignment.DueDate.Gt(time.Now())),
         ).
         Find()
     if err != nil {
