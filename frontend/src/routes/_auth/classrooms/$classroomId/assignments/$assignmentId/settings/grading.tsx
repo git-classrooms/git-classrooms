@@ -19,8 +19,7 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertCircle, BookOpenCheck, FolderGit2, Loader2 } from "lucide-react";
-import test from "node:test";
+import { AlertCircle, BookOpenCheck, Loader2 } from "lucide-react";
 import { Suspense, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -254,7 +253,7 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
   const onSubmit = async (data: Record<string, boolean>) => {
     await mutateAsync({
       rubricIds: Object.entries(data)
-        .filter(([_, value]) => value)
+        .filter((arg) => arg[1])
         .map(([key]) => key),
     });
     toast.success("Rubrics updated");

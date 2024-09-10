@@ -73,7 +73,7 @@ export interface UtilsReportDataItem {
      * @type {{ [key: string]: UtilsManualResult; }}
      * @memberof UtilsReportDataItem
      */
-    rubricScores: { [key: string]: UtilsManualResult; };
+    rubricResults: { [key: string]: UtilsManualResult; };
 
     /**
      * @type {number}

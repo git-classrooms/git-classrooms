@@ -14,12 +14,12 @@ import (
 
 type gradingManualResultRequest struct {
 	RubricID *uuid.UUID `json:"id"`
-	Score    int        `json:"score"`
+	Score    *int       `json:"score"`
 	Feedback *string    `json:"feedback" validate:"optional"`
 } //@Name GradingManualResultRequest
 
 func (r gradingManualResultRequest) isValid() bool {
-	return r.RubricID != nil && r.Score >= 0
+	return r.RubricID != nil && r.Score != nil
 }
 
 func resultRequestIsValid(r gradingManualResultRequest) bool {
@@ -90,7 +90,7 @@ func (ctrl *DefaultController) UpdateGradingResults(c *fiber.Ctx) (err error) {
 			return &database.ManualGradingResult{
 				AssignmentProjectID: project.ID,
 				RubricID:            *e.RubricID,
-				Score:               e.Score,
+				Score:               *e.Score,
 				Feedback:            e.Feedback,
 			}
 		})

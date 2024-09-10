@@ -1,10 +1,15 @@
 package api
 
 import (
+	"errors"
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 // @Summary		StartAutoGradingForProject
@@ -50,6 +55,12 @@ func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err err
 
 		report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
 		if err != nil {
+			var gitlabError *model.GitLabError
+			if errors.As(err, &gitlabError) {
+				if gitlabError.Response.StatusCode == http.StatusForbidden {
+					return fiber.NewError(fiber.StatusNotFound, "No executed pipeline yet available on the main branch")
+				}
+			}
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 

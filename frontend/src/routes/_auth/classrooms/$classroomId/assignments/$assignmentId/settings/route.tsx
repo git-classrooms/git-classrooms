@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, isModerator } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -15,6 +15,15 @@ import { assignmentQueryOptions } from "@/api/assignment";
 import { classroomQueryOptions } from "@/api/classroom";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings")({
+  beforeLoad: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
+    const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(classroomId));
+    if (!isModerator(userClassroom)) {
+      throw redirect({
+        to: "/classrooms/$classroomId/assignments/$assignmentId",
+        params: { classroomId, assignmentId },
+      });
+    }
+  },
   component: Settings,
 });
 
@@ -28,7 +37,7 @@ function Settings() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms/$classroomId" params={{ classroomId }}>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
                 {classroom.classroom.name}
               </Link>
             </BreadcrumbLink>

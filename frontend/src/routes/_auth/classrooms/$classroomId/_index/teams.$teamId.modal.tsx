@@ -31,6 +31,7 @@ function TeamModal() {
           navigate({
             to: "/classrooms/$classroomId",
             params: { classroomId },
+            search: { tab: "members" },
             replace: true,
           });
         }

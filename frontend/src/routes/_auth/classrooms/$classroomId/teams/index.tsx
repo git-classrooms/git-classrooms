@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { teamsQueryOptions } from "@/api/team.ts";
 import { Loader } from "@/components/loader.tsx";
 import { Role } from "@/types/classroom.ts";

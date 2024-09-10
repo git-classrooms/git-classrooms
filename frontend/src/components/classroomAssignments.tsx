@@ -1,11 +1,12 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { Edit, Gitlab } from "lucide-react";
-import { formatDate } from "@/lib/utils.ts";
-import { Link } from "@tanstack/react-router";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
+import { ArrowRight, Edit, Gitlab, Loader2 } from "lucide-react";
+import { formatDate, formatDateWithTime } from "@/lib/utils.ts";
+import { Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
+import { useState } from "react";
 
 /**
  * AssignmentListSection is a React component that displays a list of assignments in a classroom.
@@ -30,28 +31,36 @@ export function AssignmentListSection({
   classroomName: string;
   deactivateInteraction: boolean;
 }): JSX.Element {
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <>
-      <div className="flex mt-16 mb-6">
-        <div className="grow">
-          <h2 className="text-xl font-bold">Assignments</h2>
-          <p className="text-sm text-muted-foreground">Assignments managed by this classroom</p>
-        </div>
-      </div>
-      <AssignmentTable
-        assignments={assignments}
-        classroomId={classroomId}
-        classroomName={classroomName}
-        deactivateInteraction={deactivateInteraction}
-      />
-
-      {!deactivateInteraction && (
-        <Button variant="default" asChild>
-          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
-            Create assignment
-          </Link>
-        </Button>
-      )}
+      <Card className="p-2">
+        <CardHeader className="md:flex flex-row items-center justify-between space-y-0 pb-2 mb-4">
+          <div>
+            <CardTitle className="mb-1">Assignments</CardTitle>
+            <CardDescription>Assignments managed by this classroom</CardDescription>
+          </div>
+          {!deactivateInteraction && (
+            <Button variant="outline" asChild>
+              <Link
+                to="/classrooms/$classroomId/assignments/create"
+                onClick={() => setIsLoading(true)}
+                params={{ classroomId }}
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create assignment"}
+              </Link>
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          <AssignmentTable
+            assignments={assignments}
+            classroomId={classroomId}
+            classroomName={classroomName}
+            deactivateInteraction={deactivateInteraction}
+          />
+        </CardContent>
+      </Card>
     </>
   );
 }
@@ -69,39 +78,41 @@ function AssignmentTable({
 }) {
   return (
     <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead className="hidden md:table-cell">Creation date</TableHead>
+          <TableHead className="hidden md:table-cell">Due date</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
       <TableBody>
         {assignments.map((a) => (
           <TableRow key={a.id}>
-            <TableCell className="p-2">
+            <TableCell>
               <div className="cursor-default flex justify-between">
-                <div>
+                <Link
+                  to="/classrooms/$classroomId/assignments/$assignmentId"
+                  params={{ classroomId, assignmentId: a.id }}
+                >
                   <div className="font-medium">{a.name}</div>
-                  <div className="text-sm text-muted-foreground md:inline">{classroomName}</div>
-                </div>
-                <div className="flex items-end">
-                  <div className="ml-auto">
-                    <div className="font-medium text-right">Due date</div>
-                    <div className="text-sm text-muted-foreground md:inline">
-                      {a.dueDate ? formatDate(a.dueDate) : "No Due Date"}
-                    </div>
-                  </div>
-                  {!deactivateInteraction && (
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link
-                        to="/classrooms/$classroomId/assignments/$assignmentId"
-                        params={{ classroomId, assignmentId: a.id }}
-                      >
-                        <Edit className="h-6 w-6 text-gray-600" />
-                      </Link>
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link to="" params={{}}>
-                      <Gitlab className="h-6 w-6 text-gray-600" />
-                    </Link>
-                  </Button>
-                </div>
+                  <div className="text-sm text-muted-foreground md:inline">{a.description}</div>
+                </Link>
               </div>
+            </TableCell>
+            <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(a.createdAt)}</TableCell>
+            <TableCell className="hidden md:table-cell">{formatDate(a.dueDate ?? "-")}</TableCell>
+            <TableCell className="flex flex-wrap flex-row-reverse gap-2">
+              {!deactivateInteraction && (
+                <Button variant="outline" size="icon" asChild>
+                  <Link
+                    to="/classrooms/$classroomId/assignments/$assignmentId"
+                    params={{ classroomId, assignmentId: a.id }}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </TableCell>
           </TableRow>
         ))}

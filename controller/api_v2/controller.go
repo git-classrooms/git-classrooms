@@ -19,6 +19,7 @@ type Controller interface {
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error
 	RedirectProjectGitlab(*fiber.Ctx) error
+	RedirectReportGitlab(*fiber.Ctx) error
 
 	GetProjectCloneUrls(*fiber.Ctx) error
 	GetMultipleProjectCloneUrls(*fiber.Ctx) error

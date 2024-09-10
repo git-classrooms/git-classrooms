@@ -5,7 +5,7 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Role } from "@/types/classroom.ts";
 import { TeamTable } from "@/components/classroomTeams";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card.tsx";
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
       throw redirect({
         to: "/classrooms/$classroomId",
         params,
+        search: { tab: "assignments" },
         replace: true,
       });
     }
@@ -40,6 +41,7 @@ function JoinTeam() {
     await mutateAsync(teamId);
     await navigate({
       to: "/classrooms/$classroomId",
+      search: { tab: "assignments" },
       params: { classroomId },
     });
   };
@@ -87,7 +89,13 @@ function JoinTeam() {
                 </DialogTrigger>
                 <DialogContent>
                   <CreateTeamForm
-                    onSuccess={() => navigate({ to: "/classrooms/$classroomId/", params: { classroomId } })}
+                    onSuccess={() =>
+                      navigate({
+                        to: "/classrooms/$classroomId/",
+                        search: { tab: "assignments" },
+                        params: { classroomId },
+                      })
+                    }
                     classroomId={classroomId}
                   />
                 </DialogContent>

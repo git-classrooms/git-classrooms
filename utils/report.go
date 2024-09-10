@@ -26,7 +26,7 @@ type ReportDataItem struct {
 	Name                string                  `json:"name"`
 	Username            string                  `json:"username"`
 	Email               string                  `json:"email"`
-	RubricResults       map[string]ManualResult `json:"rubricScores"`
+	RubricResults       map[string]ManualResult `json:"rubricResults"`
 	AutogradingScore    int                     `json:"autogradingScore"`
 	AutogradingMaxScore int                     `json:"autogradingMaxScore"`
 	MaxScore            int                     `json:"maxScore"`
@@ -119,11 +119,11 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 			continue
 		}
 
-		manualRubricResults := createManualRubricResults(project)
+		manualRubricResults := createManualRubricResults(project, assignment.GradingManualRubrics)
 
 		autogradingScore := calculateAutogradingScore(project, assignment.JUnitTests)
 		autogradingMaxScore := calculateAutogradingMaxScore(project, assignment.JUnitTests)
-		maxScore := calculateMaxScore(project, assignment.JUnitTests)
+		maxScore := calculateMaxScore(project, assignment.JUnitTests, assignment.GradingManualRubrics)
 
 		score := calculateScore(project, assignment.JUnitTests)
 		var percentage float64
@@ -165,7 +165,7 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 	return reportData
 }
 
-func createManualRubricResults(project *database.AssignmentProjects) map[string]ManualResult {
+func createManualRubricResults(project *database.AssignmentProjects, _ []*database.ManualGradingRubric) map[string]ManualResult {
 	results := make(map[string]ManualResult)
 	for _, result := range project.GradingManualResults {
 		feedback := ""
@@ -180,13 +180,26 @@ func createManualRubricResults(project *database.AssignmentProjects) map[string]
 			MaxScore:   result.Rubric.MaxScore,
 		}
 	}
+
+	// for _, rubric := range rubrics {
+	// 	if _, ok := results[rubric.Name]; !ok {
+	// 		results[rubric.Name] = ManualResult{
+	// 			RubricID:   rubric.ID,
+	// 			RubricName: rubric.Name,
+	// 			Score:      0,
+	// 			Feedback:   "",
+	// 			MaxScore:   rubric.MaxScore,
+	// 		}
+	// 	}
+	// }
+
 	return results
 }
 
-func calculateMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
+func calculateMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest, rubrics []*database.ManualGradingRubric) int {
 	maxScore := 0
-	for _, result := range project.GradingManualResults {
-		maxScore += result.Rubric.MaxScore
+	for _, rubric := range rubrics {
+		maxScore += rubric.MaxScore
 	}
 	return maxScore + calculateAutogradingMaxScore(project, tests)
 }

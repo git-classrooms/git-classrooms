@@ -430,7 +430,7 @@ func (repo *GitlabRepo) GetProjectPipelineTestReportSummary(projectId, pipelineI
 // Returns:
 // - *model.TestReport: The test report summary of the latest pipeline.
 // - error: An error if the retrieval fails.
-func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error) {
+func (repo *GitlabRepo) GetProjectLatestPipeline(projectId int, ref *string) (*model.Pipeline, error) {
 	repo.assertIsConnected()
 
 	options := &goGitlab.GetLatestPipelineOptions{}
@@ -441,6 +441,17 @@ func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int,
 	pipeline, _, err := repo.client.Pipelines.GetLatestPipeline(projectId, options)
 	if err != nil {
 		return nil, ErrorFromGoGitlab(err)
+	}
+
+	return PipelineFromGoGitlabPipeline(pipeline), nil
+}
+
+func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error) {
+	repo.assertIsConnected()
+
+	pipeline, err := repo.GetProjectLatestPipeline(projectId, ref)
+	if err != nil {
+		return nil, err
 	}
 
 	return repo.GetProjectPipelineTestReportSummary(projectId, pipeline.ID)

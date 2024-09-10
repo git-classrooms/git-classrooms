@@ -68,6 +68,12 @@ export interface ProjectResponse {
     projectStatus: DatabaseStatus;
 
     /**
+     * @type {string}
+     * @memberof ProjectResponse
+     */
+    reportWebUrl: string;
+
+    /**
      * @type {Team}
      * @memberof ProjectResponse
      */

@@ -60,7 +60,7 @@ function Grading() {
 
   useEffect(() => {
     if (!editing) form.reset({ gradingManualRubrics: data });
-  }, [data, editing]);
+  }, [data, editing, form]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

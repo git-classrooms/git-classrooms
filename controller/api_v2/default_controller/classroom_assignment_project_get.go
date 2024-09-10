@@ -31,6 +31,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentProject(c *fiber.Ctx) (err 
 	response := &ProjectResponse{
 		AssignmentProjects: project,
 		WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects/%s/gitlab", classroom.ClassroomID.String(), assignment.ID.String(), project.ID.String()),
+		ReportWebURL:       fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects/%s/report/gitlab", classroom.ClassroomID.String(), assignment.ID.String(), project.ID.String()),
 	}
 
 	return c.JSON(response)

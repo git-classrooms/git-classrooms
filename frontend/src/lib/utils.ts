@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { format } from "date-fns";
@@ -14,6 +14,7 @@ import {
   ReportApi,
   RunnersApi,
   UserClassroomResponse,
+  HTTPError,
 } from "@/swagger-client";
 import { Role } from "@/types/classroom";
 
@@ -35,6 +36,14 @@ export const createAuthApi = () =>
       withCredentials: true,
     },
   });
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const unwrapApiError = <T = any, D = any>(error: Error): Error => {
+  if (isAxiosError<T, D>(error)) {
+    return new Error((error.response?.data as HTTPError | undefined)?.error ?? error.message);
+  }
+  return error;
+};
 
 export const createClassroomApi = () => new ClassroomApi(undefined, "", apiClient);
 export const createAssignmentApi = () => new AssignmentApi(undefined, "", apiClient);

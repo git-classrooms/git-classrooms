@@ -26,7 +26,7 @@ function Settings() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms/$classroomId" params={{ classroomId }}>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
                 {data.classroom.name}
               </Link>
             </BreadcrumbLink>

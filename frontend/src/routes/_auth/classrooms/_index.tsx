@@ -13,7 +13,7 @@ import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
-import { Tabs, TabsContent, TabsList, TabsTrigger, } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_auth/classrooms/_index")({
   component: Classrooms,
@@ -43,19 +43,19 @@ function Classrooms() {
   return (
     <div>
       <Header title="Classrooms" />
-        <Tabs defaultValue="managed" className="w-[400]">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="managed">Managed</TabsTrigger>
-            <TabsTrigger value="joined">Joined</TabsTrigger>
-          </TabsList>
-          <TabsContent value="managed">
-            <OwnedClassroomTable classrooms={ownedClassrooms} />
-          </TabsContent>
-          <TabsContent value="joined">
-            <JoinedClassroomTable classrooms={joinedClassrooms} />
-          </TabsContent>
-        </Tabs>
-        <Outlet />
+      <Tabs defaultValue="managed" className="w-[400]">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="managed">Managed</TabsTrigger>
+          <TabsTrigger value="joined">Joined</TabsTrigger>
+        </TabsList>
+        <TabsContent value="managed">
+          <OwnedClassroomTable classrooms={ownedClassrooms} />
+        </TabsContent>
+        <TabsContent value="joined">
+          <JoinedClassroomTable classrooms={joinedClassrooms} />
+        </TabsContent>
+      </Tabs>
+      <Outlet />
     </div>
   );
 }
@@ -74,19 +74,13 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
           renderItem={(item) => (
             <ListItem
               leftContent={
-                <ListLeftContent
-                  classroomName={item.classroom.name}
-                  assignmentsCount={item.assignmentsCount}
-                />
+                <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
               }
-              rightContent={
-                <ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />
-              }
+              rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
             />
           )}
         />
       </CardContent>
-
 
       <CardFooter className="flex justify-end gap-2">
         <Button asChild variant="default">
@@ -124,7 +118,11 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
               </TableCell>
               <TableCell className="text-right">
                 <Button variant="outline">
-                  <Link to="/classrooms/$classroomId" params={{ classroomId: c.classroom.id }}>
+                  <Link
+                    to="/classrooms/$classroomId"
+                    search={{ tab: "assignments" }}
+                    params={{ classroomId: c.classroom.id }}
+                  >
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -136,33 +134,24 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
     </Card>
   );
 }
-function ListLeftContent({ classroomName, assignmentsCount }: {
-  classroomName: string,
-  assignmentsCount: number
-}) {
-  const assignmentsText = assignmentsCount === 1
-    ? `${assignmentsCount} Assignment`
-    : `${assignmentsCount} Assignments`;
+function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: string; assignmentsCount: number }) {
+  const assignmentsText = assignmentsCount === 1 ? `${assignmentsCount} Assignment` : `${assignmentsCount} Assignments`;
   return (
     <div className="cursor-default flex">
       <div className="pr-2">
         <Avatar>
-          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">
-            {classroomName.charAt(0)}
-          </AvatarFallback>
+          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
         </Avatar>
       </div>
       <div>
         <div className="font-medium">{classroomName}</div>
-        <div className="text-sm text-muted-foreground md:inline">
-          {assignmentsText}
-        </div>
+        <div className="text-sm text-muted-foreground md:inline">{assignmentsText}</div>
       </div>
     </div>
   );
 }
 
-function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string, classroomId: string }) {
+function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; classroomId: string }) {
   return (
     <>
       <Button variant="ghost" size="icon" asChild>
@@ -171,7 +160,7 @@ function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string, class
         </a>
       </Button>
       <Button variant="ghost" size="icon" asChild>
-        <Link to="/classrooms/$classroomId" params={{ classroomId: classroomId }}>
+        <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId: classroomId }}>
           <ArrowRight className="text-slate-500 dark:text-white" />
         </Link>
       </Button>

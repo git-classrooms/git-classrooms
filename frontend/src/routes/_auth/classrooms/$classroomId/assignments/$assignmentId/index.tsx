@@ -58,13 +58,16 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       assignmentId,
     );
 
-    const urls = Promise.all(
-      assignmentProjects.map(
-        async (project) => (await ReportApiAxiosParamCreator().getClassroomTeamReport(classroomId, project.teamId)).url,
-      ),
-    );
+    const urls = (
+      await Promise.all(
+        assignmentProjects.map(async (project) => ({
+          url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(classroomId, project.teamId)).url,
+          projectId: project.id,
+        })),
+      )
+    ).reduce((acc, { url, projectId }) => acc.set(projectId, url), new Map<string, string>());
 
-    return { classroom, assignment, assignmentProjects, reportDownloadUrl };
+    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls };
   },
   component: AssignmentDetail,
   pendingComponent: Loader,
@@ -85,7 +88,7 @@ function AssignmentDetail() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms/$classroomId" params={{ classroomId }}>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
                 {classroom.classroom.name}
               </Link>
             </BreadcrumbLink>
@@ -99,7 +102,7 @@ function AssignmentDetail() {
 
       <div className="md:flex justify-between gap-1 mb-4">
         <Header title={assignment.name} subtitle="Assignment overview" />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid md:grid-cols-2 gap-3">
           {isModerator(classroom) && (
             <Button variant="secondary" asChild size="sm" title="Grading">
               <Link
@@ -238,12 +241,13 @@ function AssignmentProjectTable({
   classroom: UserClassroomResponse;
   assignmentProjects: ProjectResponse[];
 }) {
+  const { urls } = Route.useLoaderData();
   return (
     <Table>
       <TableCaption>Projects</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
+          <TableHead>Project name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Invitet at</TableHead>
           <TableHead></TableHead>
@@ -252,6 +256,7 @@ function AssignmentProjectTable({
       <TableBody>
         {assignmentProjects.map((a) => {
           const statusProps = getStatusProps(a.projectStatus);
+          const reportUrl = urls.get(a.id)!;
           return (
             <TableRow key={`${a.assignment.id}-${a.team.id}`}>
               <TableCell className="font-medium">{a.team.name}</TableCell>
@@ -290,9 +295,11 @@ function AssignmentProjectTable({
                       {isModerator(classroom) && (
                         <>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download report
+                          <DropdownMenuItem disabled={a.projectStatus !== "accepted"} asChild>
+                            <a href={reportUrl} target="_blank" referrerPolicy="no-referrer">
+                              <Download className="mr-2 h-4 w-4" />
+                              Download report
+                            </a>
                           </DropdownMenuItem>
                         </>
                       )}

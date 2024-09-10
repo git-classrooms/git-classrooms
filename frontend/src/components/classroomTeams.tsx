@@ -116,6 +116,7 @@ export function TeamTable({
                     <Button variant="ghost" size="icon" asChild>
                       <Link
                         to="/classrooms/$classroomId/teams/$teamId/modal"
+                        search={{ tab: "members" }}
                         params={{ classroomId: classroomId, teamId: t.id }}
                       >
                         <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />

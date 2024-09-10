@@ -12,17 +12,7 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Activity,
-  Archive,
-  CalendarCheck2,
-  CalendarClock,
-  Download,
-  FolderGit2,
-  Info,
-  Settings,
-  Users,
-} from "lucide-react";
+import { Archive, CalendarCheck2, CalendarClock, Download, Info, Settings, Users } from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import { Text } from "lucide-react";
 import {
@@ -39,8 +29,14 @@ import {
 import { formatDate, isModerator } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { z } from "zod";
+
+const tabs = ["assignments", "members"] as const;
+const tabSchema = z.enum(tabs);
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
+  validateSearch: z.object({ tab: tabSchema.catch("assignments") }),
   component: ClassroomDetail,
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
@@ -86,6 +82,7 @@ function ClassroomStudentView() {
 }
 
 function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassroomResponse }) {
+  const { tab } = Route.useSearch();
   const { classroomId } = Route.useParams();
   const { reportDownloadUrl } = Route.useLoaderData();
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
@@ -147,7 +144,7 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Creation date</CardTitle>
@@ -205,34 +202,47 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        <MemberListCard
-          classroomMembers={classroomMembers}
-          classroomId={classroomId}
-          userRole={Role.Owner}
-          showTeams={userClassroom.classroom.maxTeamSize > 1}
-          deactivateInteraction={userClassroom.classroom.archived}
-        />
-        {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
-        {userClassroom.classroom.maxTeamSize > 1 && (
-          <TeamListCard
-            teams={teams}
+      <Tabs value={tab} className="w-full">
+        <TabsList className="w-full">
+          <TabsTrigger asChild value="assignments" className="w-full">
+            <Link search={{ tab: "assignments" }}>Assignments</Link>
+          </TabsTrigger>
+          <TabsTrigger asChild value="members" className="w-full">
+            <Link search={{ tab: "members" }}>Members</Link>
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="assignments" className="pt-2">
+          <AssignmentListSection
+            assignments={assignments}
             classroomId={classroomId}
-            userRole={Role.Owner}
-            maxTeamSize={userClassroom.classroom.maxTeamSize}
-            numInvitedMembers={classroomMembers.length}
+            classroomName={userClassroom.classroom.name}
             deactivateInteraction={userClassroom.classroom.archived}
           />
-        )}
-        <Outlet />
-      </div>
-
-      <AssignmentListSection
-        assignments={assignments}
-        classroomId={classroomId}
-        classroomName={userClassroom.classroom.name}
-        deactivateInteraction={userClassroom.classroom.archived}
-      />
+        </TabsContent>
+        <TabsContent value="members" className="pt-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-4">
+            <MemberListCard
+              classroomMembers={classroomMembers}
+              classroomId={classroomId}
+              userRole={Role.Owner}
+              showTeams={userClassroom.classroom.maxTeamSize > 1}
+              deactivateInteraction={userClassroom.classroom.archived}
+            />
+            {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
+            {userClassroom.classroom.maxTeamSize > 1 && (
+              <TeamListCard
+                teams={teams}
+                classroomId={classroomId}
+                userRole={Role.Owner}
+                maxTeamSize={userClassroom.classroom.maxTeamSize}
+                numInvitedMembers={classroomMembers.length}
+                deactivateInteraction={userClassroom.classroom.archived}
+              />
+            )}
+            <Outlet />
+          </div>
+        </TabsContent>
+      </Tabs>
     </>
   );
 }

@@ -44,7 +44,7 @@ export function MemberListCard({
       <CardContent>
         <MemberTable members={classroomMembers} classroomId={classroomId} userRole={userRole} showTeams={showTeams} />
       </CardContent>
-      {(userRole != 2 && !deactivateInteraction) && (
+      {userRole != 2 && !deactivateInteraction && (
         <CardFooter className="flex justify-end">
           <Button variant="default" asChild className="mr-2">
             <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
@@ -78,9 +78,7 @@ function MemberTable({
       items={members}
       renderItem={(m) => (
         <ListItem
-          leftContent={
-            <MemberListElement member={m} showTeams={showTeams} />
-          }
+          leftContent={<MemberListElement member={m} showTeams={showTeams} />}
           rightContent={
             <>
               <Button variant="ghost" size="icon" asChild>
@@ -92,6 +90,7 @@ function MemberTable({
                 <Button variant="ghost" size="icon" asChild>
                   <Link
                     to="/classrooms/$classroomId/teams/$teamId/modal"
+                    search={{ tab: "members" }}
                     params={{ classroomId: classroomId, teamId: m.team.id }}
                   >
                     <Clipboard className="h-6 w-6 text-gray-600" />

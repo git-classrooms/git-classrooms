@@ -194,6 +194,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Post("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/grading/auto", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.StartAutoGradingForProject)
 
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/report/gitlab", apiController.RedirectReportGitlab)
 	v2.Get("/classrooms/:classroomId/assignments/:assignmentId/projects/:projectId/repo", apiController.GetProjectCloneUrls)
 
 	v2.Use("/classrooms/:classroomId/projects", apiController.RoleMiddleware(database.Student))
@@ -202,6 +203,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Get("/classrooms/:classroomId/projects/:projectId", apiController.GetClassroomProject)
 	v2.Post("/classrooms/:classroomId/projects/:projectId/accept", apiController.AcceptAssignment)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/projects/:projectId/report/gitlab", apiController.RedirectProjectGitlab)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/repo", apiController.GetProjectCloneUrls)
 	v2.Get("/classrooms/:classroomId/projects/:projectId/grading", apiController.GetGradingResults)
 
@@ -240,6 +242,7 @@ func setupV2Routes(api *fiber.Router, config authConfig.Config, authController a
 	v2.Use("/classrooms/:classroomId/teams/:teamId/projects/:projectId", apiController.ClassroomTeamProjectMiddleware)
 	v2.Get("/classrooms/:classroomId/teams/:teamId/projects/:projectId", apiController.GetClassroomTeamProject)
 	v2.Get("/classrooms/:classroomId/teams/:teamId/projects/:projectId/gitlab", apiController.RedirectProjectGitlab)
+	v2.Get("/classrooms/:classroomId/teams/:teamId/projects/:projectId/report/gitlab", apiController.RedirectReportGitlab)
 
 	v2.Get("/classrooms/:classroomId/teams/:teamId/grading/report", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomTeamReport)
 }

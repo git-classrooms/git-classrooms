@@ -36,6 +36,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
     if (userClassroom.role !== Role.Owner) {
       throw redirect({
         to: "/classrooms/$classroomId",
+        search: { tab: "assignments" },
         params,
       });
     }
