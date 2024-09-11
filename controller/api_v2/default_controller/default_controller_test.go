@@ -94,13 +94,13 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func newJsonRequest(route string, object any, httpType string) *http.Request {
+func newJsonRequest(route string, object any, method string) *http.Request {
 	jsonData, err := json.Marshal(object)
 	if err != nil {
 		log.Fatalf("could not create json of object: %s", object)
 	}
 
-	req := httptest.NewRequest(httpType, route, bytes.NewReader(jsonData))
+	req := httptest.NewRequest(method, route, bytes.NewReader(jsonData))
 	req.Header.Set("Content-Type", "application/json")
 
 	return req

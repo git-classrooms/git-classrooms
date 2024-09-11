@@ -19,6 +19,8 @@ func Classroom(ownerID int) *database.Classroom {
 	classroom.GroupID = 1
 	classroom.GroupAccessTokenID = 20
 	classroom.GroupAccessToken = "token"
+	classroom.MaxTeamSize = 3
+	classroom.MaxTeams = 5
 
 	err := query.Classroom.WithContext(context.Background()).Create(&classroom)
 	if err != nil {
@@ -119,4 +121,3 @@ func Assignment(classroomID uuid.UUID, dueDate *time.Time, autograding bool) *da
 	}
 	return &assignment
 }
-
