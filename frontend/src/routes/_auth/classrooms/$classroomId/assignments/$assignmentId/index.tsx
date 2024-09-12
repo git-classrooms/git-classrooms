@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { Button } from "@/components/ui/button.tsx";
@@ -201,35 +201,39 @@ function AssignmentDetail() {
         </Card>
       </div>
 
-      <div className="flex mt-16 mb-6">
-        <div className="grow">
-          <h2 className="text-xl font-bold">Assignment projects</h2>
-          <p className="text-sm text-muted-foreground">
-            {classroom.classroom.maxTeamSize === 1
-              ? "All individual projects managed by the classroom"
-              : "All projects per team managed by the classroom"}
-          </p>
-        </div>
-        {isModerator(classroom) && (
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Button variant="outline" onClick={() => mutateAsync()} disabled={isPending}>
-                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Invites"}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Sends invitations to members who have not yet accepted.</TooltipContent>
-          </Tooltip>
-        )}
-      </div>
+      <Card className="mt-16 mb-6 p-2">
+        <CardHeader className="md:flex flex-row items-center justify-between space-y-0 pb-2 mb-4">
+          <div>
+            <CardTitle className="mb-1">Assignment projects</CardTitle>
+            <CardDescription>
+              {classroom.classroom.maxTeamSize === 1
+                ? "All individual projects managed by the classroom"
+                : "All projects per team managed by the classroom"}
+            </CardDescription>
+          </div>
+          {isModerator(classroom) && (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={() => mutateAsync()} disabled={isPending}>
+                  {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Invites"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Sends invitations to members who have not yet accepted.</TooltipContent>
+            </Tooltip>
+          )}
+        </CardHeader>
+        <CardContent>
+          <AssignmentProjectTable assignmentProjects={assignmentProjects} classroom={classroom} />
+        </CardContent>
+      </Card>
 
       {isError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>The Invitation could not be send!</AlertDescription>
+          <AlertDescription>The invitation could not be send!</AlertDescription>
         </Alert>
       )}
-      <AssignmentProjectTable assignmentProjects={assignmentProjects} classroom={classroom} />
     </div>
   );
 }

@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { cn, isModerator } from "@/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { AlertCircle, Bot, Download, Info, Loader2, SearchCheck, SearchCode } from "lucide-react";
+import { AlertCircle, Bot, Download, Loader2, SearchCheck, SearchCode } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -186,7 +186,6 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
   return (
     <div>
       <AssignmentProjectTable
-        classroom={classroom}
         assignment={assignment}
         zippedProjects={zippedProjects}
         rubrics={rubrics}
@@ -196,18 +195,17 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
 }
 
 function AssignmentProjectTable({
-  classroom,
   assignment,
   zippedProjects,
   rubrics,
 }: {
-  classroom: UserClassroomResponse;
   assignment: Assignment;
   zippedProjects: (ProjectResponse & { gradingResult?: UtilsReportDataItem })[];
   rubrics: ManualGradingRubric[];
 }) {
-  const { classroomId, assignmentId } = Route.useParams();
-  const { data: tests } = useSuspenseQuery(assignmentTestsQueryOptions(classroomId, assignmentId));
+  // TODO: benötigt?
+  // const { classroomId, assignmentId } = Route.useParams();
+  // const { data: tests } = useSuspenseQuery(assignmentTestsQueryOptions(classroomId, assignmentId));
 
   return (
     <>

@@ -35,8 +35,8 @@ export function AssignmentListSection({
   return (
     <>
       <Card className="p-2">
-        <CardHeader className="md:flex flex-row items-center justify-between space-y-0 pb-2 mb-4">
-          <div>
+        <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+          <div className="mb-4 md:mb-0">
             <CardTitle className="mb-1">Assignments</CardTitle>
             <CardDescription>Assignments managed by this classroom</CardDescription>
           </div>
@@ -56,7 +56,6 @@ export function AssignmentListSection({
           <AssignmentTable
             assignments={assignments}
             classroomId={classroomId}
-            classroomName={classroomName}
             deactivateInteraction={deactivateInteraction}
           />
         </CardContent>
@@ -68,12 +67,10 @@ export function AssignmentListSection({
 function AssignmentTable({
   assignments,
   classroomId,
-  classroomName,
   deactivateInteraction,
 }: {
   assignments: Assignment[];
   classroomId: string;
-  classroomName: string;
   deactivateInteraction: boolean;
 }) {
   return (
@@ -101,7 +98,7 @@ function AssignmentTable({
               </div>
             </TableCell>
             <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(a.createdAt)}</TableCell>
-            <TableCell className="hidden md:table-cell">{formatDate(a.dueDate ?? "-")}</TableCell>
+            <TableCell className="hidden md:table-cell">{a.dueDate ? formatDate(a.dueDate) : "-"}</TableCell>
             <TableCell className="flex flex-wrap flex-row-reverse gap-2">
               {!deactivateInteraction && (
                 <Button variant="outline" size="icon" asChild>

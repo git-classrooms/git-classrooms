@@ -32,7 +32,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 
-const tabs = ["assignments", "members"] as const;
+const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
@@ -210,6 +210,11 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
           <TabsTrigger asChild value="members" className="w-full">
             <Link search={{ tab: "members" }}>Members</Link>
           </TabsTrigger>
+          {userClassroom.classroom.maxTeamSize > 1 && (
+            <TabsTrigger asChild value="teams" className="w-full">
+              <Link search={{ tab: "teams" }}>Teams</Link>
+            </TabsTrigger>
+          )}
         </TabsList>
         <TabsContent value="assignments" className="pt-2">
           <AssignmentListSection
@@ -220,7 +225,7 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
           />
         </TabsContent>
         <TabsContent value="members" className="pt-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-4">
+          <div className="grid grid-cols-1 justify-between gap-4">
             <MemberListCard
               classroomMembers={classroomMembers}
               classroomId={classroomId}
@@ -229,19 +234,21 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
               deactivateInteraction={userClassroom.classroom.archived}
             />
             {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
-            {userClassroom.classroom.maxTeamSize > 1 && (
-              <TeamListCard
-                teams={teams}
-                classroomId={classroomId}
-                userRole={Role.Owner}
-                maxTeamSize={userClassroom.classroom.maxTeamSize}
-                numInvitedMembers={classroomMembers.length}
-                deactivateInteraction={userClassroom.classroom.archived}
-              />
-            )}
-            <Outlet />
           </div>
         </TabsContent>
+        {userClassroom.classroom.maxTeamSize > 1 && (
+          <TabsContent value="teams" className="pt-2">
+            <TeamListCard
+              teams={teams}
+              classroomId={classroomId}
+              userRole={Role.Owner}
+              maxTeamSize={userClassroom.classroom.maxTeamSize}
+              numInvitedMembers={classroomMembers.length}
+              deactivateInteraction={userClassroom.classroom.archived}
+            />
+            <Outlet />
+          </TabsContent>
+        )}
       </Tabs>
     </>
   );
