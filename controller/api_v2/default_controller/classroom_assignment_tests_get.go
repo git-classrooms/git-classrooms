@@ -73,7 +73,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err er
 
 	report, err := repo.GetProjectLatestPipelineTestReportSummary(assignment.TemplateProjectID, nil)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return c.JSON(response)
 	}
 
 	response.Report = utils.FlatMap(report.TestSuites, func(ts model.TestReportTestSuite) []*assignmentTestReport {
