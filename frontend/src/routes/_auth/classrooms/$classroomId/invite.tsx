@@ -1,30 +1,39 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { getStatus, InviteForm, inviteFormSchema, Role } from "@/types/classroom";
+import { getStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Loader } from "@/components/loader.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { formatDate } from "@/lib/utils.ts";
+import { formatDate, isStudent } from "@/lib/utils.ts";
 import { ClassroomInvitation } from "@/swagger-client";
 import { classroomInvitationsQueryOptions, classroomQueryOptions, useInviteClassroomMembers } from "@/api/classroom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student) {
+    if (isStudent(userClassroom)) {
       throw redirect({
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },
         params,
+        replace: true,
       });
     }
   },
@@ -34,6 +43,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
 
 function ClassroomInviteForm() {
   const { classroomId } = Route.useParams();
+  const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
 
   const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
@@ -51,7 +61,23 @@ function ClassroomInviteForm() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <>
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                {userClassroom.classroom.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Invitations</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <Header title="Invitations" />
       <InvitationsTable invitations={invitations} />
 
@@ -88,7 +114,7 @@ function ClassroomInviteForm() {
           )}
         </form>
       </Form>
-    </div>
+    </>
   );
 }
 

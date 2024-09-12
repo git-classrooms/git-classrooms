@@ -1,8 +1,8 @@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { ArrowRight, Clipboard, Gitlab } from "lucide-react";
+import { ArrowRight, Clipboard, Download, Gitlab } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { formatDate } from "@/lib/utils.ts";
+import { formatDate, isOwner } from "@/lib/utils.ts";
 import { Avatar } from "@/components/avatar.tsx";
 import { ProjectResponse, UserClassroomResponse } from "@/swagger-client";
 import { useQuery } from "@tanstack/react-query";
@@ -13,11 +13,13 @@ import { Skeleton } from "./ui/skeleton";
 import { Separator } from "./ui/separator";
 
 interface ClassroomTeamModalProps {
+  userClassroom: UserClassroomResponse;
   classroomId: string;
   teamId: string;
+  reportUrl: string;
 }
 
-const ClassroomModalContent = ({ classroomId, teamId }: ClassroomTeamModalProps) => {
+const ClassroomModalContent = ({ classroomId, teamId, reportUrl, userClassroom }: ClassroomTeamModalProps) => {
   const { data: team, isLoading: teamIsLoading, error: teamError } = useQuery(teamQueryOptions(classroomId, teamId));
   const {
     data: projects,
@@ -52,6 +54,17 @@ const ClassroomModalContent = ({ classroomId, teamId }: ClassroomTeamModalProps)
           <Separator className="my-1" />
           <h2 className="text-xl mt-4">Assignments</h2>
           <ClassroomTeamAssignmentTable classroomId={classroomId} projects={projects!} />
+          {isOwner(userClassroom) && (
+            <>
+              <Separator className="my-1" />
+              <Button asChild variant="outline">
+                <a href={reportUrl} target="_blank" rel="noreferrer">
+                  <Download className="h-4 m-4" />
+                  Download grading report
+                </a>
+              </Button>
+            </>
+          )}
         </>
       )}
     </>

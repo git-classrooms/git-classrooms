@@ -53,6 +53,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       throw redirect({
         to: "/classrooms/$classroomId/assignments/$assignmentId",
         params: { classroomId, assignmentId },
+        replace: true,
       });
     }
   },

@@ -196,7 +196,7 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                 <FormControl>
                   <Input placeholder="Programming classroom" {...field} />
                 </FormControl>
-                <FormDescription>The name of the new classroom</FormDescription>
+                <FormDescription>The name of the classroom</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

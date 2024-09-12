@@ -7,6 +7,8 @@ import { formatDate } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
 import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { assignmentsQueryOptions } from "@/api/assignment";
 
 /**
  * AssignmentListSection is a React component that displays a list of assignments in a classroom.
@@ -21,14 +23,13 @@ import { useState } from "react";
  * @constructor
  */
 export function AssignmentListSection({
-  assignments,
   classroomId,
   deactivateInteraction,
 }: {
-  assignments: Assignment[];
   classroomId: string;
   deactivateInteraction: boolean;
 }): JSX.Element {
+  const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
   const [isLoading, setIsLoading] = useState(false);
   return (
     <>

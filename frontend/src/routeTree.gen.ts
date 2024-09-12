@@ -14,10 +14,10 @@ import { Route as rootRoute } from "./routes/__root"
 import { Route as LoginImport } from "./routes/login"
 import { Route as AuthImport } from "./routes/_auth"
 import { Route as IndexImport } from "./routes/index"
-import { Route as AuthDashboardIndexImport } from "./routes/_auth/dashboard/index"
+import { Route as AuthDashboardImport } from "./routes/_auth/dashboard"
 import { Route as AuthClassroomsIndexImport } from "./routes/_auth/classrooms/index"
-import { Route as AuthDashboardCreateImport } from "./routes/_auth/dashboard/create"
 import { Route as AuthClassroomsCreateImport } from "./routes/_auth/classrooms/create"
+import { Route as AuthClassroomsClassroomIdRouteImport } from "./routes/_auth/classrooms/$classroomId/route"
 import { Route as AuthClassroomsClassroomIdIndexImport } from "./routes/_auth/classrooms/$classroomId/index"
 import { Route as AuthClassroomsClassroomIdInviteImport } from "./routes/_auth/classrooms/$classroomId/invite"
 import { Route as AuthClassroomsClassroomIdTeamsRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/route"
@@ -26,9 +26,8 @@ import { Route as AuthClassroomsClassroomIdAssignmentsRouteImport } from "./rout
 import { Route as AuthClassroomsClassroomIdTeamsIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/index"
 import { Route as AuthClassroomsClassroomIdSettingsIndexImport } from "./routes/_auth/classrooms/$classroomId/settings/index"
 import { Route as AuthClassroomsClassroomIdMembersIndexImport } from "./routes/_auth/classrooms/$classroomId/members/index"
-import { Route as AuthClassroomsClassroomIdGradingIndexImport } from "./routes/_auth/classrooms/$classroomId/grading.index"
+import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from "./routes/_auth/classrooms/$classroomId_.invitations.$invitationId"
 import { Route as AuthClassroomsClassroomIdSettingsGradingImport } from "./routes/_auth/classrooms/$classroomId/settings/grading"
-import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from "./routes/_auth/classrooms/$classroomId/invitations/$invitationId"
 import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
 import { Route as AuthClassroomsClassroomIdTeamsTeamIdRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/$teamId/route"
 import { Route as AuthClassroomsClassroomIdTeamsJoinIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/join.index"
@@ -36,7 +35,6 @@ import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } 
 import { Route as AuthClassroomsClassroomIdProjectsProjectIdAcceptImport } from "./routes/_auth/classrooms/$classroomId/projects/$projectId/accept"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsRouteImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/route"
 import { Route as AuthClassroomsClassroomIdTeamsTeamIdGradingIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/$teamId/grading.index"
-import { Route as AuthClassroomsClassroomIdProjectsProjectIdGradingIndexImport } from "./routes/_auth/classrooms/$classroomId/projects/$projectId/grading.index"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/index"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdGradingIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/grading.index"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsGradingImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/grading"
@@ -58,8 +56,8 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthDashboardIndexRoute = AuthDashboardIndexImport.update({
-  path: "/dashboard/",
+const AuthDashboardRoute = AuthDashboardImport.update({
+  path: "/dashboard",
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -68,44 +66,45 @@ const AuthClassroomsIndexRoute = AuthClassroomsIndexImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
-const AuthDashboardCreateRoute = AuthDashboardCreateImport.update({
-  path: "/dashboard/create",
-  getParentRoute: () => AuthRoute,
-} as any)
-
 const AuthClassroomsCreateRoute = AuthClassroomsCreateImport.update({
   path: "/classrooms/create",
   getParentRoute: () => AuthRoute,
 } as any)
 
+const AuthClassroomsClassroomIdRouteRoute =
+  AuthClassroomsClassroomIdRouteImport.update({
+    path: "/classrooms/$classroomId",
+    getParentRoute: () => AuthRoute,
+  } as any)
+
 const AuthClassroomsClassroomIdIndexRoute =
   AuthClassroomsClassroomIdIndexImport.update({
-    path: "/classrooms/$classroomId/",
-    getParentRoute: () => AuthRoute,
+    path: "/",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdInviteRoute =
   AuthClassroomsClassroomIdInviteImport.update({
-    path: "/classrooms/$classroomId/invite",
-    getParentRoute: () => AuthRoute,
+    path: "/invite",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdTeamsRouteRoute =
   AuthClassroomsClassroomIdTeamsRouteImport.update({
-    path: "/classrooms/$classroomId/teams",
-    getParentRoute: () => AuthRoute,
+    path: "/teams",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdSettingsRouteRoute =
   AuthClassroomsClassroomIdSettingsRouteImport.update({
-    path: "/classrooms/$classroomId/settings",
-    getParentRoute: () => AuthRoute,
+    path: "/settings",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdAssignmentsRouteRoute =
   AuthClassroomsClassroomIdAssignmentsRouteImport.update({
-    path: "/classrooms/$classroomId/assignments",
-    getParentRoute: () => AuthRoute,
+    path: "/assignments",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdTeamsIndexRoute =
@@ -122,13 +121,13 @@ const AuthClassroomsClassroomIdSettingsIndexRoute =
 
 const AuthClassroomsClassroomIdMembersIndexRoute =
   AuthClassroomsClassroomIdMembersIndexImport.update({
-    path: "/classrooms/$classroomId/members/",
-    getParentRoute: () => AuthRoute,
+    path: "/members/",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
-const AuthClassroomsClassroomIdGradingIndexRoute =
-  AuthClassroomsClassroomIdGradingIndexImport.update({
-    path: "/classrooms/$classroomId/grading/",
+const AuthClassroomsClassroomIdInvitationsInvitationIdRoute =
+  AuthClassroomsClassroomIdInvitationsInvitationIdImport.update({
+    path: "/classrooms/$classroomId/invitations/$invitationId",
     getParentRoute: () => AuthRoute,
   } as any)
 
@@ -136,12 +135,6 @@ const AuthClassroomsClassroomIdSettingsGradingRoute =
   AuthClassroomsClassroomIdSettingsGradingImport.update({
     path: "/grading",
     getParentRoute: () => AuthClassroomsClassroomIdSettingsRouteRoute,
-  } as any)
-
-const AuthClassroomsClassroomIdInvitationsInvitationIdRoute =
-  AuthClassroomsClassroomIdInvitationsInvitationIdImport.update({
-    path: "/classrooms/$classroomId/invitations/$invitationId",
-    getParentRoute: () => AuthRoute,
   } as any)
 
 const AuthClassroomsClassroomIdAssignmentsCreateRoute =
@@ -170,8 +163,8 @@ const AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute =
 
 const AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute =
   AuthClassroomsClassroomIdProjectsProjectIdAcceptImport.update({
-    path: "/classrooms/$classroomId/projects/$projectId/accept",
-    getParentRoute: () => AuthRoute,
+    path: "/projects/$projectId/accept",
+    getParentRoute: () => AuthClassroomsClassroomIdRouteRoute,
   } as any)
 
 const AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsRouteRoute =
@@ -184,12 +177,6 @@ const AuthClassroomsClassroomIdTeamsTeamIdGradingIndexRoute =
   AuthClassroomsClassroomIdTeamsTeamIdGradingIndexImport.update({
     path: "/grading/",
     getParentRoute: () => AuthClassroomsClassroomIdTeamsTeamIdRouteRoute,
-  } as any)
-
-const AuthClassroomsClassroomIdProjectsProjectIdGradingIndexRoute =
-  AuthClassroomsClassroomIdProjectsProjectIdGradingIndexImport.update({
-    path: "/classrooms/$classroomId/projects/$projectId/grading/",
-    getParentRoute: () => AuthRoute,
   } as any)
 
 const AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsIndexRoute =
@@ -228,41 +215,41 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    "/_auth/classrooms/create": {
-      preLoaderRoute: typeof AuthClassroomsCreateImport
+    "/_auth/dashboard": {
+      preLoaderRoute: typeof AuthDashboardImport
       parentRoute: typeof AuthImport
     }
-    "/_auth/dashboard/create": {
-      preLoaderRoute: typeof AuthDashboardCreateImport
+    "/_auth/classrooms/$classroomId": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdRouteImport
+      parentRoute: typeof AuthImport
+    }
+    "/_auth/classrooms/create": {
+      preLoaderRoute: typeof AuthClassroomsCreateImport
       parentRoute: typeof AuthImport
     }
     "/_auth/classrooms/": {
       preLoaderRoute: typeof AuthClassroomsIndexImport
       parentRoute: typeof AuthImport
     }
-    "/_auth/dashboard/": {
-      preLoaderRoute: typeof AuthDashboardIndexImport
-      parentRoute: typeof AuthImport
-    }
     "/_auth/classrooms/$classroomId/assignments": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsRouteImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/settings": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdSettingsRouteImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/teams": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsRouteImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/invite": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdInviteImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdIndexImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/teams/$teamId": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsTeamIdRouteImport
@@ -272,21 +259,17 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsCreateImport
       parentRoute: typeof AuthClassroomsClassroomIdAssignmentsRouteImport
     }
-    "/_auth/classrooms/$classroomId/invitations/$invitationId": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdInvitationsInvitationIdImport
-      parentRoute: typeof AuthImport
-    }
     "/_auth/classrooms/$classroomId/settings/grading": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdSettingsGradingImport
       parentRoute: typeof AuthClassroomsClassroomIdSettingsRouteImport
     }
-    "/_auth/classrooms/$classroomId/grading/": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdGradingIndexImport
+    "/_auth/classrooms/$classroomId/invitations/$invitationId": {
+      preLoaderRoute: typeof AuthClassroomsClassroomIdInvitationsInvitationIdImport
       parentRoute: typeof AuthImport
     }
     "/_auth/classrooms/$classroomId/members/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdMembersIndexImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/settings/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdSettingsIndexImport
@@ -302,7 +285,7 @@ declare module "@tanstack/react-router" {
     }
     "/_auth/classrooms/$classroomId/projects/$projectId/accept": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdProjectsProjectIdAcceptImport
-      parentRoute: typeof AuthImport
+      parentRoute: typeof AuthClassroomsClassroomIdRouteImport
     }
     "/_auth/classrooms/$classroomId/assignments/$assignmentId/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport
@@ -324,10 +307,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsRouteImport
     }
-    "/_auth/classrooms/$classroomId/projects/$projectId/grading/": {
-      preLoaderRoute: typeof AuthClassroomsClassroomIdProjectsProjectIdGradingIndexImport
-      parentRoute: typeof AuthImport
-    }
     "/_auth/classrooms/$classroomId/teams/$teamId/grading/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsTeamIdGradingIndexImport
       parentRoute: typeof AuthClassroomsClassroomIdTeamsTeamIdRouteImport
@@ -340,39 +319,38 @@ declare module "@tanstack/react-router" {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   AuthRoute.addChildren([
-    AuthClassroomsCreateRoute,
-    AuthDashboardCreateRoute,
-    AuthClassroomsIndexRoute,
-    AuthDashboardIndexRoute,
-    AuthClassroomsClassroomIdAssignmentsRouteRoute.addChildren([
-      AuthClassroomsClassroomIdAssignmentsCreateRoute,
-      AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsRouteRoute.addChildren(
-        [
-          AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsGradingRoute,
-          AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsIndexRoute,
-        ],
-      ),
-      AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
-      AuthClassroomsClassroomIdAssignmentsAssignmentIdGradingIndexRoute,
-    ]),
-    AuthClassroomsClassroomIdSettingsRouteRoute.addChildren([
-      AuthClassroomsClassroomIdSettingsGradingRoute,
-      AuthClassroomsClassroomIdSettingsIndexRoute,
-    ]),
-    AuthClassroomsClassroomIdTeamsRouteRoute.addChildren([
-      AuthClassroomsClassroomIdTeamsTeamIdRouteRoute.addChildren([
-        AuthClassroomsClassroomIdTeamsTeamIdGradingIndexRoute,
+    AuthDashboardRoute,
+    AuthClassroomsClassroomIdRouteRoute.addChildren([
+      AuthClassroomsClassroomIdAssignmentsRouteRoute.addChildren([
+        AuthClassroomsClassroomIdAssignmentsCreateRoute,
+        AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsRouteRoute.addChildren(
+          [
+            AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsGradingRoute,
+            AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsIndexRoute,
+          ],
+        ),
+        AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute,
+        AuthClassroomsClassroomIdAssignmentsAssignmentIdGradingIndexRoute,
       ]),
-      AuthClassroomsClassroomIdTeamsIndexRoute,
-      AuthClassroomsClassroomIdTeamsJoinIndexRoute,
+      AuthClassroomsClassroomIdSettingsRouteRoute.addChildren([
+        AuthClassroomsClassroomIdSettingsGradingRoute,
+        AuthClassroomsClassroomIdSettingsIndexRoute,
+      ]),
+      AuthClassroomsClassroomIdTeamsRouteRoute.addChildren([
+        AuthClassroomsClassroomIdTeamsTeamIdRouteRoute.addChildren([
+          AuthClassroomsClassroomIdTeamsTeamIdGradingIndexRoute,
+        ]),
+        AuthClassroomsClassroomIdTeamsIndexRoute,
+        AuthClassroomsClassroomIdTeamsJoinIndexRoute,
+      ]),
+      AuthClassroomsClassroomIdInviteRoute,
+      AuthClassroomsClassroomIdIndexRoute,
+      AuthClassroomsClassroomIdMembersIndexRoute,
+      AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute,
     ]),
-    AuthClassroomsClassroomIdInviteRoute,
-    AuthClassroomsClassroomIdIndexRoute,
+    AuthClassroomsCreateRoute,
+    AuthClassroomsIndexRoute,
     AuthClassroomsClassroomIdInvitationsInvitationIdRoute,
-    AuthClassroomsClassroomIdGradingIndexRoute,
-    AuthClassroomsClassroomIdMembersIndexRoute,
-    AuthClassroomsClassroomIdProjectsProjectIdAcceptRoute,
-    AuthClassroomsClassroomIdProjectsProjectIdGradingIndexRoute,
   ]),
   LoginRoute,
 ])
