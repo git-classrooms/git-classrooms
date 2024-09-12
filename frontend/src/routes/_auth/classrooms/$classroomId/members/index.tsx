@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { getRole, Role } from "@/types/classroom.ts";
 import { createFormSchema } from "@/types/member.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -21,21 +21,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { useMemo } from "react";
+import { isCreator, isStudent } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student && !userClassroom.team) {
-      throw redirect({
-        to: "/classrooms/$classroomId/teams/join",
-        params,
-      });
-    }
+
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-    if (userClassroom.role !== Role.Student) {
+    if (isStudent(userClassroom)) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
       return { userClassroom, assignments, members, teams, reportDownloadUrl };
     } else {
@@ -50,23 +55,39 @@ function Members() {
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
 
-  const classroomMembersSorted = classroomMembers.sort((a, b) => {
-    if (a.role === Role.Owner) {
-      return -1;
-    } else if (b.role === Role.Owner) {
-      return 1;
-    } else if (a.role === Role.Moderator) {
-      return -1;
-    } else if (b.role === Role.Moderator) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+  const classroomMembersSorted = useMemo(
+    () =>
+      [...classroomMembers].sort((a, b) => {
+        if (a.role !== b.role) {
+          return a.role - b.role;
+        }
+
+        if (isCreator(a)) return -1;
+        if (isCreator(b)) return 1;
+
+        return a.user.name.localeCompare(b.user.name);
+      }),
+    [classroomMembers],
+  );
 
   return (
-    <div>
-      <Header title="Members" />
+    <>
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                {userClassroom.classroom.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Member roles</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Header title="Member roles" />
       <div className="justify-between gap-10">
         <MemberTable
           members={classroomMembersSorted}
@@ -74,9 +95,8 @@ function Members() {
           userRole={userClassroom.role}
           showTeams={userClassroom.classroom.maxTeamSize > 1}
         />
-        <Outlet />
       </div>
-    </div>
+    </>
   );
 }
 

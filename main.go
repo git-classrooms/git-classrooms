@@ -33,7 +33,7 @@ import (
 
 var version string = "development"
 
-//	@title			GitLab Classrooms – Backend API
+//	@title			GitClassrooms – Backend API
 //	@version		1.0.0
 //	@description	This is the API for our Gitlab Classroom Webapp
 //	@termsOfService	http://swagger.io/terms/

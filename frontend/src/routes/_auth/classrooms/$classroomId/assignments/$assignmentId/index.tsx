@@ -112,7 +112,7 @@ function AssignmentDetail() {
 
       <div className="md:flex justify-between gap-1 mb-4">
         <Header title={assignment.name} subtitle="Assignment overview" />
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="flex flex-col lg:flex-row gap-3">
           <Button
             variant="secondary"
             onClick={toggleHeaderCards}
@@ -142,12 +142,6 @@ function AssignmentDetail() {
               </Link>
             </Button>
           )}
-          {/* <Button variant="secondary" asChild size="sm" title="Download Report">
-            <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
-              <Download className="mr-2 h-4 w-4" />
-              Download Report
-            </a>
-          </Button> */}
           {isOwner(classroom) && (
             <Button variant="secondary" asChild size="sm" title="Settings">
               <Link
@@ -164,7 +158,7 @@ function AssignmentDetail() {
 
       {showHeaderCards && <AssignmentHeaderCards assignment={assignment} assignmentProjects={assignmentProjects} />}
 
-      <Card className="mt-16 mb-6 p-2">
+      <Card className="mt-4 mb-6 p-2">
         <CardHeader className="md:flex flex-row items-center justify-between space-y-0 pb-2 mb-4">
           <div>
             <CardTitle className="mb-1">Assignment projects</CardTitle>

@@ -1,8 +1,7 @@
 import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, redirect, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
-import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
 import { AssignmentListSection } from "@/components/classroomAssignments.tsx";
 import { Header } from "@/components/header";
@@ -26,12 +25,15 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { formatDate, isModerator } from "@/lib/utils";
+import { formatDate, isModerator, isStudent } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { projectsQueryOptions } from "@/api/project";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { ProjectListSection } from "@/components/classroomProjects";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
@@ -42,20 +44,25 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student && !userClassroom.team) {
-      throw redirect({
-        to: "/classrooms/$classroomId/teams/join",
-        params,
-      });
-    }
+
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
+    const teamsReportUrls = (
+      await Promise.all(
+        teams.map(async (team) => ({
+          teamId: team.id,
+          url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(params.classroomId, team.id)).url,
+        })),
+      )
+    ).reduce((acc, { url, teamId }) => acc.set(teamId, url), new Map<string, string>());
+
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
 
     if (isModerator(userClassroom)) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
-      return { userClassroom, assignments, members, teams, reportDownloadUrl };
+      return { userClassroom, assignments, members, teams, reportDownloadUrl, teamsReportUrls };
     } else {
-      return { userClassroom, members, teams, reportDownloadUrl };
+      const projects = await queryClient.ensureQueryData(projectsQueryOptions(params.classroomId));
+      return { userClassroom, projects, members, teams, reportDownloadUrl, teamsReportUrls };
     }
   },
   pendingComponent: Loader,
@@ -64,36 +71,15 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
 function ClassroomDetail() {
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
-
-  return isModerator(userClassroom) ? (
-    <ClassroomSupervisorView userClassroom={userClassroom} />
-  ) : (
-    <ClassroomStudentView />
-  );
-}
-
-function ClassroomStudentView() {
-  // Role.Student does not have access to assignments
-  // This is a placeholder
-  return (
-    <div>
-      <h1>Joined Classroom Info</h1>
-    </div>
-  );
-}
-
-function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassroomResponse }) {
   const { tab } = Route.useSearch();
-  const { classroomId } = Route.useParams();
   const { reportDownloadUrl } = Route.useLoaderData();
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
-  const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
-
   const { mutate } = useArchiveClassroom(classroomId);
 
   const [showHeaderCards, setShowHeaderCards] = useLocalStorage("classroom-header", true);
   const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
+  const { teamsReportUrls } = Route.useLoaderData();
 
   const handleConfirmArchive = () => {
     mutate();
@@ -101,32 +87,45 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
 
   return (
     <>
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>{userClassroom.classroom.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="lg:flex justify-between gap-1 mb-4">
         <Header
-          title={`${userClassroom.classroom.archived ? "Archived " : ""}${userClassroom.classroom.name}`}
+          title={
+            <a href={userClassroom.webUrl} target="_blank" referrerPolicy="no-referrer">
+              {userClassroom.classroom.archived && "Archived "}
+              {userClassroom.classroom.name}
+            </a>
+          }
           subtitle="Classroom overview"
         />
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-          {!userClassroom.classroom.archived && (
+        <div className="flex flex-col lg:flex-row gap-3">
+          <Button
+            variant="secondary"
+            className="min-w-[137px]"
+            onClick={toggleHeaderCards}
+            size="sm"
+            title="Toggle details"
+          >
+            {showHeaderCards ? (
+              <>
+                <EyeOff className="mr-2 w-4 h-4" /> Hide
+              </>
+            ) : (
+              <>
+                <Eye className="mr-2 w-4 h-4" /> Show
+              </>
+            )}{" "}
+            details
+          </Button>
+          {!userClassroom.classroom.archived && isModerator(userClassroom) && (
             <>
-              <Button
-                variant="secondary"
-                className="min-w-[137px]"
-                onClick={toggleHeaderCards}
-                size="sm"
-                title="Toggle details"
-              >
-                {showHeaderCards ? (
-                  <>
-                    <EyeOff className="mr-2 w-4 h-4" /> Hide
-                  </>
-                ) : (
-                  <>
-                    <Eye className="mr-2 w-4 h-4" /> Show
-                  </>
-                )}{" "}
-                details
-              </Button>
               <Button variant="secondary" asChild size="sm" title="Download report">
                 <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
                   <Download className="mr-2 h-4 w-4" />
@@ -185,18 +184,18 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
           )}
         </TabsList>
         <TabsContent value="assignments" className="pt-2">
-          <AssignmentListSection
-            assignments={assignments}
-            classroomId={classroomId}
-            deactivateInteraction={userClassroom.classroom.archived}
-          />
+          {isModerator(userClassroom) && (
+            <AssignmentListSection classroomId={classroomId} deactivateInteraction={userClassroom.classroom.archived} />
+          )}
+          {isStudent(userClassroom) && <ProjectListSection classroomId={classroomId} />}
         </TabsContent>
         <TabsContent value="members" className="pt-2">
           <div className="grid grid-cols-1 justify-between gap-4">
             <MemberListCard
+              teamsReportUrls={teamsReportUrls}
               classroomMembers={classroomMembers}
               classroomId={classroomId}
-              userRole={Role.Owner}
+              userClassroom={userClassroom}
               showTeams={userClassroom.classroom.maxTeamSize > 1}
               deactivateInteraction={userClassroom.classroom.archived}
             />
@@ -209,10 +208,11 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
               teams={teams}
               studentsCanCreateTeams={userClassroom.classroom.createTeams}
               classroomId={classroomId}
-              userRole={Role.Owner}
+              userClassroom={userClassroom}
               maxTeamSize={userClassroom.classroom.maxTeamSize}
-              numInvitedMembers={classroomMembers.filter((m) => m.role === Role.Student).length}
+              numInvitedMembers={classroomMembers.filter(isStudent).length}
               deactivateInteraction={userClassroom.classroom.archived}
+              teamsReportUrls={teamsReportUrls}
             />
           </TabsContent>
         )}

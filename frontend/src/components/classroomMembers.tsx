@@ -1,4 +1,4 @@
-import { getRole, Role } from "@/types/classroom.ts";
+import { getRole } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
@@ -10,6 +10,7 @@ import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { ClassroomTeamModal } from "./classroomTeam";
+import { isModerator, isOwner, isStudent } from "@/lib/utils";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -25,14 +26,16 @@ import { ClassroomTeamModal } from "./classroomTeam";
  */
 export function MemberListCard({
   classroomMembers,
+  teamsReportUrls,
   classroomId,
-  userRole,
+  userClassroom,
   showTeams,
   deactivateInteraction,
 }: {
   classroomMembers: UserClassroomResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   showTeams: boolean;
   deactivateInteraction: boolean;
 }): JSX.Element {
@@ -43,23 +46,32 @@ export function MemberListCard({
           <CardTitle className="mb-1">Members</CardTitle>
           <CardDescription>Members in this this classroom</CardDescription>
         </div>
-        {userRole != 2 && !deactivateInteraction && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {!deactivateInteraction && isOwner(userClassroom) && (
             <Button variant="outline" asChild>
               <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-                Show all members
+                Change roles
               </Link>
             </Button>
+          )}
+
+          {!deactivateInteraction && isModerator(userClassroom) && (
             <Button variant="outline" asChild>
               <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
                 Invite members
               </Link>
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </CardHeader>
       <CardContent>
-        <MemberTable members={classroomMembers} classroomId={classroomId} userRole={userRole} showTeams={showTeams} />
+        <MemberTable
+          teamsReportUrls={teamsReportUrls}
+          members={classroomMembers}
+          classroomId={classroomId}
+          userClassroom={userClassroom}
+          showTeams={showTeams}
+        />
       </CardContent>
     </Card>
   );
@@ -67,41 +79,52 @@ export function MemberListCard({
 
 function MemberTable({
   members,
+  teamsReportUrls,
   classroomId,
-  userRole,
+  userClassroom,
   showTeams,
 }: {
   members: UserClassroomResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   showTeams: boolean;
 }) {
   return (
     <List
       items={members}
-      renderItem={(m) => (
-        <ListItem
-          leftContent={<MemberListElement member={m} showTeams={showTeams} />}
-          rightContent={
-            <>
-              <Button variant="ghost" size="icon" asChild>
-                <a href={m.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600" />
-                </a>
-              </Button>
-              {userRole != Role.Student && m.team ? (
-                <ClassroomTeamModal classroomId={classroomId} teamId={m.team.id} />
-              ) : (
+      renderItem={(m) => {
+        const reportUrl = teamsReportUrls.get(m.team?.id ?? "");
+
+        return (
+          <ListItem
+            leftContent={<MemberListElement member={m} showTeams={showTeams} />}
+            rightContent={
+              <>
                 <Button variant="ghost" size="icon" asChild>
-                  <div>
-                    <Clipboard className="h-6 w-6 text-gray-400" />
-                  </div>
+                  <a href={m.webUrl} target="_blank" rel="noreferrer">
+                    <Gitlab className="h-6 w-6 text-gray-600" />
+                  </a>
                 </Button>
-              )}
-            </>
-          }
-        />
-      )}
+                {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
+                  <ClassroomTeamModal
+                    userClassroom={userClassroom}
+                    classroomId={classroomId}
+                    teamId={m.team.id}
+                    reportUrl={reportUrl!}
+                  />
+                ) : (
+                  <Button variant="ghost" size="icon" asChild>
+                    <div>
+                      <Clipboard className="h-6 w-6 text-gray-400" />
+                    </div>
+                  </Button>
+                )}
+              </>
+            }
+          />
+        );
+      }}
     />
   );
 }

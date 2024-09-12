@@ -1,15 +1,15 @@
-import { Role } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { TeamResponse } from "@/swagger-client";
+import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { CreateTeamForm } from "./createTeamForm";
 import { useState } from "react";
 import { ClassroomTeamModal } from "./classroomTeam";
+import { isModerator, isStudent } from "@/lib/utils";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -24,19 +24,21 @@ import { ClassroomTeamModal } from "./classroomTeam";
 export function TeamListCard({
   teams,
   classroomId,
-  userRole,
+  userClassroom,
   maxTeamSize,
   numInvitedMembers,
   studentsCanCreateTeams,
   deactivateInteraction,
+  teamsReportUrls,
 }: {
   teams: TeamResponse[];
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   maxTeamSize: number;
   numInvitedMembers: number;
   studentsCanCreateTeams: boolean;
   deactivateInteraction: boolean;
+  teamsReportUrls: Map<string, string>;
 }): JSX.Element {
   const teamSlots = teams.length * maxTeamSize;
 
@@ -50,7 +52,7 @@ export function TeamListCard({
           <CardDescription>Teams in this classroom</CardDescription>
         </div>
         <div className="grid grid-cols-1 gap-2">
-          {userRole != Role.Student && !deactivateInteraction && (
+          {isModerator(userClassroom) && !deactivateInteraction && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">Create a team</Button>
@@ -63,7 +65,7 @@ export function TeamListCard({
         </div>
       </CardHeader>
       <CardContent>
-        {teamSlots < numInvitedMembers && userRole != Role.Student && (
+        {teamSlots < numInvitedMembers && isModerator(userClassroom) && (
           <div>
             <p className="text-sm text-muted-foreground text-red-600">
               Not enough team spots to accommodate all classroom members.
@@ -78,8 +80,9 @@ export function TeamListCard({
         <TeamTable
           teams={teams}
           classroomId={classroomId}
-          userRole={userRole}
+          userClassroom={userClassroom}
           maxTeamSize={maxTeamSize}
+          teamsReportUrls={teamsReportUrls}
           deactivateInteraction={deactivateInteraction}
         />
       </CardContent>
@@ -89,16 +92,18 @@ export function TeamListCard({
 
 export function TeamTable({
   teams,
+  teamsReportUrls,
   classroomId,
-  userRole,
+  userClassroom,
   maxTeamSize,
   isPending,
   onTeamSelect,
   deactivateInteraction,
 }: {
   teams: TeamResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   maxTeamSize: number;
   isPending?: boolean;
   onTeamSelect?: (teamId: string) => void;
@@ -107,35 +112,46 @@ export function TeamTable({
   return (
     <Table>
       <TableBody>
-        {teams.map((t) => (
-          <TableRow key={t.id}>
-            <TableCell className="p-2">
-              <TeamListElement team={t} maxTeamSize={maxTeamSize} />
-            </TableCell>
-            <TableCell className="p-2 flex justify-end align-middle">
-              <Button variant="ghost" size="icon" asChild>
-                <a href={t.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
-                </a>
-              </Button>
-              {!deactivateInteraction && (
-                <>
-                  {userRole != Role.Student && <ClassroomTeamModal classroomId={classroomId} teamId={t.id} />}
-                  {onTeamSelect && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onTeamSelect?.(t.id)}
-                      disabled={isPending || t.members.length >= maxTeamSize}
-                    >
-                      <UserPlus className="text-gray-600 dark:text-white" />
-                    </Button>
-                  )}
-                </>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
+        {teams.map((t) => {
+          const reportUrl = teamsReportUrls.get(t.id)!;
+
+          return (
+            <TableRow key={t.id}>
+              <TableCell className="p-2">
+                <TeamListElement team={t} maxTeamSize={maxTeamSize} />
+              </TableCell>
+              <TableCell className="p-2 flex justify-end align-middle">
+                <Button variant="ghost" size="icon" asChild>
+                  <a href={t.webUrl} target="_blank" rel="noreferrer">
+                    <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
+                  </a>
+                </Button>
+                {!deactivateInteraction && (
+                  <>
+                    {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
+                      <ClassroomTeamModal
+                        userClassroom={userClassroom}
+                        classroomId={classroomId}
+                        teamId={t.id}
+                        reportUrl={reportUrl}
+                      />
+                    )}
+                    {onTeamSelect && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onTeamSelect?.(t.id)}
+                        disabled={isPending || t.members.length >= maxTeamSize}
+                      >
+                        <UserPlus className="text-gray-600 dark:text-white" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
@@ -148,14 +164,14 @@ function TeamListElement({ team, maxTeamSize }: { team: TeamResponse; maxTeamSiz
         <div className="cursor-default">
           <div className="font-medium">{team.name}</div>
           <div className="text-sm text-muted-foreground md:inline">
-            {team.members.length} / {maxTeamSize} member
+            {team.members.length}/{maxTeamSize} member
           </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{team.name}</p>
         <p className="text-sm text-muted-foreground mt-[-0.3rem]">
-          {team.members.length} / {maxTeamSize} member
+          {team.members.length}/{maxTeamSize} member
         </p>
         {team.members.length >= 1 && (
           <>

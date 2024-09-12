@@ -17,6 +17,7 @@ export const Route = createFileRoute("/login")({
     if (context.auth) {
       throw redirect({
         to: "/dashboard",
+        replace: true,
       });
     }
   },

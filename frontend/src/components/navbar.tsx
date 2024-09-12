@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/provider/themeProvider";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 
 export function Navbar(props: { auth: GetMeResponse | null }) {
   const { theme, setTheme } = useTheme();
@@ -77,9 +77,9 @@ function DesktopNavbar(props: NavbarProps) {
 
 function LogoButton() {
   return (
-    <a href="/">
+    <Link to="/">
       <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
-    </a>
+    </Link>
   );
 }
 
@@ -170,6 +170,7 @@ function MobileNavbar(props: NavbarProps) {
                   <LogoButton />
                   Menu
                 </SheetTitle>
+                <SheetDescription className="sr-only">Navigation</SheetDescription>
               </SheetHeader>
               <Separator />
               <nav>
