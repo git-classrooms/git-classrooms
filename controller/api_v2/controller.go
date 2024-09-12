@@ -19,6 +19,7 @@ type Controller interface {
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error
 	RedirectProjectGitlab(*fiber.Ctx) error
+	RedirectReportGitlab(*fiber.Ctx) error
 
 	GetProjectCloneUrls(*fiber.Ctx) error
 	GetMultipleProjectCloneUrls(*fiber.Ctx) error
@@ -44,6 +45,11 @@ type Controller interface {
 
 	GetGradingRubrics(c *fiber.Ctx) (err error)
 	UpdateGradingRubrics(c *fiber.Ctx) (err error)
+
+	GetAssignmentGradingRubrics(c *fiber.Ctx) (err error)
+	UpdateAssignmentGradingRubrics(c *fiber.Ctx) (err error)
+	GetClassroomAssignmentTests(c *fiber.Ctx) (err error)
+	UpdateAssignmentTests(c *fiber.Ctx) (err error)
 
 	GetClassroomAssignmentProjects(*fiber.Ctx) error
 	InviteToAssignment(*fiber.Ctx) error

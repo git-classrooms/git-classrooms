@@ -1,5 +1,5 @@
 import { createClassroomApi } from "@/lib/utils";
-import { ClassroomForm, Filter, InviteForm } from "@/types/classroom";
+import { ClassroomCreateForm, Filter, InviteForm, ClassroomUpdateForm } from "@/types/classroom";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
@@ -59,7 +59,7 @@ export const useCreateClassroom = () => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
   return useMutation({
-    mutationFn: async (values: ClassroomForm) => {
+    mutationFn: async (values: ClassroomCreateForm) => {
       const body: CreateClassroomRequest = {
         name: values.name,
         description: values.description,
@@ -85,8 +85,27 @@ export const useUpdateClassroom = (classroomId: string) => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
   return useMutation({
-    mutationFn: async (values: ClassroomForm) => {
+    mutationFn: async (values: ClassroomUpdateForm) => {
       const res = await apiClient.updateClassroomV2(values, csrfToken, classroomId);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(classroomsQueryOptions());
+      queryClient.invalidateQueries(classroomsQueryOptions(Filter.Owned));
+      queryClient.invalidateQueries(classroomQueryOptions(classroomId));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
+  });
+};
+
+export const useArchiveClassroom = (classroomId: string) => {
+  const queryClient = useQueryClient();
+  const { csrfToken } = useCsrf();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.archiveClassroom(classroomId, csrfToken);
       return res.data;
     },
     onSuccess: () => {

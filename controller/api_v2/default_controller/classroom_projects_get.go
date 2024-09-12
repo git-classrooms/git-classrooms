@@ -36,6 +36,7 @@ func (ctrl *DefaultController) GetClassroomProjects(c *fiber.Ctx) (err error) {
 		return &ProjectResponse{
 			AssignmentProjects: project,
 			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/projects/%s/gitlab", classroom.ClassroomID, project.ID.String()),
+			ReportWebURL:       fmt.Sprintf("/api/v2/classrooms/%s/projects/%s/report/gitlab", ctx.GetUserClassroom().ClassroomID, project.ID.String()),
 		}
 	})
 

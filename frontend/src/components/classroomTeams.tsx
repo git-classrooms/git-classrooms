@@ -1,12 +1,15 @@
-import { Role } from "@/types/classroom.ts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Link } from "@tanstack/react-router";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { Clipboard, Gitlab, UserPlus } from "lucide-react";
+import { Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { TeamResponse } from "@/swagger-client";
+import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { CreateTeamForm } from "./createTeamForm";
+import { useState } from "react";
+import { ClassroomTeamModal } from "./classroomTeam";
+import { isModerator, isStudent } from "@/lib/utils";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -21,123 +24,154 @@ import { TeamResponse } from "@/swagger-client";
 export function TeamListCard({
   teams,
   classroomId,
-  userRole,
+  userClassroom,
   maxTeamSize,
   numInvitedMembers,
+  studentsCanCreateTeams,
+  deactivateInteraction,
+  teamsReportUrls,
 }: {
   teams: TeamResponse[];
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   maxTeamSize: number;
   numInvitedMembers: number;
+  studentsCanCreateTeams: boolean;
+  deactivateInteraction: boolean;
+  teamsReportUrls: Map<string, string>;
 }): JSX.Element {
   const teamSlots = teams.length * maxTeamSize;
+
+  const [open, setOpen] = useState(false);
+
   return (
     <Card className="p-2">
-      <CardHeader>
-        <CardTitle>Teams</CardTitle>
-        <CardDescription>Every team in this classroom</CardDescription>
-        {teamSlots < numInvitedMembers && userRole != Role.Student && (
-          <div>
-            <p className="text-sm text-muted-foreground text-red-600">Not enough team spots to accommodate all classroom members.</p>
-            <p className="text-sm text-muted-foreground text-red-600">Please add more teams!</p>
-          </div>
-        )}
+      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+        <div className="mb-4 md:mb-1">
+          <CardTitle className="mb-1">Teams</CardTitle>
+          <CardDescription>Teams in this classroom</CardDescription>
+        </div>
+        <div className="grid grid-cols-1 gap-2">
+          {isModerator(userClassroom) && !deactivateInteraction && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Create a team</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
-        <TeamTable teams={teams} classroomId={classroomId} userRole={userRole} maxTeamSize={maxTeamSize} />
+        {teamSlots < numInvitedMembers && isModerator(userClassroom) && (
+          <div>
+            <p className="text-sm text-muted-foreground text-red-600">
+              Not enough team spots to accommodate all classroom members.
+            </p>
+            {!studentsCanCreateTeams && (
+              <p className="text-sm text-muted-foreground text-red-600">
+                You have to add more teams, because students can't create teams by their own.
+              </p>
+            )}
+          </div>
+        )}
+        <TeamTable
+          teams={teams}
+          classroomId={classroomId}
+          userClassroom={userClassroom}
+          maxTeamSize={maxTeamSize}
+          teamsReportUrls={teamsReportUrls}
+          deactivateInteraction={deactivateInteraction}
+        />
       </CardContent>
-      {userRole != Role.Student && (
-        <CardFooter className="flex justify-end">
-          <Button variant="default" asChild>
-            <Link to="/classrooms/$classroomId/team/create/modal" replace params={{ classroomId }}>
-              Create a team
-            </Link>
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 }
 
 export function TeamTable({
   teams,
+  teamsReportUrls,
   classroomId,
-  userRole,
+  userClassroom,
   maxTeamSize,
   isPending,
   onTeamSelect,
+  deactivateInteraction,
 }: {
   teams: TeamResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   maxTeamSize: number;
   isPending?: boolean;
   onTeamSelect?: (teamId: string) => void;
+  deactivateInteraction: boolean;
 }) {
   return (
     <Table>
       <TableBody>
-        {teams.map((t) => (
-          <TableRow key={t.id}>
-            <TableCell className="p-2">
-              <TeamListElement team={t} maxTeamSize={maxTeamSize} />
-            </TableCell>
-            <TableCell className="p-2 flex justify-end align-middle">
-              <Button variant="ghost" size="icon" asChild>
-                <a href={t.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
-                </a>
-              </Button>
-              {userRole != Role.Student && (
+        {teams.map((t) => {
+          const reportUrl = teamsReportUrls.get(t.id)!;
+
+          return (
+            <TableRow key={t.id}>
+              <TableCell className="p-2">
+                <TeamListElement team={t} maxTeamSize={maxTeamSize} />
+              </TableCell>
+              <TableCell className="p-2 flex justify-end align-middle">
                 <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/teams/$teamId/modal"
-                    params={{ classroomId: classroomId, teamId: t.id }}
-                  >
-                    <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
-                  </Link>
+                  <a href={t.webUrl} target="_blank" rel="noreferrer">
+                    <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
+                  </a>
                 </Button>
-              )}
-              {onTeamSelect && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onTeamSelect?.(t.id)}
-                  disabled={isPending || t.members.length >= maxTeamSize}
-                >
-                  <UserPlus className="text-gray-600 dark:text-white" />
-                </Button>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
+                {!deactivateInteraction && (
+                  <>
+                    {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
+                      <ClassroomTeamModal
+                        userClassroom={userClassroom}
+                        classroomId={classroomId}
+                        teamId={t.id}
+                        reportUrl={reportUrl}
+                      />
+                    )}
+                    {onTeamSelect && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onTeamSelect?.(t.id)}
+                        disabled={isPending || t.members.length >= maxTeamSize}
+                      >
+                        <UserPlus className="text-gray-600 dark:text-white" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
 }
 
-function TeamListElement({
-  team,
-  maxTeamSize,
-}: {
-  team: TeamResponse;
-  maxTeamSize: number;
-}) {
+function TeamListElement({ team, maxTeamSize }: { team: TeamResponse; maxTeamSize: number }) {
   return (
     <HoverCard>
       <HoverCardTrigger className="cursor-default flex">
         <div className="cursor-default">
           <div className="font-medium">{team.name}</div>
           <div className="text-sm text-muted-foreground md:inline">
-            {team.members.length} / {maxTeamSize} member
+            {team.members.length}/{maxTeamSize} member
           </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{team.name}</p>
         <p className="text-sm text-muted-foreground mt-[-0.3rem]">
-          {team.members.length} / {maxTeamSize} member
+          {team.members.length}/{maxTeamSize} member
         </p>
         {team.members.length >= 1 && (
           <>

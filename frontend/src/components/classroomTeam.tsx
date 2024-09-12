@@ -1,51 +1,106 @@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Edit, Gitlab } from "lucide-react";
+import { ArrowRight, Clipboard, Download, Gitlab } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { formatDate } from "@/lib/utils.ts";
+import { formatDate, isOwner } from "@/lib/utils.ts";
 import { Avatar } from "@/components/avatar.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
-import { ProjectResponse, TeamResponse, UserClassroomResponse } from "@/swagger-client";
+import { ProjectResponse, UserClassroomResponse } from "@/swagger-client";
+import { useQuery } from "@tanstack/react-query";
+import { teamProjectsQueryOptions } from "@/api/project";
+import { teamQueryOptions } from "@/api/team";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Skeleton } from "./ui/skeleton";
+import { Separator } from "./ui/separator";
 
-export function ClassroomTeamModal({
-  classroomId,
-  team,
-  projects,
-}: {
+interface ClassroomTeamModalProps {
+  userClassroom: UserClassroomResponse;
   classroomId: string;
-  team: TeamResponse;
-  projects: ProjectResponse[];
-}) {
+  teamId: string;
+  reportUrl: string;
+}
+
+const ClassroomModalContent = ({ classroomId, teamId, reportUrl, userClassroom }: ClassroomTeamModalProps) => {
+  const { data: team, isLoading: teamIsLoading, error: teamError } = useQuery(teamQueryOptions(classroomId, teamId));
+  const {
+    data: projects,
+    isLoading: projectsIsLoading,
+    error: projectsError,
+  } = useQuery(teamProjectsQueryOptions(classroomId, teamId));
+
+  const isLoading = teamIsLoading || projectsIsLoading;
+  const error = teamError || projectsError;
+
+  if (error) throw error;
+
   return (
-    <div>
-      {(team.members.length == 0 || team.members[0].user.gitlabUsername != team.name) && (
+    <>
+      <DialogHeader>
+        <DialogTitle>
+          {isLoading
+            ? "Loading..."
+            : (team!.members.length === 0 || team!.members[0].user.gitlabUsername != team!.name) && team!.name}
+        </DialogTitle>
+        <DialogDescription>
+          {isLoading
+            ? "Loading..."
+            : (team!.members.length === 0 || team!.members[0].user.gitlabUsername != team!.name) && "Members"}
+        </DialogDescription>
+      </DialogHeader>
+      {isLoading ? (
+        <Skeleton className="max-w-[462px] max-h-[206px] w-full h-full" />
+      ) : (
         <>
-          <h1 className="text-2xl">{team.name}</h1>
+          <ClassroomTeamMemberTable members={team!.members} />
           <Separator className="my-1" />
-          <h2 className="text-xl mt-4">Members</h2>
+          <h2 className="text-xl mt-4">Assignments</h2>
+          <ClassroomTeamAssignmentTable classroomId={classroomId} projects={projects!} />
+          {isOwner(userClassroom) && (
+            <>
+              <Separator className="my-1" />
+              <Button asChild variant="outline">
+                <a href={reportUrl} target="_blank" rel="noreferrer">
+                  <Download className="h-4 m-4" />
+                  Download grading report
+                </a>
+              </Button>
+            </>
+          )}
         </>
       )}
-      <ClassroomTeamMemberTable members={team.members} />
-      <Separator className="my-1" />
-      <h2 className="text-xl mt-4">Assignments</h2>
-      <ClassroomTeamAssignmentTable classroomId={classroomId} projects={projects} />
-    </div>
+    </>
   );
-}
+};
+
+export const ClassroomTeamModal = (props: ClassroomTeamModalProps) => (
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="ghost" size="icon">
+        <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
+      </Button>
+    </DialogTrigger>
+    <DialogContent>
+      <ClassroomModalContent {...props} />
+    </DialogContent>
+  </Dialog>
+);
 
 function ClassroomTeamMemberTable({ members }: { members: UserClassroomResponse[] }) {
   return (
     <Table>
       <TableBody>
-        {members.length > 0
-          ? members.map((m) => (
-              <TableRow key={m.user.id}>
-                <TableCell className="p-2">
-                  <ClassroomTeamMemberListElement member={m} />
-                </TableCell>
-              </TableRow>
-            ))
-          : "No member in this team"}
+        {members.length > 0 ? (
+          members.map((m) => (
+            <TableRow key={m.user.id}>
+              <TableCell className="p-2">
+                <ClassroomTeamMemberListElement member={m} />
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell className="p-2">No member in this team</TableCell>
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );
@@ -94,15 +149,15 @@ export function ClassroomTeamAssignmentTable({
                       {p.assignment.dueDate ? formatDate(p.assignment.dueDate) : "No Due Date"}
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" asChild>
+                  <Button className="ml-2" variant="ghost" size="icon" title="Go to assignment" asChild>
                     <Link
                       to="/classrooms/$classroomId/assignments/$assignmentId"
                       params={{ classroomId: classroomId, assignmentId: p.assignment.id }}
                     >
-                      <Edit className="h-6 w-6 text-gray-600" />
+                      <ArrowRight className="h-6 w-6 text-gray-600" />
                     </Link>
                   </Button>
-                  <Button variant="ghost" size="icon" asChild>
+                  <Button variant="ghost" size="icon" title="Go to project" asChild>
                     {p.projectStatus === "accepted" ? (
                       <a href={p.webUrl} target="_blank" rel="noreferrer">
                         <Gitlab className="h-6 w-6 text-gray-600" />

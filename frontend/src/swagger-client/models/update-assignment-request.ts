@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * GitLab Classrooms – Backend API
+ * GitClassrooms – Backend API
  * This is the API for our Gitlab Classroom Webapp
  *
  * OpenAPI spec version: 1.0.0
@@ -30,7 +30,7 @@ export interface UpdateAssignmentRequest {
      * @type {string}
      * @memberof UpdateAssignmentRequest
      */
-    dueDate: string;
+    dueDate?: string;
 
     /**
      * @type {string}

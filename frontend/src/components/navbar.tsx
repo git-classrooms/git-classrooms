@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/provider/themeProvider";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 
 export function Navbar(props: { auth: GetMeResponse | null }) {
   const { theme, setTheme } = useTheme();
@@ -30,25 +30,16 @@ export function Navbar(props: { auth: GetMeResponse | null }) {
 
   return (
     <div className="flex sticky top-0 bg-white dark:bg-slate-900 mb-8">
-      <MobileNavbar
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        {...props}
-      />
-      <DesktopNavbar
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        {...props}
-      />
+      <MobileNavbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} {...props} />
+      <DesktopNavbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} {...props} />
     </div>
   );
 }
 
 interface NavbarProps {
-  auth: GetMeResponse | null,
-  isDarkMode: boolean,
-  setIsDarkMode: (value: (((prevState: boolean) => boolean) | boolean)) => void
-
+  auth: GetMeResponse | null;
+  isDarkMode: boolean;
+  setIsDarkMode: (value: ((prevState: boolean) => boolean) | boolean) => void;
 }
 
 function DesktopNavbar(props: NavbarProps) {
@@ -60,7 +51,7 @@ function DesktopNavbar(props: NavbarProps) {
           <ul className="flex">
             <li className="content-center">
               <Link
-                to="/"
+                to="/dashboard"
                 className="font-medium text-sm px-4 py-2 hover:underline"
                 activeProps={{ className: "!font-bold" }}
               >
@@ -86,9 +77,9 @@ function DesktopNavbar(props: NavbarProps) {
 
 function LogoButton() {
   return (
-    <a href="/">
+    <Link to="/">
       <img className="h-14" src={GitlabLogo} alt="Gitlab Logo" />
-    </a>
+    </Link>
   );
 }
 
@@ -164,40 +155,41 @@ function MobileNavbar(props: NavbarProps) {
     <div className="md:hidden flex justify-between px-4 py-2.5 border-b w-full">
       {!props.auth && <LogoButton />}
       <AvatarDropdown {...props} />
-      {props.auth && (<><LogoButton />
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button size="icon" className="m-2">
-              <Menu />
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle className="flex items-center">
-                <LogoButton />
-                Menu
-              </SheetTitle>
-            </SheetHeader>
-            <Separator />
-            <nav>
-              <Link
-                to="/"
-                activeProps={{ className: "!font-bold" }}
-              >
-                <p className="font-medium px-4 py-2 hover:underline">Dashboard</p>
-              </Link>
-              <Link
-                to="/classrooms"
-                className="font-medium text-sm px-4 py-2 hover:underline"
-                activeProps={{ className: "!font-bold" }}
-              >
-                Classrooms
-              </Link>
+      {props.auth && (
+        <>
+          <LogoButton />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button size="icon" className="m-2">
+                <Menu />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle className="flex items-center">
+                  <LogoButton />
+                  Menu
+                </SheetTitle>
+                <SheetDescription className="sr-only">Navigation</SheetDescription>
+              </SheetHeader>
               <Separator />
-            </nav>
-          </SheetContent>
-        </Sheet></>)}
+              <nav>
+                <Link to="/" activeProps={{ className: "!font-bold" }}>
+                  <p className="font-medium px-4 py-2 hover:underline">Dashboard</p>
+                </Link>
+                <Link
+                  to="/classrooms"
+                  className="font-medium text-sm px-4 py-2 hover:underline"
+                  activeProps={{ className: "!font-bold" }}
+                >
+                  Classrooms
+                </Link>
+                <Separator />
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </>
+      )}
     </div>
   );
 }
-

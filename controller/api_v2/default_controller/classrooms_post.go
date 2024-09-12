@@ -9,6 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -82,7 +83,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 
 	expiresAt := time.Now().AddDate(0, 0, 364)
 
-	accessToken, err := repo.CreateGroupAccessToken(group.ID, "Gitlab Classrooms", model.OwnerPermissions, expiresAt, "api")
+	accessToken, err := repo.CreateGroupAccessToken(group.ID, "GitClassrooms", model.OwnerPermissions, expiresAt, "api")
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -106,7 +107,11 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 		}
 
 		if err = classroomQuery.WithContext(c.Context()).Create(classroom); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			return err
+		}
+
+		if _, err = repo.ChangeGroupDescription(group.ID, utils.CreateClassroomGitlabDescription(classroom, ctrl.config.PublicURL)); err != nil {
+			return err
 		}
 
 		invitation := &database.ClassroomInvitation{

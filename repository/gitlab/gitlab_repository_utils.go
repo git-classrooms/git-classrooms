@@ -226,6 +226,21 @@ func GroupFromGoGitlabWithMembersAndProjects(group goGitlab.Group, members []mod
 	}
 }
 
+func PipelineFromGoGitlabPipeline(input *goGitlab.Pipeline) *model.Pipeline {
+	return &model.Pipeline{
+		ID:          input.ID,
+		Status:      input.Status,
+		Ref:         input.Ref,
+		UpdatedAt:   input.UpdatedAt,
+		CreatedAt:   input.CreatedAt,
+		StartedAt:   input.StartedAt,
+		FinishedAt:  input.FinishedAt,
+		CommittedAt: input.CommittedAt,
+		Duration:    input.Duration,
+		WebURL:      input.WebURL,
+	}
+}
+
 func TestReportFromGoGitlabTestReport(testReport *goGitlab.PipelineTestReport) *model.TestReport {
 	var report model.TestReport
 	report.TotalTime = testReport.TotalTime

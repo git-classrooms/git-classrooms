@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import { RouterProvider, createRouteMask, createRouter } from "@tanstack/react-router";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as Sentry from "@sentry/react";
 
@@ -36,35 +36,9 @@ import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./api/auth";
 import { Loader } from "./components/loader";
 import { ThemeProvider } from "./provider/themeProvider";
-
-const classroomCreateModalToClassroomCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/create/modal",
-  to: "/classrooms/create",
-  params: true,
-});
-
-
-const classroomTeamCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/$classroomId/team/create/modal",
-  to: "/classrooms/$classroomId/teams/create",
-  params: true,
-});
-
-const classroomTeamsCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/$classroomId/teams/create/modal",
-  to: "/classrooms/$classroomId/teams/create",
-  params: true,
-});
-
-const dashboardCreateModalToDashboardCreateMask = createRouteMask({
-  routeTree,
-  from: "/dashboard/create/modal",
-  to: "/dashboard/create",
-  params: true,
-});
+import { Toaster } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { NotFound } from "./components/not-found";
 
 // Create a new router instance
 const router = createRouter({
@@ -73,17 +47,12 @@ const router = createRouter({
     queryClient,
     auth: undefined!,
   },
-  routeMasks: [
-    classroomCreateModalToClassroomCreateMask,
-    classroomTeamCreateMask,
-    classroomTeamsCreateMask,
-    dashboardCreateModalToDashboardCreateMask,
-  ],
   defaultPreload: "intent",
   unmaskOnReload: true,
   // Since we're using React Query, we don't want loader calls to ever be stale
   // This will ensure that the loader is always called when the route is preloaded or visited
   defaultPreloadStaleTime: 0,
+  defaultNotFoundComponent: NotFound,
 });
 
 // Register the router instance for type safety
@@ -102,11 +71,14 @@ function App() {
   return (
     <React.StrictMode>
       <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
-        <QueryClientProvider client={queryClient}>
-          <Suspense fallback={<Loader />}>
-            <InnerApp />
-          </Suspense>
-        </QueryClientProvider>
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <Suspense fallback={<Loader />}>
+              <InnerApp />
+            </Suspense>
+            <Toaster position="bottom-center" />
+          </QueryClientProvider>
+        </TooltipProvider>
       </ThemeProvider>
     </React.StrictMode>
   );

@@ -1,8 +1,9 @@
 package api
 
 import (
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"time"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -64,7 +65,8 @@ type AssignmentResponse struct {
 
 type ProjectResponse struct {
 	*database.AssignmentProjects
-	WebURL string `json:"webUrl"`
+	WebURL       string `json:"webUrl"`
+	ReportWebURL string `json:"reportWebUrl"`
 } //@Name ProjectResponse
 
 type UserClassroomResponse struct {

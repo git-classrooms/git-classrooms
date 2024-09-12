@@ -13,6 +13,7 @@ func classroomAssignmentQuery(c *fiber.Ctx, classroomID uuid.UUID) query.IAssign
 	return queryAssignment.
 		WithContext(c.Context()).
 		Preload(queryAssignment.GradingManualRubrics).
+		Preload(queryAssignment.JUnitTests).
 		Where(queryAssignment.ClassroomID.Eq(classroomID))
 }
 

@@ -1,5 +1,5 @@
-import { getRole, Role } from "@/types/classroom.ts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { getRole } from "@/types/classroom.ts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
 import { Clipboard, Gitlab } from "lucide-react";
@@ -9,6 +9,8 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
+import { ClassroomTeamModal } from "./classroomTeam";
+import { isModerator, isOwner, isStudent } from "@/lib/utils";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -18,87 +20,111 @@ import ListItem from "@/components/ui/listItem.tsx";
  * @param {Array} props.classroomMembers - An array of UserClassroom objects representing the members of the classroom.
  * @param {string} props.classroomId - The ID of the classroom.
  * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
+ * @param {boolean} props.showTeams - A boolean indicating whether to show the teams of the members.
+ * @param {boolean} props.deactivateInteraction - A boolean indicating whether the user can interact with the members.
  * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
  */
 export function MemberListCard({
   classroomMembers,
+  teamsReportUrls,
   classroomId,
-  userRole,
+  userClassroom,
   showTeams,
+  deactivateInteraction,
 }: {
   classroomMembers: UserClassroomResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   showTeams: boolean;
+  deactivateInteraction: boolean;
 }): JSX.Element {
   return (
     <Card className="p-2">
-      <CardHeader>
-        <CardTitle>Members</CardTitle>
-        <CardDescription>Every person in this classroom</CardDescription>
+      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+        <div className="mb-4 md:mb-0">
+          <CardTitle className="mb-1">Members</CardTitle>
+          <CardDescription>Members in this this classroom</CardDescription>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {!deactivateInteraction && isOwner(userClassroom) && (
+            <Button variant="outline" asChild>
+              <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
+                Change roles
+              </Link>
+            </Button>
+          )}
+
+          {!deactivateInteraction && isModerator(userClassroom) && (
+            <Button variant="outline" asChild>
+              <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+                Invite members
+              </Link>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
-        <MemberTable members={classroomMembers} classroomId={classroomId} userRole={userRole} showTeams={showTeams} />
+        <MemberTable
+          teamsReportUrls={teamsReportUrls}
+          members={classroomMembers}
+          classroomId={classroomId}
+          userClassroom={userClassroom}
+          showTeams={showTeams}
+        />
       </CardContent>
-      {userRole != 2 && (
-        <CardFooter className="flex justify-end">
-          <Button variant="default" asChild>
-            <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
-              Invite members
-            </Link>
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 }
 
 function MemberTable({
   members,
+  teamsReportUrls,
   classroomId,
-  userRole,
+  userClassroom,
   showTeams,
 }: {
   members: UserClassroomResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   showTeams: boolean;
 }) {
   return (
     <List
       items={members}
-      renderItem={(m) => (
-        <ListItem
-          leftContent={
-            <MemberListElement member={m} showTeams={showTeams} />
-          }
-          rightContent={
-            <>
-              <Button variant="ghost" size="icon" asChild>
-                <a href={m.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600" />
-                </a>
-              </Button>
-              {userRole != Role.Student && m.team ? (
+      renderItem={(m) => {
+        const reportUrl = teamsReportUrls.get(m.team?.id ?? "");
+
+        return (
+          <ListItem
+            leftContent={<MemberListElement member={m} showTeams={showTeams} />}
+            rightContent={
+              <>
                 <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/teams/$teamId/modal"
-                    params={{ classroomId: classroomId, teamId: m.team.id }}
-                  >
-                    <Clipboard className="h-6 w-6 text-gray-600" />
-                  </Link>
+                  <a href={m.webUrl} target="_blank" rel="noreferrer">
+                    <Gitlab className="h-6 w-6 text-gray-600" />
+                  </a>
                 </Button>
-              ) : (
-                <Button variant="ghost" size="icon" asChild>
-                  <div>
-                    <Clipboard className="h-6 w-6 text-gray-400" />
-                  </div>
-                </Button>
-              )}
-            </>
-          }
-        />
-      )}
+                {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
+                  <ClassroomTeamModal
+                    userClassroom={userClassroom}
+                    classroomId={classroomId}
+                    teamId={m.team.id}
+                    reportUrl={reportUrl!}
+                  />
+                ) : (
+                  <Button variant="ghost" size="icon" asChild>
+                    <div>
+                      <Clipboard className="h-6 w-6 text-gray-400" />
+                    </div>
+                  </Button>
+                )}
+              </>
+            }
+          />
+        );
+      }}
     />
   );
 }

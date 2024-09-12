@@ -1,15 +1,17 @@
 package api
 
 import (
+	"database/sql/driver"
 	"fmt"
-	"gorm.io/gen/field"
 	"log"
 
+	"gorm.io/gen/field"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -45,17 +47,18 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	ids := make([]uuid.UUID, len(assignmentProjects))
-	for i, project := range assignmentProjects {
-		ids[i] = project.TeamID
-	}
+	ids := utils.Map(assignmentProjects, func(p *database.AssignmentProjects) driver.Valuer {
+		return p.TeamID
+	})
 
 	queryTeam := query.Team
 	invitableTeams, err := queryTeam.
 		WithContext(c.Context()).
 		Preload(queryTeam.Member).
 		Preload(queryTeam.Member.User).
-		FindByClassroomIDAndNotInTeamIDs(classroom.ClassroomID, ids)
+		Where(queryTeam.ClassroomID.Eq(classroom.ClassroomID)).
+		Not(queryTeam.ID.In(ids...)).
+		Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

@@ -58,6 +58,7 @@ type Repository interface {
 	GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error)
 	ChangeProjectName(projectId int, name string) (*model.Project, error)
 	ChangeProjectDescription(projectId int, description string) (*model.Project, error)
+	GetProjectLatestPipeline(projectId int, ref *string) (*model.Pipeline, error)
 	GetProjectPipelineTestReportSummary(projectId, pipelineId int) (*model.TestReport, error)
 	GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error)
 
@@ -72,4 +73,6 @@ type Repository interface {
 	// Runners
 	GetAvailableRunnersForGitLab() ([]*model.Runner, error)
 	GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error)
+	CheckIfFileExistsInProject(projectId int, filePath string) (bool, error)
+	GetProjectLanguages(projectId int) (map[string]float32, error)
 }

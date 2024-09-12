@@ -8,6 +8,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams")({
     if (userClassroom.classroom.maxTeamSize === 1) {
       throw redirect({
         to: "/classrooms/$classroomId",
+        search: { tab: "assignments" },
         params,
         replace: true,
       });

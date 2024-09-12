@@ -5,6 +5,7 @@ export const Route = createFileRoute("/_auth")({
     if (!context.auth) {
       throw redirect({
         to: "/login",
+        replace: true,
         search: {
           redirect: location.href,
         },
@@ -15,9 +16,5 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function Index() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }

@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * GitLab Classrooms – Backend API
+ * GitClassrooms – Backend API
  * This is the API for our Gitlab Classroom Webapp
  *
  * OpenAPI spec version: 1.0.0
@@ -13,7 +13,6 @@
  */
 
 import { Classroom } from './classroom';
-import { ManualGradingRubric } from './manual-grading-rubric';
  /**
  * 
  *
@@ -63,12 +62,6 @@ export interface ActiveAssignmentResponse {
      * @memberof ActiveAssignmentResponse
      */
     gradingJUnitAutoGradingActive: boolean;
-
-    /**
-     * @type {Array<ManualGradingRubric>}
-     * @memberof ActiveAssignmentResponse
-     */
-    gradingManualRubrics: Array<ManualGradingRubric>;
 
     /**
      * @type {string}

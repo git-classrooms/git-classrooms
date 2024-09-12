@@ -2,7 +2,7 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query
 import { createAssignmentApi } from "@/lib/utils.ts";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
-import { CreateAssignmentRequest } from "@/swagger-client";
+import { CreateAssignmentRequest, UpdateAssignmentRequest } from "@/swagger-client";
 
 const apiClient = createAssignmentApi();
 
@@ -53,3 +53,21 @@ export const useCreateAssignment = (classroomId: string) => {
     },
   });
 };
+
+export const useUpdateAssignment = (classroomId: string, assignmentId: string) => {
+  const queryClient = useQueryClient();
+  const { csrfToken } = useCsrf();
+  return useMutation({
+    mutationFn: async (values: UpdateAssignmentRequest) => {
+      const res = await apiClient.updateAssignment(values, csrfToken, classroomId, assignmentId);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(assignmentsQueryOptions(classroomId));
+      queryClient.invalidateQueries(assignmentQueryOptions(classroomId, assignmentId));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
+  });
+}

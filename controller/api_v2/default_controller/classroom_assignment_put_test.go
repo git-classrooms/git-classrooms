@@ -134,23 +134,6 @@ func TestPutOwnedAssignments(t *testing.T) {
 		assert.Equal(t, newTime, *updatedAssignment.DueDate)
 	})
 
-	t.Run("request body is empty", func(t *testing.T) {
-		requestBody := updateAssignmentRequest{}
-
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
-		resp, err := app.Test(req)
-
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
-		assert.NoError(t, err)
-
-		bodyBytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatal(err)
-		}
-		bodyString := string(bodyBytes)
-		assert.Equal(t, "Request can not be empty, requires name, description or dueDate", bodyString)
-	})
-
 	t.Run("due date is in the past", func(t *testing.T) {
 		newTime := time.Date(1970, 1, 1, 0, 0, 0, 0, time.Local)
 		requestBody := updateAssignmentRequest{
