@@ -13,9 +13,8 @@ import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_auth/classrooms/_index")({
+export const Route = createFileRoute("/_auth/dashboard/")({
   component: Classrooms,
   loader: async ({ context: { queryClient } }) => {
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
@@ -42,20 +41,13 @@ function Classrooms() {
 
   return (
     <div>
-      <Header title="Classrooms" />
-      <Tabs defaultValue="managed" className="w-[400]">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="managed">Managed</TabsTrigger>
-          <TabsTrigger value="joined">Joined</TabsTrigger>
-        </TabsList>
-        <TabsContent value="managed">
-          <OwnedClassroomTable classrooms={ownedClassrooms} />
-        </TabsContent>
-        <TabsContent value="joined">
-          <JoinedClassroomTable classrooms={joinedClassrooms} />
-        </TabsContent>
-      </Tabs>
-      <Outlet />
+      <Header title="Dashboard" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
+        <OwnedClassroomTable classrooms={ownedClassrooms} />
+        <JoinedClassroomTable classrooms={joinedClassrooms} />
+        <ActiveAssignmentsTable classrooms={joinedClassrooms} />
+        <Outlet />
+      </div>
     </div>
   );
 }
@@ -64,7 +56,7 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Managed Classrooms</CardTitle>
+        <CardTitle>Owned Classrooms</CardTitle>
         <CardDescription>Classrooms which are managed by you</CardDescription>
       </CardHeader>
 
@@ -84,14 +76,10 @@ function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse
 
       <CardFooter className="flex justify-end gap-2">
         <Button asChild variant="default">
-          <Link to="/classrooms/create/modal" replace>
-            Create a new Classroom
-          </Link>
+          <Link to="/classrooms/create">Create a new Classroom</Link>
         </Button>
         <Button asChild variant="default">
-          <Link to="/classrooms/create/modal" replace>
-            View all your Classrooms
-          </Link>
+          <Link to="/classrooms">View all your Classrooms</Link>
         </Button>
       </CardFooter>
     </Card>
@@ -134,6 +122,44 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
     </Card>
   );
 }
+
+function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Active Assignments</CardTitle>
+        <CardDescription>Your assignments thaht are not overdue</CardDescription>
+      </CardHeader>
+      <Table className="flex-auto">
+        <TableBody>
+          {classrooms.map((c) => (
+            <TableRow key={c.classroom.id}>
+              <TableCell>{c.classroom.name}</TableCell>
+              <TableCell>{c.classroom.owner.name}</TableCell>
+              <TableCell>
+                <a href={c.webUrl} target="_blank" rel="noreferrer">
+                  <Code />
+                </a>
+              </TableCell>
+              <TableCell className="text-right">
+                <Button variant="outline">
+                  <Link
+                    to="/classrooms/$classroomId"
+                    search={{ tab: "assignments" }}
+                    params={{ classroomId: c.classroom.id }}
+                  >
+                    <ArrowRight />
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
+
 function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: string; assignmentsCount: number }) {
   const assignmentsText = assignmentsCount === 1 ? `${assignmentsCount} Assignment` : `${assignmentsCount} Assignments`;
   return (

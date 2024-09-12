@@ -39,20 +39,6 @@ import { ThemeProvider } from "./provider/themeProvider";
 import { Toaster } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 
-const classroomCreateModalToClassroomCreateMask = createRouteMask({
-  routeTree,
-  from: "/classrooms/create/modal",
-  to: "/classrooms/create",
-  params: true,
-});
-
-const dashboardCreateModalToDashboardCreateMask = createRouteMask({
-  routeTree,
-  from: "/dashboard/create/modal",
-  to: "/dashboard/create",
-  params: true,
-});
-
 // Create a new router instance
 const router = createRouter({
   routeTree,
@@ -60,7 +46,6 @@ const router = createRouter({
     queryClient,
     auth: undefined!,
   },
-  routeMasks: [classroomCreateModalToClassroomCreateMask, dashboardCreateModalToDashboardCreateMask],
   defaultPreload: "intent",
   unmaskOnReload: true,
   // Since we're using React Query, we don't want loader calls to ever be stale
