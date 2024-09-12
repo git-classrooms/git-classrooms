@@ -2,10 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { ArrowRight, Gitlab, Loader2, LogIn } from "lucide-react";
+import { Gitlab, LogIn } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { projectsQueryOptions } from "@/api/project";
 import { ProjectResponse } from "@/swagger-client";
@@ -24,13 +23,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
  * @returns {JSX.Element} A React component that displays a card with the list of projects in a classroom.
  * @constructor
  */
-export function ProjectListSection({
-  classroomId,
-  deactivateInteraction,
-}: {
-  classroomId: string;
-  deactivateInteraction: boolean;
-}): JSX.Element {
+export function ProjectListSection({ classroomId }: { classroomId: string }): JSX.Element {
   const { data: projects } = useSuspenseQuery(projectsQueryOptions(classroomId));
   return (
     <>
@@ -42,22 +35,14 @@ export function ProjectListSection({
           </div>
         </CardHeader>
         <CardContent>
-          <ProjectTable projects={projects} classroomId={classroomId} deactivateInteraction={deactivateInteraction} />
+          <ProjectTable projects={projects} classroomId={classroomId} />
         </CardContent>
       </Card>
     </>
   );
 }
 
-function ProjectTable({
-  projects,
-  classroomId,
-  deactivateInteraction,
-}: {
-  projects: ProjectResponse[];
-  classroomId: string;
-  deactivateInteraction: boolean;
-}) {
+function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; classroomId: string }) {
   return (
     <Table>
       <TableHeader>

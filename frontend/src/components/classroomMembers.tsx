@@ -26,12 +26,14 @@ import { isModerator, isOwner, isStudent } from "@/lib/utils";
  */
 export function MemberListCard({
   classroomMembers,
+  teamsReportUrls,
   classroomId,
   userClassroom,
   showTeams,
   deactivateInteraction,
 }: {
   classroomMembers: UserClassroomResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
   userClassroom: UserClassroomResponse;
   showTeams: boolean;
@@ -64,6 +66,7 @@ export function MemberListCard({
       </CardHeader>
       <CardContent>
         <MemberTable
+          teamsReportUrls={teamsReportUrls}
           members={classroomMembers}
           classroomId={classroomId}
           userClassroom={userClassroom}
@@ -76,11 +79,13 @@ export function MemberListCard({
 
 function MemberTable({
   members,
+  teamsReportUrls,
   classroomId,
   userClassroom,
   showTeams,
 }: {
   members: UserClassroomResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
   userClassroom: UserClassroomResponse;
   showTeams: boolean;
@@ -88,29 +93,38 @@ function MemberTable({
   return (
     <List
       items={members}
-      renderItem={(m) => (
-        <ListItem
-          leftContent={<MemberListElement member={m} showTeams={showTeams} />}
-          rightContent={
-            <>
-              <Button variant="ghost" size="icon" asChild>
-                <a href={m.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600" />
-                </a>
-              </Button>
-              {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
-                <ClassroomTeamModal classroomId={classroomId} teamId={m.team.id} />
-              ) : (
+      renderItem={(m) => {
+        const reportUrl = teamsReportUrls.get(m.team?.id ?? "");
+
+        return (
+          <ListItem
+            leftContent={<MemberListElement member={m} showTeams={showTeams} />}
+            rightContent={
+              <>
                 <Button variant="ghost" size="icon" asChild>
-                  <div>
-                    <Clipboard className="h-6 w-6 text-gray-400" />
-                  </div>
+                  <a href={m.webUrl} target="_blank" rel="noreferrer">
+                    <Gitlab className="h-6 w-6 text-gray-600" />
+                  </a>
                 </Button>
-              )}
-            </>
-          }
-        />
-      )}
+                {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
+                  <ClassroomTeamModal
+                    userClassroom={userClassroom}
+                    classroomId={classroomId}
+                    teamId={m.team.id}
+                    reportUrl={reportUrl!}
+                  />
+                ) : (
+                  <Button variant="ghost" size="icon" asChild>
+                    <div>
+                      <Clipboard className="h-6 w-6 text-gray-400" />
+                    </div>
+                  </Button>
+                )}
+              </>
+            }
+          />
+        );
+      }}
     />
   );
 }

@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateAssignmentForm, createAssignmentFormSchema } from "@/types/assignments.ts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
-import { cn, getUUIDFromLocation } from "@/lib/utils.ts";
+import { cn, getUUIDFromLocation, isOwner } from "@/lib/utils.ts";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { useState } from "react";
@@ -27,13 +27,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { Header } from "@/components/header";
 import { classroomQueryOptions, classroomTemplatesQueryOptions } from "@/api/classroom";
 import { useCreateAssignment } from "@/api/assignment";
-import { Role } from "@/types/classroom.ts";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
   loader: async ({ context: { queryClient }, params }) => {
     const templateProjects = await queryClient.ensureQueryData(classroomTemplatesQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role !== Role.Owner) {
+    if (isOwner(userClassroom)) {
       throw redirect({
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },

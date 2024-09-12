@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { getRole, Role } from "@/types/classroom.ts";
 import { createFormSchema } from "@/types/member.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -30,23 +30,17 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useMemo } from "react";
-import { isCreator } from "@/lib/utils";
+import { isCreator, isStudent } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student && !userClassroom.team) {
-      throw redirect({
-        to: "/classrooms/$classroomId/teams/join",
-        params,
-        replace: true,
-      });
-    }
+
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-    if (userClassroom.role !== Role.Student) {
+    if (isStudent(userClassroom)) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
       return { userClassroom, assignments, members, teams, reportDownloadUrl };
     } else {

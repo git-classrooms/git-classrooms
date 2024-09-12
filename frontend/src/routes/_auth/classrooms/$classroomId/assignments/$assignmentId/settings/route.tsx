@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
-import { cn, isModerator } from "@/lib/utils";
+import { cn, isOwner } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -17,7 +17,7 @@ import { classroomQueryOptions } from "@/api/classroom";
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings")({
   beforeLoad: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(classroomId));
-    if (!isModerator(userClassroom)) {
+    if (!isOwner(userClassroom)) {
       throw redirect({
         to: "/classrooms/$classroomId/assignments/$assignmentId",
         params: { classroomId, assignmentId },

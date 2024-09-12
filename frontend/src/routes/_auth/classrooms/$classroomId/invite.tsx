@@ -6,14 +6,14 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { getStatus, InviteForm, inviteFormSchema, Role } from "@/types/classroom";
+import { getStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Loader } from "@/components/loader.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { formatDate } from "@/lib/utils.ts";
+import { formatDate, isStudent } from "@/lib/utils.ts";
 import { ClassroomInvitation } from "@/swagger-client";
 import { classroomInvitationsQueryOptions, classroomQueryOptions, useInviteClassroomMembers } from "@/api/classroom";
 import {
@@ -28,7 +28,7 @@ import {
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student) {
+    if (isStudent(userClassroom)) {
       throw redirect({
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },

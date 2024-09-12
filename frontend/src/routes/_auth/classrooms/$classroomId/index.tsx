@@ -1,8 +1,7 @@
 import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, redirect, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
-import { Role } from "@/types/classroom.ts";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
 import { AssignmentListSection } from "@/components/classroomAssignments.tsx";
 import { Header } from "@/components/header";
@@ -12,18 +11,7 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Archive,
-  CalendarCheck2,
-  CalendarClock,
-  Download,
-  Eye,
-  EyeOff,
-  Gitlab,
-  Info,
-  Settings,
-  Users,
-} from "lucide-react";
+import { Archive, CalendarCheck2, CalendarClock, Download, Eye, EyeOff, Info, Settings, Users } from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import { Text } from "lucide-react";
 import {
@@ -56,22 +44,25 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role === Role.Student && !userClassroom.team) {
-      throw redirect({
-        to: "/classrooms/$classroomId/teams/join",
-        params,
-        replace: true,
-      });
-    }
+
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
+    const teamsReportUrls = (
+      await Promise.all(
+        teams.map(async (team) => ({
+          teamId: team.id,
+          url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(params.classroomId, team.id)).url,
+        })),
+      )
+    ).reduce((acc, { url, teamId }) => acc.set(teamId, url), new Map<string, string>());
+
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
 
     if (isModerator(userClassroom)) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
-      return { userClassroom, assignments, members, teams, reportDownloadUrl };
+      return { userClassroom, assignments, members, teams, reportDownloadUrl, teamsReportUrls };
     } else {
       const projects = await queryClient.ensureQueryData(projectsQueryOptions(params.classroomId));
-      return { userClassroom, projects, members, teams, reportDownloadUrl };
+      return { userClassroom, projects, members, teams, reportDownloadUrl, teamsReportUrls };
     }
   },
   pendingComponent: Loader,
@@ -88,6 +79,7 @@ function ClassroomDetail() {
 
   const [showHeaderCards, setShowHeaderCards] = useLocalStorage("classroom-header", true);
   const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
+  const { teamsReportUrls } = Route.useLoaderData();
 
   const handleConfirmArchive = () => {
     mutate();
@@ -195,13 +187,12 @@ function ClassroomDetail() {
           {isModerator(userClassroom) && (
             <AssignmentListSection classroomId={classroomId} deactivateInteraction={userClassroom.classroom.archived} />
           )}
-          {isStudent(userClassroom) && (
-            <ProjectListSection classroomId={classroomId} deactivateInteraction={userClassroom.classroom.archived} />
-          )}
+          {isStudent(userClassroom) && <ProjectListSection classroomId={classroomId} />}
         </TabsContent>
         <TabsContent value="members" className="pt-2">
           <div className="grid grid-cols-1 justify-between gap-4">
             <MemberListCard
+              teamsReportUrls={teamsReportUrls}
               classroomMembers={classroomMembers}
               classroomId={classroomId}
               userClassroom={userClassroom}
@@ -219,8 +210,9 @@ function ClassroomDetail() {
               classroomId={classroomId}
               userClassroom={userClassroom}
               maxTeamSize={userClassroom.classroom.maxTeamSize}
-              numInvitedMembers={classroomMembers.filter((m) => m.role === Role.Student).length}
+              numInvitedMembers={classroomMembers.filter(isStudent).length}
               deactivateInteraction={userClassroom.classroom.archived}
+              teamsReportUrls={teamsReportUrls}
             />
           </TabsContent>
         )}

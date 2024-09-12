@@ -29,6 +29,7 @@ export function TeamListCard({
   numInvitedMembers,
   studentsCanCreateTeams,
   deactivateInteraction,
+  teamsReportUrls,
 }: {
   teams: TeamResponse[];
   classroomId: string;
@@ -37,6 +38,7 @@ export function TeamListCard({
   numInvitedMembers: number;
   studentsCanCreateTeams: boolean;
   deactivateInteraction: boolean;
+  teamsReportUrls: Map<string, string>;
 }): JSX.Element {
   const teamSlots = teams.length * maxTeamSize;
 
@@ -80,6 +82,7 @@ export function TeamListCard({
           classroomId={classroomId}
           userClassroom={userClassroom}
           maxTeamSize={maxTeamSize}
+          teamsReportUrls={teamsReportUrls}
           deactivateInteraction={deactivateInteraction}
         />
       </CardContent>
@@ -89,6 +92,7 @@ export function TeamListCard({
 
 export function TeamTable({
   teams,
+  teamsReportUrls,
   classroomId,
   userClassroom,
   maxTeamSize,
@@ -97,6 +101,7 @@ export function TeamTable({
   deactivateInteraction,
 }: {
   teams: TeamResponse[];
+  teamsReportUrls: Map<string, string>;
   classroomId: string;
   userClassroom: UserClassroomResponse;
   maxTeamSize: number;
@@ -107,37 +112,46 @@ export function TeamTable({
   return (
     <Table>
       <TableBody>
-        {teams.map((t) => (
-          <TableRow key={t.id}>
-            <TableCell className="p-2">
-              <TeamListElement team={t} maxTeamSize={maxTeamSize} />
-            </TableCell>
-            <TableCell className="p-2 flex justify-end align-middle">
-              <Button variant="ghost" size="icon" asChild>
-                <a href={t.webUrl} target="_blank" rel="noreferrer">
-                  <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
-                </a>
-              </Button>
-              {!deactivateInteraction && (
-                <>
-                  {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
-                    <ClassroomTeamModal classroomId={classroomId} teamId={t.id} />
-                  )}
-                  {onTeamSelect && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onTeamSelect?.(t.id)}
-                      disabled={isPending || t.members.length >= maxTeamSize}
-                    >
-                      <UserPlus className="text-gray-600 dark:text-white" />
-                    </Button>
-                  )}
-                </>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
+        {teams.map((t) => {
+          const reportUrl = teamsReportUrls.get(t.id)!;
+
+          return (
+            <TableRow key={t.id}>
+              <TableCell className="p-2">
+                <TeamListElement team={t} maxTeamSize={maxTeamSize} />
+              </TableCell>
+              <TableCell className="p-2 flex justify-end align-middle">
+                <Button variant="ghost" size="icon" asChild>
+                  <a href={t.webUrl} target="_blank" rel="noreferrer">
+                    <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
+                  </a>
+                </Button>
+                {!deactivateInteraction && (
+                  <>
+                    {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
+                      <ClassroomTeamModal
+                        userClassroom={userClassroom}
+                        classroomId={classroomId}
+                        teamId={t.id}
+                        reportUrl={reportUrl}
+                      />
+                    )}
+                    {onTeamSelect && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onTeamSelect?.(t.id)}
+                        disabled={isPending || t.members.length >= maxTeamSize}
+                      >
+                        <UserPlus className="text-gray-600 dark:text-white" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

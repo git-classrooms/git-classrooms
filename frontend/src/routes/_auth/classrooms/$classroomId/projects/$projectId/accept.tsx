@@ -7,14 +7,14 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Separator } from "@/components/ui/separator";
 import { projectQueryOptions, useAcceptAssignment } from "@/api/project";
 import { classroomQueryOptions } from "@/api/classroom";
-import { Role } from "@/types/classroom.ts";
 import GitlabLogo from "@/assets/gitlab_logo.svg";
+import { isStudent } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$projectId/accept")({
   loader: async ({ context: { queryClient }, params }) => {
     const project = await queryClient.ensureQueryData(projectQueryOptions(params.classroomId, params.projectId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-    if (userClassroom.role !== Role.Student || userClassroom.team?.id !== project.team.id) {
+    if (!isStudent(userClassroom) || userClassroom.team?.id !== project.team.id) {
       throw redirect({
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },

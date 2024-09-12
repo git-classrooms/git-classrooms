@@ -9,11 +9,21 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Role } from "@/types/classroom.ts";
 import { TeamTable } from "@/components/classroomTeams";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card.tsx";
+import { ReportApiAxiosParamCreator } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
+
+    const teamsReportUrls = (
+      await Promise.all(
+        teams.map(async (team) => ({
+          teamId: team.id,
+          url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(params.classroomId, team.id)).url,
+        })),
+      )
+    ).reduce((acc, { url, teamId }) => acc.set(teamId, url), new Map<string, string>());
 
     if (userClassroom.team || userClassroom.role !== Role.Student) {
       throw redirect({
@@ -24,7 +34,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
       });
     }
 
-    return { teams, userClassroom };
+    return { teams, userClassroom, teamsReportUrls };
   },
   component: JoinTeam,
 });
@@ -34,6 +44,7 @@ function JoinTeam() {
   const { classroomId } = Route.useParams();
   const { data: joinedClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
+  const { teamsReportUrls } = Route.useLoaderData();
 
   const { mutateAsync, isPending } = useJoinTeam(classroomId);
 
@@ -72,6 +83,7 @@ function JoinTeam() {
         <CardContent>
           <TeamTable
             teams={teams}
+            teamsReportUrls={teamsReportUrls}
             isPending={isPending}
             classroomId={classroomId}
             userClassroom={joinedClassroom}
