@@ -12,7 +12,18 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Archive, CalendarCheck2, CalendarClock, Download, Info, Settings, Users } from "lucide-react";
+import {
+  Archive,
+  CalendarCheck2,
+  CalendarClock,
+  Download,
+  Eye,
+  EyeOff,
+  HandPlatter,
+  Info,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import { Text } from "lucide-react";
 import {
@@ -31,11 +42,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/_index")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   validateSearch: z.object({ tab: tabSchema.catch("assignments") }),
   component: ClassroomDetail,
   loader: async ({ context: { queryClient }, params }) => {
@@ -91,24 +103,45 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
 
   const { mutate } = useArchiveClassroom(classroomId);
 
+  const [showHeaderCards, setShowHeaderCards] = useLocalStorage("classroom-header", true);
+  const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
+
   const handleConfirmArchive = () => {
     mutate();
   };
 
   return (
     <>
-      <div className="md:flex justify-between gap-1 mb-4">
+      <div className="lg:flex justify-between gap-1 mb-4">
         <Header
           title={`${userClassroom.classroom.archived ? "Archived " : ""}${userClassroom.classroom.name}`}
           subtitle="Classroom overview"
         />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
           {!userClassroom.classroom.archived && (
             <>
-              <Button variant="secondary" asChild size="sm" title="Download Report">
+              <Button
+                variant="secondary"
+                className="min-w-[137px]"
+                onClick={toggleHeaderCards}
+                size="sm"
+                title="Toggle details"
+              >
+                {showHeaderCards ? (
+                  <>
+                    <EyeOff className="mr-2 w-4 h-4" /> Hide
+                  </>
+                ) : (
+                  <>
+                    <Eye className="mr-2 w-4 h-4" /> Show
+                  </>
+                )}{" "}
+                details
+              </Button>
+              <Button variant="secondary" asChild size="sm" title="Download report">
                 <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
                   <Download className="mr-2 h-4 w-4" />
-                  Download Report
+                  Download report
                 </a>
               </Button>
               <AlertDialog>
@@ -144,63 +177,9 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Creation date</CardTitle>
-            <CalendarClock className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatDate(userClassroom.classroom.createdAt)}</div>
-            <p className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(userClassroom.classroom.createdAt)) + " ago"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Members</CardTitle>
-            <Users className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{classroomMembers.length}</div>
-            <p className="text-xs text-muted-foreground">{classroomMembers.length == 1 ? "member" : "members"}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assignments</CardTitle>
-            <CalendarCheck2 className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{userClassroom.assignmentsCount}</div>
-            <p className="text-xs text-muted-foreground">
-              {userClassroom.assignmentsCount == 1 ? "assignment" : "assignments"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
-            <Info className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {userClassroom.classroom.archived === true ? "Archived" : "Active"}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Description</CardTitle>
-            <Text className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <p>{userClassroom.classroom.description ?? <i>No description available</i>}</p>
-          </CardContent>
-        </Card>
-      </div>
+      {showHeaderCards && (
+        <ClassroomHeaderCards userClassroom={userClassroom} classroomMemberLength={classroomMembers.length} />
+      )}
 
       <Tabs value={tab} className="w-full">
         <TabsList className="w-full">
@@ -240,16 +219,83 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
           <TabsContent value="teams" className="pt-2">
             <TeamListCard
               teams={teams}
+              studentsCanCreateTeams={userClassroom.classroom.createTeams}
               classroomId={classroomId}
               userRole={Role.Owner}
               maxTeamSize={userClassroom.classroom.maxTeamSize}
-              numInvitedMembers={classroomMembers.length}
+              numInvitedMembers={classroomMembers.filter((m) => m.role === Role.Student).length}
               deactivateInteraction={userClassroom.classroom.archived}
             />
-            <Outlet />
           </TabsContent>
         )}
       </Tabs>
+      <Outlet />
     </>
   );
 }
+
+const ClassroomHeaderCards = ({
+  userClassroom,
+  classroomMemberLength,
+}: {
+  userClassroom: UserClassroomResponse;
+  classroomMemberLength: number;
+}) => {
+  return (
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Creation date</CardTitle>
+          <CalendarClock className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{formatDate(userClassroom.classroom.createdAt)}</div>
+          <p className="text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(userClassroom.classroom.createdAt)) + " ago"}
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Members</CardTitle>
+          <Users className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{classroomMemberLength}</div>
+          <p className="text-xs text-muted-foreground">{classroomMemberLength == 1 ? "member" : "members"}</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Assignments</CardTitle>
+          <CalendarCheck2 className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{userClassroom.assignmentsCount}</div>
+          <p className="text-xs text-muted-foreground">
+            {userClassroom.assignmentsCount == 1 ? "assignment" : "assignments"}
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Status</CardTitle>
+          <Info className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{userClassroom.classroom.archived === true ? "Archived" : "Active"}</div>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Description</CardTitle>
+          <Text className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <p>{userClassroom.classroom.description ?? <i>No description available</i>}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
