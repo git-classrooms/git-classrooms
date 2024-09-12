@@ -12,5 +12,5 @@ func CreateClassroomGitlabDescription(classroom *database.Classroom, publicURL *
 }
 
 func CreateTeamGitlabDescription(classroom *database.Classroom, team *database.Team, publicURL *url.URL) string {
-	return fmt.Sprintf("Team of %s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s/teams/%s)__", classroom.Description, publicURL, classroom.ID.String(), team.ID.String())
+	return fmt.Sprintf("Team of %s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s/teams/%s)__", classroom.Name, publicURL, classroom.ID.String(), team.ID.String())
 }

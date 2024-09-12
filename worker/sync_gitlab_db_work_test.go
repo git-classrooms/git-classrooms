@@ -234,7 +234,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 			}, nil).
 			Times(1)
 
-		w.syncTeam(context.Background(), team1, repo)
+		w.syncTeam(context.Background(), &classroom1, team1, repo)
 
 		repo.AssertExpectations(t)
 

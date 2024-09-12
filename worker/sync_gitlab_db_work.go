@@ -43,7 +43,7 @@ func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 		w.syncClassroomMember(ctx, classroom.GroupID, classroom.Member, repo)
 
 		for _, team := range classroom.Teams {
-			err = w.syncTeam(ctx, *team, repo)
+			err = w.syncTeam(ctx, classroom, *team, repo)
 			if err != nil {
 				continue
 			}
@@ -245,7 +245,7 @@ func (w *SyncGitlabDbWork) isGroupBootUser(user model.User, groupId int) bool {
 	return strings.Contains(user.Username, fmt.Sprintf("group_%d_bot_", groupId))
 }
 
-func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, repo gitlab.Repository) error {
+func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Classroom, dbTeam database.Team, repo gitlab.Repository) error {
 	gitlabTeam, err := repo.GetGroupById(dbTeam.GroupID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
@@ -266,7 +266,7 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, dbTeam database.Team, r
 		}
 	}
 
-	shouldDescription := utils.CreateTeamGitlabDescription(&dbTeam.Classroom, &dbTeam, w.publicURL)
+	shouldDescription := utils.CreateTeamGitlabDescription(classroom, &dbTeam, w.publicURL)
 	if shouldDescription != gitlabTeam.Description {
 		if _, err := repo.ChangeGroupDescription(dbTeam.GroupID, shouldDescription); err != nil {
 			log.Default().Printf("Error could not update group name for team %d: %s", dbTeam.GroupID, err.Error())
