@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -429,7 +430,7 @@ func (repo *GitlabRepo) GetProjectPipelineTestReportSummary(projectId, pipelineI
 // Returns:
 // - *model.TestReport: The test report summary of the latest pipeline.
 // - error: An error if the retrieval fails.
-func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error) {
+func (repo *GitlabRepo) GetProjectLatestPipeline(projectId int, ref *string) (*model.Pipeline, error) {
 	repo.assertIsConnected()
 
 	options := &goGitlab.GetLatestPipelineOptions{}
@@ -442,12 +443,18 @@ func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int,
 		return nil, ErrorFromGoGitlab(err)
 	}
 
-	testReport, _, err := repo.client.Pipelines.GetPipelineTestReport(projectId, pipeline.ID)
+	return PipelineFromGoGitlabPipeline(pipeline), nil
+}
+
+func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error) {
+	repo.assertIsConnected()
+
+	pipeline, err := repo.GetProjectLatestPipeline(projectId, ref)
 	if err != nil {
-		return nil, ErrorFromGoGitlab(err)
+		return nil, err
 	}
 
-	return TestReportFromGoGitlabTestReport(testReport), nil
+	return repo.GetProjectPipelineTestReportSummary(projectId, pipeline.ID)
 }
 
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
@@ -798,6 +805,33 @@ func (repo *GitlabRepo) GetAvailableRunnersForGroup(groupId int) ([]*model.Runne
 	}
 
 	return convertRunners(availableRunners), nil
+}
+
+func (repo *GitlabRepo) CheckIfFileExistsInProject(projectId int, filepath string) (bool, error) {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.RepositoryFiles.GetFile(projectId, filepath, &goGitlab.GetFileOptions{Ref: goGitlab.String("HEAD")})
+	if err != nil {
+		var gitlabErr *goGitlab.ErrorResponse
+		if errors.As(err, &gitlabErr) &&
+			gitlabErr.Response.StatusCode == 404 &&
+			strings.Contains(gitlabErr.Message, "404 File Not Found") {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (repo *GitlabRepo) GetProjectLanguages(projectId int) (map[string]float32, error) {
+	repo.assertIsConnected()
+
+	languages, _, err := repo.client.Projects.GetProjectLanguages(projectId)
+	if err != nil {
+		return nil, err
+	}
+
+	return *languages, nil
 }
 
 func (repo *GitlabRepo) assertIsConnected() {

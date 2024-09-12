@@ -2,6 +2,7 @@ package default_controller
 
 import (
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -36,7 +37,7 @@ func TestGetMe(t *testing.T) {
 
 	query.SetDefault(db)
 
-	session.InitSessionStore(nil)
+	session.InitSessionStore(nil, &url.URL{Scheme: "http"})
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 

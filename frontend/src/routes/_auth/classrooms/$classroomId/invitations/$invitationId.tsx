@@ -29,7 +29,7 @@ function JoinClassroom() {
   const onAccept = async () => {
     const location = await mutateAsync(Action.Accept);
     const classroomId = getUUIDFromLocation(location);
-    await navigate({ to: "/classrooms/$classroomId", params: { classroomId } });
+    await navigate({ to: "/classrooms/$classroomId", search: { tab: "assignments" }, params: { classroomId } });
   };
 
   const onReject = async () => {

@@ -3,27 +3,20 @@ package database
 
 import (
 	"time"
-
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 // User is the representation of the user in database
 type User struct {
-	ID              int               `gorm:"primary_key;autoIncrement:false" json:"id"`
-	GitlabUsername  string            `gorm:"unique;not null" json:"gitlabUsername"`
-	GitlabEmail     string            `gorm:"unique;not null" json:"gitlabEmail"`
-	GitLabAvatar    UserAvatar        `json:"gitlabAvatar"`
-	Name            string            `gorm:"not null" json:"name"`
-	CreatedAt       time.Time         `json:"-"`
-	UpdatedAt       time.Time         `json:"-"`
-	DeletedAt       gorm.DeletedAt    `gorm:"index" json:"-"`
-	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID" json:"-"`
-	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID" json:"-"`
-} //@Name User
+	ID             int    `gorm:"primary_key;autoIncrement:false" json:"id"`
+	GitlabUsername string `gorm:"unique;not null" json:"gitlabUsername"`
+	GitlabEmail    string `gorm:"unique;not null" json:"gitlabEmail"`
 
-func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	tx.Clauses(clause.Returning{}).Where("user_id = ?", u.ID).Delete(&UserClassrooms{})
-	tx.Clauses(clause.Returning{}).Where("owner_id = ?", u.ID).Delete(&Classroom{})
-	return
-}
+	GitLabAvatar UserAvatar `gorm:"constraint:OnDelete:CASCADE;" json:"gitlabAvatar"`
+
+	Name      string    `gorm:"not null" json:"name"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+
+	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID;constraint:OnDelete:CASCADE;" json:"-"`
+	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;" json:"-"`
+} //@Name User

@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"net/url"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,6 +13,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
@@ -78,15 +80,18 @@ func TestSyncClassroomsWork(t *testing.T) {
 	testDb.InsertAssignment(&assignment1)
 
 	assignment1Project := database.AssignmentProjects{
-		ID:           uuid.New(),
-		AssignmentID: assignment1.ID,
-		Assignment:   assignment1,
-		TeamID:       team1.ID,
-		ProjectID:    15,
+		ID:            uuid.New(),
+		AssignmentID:  assignment1.ID,
+		Assignment:    assignment1,
+		TeamID:        team1.ID,
+		ProjectID:     15,
+		ProjectStatus: database.Accepted,
 	}
 	testDb.InsertAssignmentProjects(&assignment1Project)
 
-	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{})
+	publicUrl := &url.URL{Scheme: "http", Host: "localhost"}
+
+	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{}, publicUrl)
 
 	t.Run("getUnarchivedClassrooms", func(t *testing.T) {
 		classroom2 := database.Classroom{
@@ -123,6 +128,16 @@ func TestSyncClassroomsWork(t *testing.T) {
 			}, nil).
 			Times(1)
 
+		repo.EXPECT().
+			ChangeGroupName(classroom1.GroupID, classroom1.Name).
+			Return(nil, nil).
+			Times(1)
+
+		repo.EXPECT().
+			ChangeGroupDescription(classroom1.GroupID, utils.CreateClassroomGitlabDescription(&classroom1, publicUrl)).
+			Return(nil, nil).
+			Times(1)
+
 		w.syncClassroom(context.Background(), classroom1, repo)
 
 		repo.AssertExpectations(t)
@@ -131,8 +146,8 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Where(query.Classroom.ID.Eq(classroom1.ID)).
 			First()
 		assert.NoError(t, err)
-		assert.Equal(t, newName, dbClassroom1.Name)
-		assert.Equal(t, newDescription, dbClassroom1.Description)
+		assert.Equal(t, classroom1.Name, dbClassroom1.Name)
+		assert.Equal(t, classroom1.Description, dbClassroom1.Description)
 
 		// revert changes of db object for next tests
 		dbClassroom1.Name = classroom1.Name
@@ -226,14 +241,26 @@ func TestSyncClassroomsWork(t *testing.T) {
 
 	t.Run("syncTeam", func(t *testing.T) {
 		newName := "new name"
+		newDescription := "new description"
 		repo.EXPECT().
 			GetGroupById(team1.GroupID).
 			Return(&model.Group{
-				Name: newName,
+				Name:        newName,
+				Description: newDescription,
 			}, nil).
 			Times(1)
 
-		w.syncTeam(context.Background(), team1, repo)
+		repo.EXPECT().
+			ChangeGroupName(team1.GroupID, team1.Name).
+			Return(nil, nil).
+			Times(1)
+
+		repo.EXPECT().
+			ChangeGroupDescription(team1.GroupID, utils.CreateTeamGitlabDescription(&classroom1, &team1, publicUrl)).
+			Return(nil, nil).
+			Times(1)
+
+		w.syncTeam(context.Background(), &classroom1, team1, repo)
 
 		repo.AssertExpectations(t)
 
@@ -241,7 +268,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Where(query.Team.ID.Eq(team1.ID)).
 			First()
 		assert.NoError(t, err)
-		assert.Equal(t, newName, dbTeam1.Name)
+		assert.Equal(t, team1.Name, dbTeam1.Name)
 	})
 
 	t.Run("syncTeamMember - left via gitlab", func(t *testing.T) {

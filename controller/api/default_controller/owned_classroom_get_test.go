@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -77,7 +78,7 @@ func TestGetClassroomById(t *testing.T) {
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	session.InitSessionStore(nil)
+	session.InitSessionStore(nil, &url.URL{Scheme: "http"})
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
 

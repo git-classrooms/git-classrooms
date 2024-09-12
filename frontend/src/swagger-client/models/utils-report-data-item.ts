@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { UtilsManualResult } from './utils-manual-result';
  /**
  * 
  *
@@ -25,6 +26,12 @@ export interface UtilsReportDataItem {
      * @memberof UtilsReportDataItem
      */
     assignmentName: string;
+
+    /**
+     * @type {number}
+     * @memberof UtilsReportDataItem
+     */
+    autogradingMaxScore: number;
 
     /**
      * @type {number}
@@ -57,16 +64,16 @@ export interface UtilsReportDataItem {
     percentage: number;
 
     /**
-     * @type {{ [key: string]: string; }}
+     * @type {string}
      * @memberof UtilsReportDataItem
      */
-    rubricFeedback: { [key: string]: string; };
+    projectId: string;
 
     /**
-     * @type {{ [key: string]: number; }}
+     * @type {{ [key: string]: UtilsManualResult; }}
      * @memberof UtilsReportDataItem
      */
-    rubricScores: { [key: string]: number; };
+    rubricResults: { [key: string]: UtilsManualResult; };
 
     /**
      * @type {number}

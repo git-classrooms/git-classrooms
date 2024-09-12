@@ -12,7 +12,6 @@
  * Do not edit the class manually.
  */
 
-import { ManualGradingRubric } from './manual-grading-rubric';
  /**
  * 
  *
@@ -56,12 +55,6 @@ export interface AssignmentResponse {
      * @memberof AssignmentResponse
      */
     gradingJUnitAutoGradingActive: boolean;
-
-    /**
-     * @type {Array<ManualGradingRubric>}
-     * @memberof AssignmentResponse
-     */
-    gradingManualRubrics: Array<ManualGradingRubric>;
 
     /**
      * @type {string}
