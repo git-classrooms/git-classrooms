@@ -38,6 +38,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },
         params,
+        replace: true,
       });
     }
     return { templateProjects };

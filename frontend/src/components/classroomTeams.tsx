@@ -1,15 +1,15 @@
-import { Role } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { TeamResponse } from "@/swagger-client";
+import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { CreateTeamForm } from "./createTeamForm";
 import { useState } from "react";
 import { ClassroomTeamModal } from "./classroomTeam";
+import { isModerator, isStudent } from "@/lib/utils";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -24,7 +24,7 @@ import { ClassroomTeamModal } from "./classroomTeam";
 export function TeamListCard({
   teams,
   classroomId,
-  userRole,
+  userClassroom,
   maxTeamSize,
   numInvitedMembers,
   studentsCanCreateTeams,
@@ -32,7 +32,7 @@ export function TeamListCard({
 }: {
   teams: TeamResponse[];
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   maxTeamSize: number;
   numInvitedMembers: number;
   studentsCanCreateTeams: boolean;
@@ -50,7 +50,7 @@ export function TeamListCard({
           <CardDescription>Teams in this classroom</CardDescription>
         </div>
         <div className="grid grid-cols-1 gap-2">
-          {userRole != Role.Student && !deactivateInteraction && (
+          {isModerator(userClassroom) && !deactivateInteraction && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">Create a team</Button>
@@ -63,7 +63,7 @@ export function TeamListCard({
         </div>
       </CardHeader>
       <CardContent>
-        {teamSlots < numInvitedMembers && userRole != Role.Student && (
+        {teamSlots < numInvitedMembers && isModerator(userClassroom) && (
           <div>
             <p className="text-sm text-muted-foreground text-red-600">
               Not enough team spots to accommodate all classroom members.
@@ -78,7 +78,7 @@ export function TeamListCard({
         <TeamTable
           teams={teams}
           classroomId={classroomId}
-          userRole={userRole}
+          userClassroom={userClassroom}
           maxTeamSize={maxTeamSize}
           deactivateInteraction={deactivateInteraction}
         />
@@ -90,7 +90,7 @@ export function TeamListCard({
 export function TeamTable({
   teams,
   classroomId,
-  userRole,
+  userClassroom,
   maxTeamSize,
   isPending,
   onTeamSelect,
@@ -98,7 +98,7 @@ export function TeamTable({
 }: {
   teams: TeamResponse[];
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   maxTeamSize: number;
   isPending?: boolean;
   onTeamSelect?: (teamId: string) => void;
@@ -120,7 +120,9 @@ export function TeamTable({
               </Button>
               {!deactivateInteraction && (
                 <>
-                  {userRole != Role.Student && <ClassroomTeamModal classroomId={classroomId} teamId={t.id} />}
+                  {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
+                    <ClassroomTeamModal classroomId={classroomId} teamId={t.id} />
+                  )}
                   {onTeamSelect && (
                     <Button
                       variant="ghost"
@@ -148,14 +150,14 @@ function TeamListElement({ team, maxTeamSize }: { team: TeamResponse; maxTeamSiz
         <div className="cursor-default">
           <div className="font-medium">{team.name}</div>
           <div className="text-sm text-muted-foreground md:inline">
-            {team.members.length} / {maxTeamSize} member
+            {team.members.length}/{maxTeamSize} member
           </div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{team.name}</p>
         <p className="text-sm text-muted-foreground mt-[-0.3rem]">
-          {team.members.length} / {maxTeamSize} member
+          {team.members.length}/{maxTeamSize} member
         </p>
         {team.members.length >= 1 && (
           <>

@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$p
       throw redirect({
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },
+        replace: true,
         params,
       });
     }
@@ -32,12 +33,12 @@ function AcceptAssignment() {
   });
   const { classroomId, projectId } = Route.useParams();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
-  const { data: project } = useSuspenseQuery(projectQueryOptions(classroomId, projectId));
+  const { data: project } = useSuspenseQuery(projectQueryOptions(classroomId, projectId, 10000));
   const { mutateAsync, isError, isPending } = useAcceptAssignment(classroomId, projectId);
 
   const onClick = async () => {
     await mutateAsync();
-    await navigate({ to: "/dashboard" });
+    await navigate({ to: "/classrooms/$classroomId", params: { classroomId }, search: { tab: "assignments" } });
   };
 
   return (

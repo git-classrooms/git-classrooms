@@ -14,7 +14,7 @@ import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 
-export const Route = createFileRoute("/_auth/dashboard/")({
+export const Route = createFileRoute("/_auth/dashboard")({
   component: Classrooms,
   loader: async ({ context: { queryClient } }) => {
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));

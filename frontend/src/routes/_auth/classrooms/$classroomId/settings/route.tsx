@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, isModerator } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -14,6 +14,17 @@ import { classroomQueryOptions } from "@/api/classroom";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings")({
+  beforeLoad: async ({ context: { queryClient }, params: { classroomId } }) => {
+    const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(classroomId));
+    if (!isModerator(userClassroom)) {
+      throw redirect({
+        to: "/classrooms/$classroomId",
+        params: { classroomId },
+        search: { tab: "assignments" },
+        replace: true,
+      });
+    }
+  },
   component: Settings,
 });
 

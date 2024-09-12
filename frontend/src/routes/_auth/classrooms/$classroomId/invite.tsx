@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -16,6 +16,14 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDate } from "@/lib/utils.ts";
 import { ClassroomInvitation } from "@/swagger-client";
 import { classroomInvitationsQueryOptions, classroomQueryOptions, useInviteClassroomMembers } from "@/api/classroom";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -25,6 +33,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
         to: "/classrooms/$classroomId",
         search: { tab: "assignments" },
         params,
+        replace: true,
       });
     }
   },
@@ -34,6 +43,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
 
 function ClassroomInviteForm() {
   const { classroomId } = Route.useParams();
+  const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
 
   const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
@@ -51,7 +61,23 @@ function ClassroomInviteForm() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <>
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                {userClassroom.classroom.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Invitations</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <Header title="Invitations" />
       <InvitationsTable invitations={invitations} />
 
@@ -88,7 +114,7 @@ function ClassroomInviteForm() {
           )}
         </form>
       </Form>
-    </div>
+    </>
   );
 }
 

@@ -74,7 +74,7 @@ function JoinTeam() {
             teams={teams}
             isPending={isPending}
             classroomId={classroomId}
-            userRole={Role.Student}
+            userClassroom={joinedClassroom}
             maxTeamSize={joinedClassroom.classroom.maxTeamSize}
             onTeamSelect={joinTeam}
             deactivateInteraction={false}

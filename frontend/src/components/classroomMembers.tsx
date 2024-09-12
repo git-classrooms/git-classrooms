@@ -1,4 +1,4 @@
-import { getRole, Role } from "@/types/classroom.ts";
+import { getRole } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
@@ -10,6 +10,7 @@ import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { ClassroomTeamModal } from "./classroomTeam";
+import { isModerator, isOwner, isStudent } from "@/lib/utils";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -26,13 +27,13 @@ import { ClassroomTeamModal } from "./classroomTeam";
 export function MemberListCard({
   classroomMembers,
   classroomId,
-  userRole,
+  userClassroom,
   showTeams,
   deactivateInteraction,
 }: {
   classroomMembers: UserClassroomResponse[];
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   showTeams: boolean;
   deactivateInteraction: boolean;
 }): JSX.Element {
@@ -43,23 +44,31 @@ export function MemberListCard({
           <CardTitle className="mb-1">Members</CardTitle>
           <CardDescription>Members in this this classroom</CardDescription>
         </div>
-        {userRole != 2 && !deactivateInteraction && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {!deactivateInteraction && isOwner(userClassroom) && (
             <Button variant="outline" asChild>
               <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-                Show all members
+                Change roles
               </Link>
             </Button>
+          )}
+
+          {!deactivateInteraction && isModerator(userClassroom) && (
             <Button variant="outline" asChild>
               <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
                 Invite members
               </Link>
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </CardHeader>
       <CardContent>
-        <MemberTable members={classroomMembers} classroomId={classroomId} userRole={userRole} showTeams={showTeams} />
+        <MemberTable
+          members={classroomMembers}
+          classroomId={classroomId}
+          userClassroom={userClassroom}
+          showTeams={showTeams}
+        />
       </CardContent>
     </Card>
   );
@@ -68,12 +77,12 @@ export function MemberListCard({
 function MemberTable({
   members,
   classroomId,
-  userRole,
+  userClassroom,
   showTeams,
 }: {
   members: UserClassroomResponse[];
   classroomId: string;
-  userRole: Role;
+  userClassroom: UserClassroomResponse;
   showTeams: boolean;
 }) {
   return (
@@ -89,7 +98,7 @@ function MemberTable({
                   <Gitlab className="h-6 w-6 text-gray-600" />
                 </a>
               </Button>
-              {userRole != Role.Student && m.team ? (
+              {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
                 <ClassroomTeamModal classroomId={classroomId} teamId={m.team.id} />
               ) : (
                 <Button variant="ghost" size="icon" asChild>
