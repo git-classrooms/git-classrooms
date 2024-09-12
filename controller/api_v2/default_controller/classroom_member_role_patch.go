@@ -1,12 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -167,13 +169,67 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 				}
 			}
 		}()
-
 	}
 
-	queryUserClassrooms := query.UserClassrooms
-	if err := queryUserClassrooms.
-		WithContext(c.Context()).
-		Save(member); err != nil {
+	err = query.Q.Transaction(func(tx *query.Query) error {
+		queryTeam := tx.Team
+		if member.Role != database.Student {
+			if classroom.Classroom.MaxTeamSize == 1 {
+				if _, err := queryTeam.WithContext(c.Context()).Delete(member.Team); err != nil {
+					return err
+				}
+
+				if err := repo.DeleteGroup(member.Team.GroupID); err != nil {
+					return err
+				}
+			}
+			member.Team = nil
+			member.TeamID = nil
+		} else if classroom.Classroom.MaxTeamSize == 1 {
+
+			subgroup, err := repo.CreateSubGroup(
+				member.User.Name,
+				classroom.Classroom.GroupID,
+				gitlabModel.Private,
+				fmt.Sprintf("Team %s of classroom %s", member.User.Name, classroom.Classroom.Name),
+			)
+			if err != nil {
+				return err
+			}
+			defer func() {
+				if recover() != nil || err != nil {
+					repo.DeleteGroup(subgroup.ID)
+				}
+			}()
+
+			team := &database.Team{
+				ClassroomID: classroom.ClassroomID,
+				GroupID:     subgroup.ID,
+				Name:        member.User.GitlabUsername,
+			}
+			err = queryTeam.WithContext(c.Context()).Create(team)
+			if err != nil {
+				return err
+			}
+			member.TeamID = &team.ID
+			member.Team = team
+
+			if err = repo.AddUserToGroup(team.GroupID, member.UserID, gitlabModel.ReporterPermissions); err != nil {
+				return err
+			}
+			defer func() {
+				if recover() != nil || err != nil {
+					repo.RemoveUserFromGroup(team.GroupID, member.UserID)
+				}
+			}()
+		}
+
+		return tx.UserClassrooms.
+			WithContext(c.Context()).
+			Save(member)
+	})
+
+	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

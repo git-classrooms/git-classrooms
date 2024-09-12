@@ -7,12 +7,14 @@ import { Loader } from "@/components/loader.tsx";
 import { CsrfProvider } from "@/provider/csrfProvider";
 import { Navbar } from "@/components/navbar.tsx";
 import { GetMeResponse } from "@/swagger-client";
+import { NotFound } from "@/components/not-found";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   auth: GetMeResponse | null;
 }>()({
   component: RootComponent,
+  notFoundComponent: NotFound,
   loader: ({ context }) => context.queryClient.ensureQueryData(authCsrfQueryOptions),
   pendingComponent: Loader,
 });
@@ -37,7 +39,7 @@ function RootComponent() {
         <Navbar auth={auth} />
         <div className="flex flex-col w-full items-center">
           <div className="w-full xl:max-w-[90rem]">
-            <div className="mx-6 md:px-10">
+            <div className="mx-6 md:px-10 mt-3">
               <Outlet />
             </div>
             <ReactQueryDevtools initialIsOpen={false} />

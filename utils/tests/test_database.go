@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"net/url"
 	"testing"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -24,7 +25,7 @@ func NewTestDB(t *testing.T) *TestDB {
 	db.Setup()
 
 	query.SetDefault(db.db)
-	session.InitSessionStore(nil)
+	session.InitSessionStore(nil, &url.URL{Scheme: "http"})
 
 	return &db
 }

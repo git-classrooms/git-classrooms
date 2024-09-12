@@ -15,9 +15,5 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function Index() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }

@@ -23,6 +23,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
     if (userClassroom.role === Role.Student) {
       throw redirect({
         to: "/classrooms/$classroomId",
+        search: { tab: "assignments" },
         params,
       });
     }

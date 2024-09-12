@@ -3,11 +3,13 @@ package api
 import (
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gorm.io/gorm"
-	"time"
 )
 
 // @Summary		GetClassroomAssignmentReport
@@ -39,8 +41,8 @@ func (ctrl *DefaultController) GetClassroomAssignmentReport(c *fiber.Ctx) (err e
 	}
 
 	acceptHeader := c.Get("Accept")
-	if acceptHeader == "application/json" {
-		jsonReport, err := utils.GenerateReport(assignment, nil)
+	if strings.Contains(acceptHeader, "application/json") {
+		jsonReport, err := utils.GenerateReport(assignment, assignment.GradingManualRubrics, nil)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
@@ -50,5 +52,5 @@ func (ctrl *DefaultController) GetClassroomAssignmentReport(c *fiber.Ctx) (err e
 	c.Set(fiber.HeaderContentType, "text/csv; charset=utf-8")
 	c.Set(fiber.HeaderContentDisposition, fmt.Sprintf("attachment; filename=report_%s_%s_%s.csv", time.Now().Format(time.DateOnly), classroom.Classroom.Name, assignment.Name))
 
-	return utils.GenerateCSVReport(c.Response().BodyWriter(), assignment, nil)
+	return utils.GenerateCSVReport(c.Response().BodyWriter(), assignment, assignment.GradingManualRubrics, nil, true)
 }

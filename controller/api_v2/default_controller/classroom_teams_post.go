@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -125,11 +126,18 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		Member:      member,
 	}
 
-	err = queryTeam.WithContext(c.Context()).Create(newTeam)
-	if err != nil {
+	if err = queryTeam.WithContext(c.Context()).Create(newTeam); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	if _, err = repo.ChangeGroupDescription(group.ID, ctrl.createTeamGitlabDescription(&classroom.Classroom, newTeam.ID)); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s/teams/%s", classroom.ClassroomID.String(), newTeam.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
+}
+
+func (ctrl *DefaultController) createTeamGitlabDescription(classroom *database.Classroom, teamID uuid.UUID) string {
+	return fmt.Sprintf("%s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s/teams/%s)__", classroom.Description, ctrl.config.PublicURL, classroom.ID.String(), teamID.String())
 }

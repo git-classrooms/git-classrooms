@@ -37,6 +37,12 @@ export interface Classroom {
      * @type {string}
      * @memberof Classroom
      */
+    createdAt: string;
+
+    /**
+     * @type {string}
+     * @memberof Classroom
+     */
     description: string;
 
     /**
@@ -80,6 +86,12 @@ export interface Classroom {
      * @memberof Classroom
      */
     ownerId: number;
+
+    /**
+     * @type {boolean}
+     * @memberof Classroom
+     */
+    potentiallyDeleted: boolean;
 
     /**
      * @type {boolean}

@@ -1,5 +1,5 @@
 import { getRole, Role } from "@/types/classroom.ts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
 import { Clipboard, Gitlab } from "lucide-react";
@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
+import { ClassroomTeamModal } from "./classroomTeam";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -37,27 +38,29 @@ export function MemberListCard({
 }): JSX.Element {
   return (
     <Card className="p-2">
-      <CardHeader>
-        <CardTitle>Members</CardTitle>
-        <CardDescription>Every person in this classroom</CardDescription>
+      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+        <div className="mb-4 md:mb-0">
+          <CardTitle className="mb-1">Members</CardTitle>
+          <CardDescription>Members in this this classroom</CardDescription>
+        </div>
+        {userRole != 2 && !deactivateInteraction && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
+                Show all members
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+                Invite members
+              </Link>
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <MemberTable members={classroomMembers} classroomId={classroomId} userRole={userRole} showTeams={showTeams} />
       </CardContent>
-      {(userRole != 2 && !deactivateInteraction) && (
-        <CardFooter className="flex justify-end">
-          <Button variant="default" asChild className="mr-2">
-            <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-              Show all members
-            </Link>
-          </Button>
-          <Button variant="default" asChild>
-            <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
-              Invite members
-            </Link>
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 }
@@ -78,9 +81,7 @@ function MemberTable({
       items={members}
       renderItem={(m) => (
         <ListItem
-          leftContent={
-            <MemberListElement member={m} showTeams={showTeams} />
-          }
+          leftContent={<MemberListElement member={m} showTeams={showTeams} />}
           rightContent={
             <>
               <Button variant="ghost" size="icon" asChild>
@@ -89,14 +90,7 @@ function MemberTable({
                 </a>
               </Button>
               {userRole != Role.Student && m.team ? (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/teams/$teamId/modal"
-                    params={{ classroomId: classroomId, teamId: m.team.id }}
-                  >
-                    <Clipboard className="h-6 w-6 text-gray-600" />
-                  </Link>
-                </Button>
+                <ClassroomTeamModal classroomId={classroomId} teamId={m.team.id} />
               ) : (
                 <Button variant="ghost" size="icon" asChild>
                   <div>

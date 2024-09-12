@@ -1,48 +1,32 @@
 package api
 
 import (
+	"database/sql/driver"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-type gradingManualRubricRequest struct {
-	ID          *uuid.UUID `json:"id" validate:"optional"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	MaxScore    int        `json:"maxScore"`
-} //@Name GradingManualRubricRequest
+type updateAssignmentRubricsRequest struct {
+	RubricIDs []uuid.UUID `json:"rubricIds"`
+} //@Name UpdateAssignmentRubricsRequest
 
-func (r gradingManualRubricRequest) isValid() bool {
-	return r.Name != "" && r.Description != "" && r.MaxScore >= 0
+func (r updateAssignmentRubricsRequest) isValid() bool {
+	return r.RubricIDs != nil
 }
 
-func rubricRequestIsValid(r gradingManualRubricRequest) bool {
-	return r.isValid()
-}
-
-type updateAssignmentGradingRequest struct {
-	GradingJUnitAutoGradingActive *bool `json:"gradingJUnitAutoGradingActive"`
-
-	GradingManualRubrics []gradingManualRubricRequest `json:"gradingManualRubrics"`
-} //@Name UpdateAssignmentGradingRequest
-
-func (r updateAssignmentGradingRequest) isValid() bool {
-	return r.GradingJUnitAutoGradingActive != nil && utils.All(r.GradingManualRubrics, rubricRequestIsValid)
-}
-
-// @Summary		UpdateGradingRubrics
-// @Description	UpdateGradingRubrics
-// @Id				UpdateGradingRubrics
+// @Summary		UpdateAssignmentGradingRubrics
+// @Description	UpdateAssignmentGradingRubrics
+// @Id				UpdateAssignmentGradingRubrics
 // @Tags			grading
 // @Accept			json
-// @Param			classroomId		path	string								true	"Classroom ID"	Format(uuid)
-// @Param			assignmentId	path	string								true	"Assignment ID"	Format(uuid)
-// @Param			assignmentInfo	body	api.updateAssignmentGradingRequest	true	"Grading Update Info"
-// @Param			X-Csrf-Token	header	string								true	"Csrf-Token"
+// @Param			classroomId				path	string								true	"Classroom ID"	Format(uuid)
+// @Param			assignmentId			path	string								true	"Assignment ID"	Format(uuid)
+// @Param			assignmentGradingInfo	body	api.updateAssignmentRubricsRequest	true	"Assignment Grading Update Info"
+// @Param			X-Csrf-Token			header	string								true	"Csrf-Token"
 // @Success		202
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
@@ -50,11 +34,11 @@ func (r updateAssignmentGradingRequest) isValid() bool {
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading [put]
-func (ctrl *DefaultController) UpdateGradingRubrics(c *fiber.Ctx) (err error) {
+func (ctrl *DefaultController) UpdateAssignmentGradingRubrics(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	assignment := ctx.GetAssignment()
 
-	var requestBody updateAssignmentGradingRequest
+	var requestBody updateAssignmentRubricsRequest
 	if err = c.BodyParser(&requestBody); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -63,58 +47,22 @@ func (ctrl *DefaultController) UpdateGradingRubrics(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, "Request Body is not valid")
 	}
 
-	updateIDs := make([]uuid.UUID, 0)
-	for _, e := range requestBody.GradingManualRubrics {
-		if e.ID != nil {
-			updateIDs = append(updateIDs, *e.ID)
-		}
-	}
+	ids := utils.Map(requestBody.RubricIDs, func(e uuid.UUID) driver.Valuer { return e })
 
 	queryManualGradingRubric := query.ManualGradingRubric
 	rubrics, err := queryManualGradingRubric.
 		WithContext(c.Context()).
-		FindByAssignmentIDAndInRubricIDs(assignment.ID, updateIDs)
+		Where(queryManualGradingRubric.ClassroomID.Eq(assignment.ClassroomID)).
+		Where(queryManualGradingRubric.ID.In(ids...)).Find()
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return err
 	}
 
-	if len(rubrics) != len(updateIDs) {
+	if len(rubrics) != len(ids) {
 		return fiber.NewError(fiber.StatusBadRequest, "Body includes invalid IDs")
 	}
 
-	updatedRubrics := utils.Map(requestBody.GradingManualRubrics, func(e gradingManualRubricRequest) *database.ManualGradingRubric {
-		id := uuid.UUID{}
-		if e.ID != nil {
-			id = *e.ID
-		}
-
-		return &database.ManualGradingRubric{
-			ID:           id,
-			Name:         e.Name,
-			Description:  e.Description,
-			AssignmentID: assignment.ID,
-			MaxScore:     e.MaxScore,
-		}
-	})
-
-	if err = queryManualGradingRubric.
-		WithContext(c.Context()).
-		Save(updatedRubrics...); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	newIDs := utils.Map(updatedRubrics, func(e *database.ManualGradingRubric) uuid.UUID {
-		return e.ID
-	})
-
-	if err = queryManualGradingRubric.
-		WithContext(c.Context()).
-		DeleteByAssignmentIDAndNotInRubricIDs(assignment.ID, newIDs); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	assignment.GradingJUnitAutoGradingActive = *requestBody.GradingJUnitAutoGradingActive
-	if err = query.Assignment.WithContext(c.Context()).Save(assignment); err != nil {
+	if err := query.Assignment.GradingManualRubrics.Model(assignment).Replace(rubrics...); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

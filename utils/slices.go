@@ -18,6 +18,22 @@ func Map[TInput, TOutput any](inputArray []TInput, mapFunction func(TInput) TOut
 	return outputArray
 }
 
+func FlatMap[TInput, TOutput any](inputArray []TInput, mapFunction func(TInput) []TOutput) []TOutput {
+	outputArray := make([]TOutput, 0)
+	for i := range inputArray {
+		outputArray = append(outputArray, mapFunction(inputArray[i])...)
+	}
+	return outputArray
+}
+
+func Flatten[T any](inputArray [][]T) []T {
+	outputArray := make([]T, 0)
+	for i := range inputArray {
+		outputArray = append(outputArray, inputArray[i]...)
+	}
+	return outputArray
+}
+
 func Some[TInput any](inputArray []TInput, predicate func(TInput) bool) bool {
 	for _, e := range inputArray {
 		if predicate(e) {
