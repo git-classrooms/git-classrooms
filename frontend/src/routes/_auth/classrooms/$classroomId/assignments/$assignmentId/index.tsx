@@ -10,6 +10,8 @@ import {
   AlertCircle,
   CalendarClock,
   Download,
+  Eye,
+  EyeOff,
   FolderGit2,
   Info,
   Loader2,
@@ -23,7 +25,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { cn, formatDate, formatDateWithTime, isModerator, isOwner } from "@/lib/utils.ts";
 import { assignmentQueryOptions } from "@/api/assignment";
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
-import { ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
+import {
+  AssignmentResponse,
+  ProjectResponse,
+  ReportApiAxiosParamCreator,
+  UserClassroomResponse,
+} from "@/swagger-client";
 import { classroomQueryOptions } from "@/api/classroom";
 import {
   Breadcrumb,
@@ -44,6 +51,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getStatusProps } from "@/types/projects";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -75,10 +83,12 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 
 function AssignmentDetail() {
   const { classroomId, assignmentId } = Route.useParams();
-  const { reportDownloadUrl } = Route.useLoaderData();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
   const { data: assignmentProjects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
+
+  const [showHeaderCards, setShowHeaderCards] = useLocalStorage("assignment-headers", true);
+  const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
 
   const { mutateAsync, isError, isPending } = useInviteToAssignment(classroomId, assignmentId);
 
@@ -102,7 +112,25 @@ function AssignmentDetail() {
 
       <div className="md:flex justify-between gap-1 mb-4">
         <Header title={assignment.name} subtitle="Assignment overview" />
-        <div className="grid md:grid-cols-2 gap-3">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <Button
+            variant="secondary"
+            onClick={toggleHeaderCards}
+            className="min-w-[137px]"
+            size="sm"
+            title="Toggle details"
+          >
+            {showHeaderCards ? (
+              <>
+                <EyeOff className="mr-2 w-4 h-4" /> Hide
+              </>
+            ) : (
+              <>
+                <Eye className="mr-2 w-4 h-4" /> Show
+              </>
+            )}{" "}
+            details
+          </Button>
           {isModerator(classroom) && (
             <Button variant="secondary" asChild size="sm" title="Grading">
               <Link
@@ -134,72 +162,7 @@ function AssignmentDetail() {
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Due date</CardTitle>
-            <CalendarClock className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No Expiry"}
-            </div>
-            {assignment.dueDate && (
-              <p className="text-xs text-muted-foreground"> {formatDistanceToNow(new Date(assignment.dueDate))}</p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last changes</CardTitle>
-            <Activity className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {assignment.updatedAt ? formatDate(new Date(assignment.updatedAt)) : "Unknown"}
-            </div>
-            {assignment.updatedAt && (
-              <p className="text-xs text-muted-foreground">
-                {" "}
-                {assignment.updatedAt ? formatDistanceToNow(new Date(assignment.updatedAt)) + " ago" : ""}{" "}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Projects</CardTitle>
-            <FolderGit2 className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {assignmentProjects.filter((p) => p.projectStatus == "accepted").length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {assignmentProjects.length == 1 ? "accepted project" : "accepted projects"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Status</CardTitle>
-            <Info className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{assignment.closed === true ? "Closed" : "Open"}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1 md:col-span-2 lg:col-span-4">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Description</CardTitle>
-            <Text className="mr-2 h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <p>{assignment.description ?? <i>No description available</i>}</p>
-          </CardContent>
-        </Card>
-      </div>
+      {showHeaderCards && <AssignmentHeaderCards assignment={assignment} assignmentProjects={assignmentProjects} />}
 
       <Card className="mt-16 mb-6 p-2">
         <CardHeader className="md:flex flex-row items-center justify-between space-y-0 pb-2 mb-4">
@@ -238,6 +201,83 @@ function AssignmentDetail() {
   );
 }
 
+const AssignmentHeaderCards = ({
+  assignment,
+  assignmentProjects,
+}: {
+  assignment: AssignmentResponse;
+  assignmentProjects: ProjectResponse[];
+}) => {
+  return (
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Due date</CardTitle>
+          <CalendarClock className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No Expiry"}
+          </div>
+          {assignment.dueDate && (
+            <p className="text-xs text-muted-foreground"> {formatDistanceToNow(new Date(assignment.dueDate))}</p>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Last changes</CardTitle>
+          <Activity className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {assignment.updatedAt ? formatDate(new Date(assignment.updatedAt)) : "Unknown"}
+          </div>
+          {assignment.updatedAt && (
+            <p className="text-xs text-muted-foreground">
+              {" "}
+              {assignment.updatedAt ? formatDistanceToNow(new Date(assignment.updatedAt)) + " ago" : ""}{" "}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Projects</CardTitle>
+          <FolderGit2 className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {assignmentProjects.filter((p) => p.projectStatus == "accepted").length}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {assignmentProjects.length == 1 ? "accepted project" : "accepted projects"}
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Status</CardTitle>
+          <Info className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{assignment.closed === true ? "Closed" : "Open"}</div>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-1 md:col-span-2 lg:col-span-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Description</CardTitle>
+          <Text className="mr-2 h-4 w-4" />
+        </CardHeader>
+        <CardContent>
+          <p>{assignment.description ?? <i>No description available</i>}</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 function AssignmentProjectTable({
   classroom,
   assignmentProjects,
@@ -251,7 +291,7 @@ function AssignmentProjectTable({
       <TableCaption>Projects</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Project name</TableHead>
+          <TableHead>Team name</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Invitet at</TableHead>
           <TableHead></TableHead>

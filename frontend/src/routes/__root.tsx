@@ -7,12 +7,14 @@ import { Loader } from "@/components/loader.tsx";
 import { CsrfProvider } from "@/provider/csrfProvider";
 import { Navbar } from "@/components/navbar.tsx";
 import { GetMeResponse } from "@/swagger-client";
+import { NotFound } from "@/components/not-found";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   auth: GetMeResponse | null;
 }>()({
   component: RootComponent,
+  notFoundComponent: NotFound,
   loader: ({ context }) => context.queryClient.ensureQueryData(authCsrfQueryOptions),
   pendingComponent: Loader,
 });

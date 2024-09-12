@@ -1,7 +1,6 @@
 import { Role } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Link } from "@tanstack/react-router";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
 import { Clipboard, Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
@@ -9,7 +8,9 @@ import { Separator } from "@/components/ui/separator.tsx";
 import { TeamResponse } from "@/swagger-client";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { CreateTeamForm } from "./createTeamForm";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { ClassroomTeamModal } from "./classroomTeam";
+import { Skeleton } from "./ui/skeleton";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -27,6 +28,7 @@ export function TeamListCard({
   userRole,
   maxTeamSize,
   numInvitedMembers,
+  studentsCanCreateTeams,
   deactivateInteraction,
 }: {
   teams: TeamResponse[];
@@ -34,6 +36,7 @@ export function TeamListCard({
   userRole: Role;
   maxTeamSize: number;
   numInvitedMembers: number;
+  studentsCanCreateTeams: boolean;
   deactivateInteraction: boolean;
 }): JSX.Element {
   const teamSlots = teams.length * maxTeamSize;
@@ -42,19 +45,37 @@ export function TeamListCard({
 
   return (
     <Card className="p-2">
-      <CardHeader>
-        <CardTitle>Teams</CardTitle>
-        <CardDescription>Every team in this classroom</CardDescription>
+      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+        <div className="mb-4 md:mb-1">
+          <CardTitle className="mb-1">Teams</CardTitle>
+          <CardDescription>Teams in this classroom</CardDescription>
+        </div>
+        <div className="grid grid-cols-1 gap-2">
+          {userRole != Role.Student && !deactivateInteraction && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Create a team</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent>
         {teamSlots < numInvitedMembers && userRole != Role.Student && (
           <div>
             <p className="text-sm text-muted-foreground text-red-600">
               Not enough team spots to accommodate all classroom members.
             </p>
-            <p className="text-sm text-muted-foreground text-red-600">Please add more teams!</p>
+            {!studentsCanCreateTeams && (
+              <p className="text-sm text-muted-foreground text-red-600">
+                You have to add more teams, because students can't create teams by their own.
+              </p>
+            )}
           </div>
         )}
-      </CardHeader>
-      <CardContent>
         <TeamTable
           teams={teams}
           classroomId={classroomId}
@@ -63,18 +84,6 @@ export function TeamListCard({
           deactivateInteraction={deactivateInteraction}
         />
       </CardContent>
-      {userRole != Role.Student && !deactivateInteraction && (
-        <CardFooter className="flex justify-end">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default">Create a team</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
-            </DialogContent>
-          </Dialog>
-        </CardFooter>
-      )}
     </Card>
   );
 }
@@ -112,17 +121,7 @@ export function TeamTable({
               </Button>
               {!deactivateInteraction && (
                 <>
-                  {userRole != Role.Student && (
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link
-                        to="/classrooms/$classroomId/teams/$teamId/modal"
-                        search={{ tab: "members" }}
-                        params={{ classroomId: classroomId, teamId: t.id }}
-                      >
-                        <Clipboard className="h-6 w-6 text-gray-600 dark:text-white" />
-                      </Link>
-                    </Button>
-                  )}
+                  {userRole != Role.Student && <ClassroomTeamModal classroomId={classroomId} teamId={t.id} />}
                   {onTeamSelect && (
                     <Button
                       variant="ghost"

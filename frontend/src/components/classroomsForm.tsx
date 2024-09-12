@@ -8,13 +8,13 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema, updateFormSchema } from "@/types/classroom";
-import { classroomQueryOptions, useCreateClassroom, useUpdateClassroom } from "@/api/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { getUUIDFromLocation } from "@/lib/utils.ts";
 import { Switch } from "@/components/ui/switch";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useCreateClassroom, useUpdateClassroom } from "@/api/classroom";
+import { UserClassroomResponse } from "@/swagger-client";
 
 export const ClassroomCreateForm = () => {
   const navigate = useNavigate();
@@ -163,15 +163,14 @@ export const ClassroomCreateForm = () => {
   );
 };
 
-export const ClassroomEditForm = ({ classroomId }: { classroomId: string }) => {
-  const { data: userClaasroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
-  const { mutateAsync, isError, isPending } = useUpdateClassroom(classroomId);
+export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassroomResponse }) => {
+  const { mutateAsync, isError, isPending } = useUpdateClassroom(userClassroom.classroom.id);
 
   const form = useForm<z.infer<typeof updateFormSchema>>({
     resolver: zodResolver(updateFormSchema),
     defaultValues: {
-      name: userClaasroom.classroom.name,
-      description: userClaasroom.classroom.description,
+      name: userClassroom.classroom.name,
+      description: userClassroom.classroom.description,
     },
   });
 
