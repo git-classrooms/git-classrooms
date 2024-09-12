@@ -12,18 +12,7 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  Archive,
-  CalendarCheck2,
-  CalendarClock,
-  Download,
-  Eye,
-  EyeOff,
-  HandPlatter,
-  Info,
-  Settings,
-  Users,
-} from "lucide-react";
+import { Archive, CalendarCheck2, CalendarClock, Download, Eye, EyeOff, Info, Settings, Users } from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import { Text } from "lucide-react";
 import {
@@ -199,7 +188,6 @@ function ClassroomSupervisorView({ userClassroom }: { userClassroom: UserClassro
           <AssignmentListSection
             assignments={assignments}
             classroomId={classroomId}
-            classroomName={userClassroom.classroom.name}
             deactivateInteraction={userClassroom.classroom.archived}
           />
         </TabsContent>

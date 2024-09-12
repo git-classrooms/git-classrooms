@@ -1,11 +1,6 @@
 import { assignmentQueryOptions } from "@/api/assignment";
 import { classroomQueryOptions } from "@/api/classroom";
-import {
-  assignmentGradingRubricsQueryOptions,
-  assignmentTestsQueryOptions,
-  useGradeProject,
-  useStartAutoGrading,
-} from "@/api/grading";
+import { assignmentGradingRubricsQueryOptions, useGradeProject, useStartAutoGrading } from "@/api/grading";
 import { assignmentProjectsQueryOptions } from "@/api/project";
 import { assignmentReportQueryOptions } from "@/api/report";
 import { Header } from "@/components/header";
@@ -30,7 +25,6 @@ import {
   ManualGradingRubric,
   ProjectResponse,
   ReportApiAxiosParamCreator,
-  UserClassroomResponse,
   UtilsReportDataItem,
 } from "@/swagger-client";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -162,15 +156,9 @@ function GradingIndex() {
 
 function GradingOverview({ assignmentId, classroomId }: { classroomId: string; assignmentId: string }) {
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
-  const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: gradingResults } = useSuspenseQuery(assignmentReportQueryOptions(classroomId, assignmentId));
   const { data: projects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
   const { data: rubrics } = useSuspenseQuery(assignmentGradingRubricsQueryOptions(classroomId, assignmentId));
-
-  const [finished, open, total] = useMemo(() => {
-    const finished = gradingResults.filter((r) => Object.keys(r.rubricResults).length !== 0).length;
-    return [finished, projects.length - finished, projects.length];
-  }, [projects, gradingResults]);
 
   const zippedProjects = useMemo(
     () =>
@@ -185,11 +173,7 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
 
   return (
     <div>
-      <AssignmentProjectTable
-        assignment={assignment}
-        zippedProjects={zippedProjects}
-        rubrics={rubrics}
-      />
+      <AssignmentProjectTable assignment={assignment} zippedProjects={zippedProjects} rubrics={rubrics} />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { classroomQueryOptions } from "@/api/classroom";
 import { ClassroomEditForm } from "@/components/classroomsForm";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";

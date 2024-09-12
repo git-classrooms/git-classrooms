@@ -1,16 +1,15 @@
 import { Role } from "@/types/classroom.ts";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { Clipboard, Gitlab, UserPlus } from "lucide-react";
+import { Gitlab, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { TeamResponse } from "@/swagger-client";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { CreateTeamForm } from "./createTeamForm";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { ClassroomTeamModal } from "./classroomTeam";
-import { Skeleton } from "./ui/skeleton";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.

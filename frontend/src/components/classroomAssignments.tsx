@@ -1,10 +1,10 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { ArrowRight, Edit, Gitlab, Loader2 } from "lucide-react";
-import { formatDate, formatDateWithTime } from "@/lib/utils.ts";
-import { Link, Navigate, useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { formatDate } from "@/lib/utils.ts";
+import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
 import { useState } from "react";
 
@@ -23,12 +23,10 @@ import { useState } from "react";
 export function AssignmentListSection({
   assignments,
   classroomId,
-  classroomName,
   deactivateInteraction,
 }: {
   assignments: Assignment[];
   classroomId: string;
-  classroomName: string;
   deactivateInteraction: boolean;
 }): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
