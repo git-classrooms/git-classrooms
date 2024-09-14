@@ -69,7 +69,13 @@ function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; 
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex pl-1 gap-3 items-center">
+                {p.assignment.dueDate && new Date(p.assignment.dueDate) < new Date() ? (
+                  <div className="flex pl-1 gap-3 items-center">
+                  <span className="relative flex h-3 w-3">
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
+                  </span>
+                    Closed
+                  </div>) : (<div className="flex pl-1 gap-3 items-center">
                   <span className="relative flex h-3 w-3">
                     <span
                       className={cn(
@@ -80,7 +86,7 @@ function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; 
                     <span className={cn("relative inline-flex rounded-full h-3 w-3", statusProps.color.primary)}></span>
                   </span>
                   {statusProps.name}
-                </div>
+                </div>)}
               </TableCell>
               <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(p.createdAt)}</TableCell>
               <TableCell className="hidden md:table-cell">
