@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
@@ -9,18 +9,23 @@ import { Header } from "@/components/header";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
-import { UserClassroomResponse } from "@/swagger-client";
+import { AssignmentResponse, UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/ui/list.tsx";
 import ListItem from "@/components/ui/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
+import { activeAssignmentsQueryOptions } from "@/api/assignment.ts";
+import { formatDate } from "@/lib/utils.ts";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip.tsx";
 
 export const Route = createFileRoute("/_auth/dashboard")({
   component: Classrooms,
   loader: async ({ context: { queryClient } }) => {
+    const activeAssignments = await queryClient.ensureQueryData(activeAssignmentsQueryOptions());
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
     const studentClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Student));
     return {
+      activeAssignments,
       ownedClassrooms,
       moderatorClassrooms,
       studentClassrooms,
@@ -30,6 +35,7 @@ export const Route = createFileRoute("/_auth/dashboard")({
 });
 
 function Classrooms() {
+  const { data: activeAssignments } = useSuspenseQuery(activeAssignmentsQueryOptions());
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
@@ -39,14 +45,31 @@ function Classrooms() {
     [moderatorClassrooms, studentClassrooms],
   );
 
+  const classroomIdsToNames = useMemo(() => {
+    const classroomIdsToNames = new Map<string, string>();
+    ownedClassrooms.forEach((c) => classroomIdsToNames.set(c.classroom.id, c.classroom.name));
+    joinedClassrooms.forEach((c) => classroomIdsToNames.set(c.classroom.id, c.classroom.name));
+    return classroomIdsToNames;
+  }, [ownedClassrooms, joinedClassrooms]);
+
+  const sortedAssignments = useMemo(() => {
+    return [...activeAssignments].sort((a, b) => {
+      if (a.dueDate === null) return 1;
+      if (b.dueDate === null) return -1;
+      return new Date(a.dueDate ?? 0).getTime() - new Date(b.dueDate ?? 0).getTime();
+    });
+  }, [activeAssignments]);
+
   return (
     <div>
-      <Header title="Dashboard" />
-      <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-10">
-        <OwnedClassroomTable classrooms={ownedClassrooms} />
-        <JoinedClassroomTable classrooms={joinedClassrooms} />
-        <ActiveAssignmentsTable classrooms={joinedClassrooms} />
-        <Outlet />
+      <div className="flex-1 space-y-4">
+        <Header title="Dashboard" />
+        <ActiveAssignmentsTable assignments={sortedAssignments} classroomIdsToNames={classroomIdsToNames} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-4">
+          <OwnedClassroomTable classrooms={ownedClassrooms} />
+          <JoinedClassroomTable classrooms={joinedClassrooms} />
+          <Outlet />
+        </div>
       </div>
     </div>
   );
@@ -123,39 +146,52 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
   );
 }
 
-function ActiveAssignmentsTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
+function ActiveAssignmentsTable({ assignments, classroomIdsToNames }: { assignments: AssignmentResponse[], classroomIdsToNames: Map<string, string> }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Active Assignments</CardTitle>
-        <CardDescription>Your assignments thaht are not overdue</CardDescription>
+        <CardDescription>Current assignments that are not yet closed</CardDescription>
       </CardHeader>
-      <Table className="flex-auto">
-        <TableBody>
-          {classrooms.map((c) => (
-            <TableRow key={c.classroom.id}>
-              <TableCell>{c.classroom.name}</TableCell>
-              <TableCell>{c.classroom.owner.name}</TableCell>
-              <TableCell>
-                <a href={c.webUrl} target="_blank" rel="noreferrer">
-                  <Code />
-                </a>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline">
-                  <Link
-                    to="/classrooms/$classroomId"
-                    search={{ tab: "assignments" }}
-                    params={{ classroomId: c.classroom.id }}
-                  >
-                    <ArrowRight />
-                  </Link>
-                </Button>
-              </TableCell>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Classroom</TableHead>
+              <TableHead>Due Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {assignments.map((a) => (
+              <TableRow key={a.id}>
+                <TableCell>{a.name}</TableCell>
+                <TableCell>{classroomIdsToNames.get(a.classroomId)}</TableCell>
+                <TableCell>{a.dueDate ? formatDate(a.dueDate) : "No expiry"}</TableCell>
+                <TableCell className="text-right">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Button size="icon" variant="ghost" title="Go to classroom" asChild>
+                        <Link
+                          to="/classrooms/$classroomId"
+                          search={{ tab: "assignments" }}
+                          params={{ classroomId: a.classroomId }}
+                        >
+                          <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
+                        </Link>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Go to classroom</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
     </Card>
   );
 }
