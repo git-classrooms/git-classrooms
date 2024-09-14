@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
-import { ArrowRight as ArrowRight, Code, Gitlab } from "lucide-react";
+import { ArrowRight as ArrowRight, Plus, SearchCode } from "lucide-react";
 import { Header } from "@/components/header";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
@@ -78,33 +78,39 @@ function Classrooms() {
 function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Owned Classrooms</CardTitle>
-        <CardDescription>Classrooms which are managed by you</CardDescription>
+      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+        <div className="mb-4 md:mb-0">
+          <CardTitle className="mb-1">Managed Classrooms</CardTitle>
+          <CardDescription>Classrooms which are managed by you</CardDescription>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link to="/classrooms">View all</Link>
+          </Button>
+          <Button asChild variant="outline" size="icon">
+            <Link to="/classrooms/create">
+              <Plus />
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent>
-        <List
-          items={classrooms}
-          renderItem={(item) => (
-            <ListItem
-              leftContent={
-                <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
-              }
-              rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
-            />
-          )}
-        />
+        {classrooms.length === 0 ? (
+          <div className="text-center text-muted-foreground">No managed classrooms</div>
+        ) : (
+          <List
+            items={classrooms}
+            renderItem={(item) => (
+              <ListItem
+                leftContent={
+                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
+                }
+                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
+              />
+            )}
+          />)}
       </CardContent>
-
-      <CardFooter className="flex justify-end gap-2">
-        <Button asChild variant="default">
-          <Link to="/classrooms/create">Create a new Classroom</Link>
-        </Button>
-        <Button asChild variant="default">
-          <Link to="/classrooms">View all your Classrooms</Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
@@ -114,39 +120,32 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
     <Card>
       <CardHeader>
         <CardTitle>Joined Classrooms</CardTitle>
-        <CardDescription>Classrooms which you have joined</CardDescription>
+        <CardDescription>Classroom of which you are a member</CardDescription>
       </CardHeader>
-      <Table className="flex-auto">
-        <TableBody>
-          {classrooms.map((c) => (
-            <TableRow key={c.classroom.id}>
-              <TableCell>{c.classroom.name}</TableCell>
-              <TableCell>{c.classroom.owner.name}</TableCell>
-              <TableCell>
-                <a href={c.webUrl} target="_blank" rel="noreferrer">
-                  <Code />
-                </a>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline">
-                  <Link
-                    to="/classrooms/$classroomId"
-                    search={{ tab: "assignments" }}
-                    params={{ classroomId: c.classroom.id }}
-                  >
-                    <ArrowRight />
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <CardContent>
+        {classrooms.length === 0 ? (
+          <div className="text-center text-muted-foreground">No managed classrooms</div>
+        ) : (
+          <List
+            items={classrooms}
+            renderItem={(item) => (
+              <ListItem
+                leftContent={
+                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
+                }
+                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
+              />
+            )}
+          />)}
+      </CardContent>
     </Card>
   );
 }
 
-function ActiveAssignmentsTable({ assignments, classroomIdsToNames }: { assignments: AssignmentResponse[], classroomIdsToNames: Map<string, string> }) {
+function ActiveAssignmentsTable({ assignments, classroomIdsToNames }: {
+  assignments: AssignmentResponse[],
+  classroomIdsToNames: Map<string, string>
+}) {
   return (
     <Card>
       <CardHeader>
@@ -158,8 +157,9 @@ function ActiveAssignmentsTable({ assignments, classroomIdsToNames }: { assignme
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Classroom</TableHead>
+              <TableHead className="hidden md:table-cell">Classroom</TableHead>
               <TableHead>Due Date</TableHead>
+              <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -167,8 +167,25 @@ function ActiveAssignmentsTable({ assignments, classroomIdsToNames }: { assignme
             {assignments.map((a) => (
               <TableRow key={a.id}>
                 <TableCell>{a.name}</TableCell>
-                <TableCell>{classroomIdsToNames.get(a.classroomId)}</TableCell>
-                <TableCell>{a.dueDate ? formatDate(a.dueDate) : "No expiry"}</TableCell>
+                <TableCell className="hidden md:table-cell">{classroomIdsToNames.get(a.classroomId)}</TableCell>
+                <TableCell>{a.dueDate ? formatDate(a.dueDate) : "-"}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {a.closed ? (
+                    <div className="flex pl-1 gap-3 items-center">
+                  <span className="relative flex h-3 w-3">
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
+                  </span>
+                      Closed
+                    </div>) : (
+                    <div className="flex pl-1 gap-3 items-center">
+                  <span className="relative flex h-3 w-3">
+                    <span
+                      className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  </span>
+                      Open
+                    </div>)}
+                </TableCell>
                 <TableCell className="text-right">
                   <Tooltip>
                     <TooltipTrigger>
@@ -218,12 +235,12 @@ function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; class
     <>
       <Button variant="ghost" size="icon" asChild>
         <a href={gitlabUrl} target="_blank" rel="noreferrer">
-          <Gitlab className="h-6 w-6 text-slate-500 dark:text-white" />
+          <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
         </a>
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId: classroomId }}>
-          <ArrowRight className="text-slate-500 dark:text-white" />
+          <ArrowRight className="text-gray-600 dark:text-white" />
         </Link>
       </Button>
     </>

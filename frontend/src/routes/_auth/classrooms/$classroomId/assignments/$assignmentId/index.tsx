@@ -299,7 +299,7 @@ function AssignmentProjectTable({
             <TableRow key={`${a.assignment.id}-${a.team.id}`}>
               <TableCell className="font-medium">{a.team.name}</TableCell>
               <TableCell>
-                {a.assignment.dueDate && new Date(a.assignment.dueDate) < new Date() ? (
+                {a.assignment.closed ? (
                   <div className="flex pl-1 gap-3 items-center">
                   <span className="relative flex h-3 w-3">
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
