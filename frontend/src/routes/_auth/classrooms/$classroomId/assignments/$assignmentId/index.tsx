@@ -299,7 +299,13 @@ function AssignmentProjectTable({
             <TableRow key={`${a.assignment.id}-${a.team.id}`}>
               <TableCell className="font-medium">{a.team.name}</TableCell>
               <TableCell>
-                <div className="flex pl-1 gap-3 items-center">
+                {a.assignment.dueDate && new Date(a.assignment.dueDate) < new Date() ? (
+                  <div className="flex pl-1 gap-3 items-center">
+                  <span className="relative flex h-3 w-3">
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
+                  </span>
+                    Closed
+                  </div>) : (<div className="flex pl-1 gap-3 items-center">
                   <span className="relative flex h-3 w-3">
                     <span
                       className={cn(
@@ -310,7 +316,7 @@ function AssignmentProjectTable({
                     <span className={cn("relative inline-flex rounded-full h-3 w-3", statusProps.color.primary)}></span>
                   </span>
                   {statusProps.name}
-                </div>
+                </div>)}
               </TableCell>
               <TableCell>{formatDateWithTime(new Date(a.createdAt))}</TableCell>
               <TableCell className="text-right float-right">
