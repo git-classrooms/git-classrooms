@@ -8,6 +8,14 @@ const apiClient = createAssignmentApi();
 
 // Queries
 
+export const activeAssignmentsQueryOptions = () => queryOptions({
+  queryKey: ["assignments", "active"],
+  queryFn: async () => {
+    const res = await apiClient.getActiveAssignments();
+    return res.data;
+  },
+});
+
 export const assignmentsQueryOptions = (classroomId: string) =>
   queryOptions({
     queryKey: ["classrooms", classroomId, "assignments"],
