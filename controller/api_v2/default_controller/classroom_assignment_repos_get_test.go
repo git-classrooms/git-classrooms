@@ -22,14 +22,17 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	projectId1 := 1
 	projectId2 := 2
 
+	assignmentProjectId1 := uuid.New()
+	assignmentProjectId2 := uuid.New()
+
 	expectedResponse := []ProjectCloneUrlResponse{
 		{
-			ProjectId:     uuid.New(),
+			ProjectId:     assignmentProjectId1,
 			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
 			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
 		},
 		{
-			ProjectId:     uuid.New(),
+			ProjectId:     assignmentProjectId2,
 			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
 			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
 		},
@@ -63,6 +66,7 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	testDb.InsertAssignment(assignment)
 
 	assignmentProject1 := &database.AssignmentProjects{
+		ID:            assignmentProjectId1,
 		ProjectID:     projectId1,
 		AssignmentID:  assignment.ID,
 		TeamID:        team.ID,
@@ -71,6 +75,7 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	testDb.InsertAssignmentProjects(assignmentProject1)
 
 	assignmentProject2 := &database.AssignmentProjects{
+		ID:            assignmentProjectId2,
 		ProjectID:     projectId2,
 		AssignmentID:  assignment.ID,
 		TeamID:        team.ID,

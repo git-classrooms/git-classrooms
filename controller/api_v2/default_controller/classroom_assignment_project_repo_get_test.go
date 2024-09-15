@@ -23,8 +23,10 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	shh_url := "git@hs-flensburg.dev:fape2866/ci-test-project.git"
 	http_url := "https://hs-flensburg.dev/fape2866/ci-test-project.git"
 
+	assignmentProjectId := uuid.New()
+
 	expectedResponse := ProjectCloneUrlResponse{
-		ProjectId:     uuid.New(),
+		ProjectId:     assignmentProjectId,
 		SshUrlToRepo:  shh_url,
 		HttpUrlToRepo: http_url,
 	}
@@ -61,6 +63,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	testDb.InsertAssignment(assignment)
 
 	assignmentProject := &database.AssignmentProjects{
+		ID:            assignmentProjectId,
 		ProjectID:     projectId,
 		AssignmentID:  assignment.ID,
 		TeamID:        team.ID,
