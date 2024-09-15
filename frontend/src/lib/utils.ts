@@ -26,7 +26,7 @@ export const getUUIDFromLocation = (location: string) => location.split("/").pop
 
 export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
 
-export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm");
+export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm:ss");
 
 const apiClient = axios.create({ withCredentials: true });
 

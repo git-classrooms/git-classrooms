@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { ArrowRight, Loader2 } from "lucide-react";
-import { formatDate } from "@/lib/utils.ts";
+import { formatDate, formatDateWithTime } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
 import { useState } from "react";
@@ -97,7 +97,7 @@ function AssignmentTable({
               </div>
             </TableCell>
             <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(a.createdAt)}</TableCell>
-            <TableCell className="hidden md:table-cell">{a.dueDate ? formatDate(a.dueDate) : "-"}</TableCell>
+            <TableCell className="hidden md:table-cell">{a.dueDate ? formatDateWithTime(a.dueDate) : "-"}</TableCell>
             <TableCell className="flex flex-wrap flex-row-reverse gap-2">
               {!deactivateInteraction && (
                 <Button variant="ghost" size="icon" asChild>

@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx
 import { Button } from "@/components/ui/button.tsx";
 import { ArrowRight, Clipboard, Download, Gitlab } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { formatDate, isOwner } from "@/lib/utils.ts";
+import { formatDateWithTime, isOwner } from "@/lib/utils.ts";
 import { Avatar } from "@/components/avatar.tsx";
 import { ProjectResponse, UserClassroomResponse } from "@/swagger-client";
 import { useQuery } from "@tanstack/react-query";
@@ -146,7 +146,7 @@ export function ClassroomTeamAssignmentTable({
                   <div className="ml-auto">
                     <div className="font-medium text-right">Due date</div>
                     <div className="text-sm text-muted-foreground md:inline">
-                      {p.assignment.dueDate ? formatDate(p.assignment.dueDate) : "No Due Date"}
+                      {p.assignment.dueDate ? formatDateWithTime(p.assignment.dueDate) : "No Due Date"}
                     </div>
                   </div>
                   <Button className="ml-2" variant="ghost" size="icon" title="Go to assignment" asChild>

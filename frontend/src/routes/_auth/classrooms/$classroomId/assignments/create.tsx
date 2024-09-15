@@ -17,8 +17,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateAssignmentForm, createAssignmentFormSchema } from "@/types/assignments.ts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
-import { cn, getUUIDFromLocation, isOwner } from "@/lib/utils.ts";
-import { format } from "date-fns";
+import { cn, formatDateWithTime, getUUIDFromLocation, isOwner } from "@/lib/utils.ts";
+import { addSeconds } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { useState } from "react";
 import { Loader } from "@/components/loader.tsx";
@@ -27,6 +27,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { Header } from "@/components/header";
 import { classroomQueryOptions, classroomTemplatesQueryOptions } from "@/api/classroom";
 import { useCreateAssignment } from "@/api/assignment";
+import { TimePicker } from "@/components/ui/timer-picker";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -125,7 +126,7 @@ function CreateAssignment() {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          {field.value ? formatDateWithTime(field.value) : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -134,9 +135,15 @@ function CreateAssignment() {
                           fromDate={new Date()}
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(value) =>
+                            field.onChange(value ? addSeconds(value, 23 * 60 * 60 + 59 * 60 + 59) : undefined)
+                          }
                           initialFocus
+                          defaultMonth={field.value}
                         />
+                        <div className="p-3 border-t border-border">
+                          <TimePicker setDate={field.onChange} date={field.value} />
+                        </div>
                       </PopoverContent>
                     </Popover>
                     <Button

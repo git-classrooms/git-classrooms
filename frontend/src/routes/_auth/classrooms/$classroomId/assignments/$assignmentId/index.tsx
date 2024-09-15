@@ -205,9 +205,14 @@ const AssignmentHeaderCards = ({
           <CalendarClock className="mr-2 h-4 w-4" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No Expiry"}
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-2xl font-bold">
+                {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No Due Date"}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>{assignment.dueDate && formatDateWithTime(new Date(assignment.dueDate))}</TooltipContent>
+          </Tooltip>
           {assignment.dueDate && (
             <p className="text-xs text-muted-foreground"> {formatDistanceToNow(new Date(assignment.dueDate))}</p>
           )}
