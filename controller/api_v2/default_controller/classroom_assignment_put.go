@@ -114,6 +114,7 @@ func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
 		WithContext(c.Context()).
 		Preload(query.AssignmentProjects.Team).
 		Where(query.AssignmentProjects.AssignmentID.Eq(assignment.ID)).
+		Where(query.AssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
 		Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())

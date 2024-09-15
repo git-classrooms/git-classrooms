@@ -81,6 +81,7 @@ func (ctrl *DefaultController) CreateJoinedClassroomTeam(c *fiber.Ctx) error {
 
 	group, err := repo.CreateSubGroup(
 		requestBody.Name,
+		requestBody.Name,
 		classroom.Classroom.GroupID,
 		model.Private,
 		fmt.Sprintf("Team %s of classroom %s", requestBody.Name, classroom.Classroom.Name),

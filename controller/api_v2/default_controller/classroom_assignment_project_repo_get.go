@@ -2,14 +2,15 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type ProjectCloneUrlResponse struct {
-	ProjectId     int    `json:"projectId"`
-	SshUrlToRepo  string `json:"sshUrlToRepo"`
-	HttpUrlToRepo string `json:"httpUrlToRepo"`
+	ProjectId     uuid.UUID `json:"projectId"`
+	SshUrlToRepo  string    `json:"sshUrlToRepo"`
+	HttpUrlToRepo string    `json:"httpUrlToRepo"`
 }
 
 // @Summary		GetProjectCloneUrls
@@ -25,23 +26,22 @@ type ProjectCloneUrlResponse struct {
 // @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo [get]
 func (ctrl *DefaultController) GetProjectCloneUrls(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
-	assignment := ctx.GetAssignmentProject()
-	projectId := ctx.GetGitlabProjectID()
+	project := ctx.GetAssignmentProject()
 	repo := ctx.GetGitlabRepository()
 
-	if assignment.ProjectStatus != database.Accepted {
+	if project.ProjectStatus != database.Accepted {
 		return fiber.ErrNotFound
 	}
 
-	project, err := repo.GetProjectById(projectId)
+	gitlabProject, err := repo.GetProjectById(project.ProjectID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	response := ProjectCloneUrlResponse{
 		ProjectId:     project.ID,
-		SshUrlToRepo:  project.SSHURLToRepo,
-		HttpUrlToRepo: project.HTTPURLToRepo,
+		SshUrlToRepo:  gitlabProject.SSHURLToRepo,
+		HttpUrlToRepo: gitlabProject.HTTPURLToRepo,
 	}
 	return c.JSON(response)
 }

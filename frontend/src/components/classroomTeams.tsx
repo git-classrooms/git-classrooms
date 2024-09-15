@@ -1,15 +1,32 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { Gitlab, UserPlus } from "lucide-react";
+import { AlertCircle, Edit, Loader2, SearchCode, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Team, TeamResponse, UserClassroomResponse } from "@/swagger-client";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 import { CreateTeamForm } from "./createTeamForm";
 import { useState } from "react";
 import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isStudent } from "@/lib/utils";
+import { useUpdateTeam } from "@/api/team";
+import { useForm } from "react-hook-form";
+import { createFormSchema } from "@/types/team";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form } from "./ui/form";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
+import { Input } from "./ui/input";
+import { toast } from "sonner";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -49,7 +66,7 @@ export function TeamListCard({
       <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
         <div className="mb-4 md:mb-1">
           <CardTitle className="mb-1">Teams</CardTitle>
-          <CardDescription>Teams in this classroom</CardDescription>
+          <CardDescription>All teams of this classroom</CardDescription>
         </div>
         <div className="grid grid-cols-1 gap-2">
           {isModerator(userClassroom) && !deactivateInteraction && (
@@ -121,9 +138,10 @@ export function TeamTable({
                 <TeamListElement team={t} maxTeamSize={maxTeamSize} />
               </TableCell>
               <TableCell className="p-2 flex justify-end align-middle">
-                <Button variant="ghost" size="icon" asChild>
+                {isModerator(userClassroom) && <ChangeTeamDialog classroomId={classroomId} team={t} />}
+                <Button variant="ghost" size="icon" asChild title="Go to team">
                   <a href={t.webUrl} target="_blank" rel="noreferrer">
-                    <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
+                    <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
                   </a>
                 </Button>
                 {!deactivateInteraction && (
@@ -142,6 +160,7 @@ export function TeamTable({
                         size="icon"
                         onClick={() => onTeamSelect?.(t.id)}
                         disabled={isPending || t.members.length >= maxTeamSize}
+                        title="Get details"
                       >
                         <UserPlus className="text-gray-600 dark:text-white" />
                       </Button>
@@ -189,3 +208,67 @@ function TeamListElement({ team, maxTeamSize }: { team: TeamResponse; maxTeamSiz
     </HoverCard>
   );
 }
+
+const ChangeTeamDialog = ({ classroomId, team }: { classroomId: string; team: Team }) => {
+  const { mutateAsync, isError, isPending } = useUpdateTeam(classroomId, team.id);
+
+  const form = useForm<z.infer<typeof createFormSchema>>({
+    resolver: zodResolver(createFormSchema),
+    defaultValues: {
+      name: team.name,
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof createFormSchema>) {
+    console.log(values);
+    await mutateAsync(values);
+    toast.success("Team updated successfully!");
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" title="Edit team">
+          <Edit className="h-6 w-6 text-gray-600 dark:text-white" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Team</DialogTitle>
+          <DialogDescription>Change the name of the team</DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="team name" {...field} />
+                  </FormControl>
+                  <FormDescription>This is your team name.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogClose asChild>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
+              </Button>
+            </DialogClose>
+
+            {isError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>The team could not be updated!</AlertDescription>
+              </Alert>
+            )}
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};

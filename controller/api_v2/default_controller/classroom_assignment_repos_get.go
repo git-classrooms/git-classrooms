@@ -32,16 +32,16 @@ func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err er
 	}
 
 	response := make([]*ProjectCloneUrlResponse, len(assignmentProjects))
-	for i, assignment_project := range assignmentProjects {
-		project, err := repo.GetProjectById(assignment_project.ProjectID)
+	for i, project := range assignmentProjects {
+		gitlabProject, err := repo.GetProjectById(project.ProjectID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
 		response[i] = &ProjectCloneUrlResponse{
 			ProjectId:     project.ID,
-			SshUrlToRepo:  project.SSHURLToRepo,
-			HttpUrlToRepo: project.HTTPURLToRepo,
+			SshUrlToRepo:  gitlabProject.SSHURLToRepo,
+			HttpUrlToRepo: gitlabProject.HTTPURLToRepo,
 		}
 	}
 

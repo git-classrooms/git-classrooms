@@ -9,6 +9,7 @@ import {
   Activity,
   AlertCircle,
   CalendarClock,
+  ClipboardCopy,
   Download,
   Eye,
   EyeOff,
@@ -22,8 +23,8 @@ import {
   Text,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { cn, formatDate, formatDateWithTime, isModerator, isOwner } from "@/lib/utils.ts";
-import { assignmentQueryOptions } from "@/api/assignment";
+import { cn, createCloneScript, formatDate, formatDateWithTime, isModerator, isOwner } from "@/lib/utils.ts";
+import { assignmentCloneUrlsQueryOptions, assignmentQueryOptions } from "@/api/assignment";
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
 import { Assignment, ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { classroomQueryOptions } from "@/api/classroom";
@@ -47,6 +48,9 @@ import {
 import { getStatusProps } from "@/types/projects";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { toast } from "sonner";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -60,6 +64,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       classroomId,
       assignmentId,
     );
+    const cloneUrls = await queryClient.ensureQueryData(assignmentCloneUrlsQueryOptions(classroomId, assignmentId));
 
     const urls = (
       await Promise.all(
@@ -70,7 +75,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       )
     ).reduce((acc, { url, projectId }) => acc.set(projectId, url), new Map<string, string>());
 
-    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls };
+    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls, cloneUrls };
   },
   component: AssignmentDetail,
   pendingComponent: Loader,
@@ -84,6 +89,7 @@ function AssignmentDetail() {
 
   const [showHeaderCards, setShowHeaderCards] = useLocalStorage("assignment-headers", true);
   const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
+  const { data: cloneUrls } = useSuspenseQuery(assignmentCloneUrlsQueryOptions(classroomId, assignmentId));
 
   const { mutateAsync, isError, isPending } = useInviteToAssignment(classroomId, assignmentId);
 
@@ -126,6 +132,53 @@ function AssignmentDetail() {
             )}{" "}
             details
           </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="secondary" size="sm" title="Clone projects">
+                <FolderGit2 className="mr-2 h-4 w-4" /> Clone projects
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Clone projects</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Get a shell script to clone all projects from this assignment.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <PopoverClose asChild>
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          createCloneScript("ssh", assignment, cloneUrls, assignmentProjects),
+                        );
+                        toast.success("Script copied to clipboard");
+                      }}
+                    >
+                      <ClipboardCopy className="mr-2 h-4 w-4" /> Copy script with SSH
+                    </Button>
+                  </PopoverClose>
+                  <PopoverClose asChild>
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          createCloneScript("https", assignment, cloneUrls, assignmentProjects),
+                        );
+                        toast.success("Script copied to clipboard");
+                      }}
+                    >
+                      <ClipboardCopy className="mr-2 h-4 w-4" /> Copy script with HTTPS
+                    </Button>
+                  </PopoverClose>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
           {isModerator(classroom) && (
             <Button variant="secondary" asChild size="sm" title="Grading">
               <Link
@@ -205,9 +258,14 @@ const AssignmentHeaderCards = ({
           <CalendarClock className="mr-2 h-4 w-4" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No Expiry"}
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-2xl font-bold">
+                {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No Due Date"}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>{assignment.dueDate && formatDateWithTime(new Date(assignment.dueDate))}</TooltipContent>
+          </Tooltip>
           {assignment.dueDate && (
             <p className="text-xs text-muted-foreground"> {formatDistanceToNow(new Date(assignment.dueDate))}</p>
           )}

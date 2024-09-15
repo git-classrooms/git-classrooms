@@ -8,7 +8,7 @@ import List from "@/components/list.tsx";
 import ListItem from "@/components/listItem.tsx";
 import { ActiveAssignmentResponse } from "@/swagger-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateWithTime } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip.tsx";
 
 /**
@@ -19,8 +19,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
  * @returns {JSX.Element} A React component that displays a card with the list of active assignments in a classroom.
  */
 export function ActiveAssignmentListCard({
-                                           activeAssignments,
-                                         }: {
+  activeAssignments,
+}: {
   activeAssignments: ActiveAssignmentResponse[];
 }): JSX.Element {
   return (
@@ -50,14 +50,17 @@ function AssignmentTable({ assignments }: { assignments: ActiveAssignmentRespons
               <div>
                 <div className="font-medium">Due Date</div>
                 <div className="text-sm text-muted-foreground">
-                  {assignment.dueDate ? formatDate(assignment.dueDate)   : "No due date"}
+                  {assignment.dueDate ? formatDateWithTime(assignment.dueDate) : "No due date"}
                 </div>
               </div>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon" title="Go to classroom" asChild>
-                    <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }}
-                          params={{ classroomId: assignment.classroomId }}>
+                    <Link
+                      to="/classrooms/$classroomId"
+                      search={{ tab: "assignments" }}
+                      params={{ classroomId: assignment.classroomId }}
+                    >
                       <ArrowRight className="text-slate-500 dark:text-white" />
                     </Link>
                   </Button>
@@ -80,26 +83,18 @@ function AssignmentListElement({ assignment }: { assignment: ActiveAssignmentRes
       <HoverCardTrigger className="cursor-default flex">
         <div className="pr-2">
           <Avatar>
-            <AvatarFallback className="bg-gray-200 text-black text-lg">
-              {assignment.name.charAt(0)}
-            </AvatarFallback>
+            <AvatarFallback className="bg-gray-200 text-black text-lg">{assignment.name.charAt(0)}</AvatarFallback>
           </Avatar>
         </div>
         <div>
           <div className="font-medium">{assignment.name}</div>
-          <div className="text-sm text-muted-foreground md:inline">
-            {assignment.classroom.name}
-          </div>
+          <div className="text-sm text-muted-foreground md:inline">{assignment.classroom.name}</div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-100">
         <p className="text-lg font-semibold">{assignment.name}</p>
-        <div className="text-sm text-muted-foreground md:inline">
-          {assignment.classroom.name}
-        </div>
-        <p className="text-sm text-muted-foreground my-1">
-          Created at: {formatDate(assignment.createdAt)}
-        </p>
+        <div className="text-sm text-muted-foreground md:inline">{assignment.classroom.name}</div>
+        <p className="text-sm text-muted-foreground my-1">Created at: {formatDate(assignment.createdAt)}</p>
         <Separator className="my-1" />
         <p className="text-muted-foreground">{assignment.description}</p>
       </HoverCardContent>
