@@ -25,12 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import { cn, formatDate, formatDateWithTime, isModerator, isOwner } from "@/lib/utils.ts";
 import { assignmentQueryOptions } from "@/api/assignment";
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
-import {
-  AssignmentResponse,
-  ProjectResponse,
-  ReportApiAxiosParamCreator,
-  UserClassroomResponse,
-} from "@/swagger-client";
+import { Assignment, ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { classroomQueryOptions } from "@/api/classroom";
 import {
   Breadcrumb,
@@ -199,7 +194,7 @@ const AssignmentHeaderCards = ({
   assignment,
   assignmentProjects,
 }: {
-  assignment: AssignmentResponse;
+  assignment: Assignment;
   assignmentProjects: ProjectResponse[];
 }) => {
   return (
