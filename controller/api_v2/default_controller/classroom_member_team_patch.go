@@ -81,14 +81,44 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		}
 		defer func() {
 			if recover() != nil || err != nil {
-				if err := repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
+				if err := repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
+				}
+			}
+		}()
+
+		queryAssignmentProjects := query.AssignmentProjects
+		projects, err := queryAssignmentProjects.
+			WithContext(c.Context()).
+			Preload(queryAssignmentProjects.Assignment).
+			Where(queryAssignmentProjects.TeamID.Eq(*member.TeamID)).
+			Find()
+
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+
+		for _, project := range projects {
+			if err = repo.RemoveUserFromProject(project.ProjectID, member.UserID); err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+		}
+		defer func() {
+			if recover() != nil || err != nil {
+				for _, project := range projects {
+					accessLevel := model.DeveloperPermissions
+					if project.Assignment.Closed {
+						accessLevel = model.ReporterPermissions
+					}
+					if err := repo.AddProjectMember(project.ProjectID, member.UserID, accessLevel); err != nil {
+						log.Println(err)
+					}
 				}
 			}
 		}()
 	}
 
-	if err = repo.AddUserToGroup(newTeam.GroupID, member.UserID, model.DeveloperPermissions); err != nil {
+	if err = repo.AddUserToGroup(newTeam.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	member.TeamID = &newTeam.ID
@@ -96,6 +126,32 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		if recover() != nil || err != nil {
 			if err := repo.RemoveUserFromGroup(newTeam.GroupID, member.UserID); err != nil {
 				log.Println(err)
+			}
+		}
+	}()
+
+	queryAssignmentProjects := query.AssignmentProjects
+	projects, err := queryAssignmentProjects.
+		WithContext(c.Context()).
+		Preload(queryAssignmentProjects.Assignment).
+		Where(queryAssignmentProjects.TeamID.Eq(*member.TeamID)).
+		Find()
+
+	for _, project := range projects {
+		accessLevel := model.DeveloperPermissions
+		if project.Assignment.Closed {
+			accessLevel = model.ReporterPermissions
+		}
+		if err := repo.AddProjectMember(project.ProjectID, member.UserID, accessLevel); err != nil {
+			log.Println(err)
+		}
+	}
+	defer func() {
+		if recover() != nil || err != nil {
+			for _, project := range projects {
+				if err = repo.RemoveUserFromProject(project.ProjectID, member.UserID); err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}()

@@ -53,6 +53,8 @@ type Repository interface {
 	ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
 	ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
 	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
+	AddProjectMember(projectId int, userId int, accessLevel model.AccessLevelValue) error
+	RemoveUserFromProject(projectId int, userId int) error
 	GetNamespaceOfProject(projectId int) (*string, error)
 	ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error
 	GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error)

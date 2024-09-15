@@ -209,6 +209,23 @@ func (repo *GitlabRepo) BranchExists(projectId int, branchName string) (bool, er
 	return true, nil
 }
 
+func (repo *GitlabRepo) AddProjectMember(projectId int, userId int, accessLevel model.AccessLevelValue) error {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.ProjectMembers.AddProjectMember(projectId, &goGitlab.AddProjectMemberOptions{
+		UserID:      &userId,
+		AccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
+	})
+	return ErrorFromGoGitlab(err)
+}
+
+func (repo *GitlabRepo) RemoveUserFromProject(projectId int, userId int) error {
+	repo.assertIsConnected()
+
+	_, err := repo.client.ProjectMembers.DeleteProjectMember(projectId, userId)
+	return ErrorFromGoGitlab(err)
+}
+
 func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 

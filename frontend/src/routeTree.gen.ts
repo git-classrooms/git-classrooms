@@ -30,7 +30,7 @@ import { Route as AuthClassroomsClassroomIdInvitationsInvitationIdImport } from 
 import { Route as AuthClassroomsClassroomIdSettingsGradingImport } from "./routes/_auth/classrooms/$classroomId/settings/grading"
 import { Route as AuthClassroomsClassroomIdAssignmentsCreateImport } from "./routes/_auth/classrooms/$classroomId/assignments/create"
 import { Route as AuthClassroomsClassroomIdTeamsTeamIdRouteImport } from "./routes/_auth/classrooms/$classroomId/teams/$teamId/route"
-import { Route as AuthClassroomsClassroomIdTeamsJoinIndexImport } from "./routes/_auth/classrooms/$classroomId/teams/join.index"
+import { Route as AuthClassroomsClassroomIdTeamsJoinIndexImport } from "./routes/_auth/classrooms/$classroomId_.teams.join.index"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/index"
 import { Route as AuthClassroomsClassroomIdProjectsProjectIdAcceptImport } from "./routes/_auth/classrooms/$classroomId/projects/$projectId/accept"
 import { Route as AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsRouteImport } from "./routes/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/route"
@@ -151,8 +151,8 @@ const AuthClassroomsClassroomIdTeamsTeamIdRouteRoute =
 
 const AuthClassroomsClassroomIdTeamsJoinIndexRoute =
   AuthClassroomsClassroomIdTeamsJoinIndexImport.update({
-    path: "/join/",
-    getParentRoute: () => AuthClassroomsClassroomIdTeamsRouteRoute,
+    path: "/classrooms/$classroomId/teams/join/",
+    getParentRoute: () => AuthRoute,
   } as any)
 
 const AuthClassroomsClassroomIdAssignmentsAssignmentIdIndexRoute =
@@ -293,7 +293,7 @@ declare module "@tanstack/react-router" {
     }
     "/_auth/classrooms/$classroomId/teams/join/": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdTeamsJoinIndexImport
-      parentRoute: typeof AuthClassroomsClassroomIdTeamsRouteImport
+      parentRoute: typeof AuthImport
     }
     "/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/grading": {
       preLoaderRoute: typeof AuthClassroomsClassroomIdAssignmentsAssignmentIdSettingsGradingImport
@@ -341,7 +341,6 @@ export const routeTree = rootRoute.addChildren([
           AuthClassroomsClassroomIdTeamsTeamIdGradingIndexRoute,
         ]),
         AuthClassroomsClassroomIdTeamsIndexRoute,
-        AuthClassroomsClassroomIdTeamsJoinIndexRoute,
       ]),
       AuthClassroomsClassroomIdInviteRoute,
       AuthClassroomsClassroomIdIndexRoute,
@@ -351,6 +350,7 @@ export const routeTree = rootRoute.addChildren([
     AuthClassroomsCreateRoute,
     AuthClassroomsIndexRoute,
     AuthClassroomsClassroomIdInvitationsInvitationIdRoute,
+    AuthClassroomsClassroomIdTeamsJoinIndexRoute,
   ]),
   LoginRoute,
 ])
