@@ -45,7 +45,6 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { projectsQueryOptions } from "@/api/project";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { ProjectListSection } from "@/components/classroomProjects";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
@@ -108,29 +107,22 @@ function ClassroomDetail() {
       </Breadcrumb>
 
       <div className="lg:flex justify-between gap-1 mb-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Header
-              title={
-                <a
-                  className="flex items-center"
-                  href={userClassroom.webUrl}
-                  target="_blank"
-                  referrerPolicy="no-referrer"
-                  title="Go to classroom"
-                >
-                  {userClassroom.classroom.archived && "Archived "}
-                  {userClassroom.classroom.name}
-                  <ExternalLink className="h-4 w-4 ml-2" />
-                </a>
-              }
-              subtitle="Classroom overview"
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Go to classroom</p>
-          </TooltipContent>
-        </Tooltip>
+        <Header
+          title={
+            <a
+              className="flex items-center"
+              href={userClassroom.webUrl}
+              target="_blank"
+              referrerPolicy="no-referrer"
+              title="Go to classroom"
+            >
+              {userClassroom.classroom.archived && "Archived "}
+              {userClassroom.classroom.name}
+              <ExternalLink className="h-4 w-4 ml-2" />
+            </a>
+          }
+          subtitle="Classroom overview"
+        />
         <div className="flex flex-col lg:flex-row gap-3">
           <Button
             variant="secondary"

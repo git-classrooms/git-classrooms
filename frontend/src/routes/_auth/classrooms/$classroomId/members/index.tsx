@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useMemo } from "react";
 import { isCreator, isStudent } from "@/lib/utils";
-import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
@@ -132,36 +132,38 @@ function MemberTable({
           <TableHead className="text-right">Role</TableHead>
         </TableRow>
       </TableHeader>
-      {members.map((m) => (
-        <TableRow>
-          <TableCell className="w-full">
-            <MemberListElement member={m} showTeams={showTeams} />
-          </TableCell>
-          {userClassroom.classroom.maxTeamSize > 1 && (
-            <TableCell>
+      <TableBody>
+        {members.map((m) => (
+          <TableRow key={m.user.id}>
+            <TableCell className="w-full">
+              <MemberListElement member={m} showTeams={showTeams} />
+            </TableCell>
+            {userClassroom.classroom.maxTeamSize > 1 && (
+              <TableCell>
+                <div className="flex justify-end">
+                  {isStudent(m) && (
+                    <TeamDropdown team={m.team} memberID={m.user.id} classroomID={classroomId} teams={teams} />
+                  )}
+                </div>
+              </TableCell>
+            )}
+            <TableCell className="grid place-content-end">
               <div className="flex justify-end">
-                {isStudent(m) && (
-                  <TeamDropdown team={m.team} memberID={m.user.id} classroomID={classroomId} teams={teams} />
-                )}
+                {m.user.id !== userClassroom.user.id &&
+                  (userClassroom.classroom.ownerId === userClassroom.user.id ||
+                    (userRole === Role.Owner && m.role !== Role.Owner)) && (
+                    <RoleDropdown
+                      role={m.role}
+                      memberID={m.user.id}
+                      classroomID={classroomId}
+                      userClassroom={userClassroom}
+                    />
+                  )}
               </div>
             </TableCell>
-          )}
-          <TableCell className="grid place-content-end">
-            <div className="flex justify-end">
-              {m.user.id !== userClassroom.user.id &&
-                (userClassroom.classroom.ownerId === userClassroom.user.id ||
-                  (userRole === Role.Owner && m.role !== Role.Owner)) && (
-                  <RoleDropdown
-                    role={m.role}
-                    memberID={m.user.id}
-                    classroomID={classroomId}
-                    userClassroom={userClassroom}
-                  />
-                )}
-            </div>
-          </TableCell>
-        </TableRow>
-      ))}
+          </TableRow>
+        ))}
+      </TableBody>
     </Table>
   );
 }

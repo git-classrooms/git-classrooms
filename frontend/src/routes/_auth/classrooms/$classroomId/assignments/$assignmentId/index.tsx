@@ -134,7 +134,7 @@ function AssignmentDetail() {
           </Button>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="secondary" size="sm" title="Grading">
+              <Button variant="secondary" size="sm" title="Clone projects">
                 <FolderGit2 className="mr-2 h-4 w-4" /> Clone projects
               </Button>
             </PopoverTrigger>
