@@ -18,7 +18,7 @@ func NewWorker(work Work) *Worker {
 }
 
 func (w *Worker) Start(ctx context.Context, workInterval time.Duration) {
-	ticker := time.NewTicker(100 * time.Millisecond)
+	ticker := time.NewTicker(1 * time.Millisecond)
 	first := true
 
 	go func() {
