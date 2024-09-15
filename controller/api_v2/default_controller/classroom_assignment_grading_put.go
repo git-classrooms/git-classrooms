@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -63,6 +64,23 @@ func (ctrl *DefaultController) UpdateAssignmentGradingRubrics(c *fiber.Ctx) (err
 	}
 
 	if err := query.Assignment.GradingManualRubrics.Model(assignment).Replace(rubrics...); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	queryManualGradingResult := query.ManualGradingResult
+	toDeleteResults, err := queryManualGradingResult.
+		WithContext(c.Context()).
+		Join(queryManualGradingRubric, queryManualGradingResult.RubricID.EqCol(queryManualGradingRubric.ID)).
+		Where(queryManualGradingRubric.ClassroomID.Eq(assignment.ClassroomID)).
+		Not(queryManualGradingResult.RubricID.In(ids...)).
+		Find()
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	ids = utils.Map(toDeleteResults, func(e *database.ManualGradingResult) driver.Valuer { return e.ID })
+
+	if _, err := queryManualGradingResult.WithContext(c.Context()).Where(queryManualGradingResult.ID.In(ids...)).Delete(); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
