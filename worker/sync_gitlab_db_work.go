@@ -15,6 +15,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	"gorm.io/gen/field"
 )
 
 type SyncGitlabDbWork struct {
@@ -64,7 +65,10 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 	classrooms, err := query.Classroom.
 		WithContext(ctx).
 		Preload(query.Classroom.Member).
+		Preload(query.Classroom.Member.User).
 		Preload(query.Classroom.Teams).
+		Preload(field.NewRelation("Teams.Member", "")).
+		Preload(field.NewRelation("Teams.Member.User", "")).
 		Preload(query.Classroom.Assignments).
 		Where(query.Classroom.Archived.Not()).
 		Where(query.Classroom.PotentiallyDeleted.Not()).
@@ -152,6 +156,7 @@ func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int,
 }
 
 func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
+	// TODO delete Team if teamsize is 1
 	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository) {
 		member.TeamID = nil
 		member.Team = nil
@@ -246,6 +251,7 @@ func (w *SyncGitlabDbWork) isGroupBootUser(user model.User, groupId int) bool {
 }
 
 func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Classroom, dbTeam database.Team, repo gitlab.Repository) error {
+	log.Default().Printf("Syncing team %s (ID=%d)", dbTeam.Name, dbTeam.GroupID)
 	gitlabTeam, err := repo.GetGroupById(dbTeam.GroupID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
