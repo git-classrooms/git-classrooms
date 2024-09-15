@@ -44,7 +44,7 @@ export function MemberListCard({
       <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
         <div className="mb-4 md:mb-0">
           <CardTitle className="mb-1">Members</CardTitle>
-          <CardDescription>Members in this this classroom</CardDescription>
+          <CardDescription>All members of this classroom</CardDescription>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {!deactivateInteraction && isOwner(userClassroom) && (

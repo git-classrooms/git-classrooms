@@ -126,7 +126,7 @@ function Index() {
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>This is the description of your classroom.</FormDescription>
+                <FormDescription>The description of your classroom</FormDescription>
                 <FormMessage />
                 {isAccepted && (
                   <FormMessage>
