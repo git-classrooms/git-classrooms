@@ -7,8 +7,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Avatar } from "@/components/avatar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/ui/list.tsx";
-import ListItem from "@/components/ui/listItem.tsx";
+import List from "@/components/list.tsx";
+import ListItem from "@/components/listItem.tsx";
 import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isOwner, isStudent } from "@/lib/utils";
 
