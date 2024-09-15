@@ -100,12 +100,12 @@ function AssignmentTable({
             <TableCell className="hidden md:table-cell">{a.dueDate ? formatDate(a.dueDate) : "-"}</TableCell>
             <TableCell className="flex flex-wrap flex-row-reverse gap-2">
               {!deactivateInteraction && (
-                <Button variant="outline" size="icon" asChild>
+                <Button variant="ghost" size="icon" asChild>
                   <Link
                     to="/classrooms/$classroomId/assignments/$assignmentId"
                     params={{ classroomId, assignmentId: a.id }}
                   >
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="text-gray-600 dark:text-white h-6 w-6" />
                   </Link>
                 </Button>
               )}
