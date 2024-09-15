@@ -26,6 +26,15 @@ export const assignmentQueryOptions = (classroomId: string, assignmentId: string
     },
   });
 
+export const activeAssignmentQueryOptions = () =>
+  queryOptions({
+    queryKey: ["activeAssignments"],
+    queryFn: async () => {
+      const res = await apiClient.getActiveAssignments();
+      return res.data;
+    },
+  });
+
 // Mutations
 
 export const useCreateAssignment = (classroomId: string) => {

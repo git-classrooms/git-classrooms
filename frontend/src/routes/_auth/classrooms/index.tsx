@@ -21,6 +21,7 @@ export const Route = createFileRoute("/_auth/classrooms/")({
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
     const studentClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Student));
+
     return {
       ownedClassrooms,
       moderatorClassrooms,
@@ -127,6 +128,7 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
     </Card>
   );
 }
+
 function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: string; assignmentsCount: number }) {
   const assignmentsText = assignmentsCount === 1 ? `${assignmentsCount} Assignment` : `${assignmentsCount} Assignments`;
   return (
