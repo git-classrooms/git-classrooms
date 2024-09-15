@@ -11,7 +11,18 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Archive, CalendarCheck2, CalendarClock, Download, Eye, EyeOff, Info, Settings, Users } from "lucide-react";
+import {
+  Archive,
+  CalendarCheck2,
+  CalendarClock,
+  Download,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Info,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import { Text } from "lucide-react";
 import {
@@ -34,6 +45,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { projectsQueryOptions } from "@/api/project";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { ProjectListSection } from "@/components/classroomProjects";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
@@ -96,15 +108,29 @@ function ClassroomDetail() {
       </Breadcrumb>
 
       <div className="lg:flex justify-between gap-1 mb-4">
-        <Header
-          title={
-            <a href={userClassroom.webUrl} target="_blank" referrerPolicy="no-referrer">
-              {userClassroom.classroom.archived && "Archived "}
-              {userClassroom.classroom.name}
-            </a>
-          }
-          subtitle="Classroom overview"
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Header
+              title={
+                <a
+                  className="flex items-center"
+                  href={userClassroom.webUrl}
+                  target="_blank"
+                  referrerPolicy="no-referrer"
+                  title="Go to classroom"
+                >
+                  {userClassroom.classroom.archived && "Archived "}
+                  {userClassroom.classroom.name}
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </a>
+              }
+              subtitle="Classroom overview"
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Go to classroom</p>
+          </TooltipContent>
+        </Tooltip>
         <div className="flex flex-col lg:flex-row gap-3">
           <Button
             variant="secondary"

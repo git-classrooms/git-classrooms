@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Form,
   FormControl,
@@ -28,6 +28,14 @@ import { Header } from "@/components/header";
 import { classroomQueryOptions, classroomTemplatesQueryOptions } from "@/api/classroom";
 import { useCreateAssignment } from "@/api/assignment";
 import { TimePicker } from "@/components/ui/timer-picker";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -49,6 +57,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 
 function CreateAssignment() {
   const { classroomId } = Route.useParams();
+  const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -74,8 +83,23 @@ function CreateAssignment() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <Header title="Create Assignment" className="" />
+    <>
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                {userClassroom.classroom.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create Assignment</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Header title="Create Assignment" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -231,6 +255,6 @@ function CreateAssignment() {
           )}
         </form>
       </Form>
-    </div>
+    </>
   );
 }
