@@ -72,11 +72,10 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	if *member.TeamID == newTeam.ID {
-		return c.SendStatus(fiber.StatusNoContent)
-	}
-
 	if member.TeamID != nil {
+		if *member.TeamID == newTeam.ID {
+			return c.SendStatus(fiber.StatusNoContent)
+		}
 		if err = repo.RemoveUserFromGroup(member.Team.GroupID, member.UserID); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
