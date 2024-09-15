@@ -15,7 +15,7 @@ type Repository interface {
 
 	// Group
 	CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error)
-	CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error)
+	CreateSubGroup(name string, path string, parentId int, visibility model.Visibility, description string) (*model.Group, error)
 	DeleteGroup(id int) error
 	ChangeGroupName(id int, name string) (*model.Group, error)
 	ChangeGroupDescription(id int, description string) (*model.Group, error)

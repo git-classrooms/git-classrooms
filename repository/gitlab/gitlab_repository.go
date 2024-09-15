@@ -281,12 +281,12 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 	return GroupFromGoGitlab(*gitlabGroup), nil
 }
 
-func (repo *GitlabRepo) CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error) {
+func (repo *GitlabRepo) CreateSubGroup(name string, path string, parentId int, visibility model.Visibility, description string) (*model.Group, error) {
 	repo.assertIsConnected()
 
 	gitlabVisibility := VisibilityFromModel(visibility)
 
-	path := convertToGitLabPath(strings.ToLower(name))
+	path = convertToGitLabPath(strings.ToLower(path))
 
 	createOpts := &goGitlab.CreateGroupOptions{
 		Name:        goGitlab.String(name),

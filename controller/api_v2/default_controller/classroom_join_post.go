@@ -9,6 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -45,7 +46,7 @@ func (r *joinClassroomRequest) isValid() bool {
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/join [post]
-func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
+func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
 
@@ -162,6 +163,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			var subgroup *gitlabModel.Group
 			subgroup, err = repo.CreateSubGroup(
 				user.Name,
+				user.GitlabUsername,
 				invitation.Classroom.GroupID,
 				gitlabModel.Private,
 				fmt.Sprintf("Team %s of classroom %s", user.Name, invitation.Classroom.Name),
@@ -177,13 +179,15 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 
 			team := &database.Team{
 				ClassroomID: invitation.Classroom.ID,
-				Name:        user.GitlabUsername,
+				Name:        user.Name,
 				GroupID:     subgroup.ID,
 				Member:      []*database.UserClassrooms{member},
 			}
 			if err = tx.Team.WithContext(c.Context()).Create(team); err != nil {
 				return err
 			}
+
+			repo.ChangeGroupDescription(subgroup.ID, utils.CreateTeamGitlabDescription(&invitation.Classroom, team, ctrl.config.PublicURL))
 
 			if err = repo.AddUserToGroup(subgroup.ID, userID, gitlabModel.ReporterPermissions); err != nil {
 				return err
