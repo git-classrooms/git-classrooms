@@ -10,7 +10,7 @@ type HeaderProps = {
 export function Header({ title, children, subtitle, className }: HeaderProps) {
   return (
     <div className="mb-10">
-      <h1 className={cn("text-4xl font-bold mb-1", className)}>{title}</h1>
+      <h1 className={cn("text-4xl tracking-tight font-bold mb-1", className)}>{title}</h1>
       {subtitle && <span className="text-muted-foreground">{subtitle}</span>}
       {children}
     </div>
