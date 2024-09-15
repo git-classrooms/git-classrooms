@@ -8,7 +8,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -190,7 +189,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 				member.User.Name,
 				member.User.GitlabUsername,
 				classroom.Classroom.GroupID,
-				gitlabModel.Private,
+				model.Private,
 				fmt.Sprintf("Team %s of classroom %s", member.User.Name, classroom.Classroom.Name),
 			)
 			if err != nil {
@@ -214,7 +213,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			member.TeamID = &team.ID
 			member.Team = team
 
-			if err = repo.AddUserToGroup(team.GroupID, member.UserID, gitlabModel.ReporterPermissions); err != nil {
+			if err = repo.AddUserToGroup(team.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 				return err
 			}
 		}
