@@ -4,11 +4,12 @@ import { ArrowRight as ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
-import List from "@/components/ui/list.tsx";
-import ListItem from "@/components/ui/listItem.tsx";
+import List from "@/components/list.tsx";
+import ListItem from "@/components/listItem.tsx";
 import { ActiveAssignmentResponse } from "@/swagger-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { formatDate } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip.tsx";
 
 /**
  * ActiveAssignmentListCard is a React component that displays a list of active assignments in a classroom.
@@ -52,12 +53,19 @@ function AssignmentTable({ assignments }: { assignments: ActiveAssignmentRespons
                   {assignment.dueDate ? formatDate(assignment.dueDate)   : "No due date"}
                 </div>
               </div>
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/classrooms/$classroomId/assignments/$assignmentId"
-                      params={{ classroomId: assignment.classroomId, assignmentId: assignment.id }}>
-                  <ArrowRight className="text-slate-500 dark:text-white" />
-                </Link>
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" title="Go to classroom" asChild>
+                    <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }}
+                          params={{ classroomId: assignment.classroomId }}>
+                      <ArrowRight className="text-slate-500 dark:text-white" />
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Go to classroom</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           }
         />
@@ -72,7 +80,7 @@ function AssignmentListElement({ assignment }: { assignment: ActiveAssignmentRes
       <HoverCardTrigger className="cursor-default flex">
         <div className="pr-2">
           <Avatar>
-            <AvatarFallback className="bg-[#FC6D25] text-black text-lg">
+            <AvatarFallback className="bg-gray-200 text-black text-lg">
               {assignment.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
