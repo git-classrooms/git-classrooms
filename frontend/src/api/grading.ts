@@ -108,7 +108,7 @@ export const useStartAutoGrading = (conf: MutationOptions<{ classroomId: string;
     mutationFn: async () => {
       return apiClient.startAutoGrading({ jUnitAutoGrading: true }, csrfToken, classroomId, assignmentId);
     },
-    onError: (error) => conf.onError?.(unwrapApiError(error)),
+    onError: (error) => conf.onError?.(unwrapApiError(error)!),
     onSuccess: () => {
       queryClient.invalidateQueries(assignmentProjectsQueryOptions(classroomId, assignmentId));
       queryClient.invalidateQueries(assignmentReportQueryOptions(classroomId, assignmentId));

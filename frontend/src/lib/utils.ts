@@ -38,7 +38,7 @@ export const createAuthApi = () =>
   });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const unwrapApiError = <T = any, D = any>(error: Error): Error => {
+export const unwrapApiError = <T = any, D = any>(error: Error | null): Error | null => {
   if (isAxiosError<T, D>(error)) {
     return new Error((error.response?.data as HTTPError | undefined)?.error ?? error.message);
   }

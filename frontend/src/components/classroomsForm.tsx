@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema, updateFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { getUUIDFromLocation } from "@/lib/utils.ts";
+import { getUUIDFromLocation, unwrapApiError } from "@/lib/utils.ts";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useCreateClassroom, useUpdateClassroom } from "@/api/classroom";
@@ -18,7 +18,9 @@ import { UserClassroomResponse } from "@/swagger-client";
 
 export const ClassroomCreateForm = () => {
   const navigate = useNavigate();
-  const { mutateAsync, isError, isPending } = useCreateClassroom();
+  const { mutateAsync, error, isPending } = useCreateClassroom();
+
+  const createClassroomError = unwrapApiError(error);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
@@ -150,11 +152,11 @@ export const ClassroomCreateForm = () => {
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
           </Button>
 
-          {isError && (
+          {createClassroomError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>The classroom could not be created!</AlertDescription>
+              <AlertDescription>{createClassroomError.message}</AlertDescription>
             </Alert>
           )}
         </form>

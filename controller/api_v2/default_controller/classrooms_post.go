@@ -1,8 +1,10 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -71,6 +73,13 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 		requestBody.Description,
 	)
 	if err != nil {
+		var gitlabError *model.GitLabError
+		if errors.As(err, &gitlabError) {
+			if strings.Contains(gitlabError.Message, "{:path=>[\"has already been taken\"]}}") {
+				return fiber.NewError(fiber.StatusBadRequest, "A classroom with this name already exists")
+			}
+		}
+
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer func() {
