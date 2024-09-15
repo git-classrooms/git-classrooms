@@ -209,6 +209,23 @@ func (repo *GitlabRepo) BranchExists(projectId int, branchName string) (bool, er
 	return true, nil
 }
 
+func (repo *GitlabRepo) AddProjectMember(projectId int, userId int, accessLevel model.AccessLevelValue) error {
+	repo.assertIsConnected()
+
+	_, _, err := repo.client.ProjectMembers.AddProjectMember(projectId, &goGitlab.AddProjectMemberOptions{
+		UserID:      &userId,
+		AccessLevel: goGitlab.AccessLevel(AccessLevelFromModel(accessLevel)),
+	})
+	return ErrorFromGoGitlab(err)
+}
+
+func (repo *GitlabRepo) RemoveUserFromProject(projectId int, userId int) error {
+	repo.assertIsConnected()
+
+	_, err := repo.client.ProjectMembers.DeleteProjectMember(projectId, userId)
+	return ErrorFromGoGitlab(err)
+}
+
 func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -281,12 +298,12 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 	return GroupFromGoGitlab(*gitlabGroup), nil
 }
 
-func (repo *GitlabRepo) CreateSubGroup(name string, parentId int, visibility model.Visibility, description string) (*model.Group, error) {
+func (repo *GitlabRepo) CreateSubGroup(name string, path string, parentId int, visibility model.Visibility, description string) (*model.Group, error) {
 	repo.assertIsConnected()
 
 	gitlabVisibility := VisibilityFromModel(visibility)
 
-	path := convertToGitLabPath(strings.ToLower(name))
+	path = convertToGitLabPath(strings.ToLower(path))
 
 	createOpts := &goGitlab.CreateGroupOptions{
 		Name:        goGitlab.String(name),

@@ -11,7 +11,7 @@ import (
 )
 
 type updateTeamRequest struct {
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 } //@Name UpdateTeamRequest
 
 func (r updateTeamRequest) isValid() bool {
@@ -22,7 +22,7 @@ func (r updateTeamRequest) isValid() bool {
 // @Description	Update Team
 // @Id				UpdateTeam
 // @Tags			team
-// @Produces		json
+// @Accept			json
 // @Param			classroomId		path	string					true	"Classroom ID"	Format(uuid)
 // @Param			teamId			path	string					true	"Team ID"		Format(uuid)
 // @Param			UpdateTeam		body	api.updateTeamRequest	true	"Update Team"
@@ -50,7 +50,7 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 
 	var requestBody updateTeamRequest
 	if err = c.BodyParser(&requestBody); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	if !requestBody.isValid() {

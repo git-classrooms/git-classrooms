@@ -11,7 +11,18 @@ import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button.tsx";
-import { Archive, CalendarCheck2, CalendarClock, Download, Eye, EyeOff, Info, Settings, Users } from "lucide-react";
+import {
+  Archive,
+  CalendarCheck2,
+  CalendarClock,
+  Download,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Info,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
 import { Text } from "lucide-react";
 import {
@@ -98,9 +109,16 @@ function ClassroomDetail() {
       <div className="lg:flex justify-between gap-1 mb-4">
         <Header
           title={
-            <a href={userClassroom.webUrl} target="_blank" referrerPolicy="no-referrer">
+            <a
+              className="flex items-center"
+              href={userClassroom.webUrl}
+              target="_blank"
+              referrerPolicy="no-referrer"
+              title="Go to classroom"
+            >
               {userClassroom.classroom.archived && "Archived "}
               {userClassroom.classroom.name}
+              <ExternalLink className="h-4 w-4 ml-2" />
             </a>
           }
           subtitle="Classroom overview"

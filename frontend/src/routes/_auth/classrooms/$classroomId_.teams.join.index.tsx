@@ -14,6 +14,16 @@ import { ReportApiAxiosParamCreator } from "@/swagger-client";
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
+
+    if (userClassroom.classroom.maxTeamSize === 1) {
+      throw redirect({
+        to: "/classrooms/$classroomId",
+        search: { tab: "assignments" },
+        params,
+        replace: true,
+      });
+    }
+
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
 
     const teamsReportUrls = (

@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useCreateClassroom, useUpdateClassroom } from "@/api/classroom";
 import { UserClassroomResponse } from "@/swagger-client";
+import { Header } from "./header";
 
 export const ClassroomCreateForm = () => {
   const navigate = useNavigate();
@@ -43,10 +44,7 @@ export const ClassroomCreateForm = () => {
 
   return (
     <div className="p-2">
-      <div>
-        <h1 className="text-xl font-bold">Create a classroom</h1>
-        <p className="text-sm text-muted-foreground">Add the details you need and submit when you're done.</p>
-      </div>
+      <Header title="Create a classroom" subtitle="Add the details you need and submit when you're done." />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -72,7 +70,7 @@ export const ClassroomCreateForm = () => {
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>This is the description of your classroom.</FormDescription>
+                <FormDescription>The description of your classroom</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -212,7 +210,7 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>This is the description of your classroom.</FormDescription>
+                <FormDescription>The description of your classroom</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

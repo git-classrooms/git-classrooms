@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import {
   Form,
   FormControl,
@@ -17,8 +17,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateAssignmentForm, createAssignmentFormSchema } from "@/types/assignments.ts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
-import { cn, getUUIDFromLocation, isOwner } from "@/lib/utils.ts";
-import { format } from "date-fns";
+import { cn, formatDateWithTime, getUUIDFromLocation, isOwner } from "@/lib/utils.ts";
+import { addSeconds } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { useState } from "react";
 import { Loader } from "@/components/loader.tsx";
@@ -27,6 +27,15 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "
 import { Header } from "@/components/header";
 import { classroomQueryOptions, classroomTemplatesQueryOptions } from "@/api/classroom";
 import { useCreateAssignment } from "@/api/assignment";
+import { TimePicker } from "@/components/ui/timer-picker";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -48,6 +57,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 
 function CreateAssignment() {
   const { classroomId } = Route.useParams();
+  const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -73,8 +83,23 @@ function CreateAssignment() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <Header title="Create Assignment" className="" />
+    <>
+      <Breadcrumb className="mb-5">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                {userClassroom.classroom.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create Assignment</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Header title="Create Assignment" />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -101,7 +126,7 @@ function CreateAssignment() {
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>This is the description of your classroom.</FormDescription>
+                <FormDescription>The description of your classroom</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -125,7 +150,7 @@ function CreateAssignment() {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          {field.value ? formatDateWithTime(field.value) : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -134,9 +159,15 @@ function CreateAssignment() {
                           fromDate={new Date()}
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(value) =>
+                            field.onChange(value ? addSeconds(value, 23 * 60 * 60 + 59 * 60 + 59) : undefined)
+                          }
                           initialFocus
+                          defaultMonth={field.value}
                         />
+                        <div className="p-3 border-t border-border">
+                          <TimePicker setDate={field.onChange} date={field.value} />
+                        </div>
                       </PopoverContent>
                     </Popover>
                     <Button
@@ -224,6 +255,6 @@ function CreateAssignment() {
           )}
         </form>
       </Form>
-    </div>
+    </>
   );
 }

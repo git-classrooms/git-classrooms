@@ -198,7 +198,7 @@ function AssignmentProjectTable({
         <TableCaption>Projects</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>Project name</TableHead>
+            <TableHead>Name</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Manual grading</TableHead>
             {assignment.gradingJUnitAutoGradingActive ? <TableHead>Test-driven grading</TableHead> : ""}
@@ -339,7 +339,6 @@ const DrawerForm = ({
             Go to code
           </a>
         </Button>
-
         {assignment.gradingJUnitAutoGradingActive && (
           <div className="md:flex justify-between gap-1 mb-2">
             <div className="grow mb-2">
@@ -369,81 +368,85 @@ const DrawerForm = ({
             View and adjust the manual grades for this project
           </span>
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full flex-col">
-            {fields.map((field, index) => {
-              const rubric = rubrics.find((e) => e.id === field.rubricId)!;
-              return (
-                <div
-                  key={field.id}
-                  className="w-full grid grid-cols-1 md:grid-cols-[1fr_4fr] gap-2 rounded-md border p-4 mb-4"
-                >
-                  <div className="gap-1 md:col-span-2">
-                    <h4 className="text-sm font-bold">{rubric.name}</h4>
-                    <span className="text-sm font-light text-muted-foreground">{rubric.description}</span>
+        {fields.length === 0 ? (
+          <div className="text-center text-muted-foreground">No manual grading rubrics available.</div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full flex-col">
+              {fields.map((field, index) => {
+                const rubric = rubrics.find((e) => e.id === field.rubricId)!;
+                return (
+                  <div
+                    key={field.id}
+                    className="w-full grid grid-cols-1 md:grid-cols-[1fr_4fr] gap-2 rounded-md border p-4 mb-4"
+                  >
+                    <div className="gap-1 md:col-span-2">
+                      <h4 className="text-sm font-bold">{rubric.name}</h4>
+                      <span className="text-sm font-light text-muted-foreground">{rubric.description}</span>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name={`gradingManualRubrics.${index}.rubricId`}
+                      render={({ field }) => <input value={field.value} readOnly hidden />}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`gradingManualRubrics.${index}.score`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Points</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={0}
+                              step={1}
+                              disabled={isPending}
+                              {...field}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const numberValue = value ? Number(value) : "";
+                                field.onChange(numberValue);
+                              }}
+                              className="text-base rounded-r"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`gradingManualRubrics.${index}.feedback`}
+                      render={({ field }) => (
+                        <FormItem className="grow">
+                          <FormLabel>Feedback</FormLabel>
+                          <FormControl>
+                            <AutosizeTextarea
+                              minHeight={1}
+                              disabled={isPending}
+                              {...field}
+                              className={"rounded-r mt-5"}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
+                );
+              })}
 
-                  <FormField
-                    control={form.control}
-                    name={`gradingManualRubrics.${index}.rubricId`}
-                    render={({ field }) => <input value={field.value} readOnly hidden />}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`gradingManualRubrics.${index}.score`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Points</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            step={1}
-                            disabled={isPending}
-                            {...field}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              const numberValue = value ? Number(value) : "";
-                              field.onChange(numberValue);
-                            }}
-                            className="text-base rounded-r"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`gradingManualRubrics.${index}.feedback`}
-                    render={({ field }) => (
-                      <FormItem className="grow">
-                        <FormLabel>Feedback</FormLabel>
-                        <FormControl>
-                          <AutosizeTextarea
-                            minHeight={1}
-                            disabled={isPending}
-                            {...field}
-                            className={"rounded-r mt-5"}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              );
-            })}
-
-            <Button>Save</Button>
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error.message}</AlertDescription>
-              </Alert>
-            )}
-          </form>
-        </Form>
+              <Button>Save</Button>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error.message}</AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </Form>
+        )}
         <DialogClose ref={closeModalButtonRef} className="hidden">
           Close
         </DialogClose>

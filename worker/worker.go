@@ -10,24 +10,26 @@ type Work interface {
 }
 
 type Worker struct {
-	work   Work
-	ticker *time.Ticker
+	work Work
 }
 
 func NewWorker(work Work) *Worker {
-	return &Worker{work, nil}
+	return &Worker{work}
 }
 
 func (w *Worker) Start(ctx context.Context, workInterval time.Duration) {
-	w.ticker = time.NewTicker(workInterval)
+	ticker := time.NewTicker(1 * time.Millisecond)
+	first := true
 
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
-				w.ticker.Stop()
 				return
-			case <-w.ticker.C:
+			case <-ticker.C:
+				if first {
+					ticker.Reset(workInterval)
+				}
 				w.work.Do(ctx)
 			}
 		}

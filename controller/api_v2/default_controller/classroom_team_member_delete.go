@@ -46,6 +46,22 @@ func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) (err error) {
 		if err := repo.RemoveUserFromGroup(team.GroupID, member.UserID); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
+
+		queryAssignmentProjects := query.AssignmentProjects
+		projects, err := queryAssignmentProjects.
+			WithContext(c.Context()).
+			Where(queryAssignmentProjects.TeamID.Eq(team.ID)).
+			Find()
+		if err != nil {
+			return err
+		}
+
+		for _, project := range projects {
+			if err := repo.RemoveUserFromProject(project.ProjectID, member.UserID); err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+		}
+
 		return nil
 	})
 

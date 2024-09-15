@@ -15,6 +15,9 @@ import {
   RunnersApi,
   UserClassroomResponse,
   HTTPError,
+  ApiProjectCloneUrlResponse,
+  ProjectResponse,
+  Assignment,
 } from "@/swagger-client";
 import { Role } from "@/types/classroom";
 
@@ -26,7 +29,7 @@ export const getUUIDFromLocation = (location: string) => location.split("/").pop
 
 export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
 
-export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm");
+export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm:ss");
 
 const apiClient = axios.create({ withCredentials: true });
 
@@ -43,6 +46,23 @@ export const unwrapApiError = <T = any, D = any>(error: Error | null): Error | n
     return new Error((error.response?.data as HTTPError | undefined)?.error ?? error.message);
   }
   return error;
+};
+
+type CloneOptions = "https" | "ssh";
+
+export const createCloneScript = (
+  opts: CloneOptions,
+  assignment: Assignment,
+  urls: ApiProjectCloneUrlResponse[],
+  projects: ProjectResponse[],
+) => {
+  return urls
+    .map((url) => {
+      const project = projects.find((p) => p.id === url.projectId)!;
+      const cloneUrl = opts === "https" ? url.httpUrlToRepo : url.sshUrlToRepo;
+      return `git clone ${cloneUrl} ${assignment.name.replace(/\s+/g, "")}-${project.team.name.replace(/\s/g, "")}`;
+    })
+    .join("\n");
 };
 
 export const createClassroomApi = () => new ClassroomApi(undefined, "", apiClient);

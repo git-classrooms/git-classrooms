@@ -14,9 +14,8 @@ import { Input } from "@/components/ui/input.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { cn } from "@/lib/utils.ts";
+import { cn, formatDateWithTime } from "@/lib/utils.ts";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { assignmentQueryOptions, assignmentsQueryOptions, useUpdateAssignment } from "@/api/assignment.ts";
 import { UpdateAssignmentForm, updateAssignmentFormSchema } from "@/types/assignments.ts";
@@ -25,6 +24,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { assignmentProjectsQueryOptions } from "@/api/project.ts";
 import { Assignment, DatabaseStatus, ProjectResponse } from "@/swagger-client";
 import { toast } from "sonner";
+import { TimePicker } from "@/components/ui/timer-picker";
+import { addSeconds } from "date-fns";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/")({
   component: Index,
@@ -65,7 +66,7 @@ function Index() {
     defaultValues: {
       name: assignment.name,
       description: assignment.description,
-      dueDate: assignment.dueDate ? new Date(assignment.dueDate) : null,
+      dueDate: assignment.dueDate ? new Date(assignment.dueDate) : undefined,
     },
   });
 
@@ -125,7 +126,7 @@ function Index() {
                 <FormControl>
                   <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
                 </FormControl>
-                <FormDescription>This is the description of your classroom.</FormDescription>
+                <FormDescription>The description of your classroom</FormDescription>
                 <FormMessage />
                 {isAccepted && (
                   <FormMessage>
@@ -154,7 +155,7 @@ function Index() {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          {field.value ? formatDateWithTime(field.value) : <span>Pick a date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -162,11 +163,16 @@ function Index() {
                           ISOWeek
                           fromDate={new Date()}
                           mode="single"
-                          selected={field.value ? field.value : undefined}
-                          onSelect={field.onChange}
+                          selected={field.value}
+                          onSelect={(value) =>
+                            field.onChange(value ? addSeconds(value, 23 * 60 * 60 + 59 * 60 + 59) : undefined)
+                          }
                           initialFocus
-                          defaultMonth={field.value ? field.value : undefined}
+                          defaultMonth={field.value}
                         />
+                        <div className="p-3 border-t border-border">
+                          <TimePicker setDate={field.onChange} date={field.value} />
+                        </div>
                       </PopoverContent>
                     </Popover>
                     <Button

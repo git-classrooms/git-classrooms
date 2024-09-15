@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { ArrowRight, LogIn, SearchCode } from "lucide-react";
-import { cn, formatDate } from "@/lib/utils.ts";
+import { cn, formatDate, formatDateWithTime } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { projectsQueryOptions } from "@/api/project";
@@ -44,7 +44,13 @@ export function ProjectListSection({ classroomId }: { classroomId: string }): JS
   );
 }
 
-function ProjectTable({ projects, userClassroom }: { projects: ProjectResponse[]; userClassroom: UserClassroomResponse }) {
+function ProjectTable({
+  projects,
+  userClassroom,
+}: {
+  projects: ProjectResponse[];
+  userClassroom: UserClassroomResponse;
+}) {
   return (
     <Table>
       <TableHeader>
@@ -73,26 +79,31 @@ function ProjectTable({ projects, userClassroom }: { projects: ProjectResponse[]
               <TableCell>
                 {p.assignment.dueDate && new Date(p.assignment.dueDate) < new Date() ? (
                   <div className="flex pl-1 gap-3 items-center">
-                  <span className="relative flex h-3 w-3">
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
-                  </span>
+                    <span className="relative flex h-3 w-3">
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
+                    </span>
                     Closed
-                  </div>) : (<div className="flex pl-1 gap-3 items-center">
-                  <span className="relative flex h-3 w-3">
-                    <span
-                      className={cn(
-                        "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-                        statusProps.color.secondary,
-                      )}
-                    ></span>
-                    <span className={cn("relative inline-flex rounded-full h-3 w-3", statusProps.color.primary)}></span>
-                  </span>
-                  {statusProps.name}
-                </div>)}
+                  </div>
+                ) : (
+                  <div className="flex pl-1 gap-3 items-center">
+                    <span className="relative flex h-3 w-3">
+                      <span
+                        className={cn(
+                          "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                          statusProps.color.secondary,
+                        )}
+                      ></span>
+                      <span
+                        className={cn("relative inline-flex rounded-full h-3 w-3", statusProps.color.primary)}
+                      ></span>
+                    </span>
+                    {statusProps.name}
+                  </div>
+                )}
               </TableCell>
               <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(p.createdAt)}</TableCell>
               <TableCell className="hidden md:table-cell">
-                {p.assignment.dueDate ? formatDate(p.assignment.dueDate) : "-"}
+                {p.assignment.dueDate ? formatDateWithTime(p.assignment.dueDate) : "-"}
               </TableCell>
               <TableCell className="flex flex-wrap flex-row-reverse gap-2">
                 {p.projectStatus === Status.Accepted ? (
@@ -101,8 +112,10 @@ function ProjectTable({ projects, userClassroom }: { projects: ProjectResponse[]
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" title="Go to assignment" asChild>
-                            <Link to="/classrooms/$classroomId/assignments/$assignmentId"
-                                  params={{classroomId: userClassroom.classroom.id, assignmentId: p.assignment.id}}>
+                            <Link
+                              to="/classrooms/$classroomId/assignments/$assignmentId"
+                              params={{ classroomId: userClassroom.classroom.id, assignmentId: p.assignment.id }}
+                            >
                               <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
                             </Link>
                           </Button>

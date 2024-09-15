@@ -82,3 +82,23 @@ export const useUpdateMemberTeam = (classroomId: string, memberId: number) => {
     },
   });
 };
+
+export const useRemoveTeamMember = (classroomId: string, memberId: number) => {
+  const queryClient = useQueryClient();
+  const { csrfToken } = useCsrf();
+  return useMutation({
+    mutationFn: async (teamId?: string) => {
+      if (!teamId) throw new Error("Team ID is required");
+      const res = await apiClient.removeMemberFromTeamV2(classroomId, teamId, memberId, csrfToken);
+      return res.data;
+    },
+    onSuccess: (_, teamId) => {
+      if (!teamId) return;
+      queryClient.invalidateQueries(teamMembersQueryOptions(classroomId, teamId));
+      queryClient.invalidateQueries(teamMemberQueryOptions(classroomId, teamId, memberId));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
+  });
+};
