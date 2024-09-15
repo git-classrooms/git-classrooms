@@ -26,6 +26,10 @@ func (ctrl *DefaultController) GetClassroomProjects(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
 
+	if classroom.TeamID == nil {
+		return c.JSON([]*ProjectResponse{})
+	}
+
 	projects, err := classroomProjectQuery(c, classroom.ClassroomID, *classroom.TeamID).
 		Find()
 	if err != nil {
