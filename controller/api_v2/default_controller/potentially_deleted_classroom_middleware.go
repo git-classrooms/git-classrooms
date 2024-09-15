@@ -21,7 +21,7 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 	}
 
 	repo := ctx.GetGitlabRepository()
-	_, err = repo.GetGroupById(classroom.GroupID)
+	_, err = repo.GetGroupById(c.Context(), classroom.GroupID)
 	if err == nil {
 		// User has access to the group --> group access token got revoked
 

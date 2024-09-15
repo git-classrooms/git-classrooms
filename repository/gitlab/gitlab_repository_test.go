@@ -91,6 +91,8 @@ func TestGoGitlabRepo(t *testing.T) {
 
 	repo := NewGitlabRepo(&gitlabConfig.GitlabConfig{URL: "https://hs-flensburg.dev"})
 
+	ctx := context.TODO()
+
 	t.Run("LoginByToken", func(t *testing.T) {
 		err := repo.Login(credentials.Token)
 
@@ -174,12 +176,12 @@ func TestGoGitlabRepo(t *testing.T) {
 	userId := 9   // You can use the ID from credentials or another user's ID
 
 	t.Run("AddUserToGroup", func(t *testing.T) {
-		err := repo.AddUserToGroup(groupId, userId, model.DeveloperPermissions)
+		err := repo.AddUserToGroup(ctx, groupId, userId, model.DeveloperPermissions)
 
 		assert.NoError(t, err)
 
 		// After adding, verify if the user is actually in the group
-		group, err := repo.GetGroupById(groupId)
+		group, err := repo.GetGroupById(ctx, groupId)
 		assert.NoError(t, err)
 
 		found := false
@@ -194,12 +196,12 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("RemoveUserFromGroup", func(t *testing.T) {
-		err := repo.RemoveUserFromGroup(groupId, userId)
+		err := repo.RemoveUserFromGroup(ctx, groupId, userId)
 
 		assert.NoError(t, err)
 
 		// After removing, verify if the user is actually removed from the group
-		group, err := repo.GetGroupById(groupId)
+		group, err := repo.GetGroupById(ctx, groupId)
 		assert.NoError(t, err)
 
 		found := false
@@ -214,14 +216,14 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetAllProjects", func(t *testing.T) {
-		projects, err := repo.GetAllProjects("")
+		projects, err := repo.GetAllProjects(ctx, "")
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(projects), 1)
 	})
 
 	t.Run("GetProjectById", func(t *testing.T) {
-		project, err := repo.GetProjectById(2)
+		project, err := repo.GetProjectById(ctx, 2)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 2, project.ID)
@@ -231,7 +233,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetUserById", func(t *testing.T) {
-		user, err := repo.GetUserById(credentials.ID)
+		user, err := repo.GetUserById(ctx, credentials.ID)
 
 		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
 
@@ -244,7 +246,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetCurrentUser", func(t *testing.T) {
-		user, err := repo.GetCurrentUser()
+		user, err := repo.GetCurrentUser(ctx)
 		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
 
 		assert.NoError(t, err)
@@ -256,7 +258,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetGroupById", func(t *testing.T) {
-		Group, err := repo.GetGroupById(15)
+		Group, err := repo.GetGroupById(ctx, 15)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 15, Group.ID)
@@ -271,13 +273,13 @@ func TestGoGitlabRepo(t *testing.T) {
 		originName := "IntegrationsTestGroup_Edit"
 		newName := originName + "_New"
 
-		group, err := repo.ChangeGroupName(228, newName)
+		group, err := repo.ChangeGroupName(ctx, 228, newName)
 
 		assert.NoError(t, err)
 		assert.Equal(t, newName, group.Name)
 
 		defer func() {
-			_, err = repo.ChangeGroupName(228, originName)
+			_, err = repo.ChangeGroupName(ctx, 228, originName)
 			assert.NoError(t, err)
 		}()
 	})
@@ -286,40 +288,40 @@ func TestGoGitlabRepo(t *testing.T) {
 		descriptionA := "DescriptionA"
 		descriptionB := "DescriptionB"
 
-		group, err := repo.ChangeGroupDescription(228, descriptionA)
+		group, err := repo.ChangeGroupDescription(ctx, 228, descriptionA)
 
 		assert.NoError(t, err)
 		assert.Equal(t, descriptionA, group.Description)
 
 		defer func() {
-			_, err = repo.ChangeGroupDescription(228, descriptionB)
+			_, err = repo.ChangeGroupDescription(ctx, 228, descriptionB)
 			assert.NoError(t, err)
 		}()
 	})
 
 	t.Run("GetAllUsers", func(t *testing.T) {
-		users, err := repo.GetAllUsers()
+		users, err := repo.GetAllUsers(ctx)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(users), 1)
 	})
 
 	t.Run("GetAllGroups", func(t *testing.T) {
-		groups, err := repo.GetAllGroups()
+		groups, err := repo.GetAllGroups(ctx)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(groups), 1)
 	})
 
 	t.Run("GetAllProjectsOfGroup", func(t *testing.T) {
-		projects, err := repo.GetAllProjectsOfGroup(15)
+		projects, err := repo.GetAllProjectsOfGroup(ctx, 15)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(projects), 1)
 	})
 
 	t.Run("GetAllUsersOfGroup", func(t *testing.T) {
-		users, err := repo.GetAllUsersOfGroup(15)
+		users, err := repo.GetAllUsersOfGroup(ctx, 15)
 
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(users), 1)
@@ -329,7 +331,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	searchExpression := "Test"
 
 	t.Run("SearchProjectByValidExpression", func(t *testing.T) {
-		projects, err := repo.SearchProjectByExpression(searchExpression)
+		projects, err := repo.SearchProjectByExpression(ctx, searchExpression)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, projects)
@@ -340,7 +342,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	invalidSearchExpression := "unlikely-keyword-xyz"
 
 	t.Run("SearchProjectByInvalidExpression", func(t *testing.T) {
-		projects, err := repo.SearchProjectByExpression(invalidSearchExpression)
+		projects, err := repo.SearchProjectByExpression(ctx, invalidSearchExpression)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, projects)
@@ -350,7 +352,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	t.Run("SearchUserByValidExpression", func(t *testing.T) {
 		expression := credentials.Username // Use part of the username from credentials or another known user
 
-		users, err := repo.SearchUserByExpression(expression)
+		users, err := repo.SearchUserByExpression(ctx, expression)
 		assert.NoError(t, err)
 
 		// Check if the returned users list contains the user with the used expression
@@ -368,7 +370,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	t.Run("SearchUserByInvalidExpression", func(t *testing.T) {
 		expression := "nonexistentuser123" // An expression that would not match any user
 
-		users, err := repo.SearchUserByExpression(expression)
+		users, err := repo.SearchUserByExpression(ctx, expression)
 		assert.NoError(t, err)
 
 		// Check if the users list is empty as no user should match the expression
@@ -376,7 +378,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("SearchUserByExpressionInGroup", func(t *testing.T) {
-		users, err := repo.SearchUserByExpressionInGroup(searchExpression, groupId)
+		users, err := repo.SearchUserByExpressionInGroup(ctx, searchExpression, groupId)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, users, "Expected to find at least one user")
@@ -390,7 +392,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	projectId := 5 // Example project ID, replace with an actual project ID
 
 	t.Run("SearchUserByExpressionInProject", func(t *testing.T) {
-		users, err := repo.SearchUserByExpressionInProject(searchExpression, projectId)
+		users, err := repo.SearchUserByExpressionInProject(ctx, searchExpression, projectId)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, users)
@@ -412,7 +414,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	expression := "TestGroup" // Replace with an appropriate expression for your test
 
 	t.Run("SearchGroupByExpression", func(t *testing.T) {
-		groups, err := repo.SearchGroupByExpression(expression)
+		groups, err := repo.SearchGroupByExpression(ctx, expression)
 		assert.NoError(t, err)
 
 		// Verify that the returned groups match the expression criteria
@@ -429,7 +431,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	email := credentials.Email // Use a test email address
 
 	t.Run("CreateGroupInvite", func(t *testing.T) {
-		err := repo.CreateGroupInvite(groupId, email)
+		err := repo.CreateGroupInvite(ctx, groupId, email)
 		assert.NoError(t, err)
 
 		// Verify if the invite was sent
@@ -437,7 +439,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("CreateProjectInvite", func(t *testing.T) {
-		err := repo.CreateProjectInvite(projectId, email)
+		err := repo.CreateProjectInvite(ctx, projectId, email)
 		assert.NoError(t, err)
 
 		// Verify if the invite was sent
@@ -445,7 +447,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetPendingGroupInvitations", func(t *testing.T) {
-		pendingInvites, err := repo.GetPendingGroupInvitations(groupId)
+		pendingInvites, err := repo.GetPendingGroupInvitations(ctx, groupId)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, pendingInvites)
@@ -456,7 +458,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetNamespaceOfProject", func(t *testing.T) {
-		namespace, err := repo.GetNamespaceOfProject(3)
+		namespace, err := repo.GetNamespaceOfProject(ctx, 3)
 
 		assert.NoError(t, err)
 		assert.Equal(t, "integrationstestgroup11", *namespace)

@@ -10,7 +10,7 @@ func (ctrl *DefaultController) RedirectProjectGitlab(c *fiber.Ctx) (err error) {
 	projectId := ctx.GetGitlabProjectID()
 	repo := ctx.GetGitlabRepository()
 
-	project, err := repo.GetProjectById(projectId)
+	project, err := repo.GetProjectById(c.Context(), projectId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

@@ -34,7 +34,7 @@ func NewApiV2Controller(mailRepo mailRepo.Repository, config config.ApplicationC
 func (ctrl *DefaultController) RotateAccessToken(c *fiber.Ctx, classroom *database.Classroom) error {
 	repo := context.Get(c).GetGitlabRepository()
 	expiresAt := time.Now().AddDate(0, 0, 364)
-	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
+	accessToken, err := repo.RotateGroupAccessToken(c.Context(), classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
 	if err != nil {
 		return err
 	}

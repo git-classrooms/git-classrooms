@@ -97,7 +97,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	}
 
 	// Get user from GitLab
-	gitlabUser, err := repo.GetCurrentUser()
+	gitlabUser, err := repo.GetCurrentUser(c.Context())
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -9,7 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type createTeamRequest struct {
@@ -37,7 +38,7 @@ func (r createTeamRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
 	team := classroom.Team
@@ -84,6 +85,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	group, err := repo.CreateSubGroup(
+		c.Context(),
 		requestBody.Name,
 		classroom.Classroom.GroupID,
 		model.Private,
@@ -94,7 +96,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	}
 	defer func() {
 		if recover() != nil || err != nil {
-			if err := repo.DeleteGroup(group.ID); err != nil {
+			if err := repo.DeleteGroup(context.Background(), group.ID); err != nil {
 				log.Println(err.Error())
 			}
 		}
@@ -113,7 +115,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	member := make([]*database.UserClassrooms, 0)
 
 	if classroom.Role == database.Student {
-		if err := repo.AddUserToGroup(group.ID, userID, model.ReporterPermissions); err != nil {
+		if err := repo.AddUserToGroup(c.Context(), group.ID, userID, model.ReporterPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		member = append(member, user)
@@ -130,7 +132,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	if _, err = repo.ChangeGroupDescription(group.ID, ctrl.createTeamGitlabDescription(&classroom.Classroom, newTeam.ID)); err != nil {
+	if _, err = repo.ChangeGroupDescription(c.Context(), group.ID, ctrl.createTeamGitlabDescription(&classroom.Classroom, newTeam.ID)); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

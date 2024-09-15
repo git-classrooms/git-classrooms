@@ -1,13 +1,14 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 // @Summary		Join the team
@@ -27,7 +28,7 @@ import (
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v2/classrooms/{classroomId}/teams/{teamId}/join [post]
 func (ctrl *DefaultController) JoinTeam(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
 	ownTeam := classroom.Team
@@ -51,12 +52,12 @@ func (ctrl *DefaultController) JoinTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	if err = repo.AddUserToGroup(team.GroupID, userID, model.ReporterPermissions); err != nil {
+	if err = repo.AddUserToGroup(c.Context(), team.GroupID, userID, model.ReporterPermissions); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer func() {
 		if recover() != nil || err != nil {
-			if err := repo.RemoveUserFromGroup(team.GroupID, userID); err != nil {
+			if err := repo.RemoveUserFromGroup(context.Background(), team.GroupID, userID); err != nil {
 				log.Println(err)
 			}
 		}

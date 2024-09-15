@@ -6,7 +6,7 @@ import (
 )
 
 func (ctrl *DefaultController) GetMeGitlab(c *fiber.Ctx) (err error) {
-	gitlabUser, err := context.Get(c).GetGitlabRepository().GetCurrentUser()
+	gitlabUser, err := context.Get(c).GetGitlabRepository().GetCurrentUser(c.Context())
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

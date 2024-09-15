@@ -33,7 +33,7 @@ func (ctrl *DefaultController) GetProjectCloneUrls(c *fiber.Ctx) (err error) {
 		return fiber.ErrNotFound
 	}
 
-	project, err := repo.GetProjectById(projectId)
+	project, err := repo.GetProjectById(c.Context(), projectId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

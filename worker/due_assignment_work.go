@@ -70,7 +70,7 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *dat
 		if recover() != nil || err != nil {
 			log.Default().Printf("DueAssignmentWorker: Error occurred while closing assignment %s: %s", assignment.Name, err.Error())
 			for _, cache := range caches {
-				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
+				repo.ChangeUserAccessLevelInProject(context.Background(), cache.ProjectID, cache.UserID, cache.AccessLevel)
 				// TODO: when this fails, we lose the sync between our database and the gitlab. We should handle this in the future
 			}
 		}
@@ -82,7 +82,7 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *dat
 		}
 
 		for _, member := range project.Team.Member {
-			oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, member.UserID)
+			oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(ctx, project.ProjectID, member.UserID)
 			if err != nil {
 				return err
 			}
@@ -90,7 +90,7 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *dat
 				continue
 			}
 
-			if err := repo.ChangeUserAccessLevelInProject(project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
+			if err := repo.ChangeUserAccessLevelInProject(ctx, project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
 				return err
 			}
 

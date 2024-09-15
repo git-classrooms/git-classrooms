@@ -53,7 +53,7 @@ func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err err
 			return fiber.NewError(fiber.StatusBadRequest, "JUnit Auto Grading is not active")
 		}
 
-		report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
+		report, err := repo.GetProjectLatestPipelineTestReportSummary(c.Context(), project.ProjectID, nil)
 		if err != nil {
 			var gitlabError *model.GitLabError
 			if errors.As(err, &gitlabError) {

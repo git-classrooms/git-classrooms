@@ -79,7 +79,7 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 
 func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom database.Classroom, repo gitlab.Repository) error {
 	log.Default().Printf("Syncing classroom %s (ID=%d)", dbClassroom.Name, dbClassroom.GroupID)
-	gitlabClassroom, err := repo.GetGroupById(dbClassroom.GroupID)
+	gitlabClassroom, err := repo.GetGroupById(ctx, dbClassroom.GroupID)
 	if err != nil {
 		var gitLabError *model.GitLabError
 		if errors.As(err, &gitLabError) {
@@ -113,7 +113,7 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 	}
 
 	if dbClassroom.Name != gitlabClassroom.Name {
-		if _, err := repo.ChangeGroupName(dbClassroom.GroupID, dbClassroom.Name); err != nil {
+		if _, err := repo.ChangeGroupName(ctx, dbClassroom.GroupID, dbClassroom.Name); err != nil {
 			log.Default().Printf("Error could not update group name for classroom %d: %s", dbClassroom.GroupID, err.Error())
 		}
 	}
@@ -121,7 +121,7 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 	shouldDescription := utils.CreateClassroomGitlabDescription(&dbClassroom, w.publicURL)
 
 	if shouldDescription != gitlabClassroom.Description {
-		if _, err := repo.ChangeGroupDescription(dbClassroom.GroupID, shouldDescription); err != nil {
+		if _, err := repo.ChangeGroupDescription(ctx, dbClassroom.GroupID, shouldDescription); err != nil {
 			log.Default().Printf("Error could not update group name for classroom %d: %s", dbClassroom.GroupID, err.Error())
 		}
 	}
@@ -140,7 +140,7 @@ func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int,
 	}
 
 	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
-		err := repo.RemoveUserFromGroup(groupId, member.ID)
+		err := repo.RemoveUserFromGroup(ctx, groupId, member.ID)
 		if err != nil {
 			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
 		} else {
@@ -163,7 +163,7 @@ func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMe
 	}
 
 	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
-		err := repo.RemoveUserFromGroup(groupId, member.ID)
+		err := repo.RemoveUserFromGroup(ctx, groupId, member.ID)
 		if err != nil {
 			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
 		} else {
@@ -182,7 +182,7 @@ func (w *SyncGitlabDbWork) syncMember(
 	handleLeftMembers func(ctx context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository),
 	handleAddedMembers func(ctx context.Context, member *model.User, groupId int, repo gitlab.Repository),
 ) {
-	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
+	gitlabMember, err := repo.GetAllUsersOfGroup(ctx, groupId)
 	if err != nil {
 		log.Default().Printf("Could not retive members of group with id %d. ErrorMsg: %s", groupId, err.Error())
 		return
@@ -246,7 +246,7 @@ func (w *SyncGitlabDbWork) isGroupBootUser(user model.User, groupId int) bool {
 }
 
 func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Classroom, dbTeam database.Team, repo gitlab.Repository) error {
-	gitlabTeam, err := repo.GetGroupById(dbTeam.GroupID)
+	gitlabTeam, err := repo.GetGroupById(ctx, dbTeam.GroupID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
 			_, err := query.Team.WithContext(ctx).Delete(&dbTeam)
@@ -261,14 +261,14 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Cla
 	}
 
 	if dbTeam.Name != gitlabTeam.Name {
-		if _, err := repo.ChangeGroupName(dbTeam.GroupID, dbTeam.Name); err != nil {
+		if _, err := repo.ChangeGroupName(ctx, dbTeam.GroupID, dbTeam.Name); err != nil {
 			log.Default().Printf("Error could not update group name for team %d: %s", dbTeam.GroupID, err.Error())
 		}
 	}
 
 	shouldDescription := utils.CreateTeamGitlabDescription(classroom, &dbTeam, w.publicURL)
 	if shouldDescription != gitlabTeam.Description {
-		if _, err := repo.ChangeGroupDescription(dbTeam.GroupID, shouldDescription); err != nil {
+		if _, err := repo.ChangeGroupDescription(ctx, dbTeam.GroupID, shouldDescription); err != nil {
 			log.Default().Printf("Error could not update group name for team %d: %s", dbTeam.GroupID, err.Error())
 		}
 	}
@@ -291,7 +291,7 @@ func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignment
 }
 
 func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.AssignmentProjects, repo gitlab.Repository) {
-	_, err := repo.GetProjectById(dbProject.ProjectID)
+	_, err := repo.GetProjectById(ctx, dbProject.ProjectID)
 	if err == nil || !strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
 		return
 	}
