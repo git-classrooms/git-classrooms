@@ -146,6 +146,7 @@ func (*DefaultController) JoinClassroom(c *fiber.Ctx) error {
 			var subgroup *gitlabModel.Group
 			subgroup, err = repo.CreateSubGroup(
 				member.User.Name,
+				member.User.Name,
 				invitation.Classroom.GroupID,
 				gitlabModel.Private,
 				fmt.Sprintf("Team %s of classroom %s", member.User.Name, invitation.Classroom.Name),

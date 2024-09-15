@@ -71,6 +71,7 @@ func (ctrl *DefaultController) CreateOwnedClassroomTeam(c *fiber.Ctx) error {
 
 	group, err := repo.CreateSubGroup(
 		requestBody.Name,
+		requestBody.Name,
 		classroom.GroupID,
 		model.Private,
 		fmt.Sprintf("Team %s of classroom %s", requestBody.Name, classroom.Name),
