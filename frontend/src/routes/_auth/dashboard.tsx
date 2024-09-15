@@ -44,11 +44,19 @@ function Classrooms() {
     [moderatorClassrooms, studentClassrooms],
   );
 
+  const sortedAssignments = useMemo(() => {
+    return [...activeAssignments].sort((a, b) => {
+      if (a.dueDate === null) return 1;
+      if (b.dueDate === null) return -1;
+      return new Date(a.dueDate ?? 0).getTime() - new Date(b.dueDate ?? 0).getTime();
+    });
+  }, [activeAssignments]);
+
   return (
     <div>
       <div className="flex-1 space-y-4">
         <Header title="Dashboard" />
-        <ActiveAssignmentListCard activeAssignments={activeAssignments} />
+        <ActiveAssignmentListCard activeAssignments={sortedAssignments} />
         <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-4">
           <OwnedClassroomTable classrooms={ownedClassrooms} />
           <JoinedClassroomTable classrooms={joinedClassrooms} />
@@ -108,7 +116,7 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
       </CardHeader>
       <CardContent>
         {classrooms.length === 0 ? (
-          <div className="text-center text-muted-foreground">No managed classrooms</div>
+          <div className="text-center text-muted-foreground">No joined classrooms</div>
         ) : (
           <List
             items={classrooms}
@@ -132,7 +140,7 @@ function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: s
     <div className="cursor-default flex">
       <div className="pr-2">
         <Avatar>
-          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
+          <AvatarFallback className="bg-gray-200 text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
         </Avatar>
       </div>
       <div>
@@ -153,7 +161,7 @@ function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; class
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId: classroomId }}>
-          <ArrowRight className="text-gray-600 dark:text-white" />
+          <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
         </Link>
       </Button>
     </>
