@@ -1,17 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Loader } from "@/components/loader.tsx";
-import { ArrowRight as ArrowRight, Code, Gitlab } from "lucide-react";
+import { ArrowRight as ArrowRight, Plus, SearchCode } from "lucide-react";
 import { Header } from "@/components/header";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
 import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/ui/list.tsx";
-import ListItem from "@/components/ui/listItem.tsx";
+import List from "@/components/list.tsx";
+import ListItem from "@/components/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -64,30 +63,36 @@ function Classrooms() {
 function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Managed Classrooms</CardTitle>
-        <CardDescription>Classrooms which are managed by you</CardDescription>
+      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
+        <div className="mb-4 md:mb-0">
+          <CardTitle className="mb-1">Managed Classrooms</CardTitle>
+          <CardDescription>Classrooms which are managed by you</CardDescription>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link to="/classrooms/create">
+              <Plus className="h-4 w-4 mr-2" /> Create classroom
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent>
-        <List
-          items={classrooms}
-          renderItem={(item) => (
-            <ListItem
-              leftContent={
-                <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
-              }
-              rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
-            />
-          )}
-        />
+        {classrooms.length === 0 ? (
+          <div className="text-center text-muted-foreground">No managed classrooms</div>
+        ) : (
+          <List
+            items={classrooms}
+            renderItem={(item) => (
+              <ListItem
+                leftContent={
+                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
+                }
+                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
+              />
+            )}
+          />)}
       </CardContent>
-
-      <CardFooter className="flex justify-end gap-2">
-        <Button asChild variant="default">
-          <Link to="/classrooms/create">Create a new Classroom</Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
@@ -97,34 +102,24 @@ function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomRespons
     <Card>
       <CardHeader>
         <CardTitle>Joined Classrooms</CardTitle>
-        <CardDescription>Classrooms which you have joined</CardDescription>
+        <CardDescription>Classroom of which you are a member</CardDescription>
       </CardHeader>
-      <Table className="flex-auto">
-        <TableBody>
-          {classrooms.map((c) => (
-            <TableRow key={c.classroom.id}>
-              <TableCell>{c.classroom.name}</TableCell>
-              <TableCell>{c.classroom.owner.name}</TableCell>
-              <TableCell>
-                <a href={c.webUrl} target="_blank" rel="noreferrer">
-                  <Code />
-                </a>
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="outline">
-                  <Link
-                    to="/classrooms/$classroomId"
-                    search={{ tab: "assignments" }}
-                    params={{ classroomId: c.classroom.id }}
-                  >
-                    <ArrowRight />
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <CardContent>
+        {classrooms.length === 0 ? (
+          <div className="text-center text-muted-foreground">No joined classrooms</div>
+        ) : (
+          <List
+            items={classrooms}
+            renderItem={(item) => (
+              <ListItem
+                leftContent={
+                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
+                }
+                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
+              />
+            )}
+          />)}
+      </CardContent>
     </Card>
   );
 }
@@ -135,7 +130,7 @@ function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: s
     <div className="cursor-default flex">
       <div className="pr-2">
         <Avatar>
-          <AvatarFallback className="bg-[#FC6D25] text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
+          <AvatarFallback className="bg-gray-200 text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
         </Avatar>
       </div>
       <div>
@@ -151,12 +146,12 @@ function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; class
     <>
       <Button variant="ghost" size="icon" asChild>
         <a href={gitlabUrl} target="_blank" rel="noreferrer">
-          <Gitlab className="h-6 w-6 text-slate-500 dark:text-white" />
+          <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
         </a>
       </Button>
       <Button variant="ghost" size="icon" asChild>
         <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId: classroomId }}>
-          <ArrowRight className="text-slate-500 dark:text-white" />
+          <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
         </Link>
       </Button>
     </>
