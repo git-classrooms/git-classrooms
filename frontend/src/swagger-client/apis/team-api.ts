@@ -271,7 +271,7 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarHeaderParameter['X-Csrf-Token'] = String(xCsrfToken);
             }
 
-            localVarHeaderParameter['Content-Type'] = '*/*';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
