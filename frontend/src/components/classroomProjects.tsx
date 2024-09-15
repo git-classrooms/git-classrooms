@@ -2,14 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button.tsx";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { Gitlab, LogIn } from "lucide-react";
+import { ArrowRight, LogIn, SearchCode } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { projectsQueryOptions } from "@/api/project";
-import { ProjectResponse } from "@/swagger-client";
+import { ProjectResponse, UserClassroomResponse } from "@/swagger-client";
 import { getStatusProps, Status } from "@/types/projects";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { classroomQueryOptions } from "@/api/classroom.ts";
 
 /**
  * ProjectListSection is a React component that displays a list of projects in a classroom.
@@ -25,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
  */
 export function ProjectListSection({ classroomId }: { classroomId: string }): JSX.Element {
   const { data: projects } = useSuspenseQuery(projectsQueryOptions(classroomId));
+  const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   return (
     <>
       <Card className="p-2">
@@ -35,14 +37,14 @@ export function ProjectListSection({ classroomId }: { classroomId: string }): JS
           </div>
         </CardHeader>
         <CardContent>
-          <ProjectTable projects={projects} classroomId={classroomId} />
+          <ProjectTable projects={projects} userClassroom={userClassroom} />
         </CardContent>
       </Card>
     </>
   );
 }
 
-function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; classroomId: string }) {
+function ProjectTable({ projects, userClassroom }: { projects: ProjectResponse[]; userClassroom: UserClassroomResponse }) {
   return (
     <Table>
       <TableHeader>
@@ -69,7 +71,13 @@ function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; 
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex pl-1 gap-3 items-center">
+                {p.assignment.dueDate && new Date(p.assignment.dueDate) < new Date() ? (
+                  <div className="flex pl-1 gap-3 items-center">
+                  <span className="relative flex h-3 w-3">
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
+                  </span>
+                    Closed
+                  </div>) : (<div className="flex pl-1 gap-3 items-center">
                   <span className="relative flex h-3 w-3">
                     <span
                       className={cn(
@@ -80,7 +88,7 @@ function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; 
                     <span className={cn("relative inline-flex rounded-full h-3 w-3", statusProps.color.primary)}></span>
                   </span>
                   {statusProps.name}
-                </div>
+                </div>)}
               </TableCell>
               <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(p.createdAt)}</TableCell>
               <TableCell className="hidden md:table-cell">
@@ -88,20 +96,44 @@ function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; 
               </TableCell>
               <TableCell className="flex flex-wrap flex-row-reverse gap-2">
                 {p.projectStatus === Status.Accepted ? (
-                  <Button disabled={p.projectStatus !== Status.Accepted} variant="outline" size="icon" asChild>
-                    <a href={p.webUrl} target="_blank" referrerPolicy="no-referrer">
-                      <Gitlab className="h-4 w-4" />
-                    </a>
-                  </Button>
+                  <>
+                    {userClassroom.classroom.studentsViewAllProjects && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="ghost" size="icon" title="Go to assignment" asChild>
+                            <Link to="/classrooms/$classroomId/assignments/$assignmentId"
+                                  params={{classroomId: userClassroom.classroom.id, assignmentId: p.assignment.id}}>
+                              <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Go to assignment</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" title="Go to code" asChild>
+                          <a href={p.webUrl} target="_blank" referrerPolicy="no-referrer">
+                            <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Go to code</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </>
                 ) : p.projectStatus === Status.Pending || p.projectStatus === Status.Failed ? (
                   <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" asChild>
+                      <Button variant="ghost" size="icon" asChild>
                         <Link
                           to="/classrooms/$classroomId/projects/$projectId/accept"
-                          params={{ classroomId, projectId: p.id }}
+                          params={{ classroomId: userClassroom.classroom.id, projectId: p.id }}
                         >
-                          <LogIn className="h-4 w-4" />
+                          <LogIn className="text-gray-600 dark:text-white h-6 w-6" />
                         </Link>
                       </Button>
                     </TooltipTrigger>
@@ -112,7 +144,7 @@ function ProjectTable({ projects, classroomId }: { projects: ProjectResponse[]; 
                 ) : (
                   <Button variant="ghost" size="icon" asChild>
                     <div>
-                      <Gitlab className="h-4 w-4 text-gray-400" />
+                      <SearchCode className="text-gray-600 dark:text-white h-6 w-6" />
                     </div>
                   </Button>
                 )}
