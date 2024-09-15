@@ -2,7 +2,7 @@ import { getRole } from "@/types/classroom.ts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Link } from "@tanstack/react-router";
-import { Clipboard, Gitlab } from "lucide-react";
+import { Clipboard, User } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Avatar } from "@/components/avatar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
@@ -50,7 +50,7 @@ export function MemberListCard({
           {!deactivateInteraction && isOwner(userClassroom) && (
             <Button variant="outline" asChild>
               <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-                Change roles
+                Manage members
               </Link>
             </Button>
           )}
@@ -103,7 +103,7 @@ function MemberTable({
               <>
                 <Button variant="ghost" size="icon" asChild>
                   <a href={m.webUrl} target="_blank" rel="noreferrer">
-                    <Gitlab className="h-6 w-6 text-gray-600" />
+                    <User className="h-6 w-6 text-gray-600" />
                   </a>
                 </Button>
                 {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (

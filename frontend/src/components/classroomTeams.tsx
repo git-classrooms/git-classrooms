@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { Gitlab, UserPlus } from "lucide-react";
+import { SearchCode, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
@@ -123,7 +123,7 @@ export function TeamTable({
               <TableCell className="p-2 flex justify-end align-middle">
                 <Button variant="ghost" size="icon" asChild>
                   <a href={t.webUrl} target="_blank" rel="noreferrer">
-                    <Gitlab className="h-6 w-6 text-gray-600 dark:text-white" />
+                    <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
                   </a>
                 </Button>
                 {!deactivateInteraction && (
