@@ -10,8 +10,8 @@ import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
 import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/ui/list.tsx";
-import ListItem from "@/components/ui/listItem.tsx";
+import List from "@/components/list.tsx";
+import ListItem from "@/components/listItem.tsx";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
