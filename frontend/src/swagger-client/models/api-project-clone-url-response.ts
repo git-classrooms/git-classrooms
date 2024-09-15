@@ -27,10 +27,10 @@ export interface ApiProjectCloneUrlResponse {
     httpUrlToRepo: string;
 
     /**
-     * @type {number}
+     * @type {string}
      * @memberof ApiProjectCloneUrlResponse
      */
-    projectId: number;
+    projectId: string;
 
     /**
      * @type {string}

@@ -24,12 +24,12 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 
 	expectedResponse := []ProjectCloneUrlResponse{
 		{
-			ProjectId:     projectId1,
+			ProjectId:     uuid.New(),
 			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
 			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
 		},
 		{
-			ProjectId:     projectId2,
+			ProjectId:     uuid.New(),
 			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
 			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
 		},

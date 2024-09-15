@@ -24,7 +24,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	http_url := "https://hs-flensburg.dev/fape2866/ci-test-project.git"
 
 	expectedResponse := ProjectCloneUrlResponse{
-		ProjectId:     projectId,
+		ProjectId:     uuid.New(),
 		SshUrlToRepo:  shh_url,
 		HttpUrlToRepo: http_url,
 	}

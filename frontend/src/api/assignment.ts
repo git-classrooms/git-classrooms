@@ -35,6 +35,15 @@ export const activeAssignmentQueryOptions = () =>
     },
   });
 
+export const assignmentCloneUrlsQueryOptions = (classroomId: string, assignmentId: string) =>
+  queryOptions({
+    queryKey: ["classrooms", classroomId, "assignments", assignmentId, "cloneUrls"],
+    queryFn: async () => {
+      const res = await apiClient.getMultipleProjectCloneUrls(classroomId, assignmentId);
+      return res.data;
+    },
+  });
+
 // Mutations
 
 export const useCreateAssignment = (classroomId: string) => {
@@ -70,4 +79,4 @@ export const useUpdateAssignment = (classroomId: string, assignmentId: string) =
       queryClient.invalidateQueries(authCsrfQueryOptions);
     },
   });
-}
+};
