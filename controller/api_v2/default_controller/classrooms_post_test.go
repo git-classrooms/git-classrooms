@@ -29,6 +29,7 @@ func TestCreateClassroom(t *testing.T) {
 	query.SetDefault(db)
 	user := factory.User()
 	app, gitlabRepo, _ := setupApp(t, user)
+	classroomGroupId := 1
 
 	t.Run("CreateClassroom", func(t *testing.T) {
 		requestBody := createClassroomRequest{
@@ -48,7 +49,7 @@ func TestCreateClassroom(t *testing.T) {
 				requestBody.Description,
 			).
 			Return(
-				&model.Group{ID: 1},
+				&model.Group{ID: classroomGroupId},
 				nil,
 			).
 			Times(1)
@@ -57,7 +58,7 @@ func TestCreateClassroom(t *testing.T) {
 			EXPECT().
 			CreateGroupAccessToken(
 				1,
-				"Gitlab Classrooms",
+				"GitClassrooms",
 				model.OwnerPermissions,
 				mock.AnythingOfType("time.Time"),
 				"api",
@@ -68,11 +69,16 @@ func TestCreateClassroom(t *testing.T) {
 			).
 			Times(1)
 
+		gitlabRepo.
+			EXPECT().
+			ChangeGroupDescription(classroomGroupId, mock.Anything).
+			Return(nil, nil).
+			Times(1)
+
 		req := newPostJsonRequest("/api/v2/classrooms", requestBody)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
-
 		assert.NoError(t, err)
+		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		classRoom, err := query.Classroom.
 			WithContext(context.Background()).

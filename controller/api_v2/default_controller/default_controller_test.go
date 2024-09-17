@@ -30,10 +30,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const testUrl = "http://example.com"
+
 type IntegrationTest struct {
 	dbURL        string
 	container    *postgres.PostgresContainer
 	snapshotName string
+	publicUrl    *url.URL
 }
 
 var integrationTest IntegrationTest
@@ -83,8 +86,10 @@ func TestMain(m *testing.M) {
 	}
 
 	query.SetDefault(db)
-	session.InitSessionStore(nil)
+	publicUrl, _ := url.Parse(testUrl)
+	session.InitSessionStore(nil, publicUrl)
 
+	integrationTest.publicUrl = publicUrl
 	integrationTest.container = pg
 	integrationTest.dbURL = dbURL
 
@@ -125,19 +130,25 @@ func restoreDatabase(t *testing.T) {
 func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.MockRepository, *mailRepoMock.MockRepository) {
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	session.InitSessionStore(&integrationTest.dbURL)
+	session.InitSessionStore(nil, integrationTest.publicUrl)
 
 	session.CsrfConfig.Next = func(c *fiber.Ctx) bool { return true }
 
 	app := fiber.New()
 
 	apiCtrl := apiControllerMock.NewMockController(t)
-	v2Controller := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
+	v2Controller := NewApiV2Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicUrl})
 	authCtrl := authController.NewTestAuthController(user, gitlabRepo)
 
-	redirectUrl, _ := url.Parse("http://example.com")
-
-	router.Routes(app, authCtrl, apiCtrl, v2Controller, "public", &auth.OAuthConfig{RedirectURL: redirectUrl})
+	router.Routes(app, authCtrl, apiCtrl, v2Controller, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
 
 	return app, gitlabRepo, mailRepo
+}
+
+
+func saveClassroom(t *testing.T, classroom *database.Classroom) {
+	err := query.Classroom.WithContext(context.Background()).Save(classroom)
+	if err != nil {
+		t.Fatal("Could not save classroom!")
+	}
 }

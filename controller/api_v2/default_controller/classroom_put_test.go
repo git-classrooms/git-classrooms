@@ -10,6 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -45,10 +46,18 @@ func TestPutClassroom(t *testing.T) {
 			ChangeGroupName(classroom.GroupID, requestBody.Name).
 			Return(&model.Group{Name: requestBody.Name}, nil)
 
+		//
+		tmpClassroom := &database.Classroom{
+			ID:          classroom.ID,
+			Description: requestBody.Description,
+		}
+
+		testDescription := utils.CreateClassroomGitlabDescription(tmpClassroom, integrationTest.publicUrl)
+
 		gitlabRepo.
 			EXPECT().
-			ChangeGroupDescription(classroom.GroupID, requestBody.Description).
-			Return(&model.Group{Description: requestBody.Description}, nil)
+			ChangeGroupDescription(classroom.GroupID, testDescription).
+			Return(&model.Group{Description: testDescription}, nil)
 
 		req := newPutJsonRequest(route, requestBody)
 		resp, err := app.Test(req)

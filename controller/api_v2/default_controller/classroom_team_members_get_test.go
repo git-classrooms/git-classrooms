@@ -58,7 +58,6 @@ func TestGetClassroomTeamMembers(t *testing.T) {
 
 		assert.Len(t, userClassroomResponse, 1)
 
-		assert.Equal(t, userClassroomResponse[0].TeamID, team.ID)
-		assert.Equal(t, userClassroomResponse[0].UserID, member.ID)
+		assert.Equal(t, userClassroomResponse[0].User.ID, member.ID)
 	})
 }

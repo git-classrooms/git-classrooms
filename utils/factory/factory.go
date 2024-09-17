@@ -85,6 +85,7 @@ func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID) *database.Assig
 	project.TeamID = teamID
 	project.AssignmentID = assignmentID
 	project.ProjectID = 1
+	project.ProjectStatus = database.Accepted
 
 	err := query.AssignmentProjects.WithContext(context.Background()).Create(&project)
 	if err != nil {

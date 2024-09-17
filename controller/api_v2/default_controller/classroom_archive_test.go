@@ -134,10 +134,3 @@ func TestPatchClassroomArchive(t *testing.T) {
 	})
 
 }
-
-func saveClassroom(t *testing.T, classroom *database.Classroom) {
-	err := query.Classroom.WithContext(context.Background()).Save(classroom)
-	if err != nil {
-		t.Fatal("Could not save classroom!")
-	}
-}
