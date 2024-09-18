@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http/httptest"
 	"testing"
@@ -21,9 +22,13 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 
 	user := factory.User()
 	classroom := factory.Classroom(user.ID)
+	factory.UserClassroom(user.ID, classroom.ID, database.Owner)
+
 	team := factory.Team(classroom.ID, make([]*database.UserClassrooms, 0))
+
 	dueDate := time.Now().Add(1 * time.Hour)
 	assignment := factory.Assignment(classroom.ID, &dueDate, false)
+
 	project1 := factory.AssignmentProject(assignment.ID, team.ID)
 	project2 := factory.AssignmentProject(assignment.ID, team.ID)
 	project3 := factory.AssignmentProject(assignment.ID, team.ID)
@@ -54,15 +59,16 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	}
 
 	app, gitlabRepo, _ := setupApp(t, user)
+	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/repos", classroom.ID, assignment.ID)
 
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(project1.ID).
+			GetProjectById(project1.ProjectID).
 			Return(nil, assert.AnError).
 			Times(1)
 
-		req := httptest.NewRequest("GET", "/api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", nil)
+		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
 		gitlabRepo.AssertExpectations(t)
@@ -71,7 +77,7 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	})
 
-	t.Run("GetProjectCloneUrls - /api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", func(t *testing.T) {
+	t.Run("GetProjectCloneUrls", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
 			GetProjectById(project1.ProjectID).
@@ -98,7 +104,7 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 			).
 			Times(1)
 
-		req := httptest.NewRequest("GET", "/api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", nil)
+		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
 		gitlabRepo.AssertExpectations(t)

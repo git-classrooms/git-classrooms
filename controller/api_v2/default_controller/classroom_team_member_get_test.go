@@ -56,7 +56,6 @@ func TestGetClassroomTeamMember(t *testing.T) {
 		err = json.NewDecoder(resp.Body).Decode(&userClassroomResponse)
 		assert.NoError(t, err)
 
-		assert.Equal(t, userClassroomResponse.TeamID, team.ID)
-		assert.Equal(t, userClassroomResponse.UserID, member.ID)
+		assert.Equal(t, userClassroomResponse.User.ID, member.ID)
 	})
 }

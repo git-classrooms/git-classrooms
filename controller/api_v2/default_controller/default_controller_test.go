@@ -145,7 +145,6 @@ func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.Mo
 	return app, gitlabRepo, mailRepo
 }
 
-
 func saveClassroom(t *testing.T, classroom *database.Classroom) {
 	err := query.Classroom.WithContext(context.Background()).Save(classroom)
 	if err != nil {
