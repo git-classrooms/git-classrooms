@@ -236,7 +236,10 @@ function CreateAssignment() {
                     </Popover>
                   </div>
                 </FormControl>
-                <FormDescription>This is the Template Repository of your assignment.</FormDescription>
+                <FormDescription>
+                  This is the Template Repository of your assignment.
+                  <br /> It must be an public GitLab Project under your own account.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
