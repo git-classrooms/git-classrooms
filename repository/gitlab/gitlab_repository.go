@@ -536,6 +536,11 @@ func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) 
 		Owned:      goGitlab.Bool(true),
 		OrderBy:    goGitlab.String("created_at"),
 		Search:     goGitlab.String(search),
+	}, func(r *retryablehttp.Request) error {
+		query := r.URL.Query()
+		query.Add("per_page", "100")
+		r.URL.RawQuery = query.Encode()
+		return nil
 	})
 	if err != nil {
 		return nil, ErrorFromGoGitlab(err)
