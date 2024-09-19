@@ -1,20 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { getStatus, InviteForm, inviteFormSchema } from "@/types/classroom";
+import { getStatus, InviteForm, inviteFormSchema, Status } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Clipboard, Loader2 } from "lucide-react";
 import { Loader } from "@/components/loader.tsx";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { Header } from "@/components/header.tsx";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatDate, isStudent } from "@/lib/utils.ts";
-import { ClassroomInvitation } from "@/swagger-client";
+import { ClassroomInvitation, UserClassroomResponse } from "@/swagger-client";
 import { classroomInvitationsQueryOptions, classroomQueryOptions, useInviteClassroomMembers } from "@/api/classroom";
 import {
   Breadcrumb,
@@ -24,6 +24,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -79,7 +80,7 @@ function ClassroomInviteForm() {
       </Breadcrumb>
 
       <Header title="Invitations" />
-      <InvitationsTable invitations={invitations} />
+      <InvitationsTable userClassroom={userClassroom} invitations={invitations} />
 
       <div className="flex flex-row justify-between">
         <h1 className="text-xl font-bold">Send new invitations</h1>
@@ -118,7 +119,14 @@ function ClassroomInviteForm() {
   );
 }
 
-function InvitationsTable({ invitations }: { invitations: ClassroomInvitation[] }) {
+function InvitationsTable({
+  userClassroom,
+  invitations,
+}: {
+  userClassroom: UserClassroomResponse;
+  invitations: ClassroomInvitation[];
+}) {
+  const router = useRouter();
   return (
     <Table>
       <TableCaption>Classrooms</TableCaption>
@@ -131,16 +139,32 @@ function InvitationsTable({ invitations }: { invitations: ClassroomInvitation[] 
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invitations.map((i) => (
-          <TableRow key={i.email}>
-            <TableCell>{i.email}</TableCell>
-            <TableCell>{formatDate(i.createdAt)}</TableCell>
-            <TableCell>{getStatus(i.status)}</TableCell>
-            <TableCell className="text-right">
-              <Button variant="outline">Refresh status</Button>
-            </TableCell>
-          </TableRow>
-        ))}
+        {invitations.map((i) => {
+          const path = router.buildLocation({
+            to: "/classrooms/$classroomId/invitations/$invitationId",
+            params: { classroomId: userClassroom.classroom.id, invitationId: i.id },
+          });
+          return (
+            <TableRow key={i.email}>
+              <TableCell>{i.email}</TableCell>
+              <TableCell>{formatDate(i.createdAt)}</TableCell>
+              <TableCell>{getStatus(i.status)}</TableCell>
+              <TableCell className="text-right">
+                {i.status !== Status.Accepted && i.status !== Status.Revoked && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${location.origin}${path.pathname}`);
+                      toast.success("Link copied to clipboard");
+                    }}
+                  >
+                    <Clipboard className="mr-2 h-4 w-4" /> Get Link
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
