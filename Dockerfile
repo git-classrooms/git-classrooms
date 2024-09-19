@@ -3,12 +3,6 @@
 #############################################
 FROM golang:1.22-alpine as preparer-go
 
-# install mockery
-RUN go install github.com/vektra/mockery/v2@v2.42.2
-
-# Install swag
-RUN go install github.com/swaggo/swag/cmd/swag@latest
-
 WORKDIR /app/build
 
 COPY ./go.mod ./go.sum ./
@@ -53,24 +47,18 @@ RUN yarn build
 ARG APP_VERSION="v0.0.0"
 FROM preparer-go as builder-go
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$APP_VERSION" -o /app/build/app
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$APP_VERSION -s -w" -o /app/build/app
 
 #############################################
 # Runtime image
 #############################################
-FROM alpine:3.18 as release
+FROM scratch
 
 ENV FRONTEND_PATH=/public
 ENV PORT=3000
 EXPOSE 3000
 
-RUN adduser -D gorunner
+COPY --from=builder-go /app/build/app /app
+COPY --from=builder-web /app/build/dist /public
 
-USER gorunner
-
-WORKDIR /
-
-COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
-COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
-
-ENTRYPOINT /app
+ENTRYPOINT ["/app"]

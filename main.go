@@ -1,7 +1,7 @@
 //go:generate go run ./code_gen/gorm/main.go
-//go:generate swag fmt --exclude frontend
-//go:generate swag init --requiredByDefault --exclude frontend
-//go:generate mockery
+//go:generate go run github.com/swaggo/swag/cmd/swag@latest fmt --exclude frontend
+//go:generate go run github.com/swaggo/swag/cmd/swag@latest init --requiredByDefault --exclude frontend
+//go:generate go run github.com/vektra/mockery/v2@v2.42.2
 package main
 
 import (
