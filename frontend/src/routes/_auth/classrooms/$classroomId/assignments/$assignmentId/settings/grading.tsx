@@ -74,7 +74,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
         const selected = tests.selectedTests.find((selectedTest) => selectedTest.name === test.name);
         return {
           name: test.name,
-          score: selected?.score ?? 0,
+          score: selected?.score ?? 1,
           active: !!selected,
         };
       }),
