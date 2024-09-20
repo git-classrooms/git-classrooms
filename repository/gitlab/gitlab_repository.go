@@ -339,6 +339,17 @@ func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessL
 	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
 }
 
+func (repo *GitlabRepo) GetGroupAccessToken(groupID int, tokenID int) (*model.GroupAccessToken, error) {
+	repo.assertIsConnected()
+
+	accessToken, _, err := repo.client.GroupAccessTokens.GetGroupAccessToken(groupID, tokenID)
+	if err != nil {
+		return nil, ErrorFromGoGitlab(err)
+	}
+
+	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
+}
+
 func (repo *GitlabRepo) RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error) {
 	repo.assertIsConnected()
 
