@@ -11,7 +11,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config/sentry"
 )
 
 type ApplicationConfig struct {
@@ -23,7 +22,6 @@ type ApplicationConfig struct {
 	Database       *database.PsqlConfig `envPrefix:"POSTGRES_"`
 	Auth           *auth.OAuthConfig    `envPrefix:"AUTH_"`
 	Mail           *mail.MailConfig     `envPrefix:"SMTP_"`
-	Sentry         *sentry.SentryConfig `envPrefix:"SENTRY_"`
 }
 
 func LoadApplicationConfig() (*ApplicationConfig, error) {
@@ -36,7 +34,6 @@ func LoadApplicationConfig() (*ApplicationConfig, error) {
 		Database: &database.PsqlConfig{},
 		Auth:     &auth.OAuthConfig{},
 		Mail:     &mail.MailConfig{},
-		Sentry:   &sentry.SentryConfig{},
 	}
 	if err := env.Parse(config); err != nil {
 		return nil, err
