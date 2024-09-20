@@ -18,39 +18,33 @@ func (ctrl *DefaultController) RotateAccessTokenMiddleware(c *fiber.Ctx) error {
 	classroom := ctx.GetUserClassroom()
 
 	if classroom.Role == database.Owner && !classroom.Classroom.Archived {
-		go func(ctx context.Context, repo gitlab.Repository, classroom database.Classroom) {
-			if _, err, _ := ctrl.g.Do(classroom.ID.String(), func() (interface{}, error) {
-				return nil, rotateGroupAccessToken(ctx, repo, &classroom)
-			}); err != nil {
-				log.Println(err)
-			}
-		}(c.Context(), repo, classroom.Classroom)
+		if _, err, _ := ctrl.g.Do(classroom.ClassroomID.String(), func() (interface{}, error) {
+			return nil, rotateGroupAccessToken(c.Context(), repo, &classroom.Classroom)
+		}); err != nil {
+			log.Println(err)
+		}
 	}
 
 	return c.Next()
 }
 
 func rotateGroupAccessToken(ctx context.Context, repo gitlab.Repository, classroom *database.Classroom) error {
-	accessToken, err := repo.GetGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID)
-	if err != nil {
-		return err
-	}
-
-	if accessToken.CreatedAt.Add(24 * time.Hour).After(time.Now()) {
+	if classroom.GroupAccessTokenCreatedAt.Add(24 * time.Hour).After(time.Now()) {
 		return nil
 	}
 
 	expiresAt := time.Now().AddDate(0, 0, 364)
-	accessToken, err = repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
+	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
 	if err != nil {
 		return err
 	}
 
-	queryClassroom := query.Classroom
-	if _, err = queryClassroom.
-		WithContext(ctx).
-		Where(queryClassroom.ID.Eq(classroom.ID)).
-		Updates(database.Classroom{GroupAccessTokenID: accessToken.ID, GroupAccessToken: accessToken.Token}); err != nil {
+	log.Println("Rotating access token for classroom", classroom.ID)
+
+	classroom.GroupAccessTokenID = accessToken.ID
+	classroom.GroupAccessToken = accessToken.Token
+	classroom.GroupAccessTokenCreatedAt = accessToken.CreatedAt
+	if err = query.Classroom.WithContext(ctx).Save(classroom); err != nil {
 		return err
 	}
 	return nil

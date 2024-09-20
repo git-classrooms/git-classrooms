@@ -22,9 +22,10 @@ type Classroom struct {
 	MaxTeamSize int  `gorm:"not null;default:1" json:"maxTeamSize"`
 	MaxTeams    int  `gorm:"not null;default:0" json:"maxTeams"`
 
-	GroupID            int    `gorm:"<-:create;not null" json:"groupId"`
-	GroupAccessTokenID int    `gorm:"not null" json:"-"`
-	GroupAccessToken   string `gorm:"not null" json:"-"`
+	GroupID                   int       `gorm:"<-:create;not null" json:"groupId"`
+	GroupAccessTokenID        int       `gorm:"not null" json:"-"`
+	GroupAccessToken          string    `gorm:"not null" json:"-"`
+	GroupAccessTokenCreatedAt time.Time `gorm:"not null" json:"-"`
 
 	Member                  []*UserClassrooms      `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
 	Teams                   []*Team                `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
