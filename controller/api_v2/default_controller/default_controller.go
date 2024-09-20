@@ -2,6 +2,7 @@ package api
 
 import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
+	"golang.org/x/sync/singleflight"
 
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -20,10 +21,12 @@ type Params struct {
 type DefaultController struct {
 	config   config.ApplicationConfig
 	mailRepo mailRepo.Repository
+	g        *singleflight.Group
 }
 
 func NewApiV2Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
-	return &DefaultController{mailRepo: mailRepo, config: config}
+	g := &singleflight.Group{}
+	return &DefaultController{mailRepo: mailRepo, config: config, g: g}
 }
 
 type UserResponse struct {

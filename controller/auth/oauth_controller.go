@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang/groupcache/singleflight"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -18,6 +17,7 @@ import (
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"golang.org/x/oauth2"
+	"golang.org/x/sync/singleflight"
 	"gorm.io/gen/field"
 )
 
@@ -189,7 +189,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		// this added to prevent multiple requests from refreshing the token at the same time
 		// If 2 refresh requests are sent at the same time, the first one will refresh the token
 		// and the second would get an error because the refresh token was already used
-		_, err := ctrl.g.Do(fmt.Sprintf("%d", userId), func() (interface{}, error) {
+		_, err, _ := ctrl.g.Do(fmt.Sprintf("%d", userId), func() (interface{}, error) {
 			return nil, ctrl.refreshSession(c.Context(), sess)
 		})
 		if err != nil {
