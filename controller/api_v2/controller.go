@@ -15,6 +15,7 @@ type Controller interface {
 
 	ArchivedMiddleware(*fiber.Ctx) error
 	PotentiallyDeletedClassroomMiddleware(*fiber.Ctx) error
+	RotateAccessTokenMiddleware(*fiber.Ctx) error
 
 	RedirectUserGitlab(*fiber.Ctx) error
 	RedirectGroupGitlab(*fiber.Ctx) error

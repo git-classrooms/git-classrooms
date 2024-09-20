@@ -11,6 +11,7 @@ type Repository interface {
 	Login(token string) error
 	GroupAccessLogin(token string) error
 	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error)
+	GetGroupAccessToken(groupID int, tokenID int) (*model.GroupAccessToken, error)
 	RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error)
 
 	// Group

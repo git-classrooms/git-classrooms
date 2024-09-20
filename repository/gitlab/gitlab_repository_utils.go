@@ -322,6 +322,7 @@ func GroupAccessTokenFromGoGitlabGroupAccessToken(input goGitlab.GroupAccessToke
 		UserID:      input.UserID,
 		Name:        input.Name,
 		Scopes:      input.Scopes,
+		CreatedAt:   time.Time(*input.CreatedAt),
 		ExpiresAt:   time.Time(*input.ExpiresAt),
 		Token:       input.Token,
 		AccessLevel: AccessLevelFromGoGitlab(input.AccessLevel),

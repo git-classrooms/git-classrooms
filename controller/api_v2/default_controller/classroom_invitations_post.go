@@ -42,10 +42,6 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
 
-	if err := ctrl.RotateAccessToken(c, &classroom.Classroom); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
 	var requestBody inviteToClassroomRequest
 	if err := c.BodyParser(&requestBody); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

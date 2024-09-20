@@ -7,6 +7,7 @@ type GroupAccessToken struct {
 	UserID      int
 	Name        string
 	Scopes      []string
+	CreatedAt   time.Time
 	ExpiresAt   time.Time
 	Token       string
 	AccessLevel AccessLevelValue

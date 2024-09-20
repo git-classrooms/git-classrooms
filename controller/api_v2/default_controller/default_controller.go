@@ -1,16 +1,11 @@
 package api
 
 import (
-	"time"
-
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type Params struct {
@@ -29,23 +24,6 @@ type DefaultController struct {
 
 func NewApiV2Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
 	return &DefaultController{mailRepo: mailRepo, config: config}
-}
-
-func (ctrl *DefaultController) RotateAccessToken(c *fiber.Ctx, classroom *database.Classroom) error {
-	repo := context.Get(c).GetGitlabRepository()
-	expiresAt := time.Now().AddDate(0, 0, 364)
-	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
-	if err != nil {
-		return err
-	}
-
-	classroom.GroupAccessTokenID = accessToken.ID
-	classroom.GroupAccessToken = accessToken.Token
-	err = query.Classroom.WithContext(c.Context()).Save(classroom)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 type UserResponse struct {
