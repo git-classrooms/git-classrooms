@@ -3,31 +3,6 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import * as Sentry from "@sentry/react";
-
-// Set sentry
-if (import.meta.env.MODE === "production") {
-  Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    integrations: [
-      // See docs for support of different versions of variation of react router
-      // https://docs.sentry.io/platforms/javascript/guides/react/configuration/integrations/react-router/
-      Sentry.replayIntegration(),
-    ],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    tracesSampleRate: 1.0,
-
-    // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
-    tracePropagationTargets: ["localhost", /^https:\/\/staging\.hs-flensburg\.dev\/api/],
-
-    // Capture Replay for 10% of all sessions,
-    // plus for 100% of sessions with an error
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-  });
-}
 
 const queryClient = new QueryClient();
 
@@ -48,7 +23,6 @@ const router = createRouter({
     auth: undefined!,
   },
   defaultPreload: "intent",
-  unmaskOnReload: true,
   // Since we're using React Query, we don't want loader calls to ever be stale
   // This will ensure that the loader is always called when the route is preloaded or visited
   defaultPreloadStaleTime: 0,
@@ -70,7 +44,7 @@ function InnerApp() {
 function App() {
   return (
     <React.StrictMode>
-      <ThemeProvider defaultTheme="system" storageKey="gitlab-classrooms-theme">
+      <ThemeProvider defaultTheme="system" storageKey="git-classrooms-theme">
         <TooltipProvider>
           <QueryClientProvider client={queryClient}>
             <Suspense fallback={<Loader />}>
