@@ -115,7 +115,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		}()
 
 	case oldRole == database.Moderator && *requestBody.Role == database.Student && viewOtherProjects:
-		// The Permission donẗ change
+		// The Permission dont change
 		break
 
 	case oldRole == database.Moderator && *requestBody.Role == database.Owner:

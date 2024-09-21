@@ -27,8 +27,7 @@ type OAuthController struct {
 	g            *singleflight.Group
 }
 
-func NewOAuthController(authConfig authConfig.Config,
-	gitlabConfig gitlabConfig.Config) *OAuthController {
+func NewOAuthController(authConfig authConfig.Config, gitlabConfig gitlabConfig.Config) *OAuthController {
 	g := &singleflight.Group{}
 	return &OAuthController{
 		authConfig:   authConfig.GetOAuthConfig(),

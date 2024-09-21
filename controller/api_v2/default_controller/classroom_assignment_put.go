@@ -58,7 +58,12 @@ func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, reason)
 	}
 
-	projectLinks, err := query.AssignmentProjects.WithContext(c.Context()).Where(query.AssignmentProjects.AssignmentID.Eq(assignment.ID)).Find()
+	projectLinks, err :=
+		query.AssignmentProjects.
+			WithContext(c.Context()).
+			Where(query.AssignmentProjects.AssignmentID.Eq(assignment.ID)).
+			Find()
+
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

@@ -57,6 +57,12 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 		return fiber.ErrBadRequest
 	}
 
+	// reauthenticate the repo with the group access token
+	err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	oldTeamName := team.Name
 
 	_, err = repo.ChangeGroupName(team.GroupID, requestBody.Name)
