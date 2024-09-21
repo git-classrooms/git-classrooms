@@ -23,7 +23,7 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 	app, _,_ := setupApp(t, user)
 
 	t.Run("GetClassroomInvitations", func(t *testing.T) {
-		route := fmt.Sprintf("/api/v2/classrooms/%s/invitations", classroom.ID.String())
+		route := fmt.Sprintf("/api/v1/classrooms/%s/invitations", classroom.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)

@@ -18,7 +18,7 @@ import (
 // @Failure		403				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/invitations/{invitationId} [get]
+// @Router			/api/v1/classrooms/{classroomId}/invitations/{invitationId} [get]
 func (ctrl *DefaultController) GetClassroomInvitation(c *fiber.Ctx) (err error) {
 	var params Params
 

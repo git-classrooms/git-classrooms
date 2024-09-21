@@ -24,10 +24,10 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 	app, _, _ := setupApp(t, owner)
 
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", invitation.ClassroomID.String(), invitation.ID.String())
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s/invitations/%s", invitation.ClassroomID.String(), invitation.ID.String())
 
 	t.Run("Revoke Classroom Invitation - Not Found", func(t *testing.T) {
-		newTarget := fmt.Sprintf("/api/v2/classrooms/%s/invitations/%s", uuid.New(), uuid.New())
+		newTarget := fmt.Sprintf("/api/v1/classrooms/%s/invitations/%s", uuid.New(), uuid.New())
 		req := httptest.NewRequest("DELETE", newTarget, nil)
 		resp, err := app.Test(req)
 		if err != nil {

@@ -66,7 +66,7 @@ func TestUpdateTeam(t *testing.T) {
 			Return(nil, nil).
 			Times(1)
 
-		route := fmt.Sprintf("/api/v2/classrooms/%s/teams/%s", classroom.ID, team.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s", classroom.ID, team.ID)
 
 		req := newPutJsonRequest(route, requestBody)
 		resp, err := app.Test(req)

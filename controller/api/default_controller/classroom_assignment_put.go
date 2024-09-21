@@ -41,7 +41,7 @@ func (r updateAssignmentRequest) isValid() (bool, string) {
 // @Failure		403				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId} [put]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId} [put]
 func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 	ctx := context.Get(c)
 	assignment := ctx.GetAssignment()

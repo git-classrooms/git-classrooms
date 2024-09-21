@@ -48,7 +48,7 @@ func TestGetProject(t *testing.T) {
 	app, _, _ := setupApp(t, member)
 
 	t.Run("TestGetProject", func(t *testing.T) {
-		route := fmt.Sprintf("/api/v2/classrooms/%s/projects/%s", classroom.ID.String(), assignmentProject.ID.String())
+		route := fmt.Sprintf("/api/v1/classrooms/%s/projects/%s", classroom.ID.String(), assignmentProject.ID.String())
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)

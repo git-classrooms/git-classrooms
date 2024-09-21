@@ -45,7 +45,7 @@ func TestRemoveMemberFromTeam(t *testing.T) {
 	team := factory.Team(classroom.ID, members)
 
 	app, gitlabRepo, _ := setupApp(t, owner)
-	route := fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/members/%d", classroom.ID, team.ID, removeMember.ID)
+	route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s/members/%d", classroom.ID, team.ID, removeMember.ID)
 
 	t.Run("TestRemoveMemberFromTeam", func(t *testing.T) {
 		gitlabRepo.

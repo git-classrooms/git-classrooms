@@ -59,7 +59,7 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	}
 
 	app, gitlabRepo, _ := setupApp(t, user)
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/repos", classroom.ID, assignment.ID)
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s/repos", classroom.ID, assignment.ID)
 
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {
 		gitlabRepo.

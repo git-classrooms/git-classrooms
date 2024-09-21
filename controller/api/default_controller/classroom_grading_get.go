@@ -17,7 +17,7 @@ import (
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/grading [get]
+// @Router			/api/v1/classrooms/{classroomId}/grading [get]
 func (ctrl *DefaultController) GetGradingRubrics(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()

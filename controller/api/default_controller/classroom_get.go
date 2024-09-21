@@ -18,14 +18,14 @@ import (
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId} [get]
+// @Router			/api/v1/classrooms/{classroomId} [get]
 func (ctrl *DefaultController) GetClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
 
 	response := &UserClassroomResponse{
 		UserClassrooms:   classroom,
-		WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+		WebURL:           fmt.Sprintf("/api/v1/classrooms/%s/gitlab", classroom.ClassroomID.String()),
 		AssignmentsCount: len(classroom.Classroom.Assignments),
 	}
 

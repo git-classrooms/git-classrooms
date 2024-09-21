@@ -45,7 +45,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 	query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
 	app, gitlabRepo, _ := setupApp(t, owner)
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
 
 	t.Run("updates assignment", func(t *testing.T) {
 		newTime := time.Now().Add(time.Hour * 24)

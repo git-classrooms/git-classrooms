@@ -36,7 +36,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 
 	app, gitlabRepo, _ := setupApp(t, owner)
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/archive", classroom.ID.String())
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s/archive", classroom.ID.String())
 
 	t.Run("classroom already archived", func(t *testing.T) {
 		classroom.Archived = true

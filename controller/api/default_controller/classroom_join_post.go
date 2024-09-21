@@ -39,13 +39,13 @@ func (r *joinClassroomRequest) isValid() bool {
 // @Param			invitation		body	api.joinClassroomRequest	true	"Invitation"
 // @Param			X-Csrf-Token	header	string						true	"Csrf-Token"
 // @Success		201
-// @Header			201	{string}	Location	"/api/v2/classroom/{classroomId}"
+// @Header			201	{string}	Location	"/api/v1/classroom/{classroomId}"
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/join [post]
+// @Router			/api/v1/classrooms/{classroomId}/join [post]
 func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
@@ -200,6 +200,6 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s", invitation.ClassroomID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s", invitation.ClassroomID.String()))
 	return c.SendStatus(fiber.StatusAccepted)
 }

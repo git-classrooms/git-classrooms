@@ -36,7 +36,7 @@ func TestPostClassroomAssignment(t *testing.T) {
 
 	// setup app
 	app, gitlabRepo, _ := setupApp(t, owner)
-	route := fmt.Sprintf("/api/v2/classrooms/%s/assignments", classroom.ID.String())
+	route := fmt.Sprintf("/api/v1/classrooms/%s/assignments", classroom.ID.String())
 
 	t.Run("PostClassroomAssignment", func(t *testing.T) {
 		requestBody := createAssignmentRequest{

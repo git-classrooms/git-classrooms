@@ -38,7 +38,7 @@ func TestGetClassroomAssignment(t *testing.T) {
 	app, _, _ := setupApp(t, owner)
 
 	t.Run("GetClassroomAssignment", func(t *testing.T) {
-		route := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ID, assignment.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ID, assignment.ID)
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)

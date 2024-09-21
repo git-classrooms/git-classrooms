@@ -45,7 +45,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	}
 	app, gitlabRepo, _ := setupApp(t, user)
 
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects/%s/repo", classroom.ID, assignment.ID, assignmentProject.ID)
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s/projects/%s/repo", classroom.ID, assignment.ID, assignmentProject.ID)
 
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {
 		gitlabRepo.
@@ -63,7 +63,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	})
 
-	t.Run("GetProjectCloneUrls - /api/v2/classrooms/:classroomId/projects/:projectId/repo", func(t *testing.T) {
+	t.Run("GetProjectCloneUrls - /api/v1/classrooms/:classroomId/projects/:projectId/repo", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
 			GetProjectById(assignmentProject.ProjectID).

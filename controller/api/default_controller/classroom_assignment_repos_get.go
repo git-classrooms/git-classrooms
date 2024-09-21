@@ -16,7 +16,7 @@ import (
 // @Param			assignmentProjectId	path		string	true	"Assignment Project ID"	Format(uuid)
 // @Success		200					{array}		ProjectCloneUrlResponse
 // @Failure		500					{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentProjectId}/repos [get]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentProjectId}/repos [get]
 func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	assignment := ctx.GetAssignment()

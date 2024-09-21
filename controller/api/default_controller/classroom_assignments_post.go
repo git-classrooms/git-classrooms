@@ -30,13 +30,13 @@ func (r createAssignmentRequest) isValid() bool {
 // @Param			assignmentInfo	body	api.createAssignmentRequest	true	"Assignment Info"
 // @Param			X-Csrf-Token	header	string						true	"Csrf-Token"
 // @Success		201
-// @Header			201	{string}	Location	"/api/v2/classroom/{classroomId}/assignments/{assignmentId}"
+// @Header			201	{string}	Location	"/api/v1/classroom/{classroomId}/assignments/{assignmentId}"
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments [post]
+// @Router			/api/v1/classrooms/{classroomId}/assignments [post]
 func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
@@ -71,6 +71,6 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignment.ID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignment.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
 }

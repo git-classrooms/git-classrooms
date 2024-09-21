@@ -41,7 +41,7 @@ func TestGetClassrooms(t *testing.T) {
 	t.Run("return all classrooms where the user is the owner", func(t *testing.T) {
 		app, _,_ := setupApp(t, owner)
 		// prepare request
-		route := "/api/v2/classrooms?filter=owned"
+		route := "/api/v1/classrooms?filter=owned"
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)
@@ -69,7 +69,7 @@ func TestGetClassrooms(t *testing.T) {
 	t.Run("return all classrooms where the user is moderator", func(t *testing.T) {
 		app, _,_ := setupApp(t, moderator)
 		// prepare request
-		route := "/api/v2/classrooms?filter=moderator"
+		route := "/api/v1/classrooms?filter=moderator"
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)
@@ -97,7 +97,7 @@ func TestGetClassrooms(t *testing.T) {
 	t.Run("return all classrooms where the user is student", func(t *testing.T) {
 		app, _,_ := setupApp(t, student)
 		// prepare request
-		route := "/api/v2/classrooms?filter=student"
+		route := "/api/v1/classrooms?filter=student"
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)

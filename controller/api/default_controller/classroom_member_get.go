@@ -19,7 +19,7 @@ import (
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/members/{memberId} [get]
+// @Router			/api/v1/classrooms/{classroomId}/members/{memberId} [get]
 func (ctrl *DefaultController) GetClassroomMember(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
@@ -27,7 +27,7 @@ func (ctrl *DefaultController) GetClassroomMember(c *fiber.Ctx) (err error) {
 
 	response := &UserClassroomResponse{
 		UserClassrooms:   member,
-		WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/members/%d/gitlab", classroom.ClassroomID.String(), member.UserID),
+		WebURL:           fmt.Sprintf("/api/v1/classrooms/%s/members/%d/gitlab", classroom.ClassroomID.String(), member.UserID),
 		AssignmentsCount: len(classroom.Classroom.Assignments),
 	}
 

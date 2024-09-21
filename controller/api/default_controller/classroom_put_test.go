@@ -35,7 +35,7 @@ func TestPutClassroom(t *testing.T) {
 
 	t.Run("TestPutClassroom", func(t *testing.T) {
 		// prepare request
-		route := fmt.Sprintf("/api/v2/classrooms/%s", classroom.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s", classroom.ID)
 		requestBody := updateClassroomRequest{
 			Name:        "new name",
 			Description: "new Description",

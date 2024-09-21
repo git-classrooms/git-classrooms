@@ -50,7 +50,7 @@ func (r updateProjectGradingRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading [put]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading [put]
 func (ctrl *DefaultController) UpdateGradingResults(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	assignment := ctx.GetAssignment()

@@ -20,15 +20,15 @@ import (
 // @Failure		403			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/projects/{projectId} [get]
+// @Router			/api/v1/classrooms/{classroomId}/projects/{projectId} [get]
 func (ctrl *DefaultController) GetClassroomProject(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	project := ctx.GetAssignmentProject()
 
 	response := &ProjectResponse{
 		AssignmentProjects: project,
-		WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/projects/%s/gitlab", ctx.GetUserClassroom().ClassroomID, project.ID.String()),
-		ReportWebURL:       fmt.Sprintf("/api/v2/classrooms/%s/projects/%s/report/gitlab", ctx.GetUserClassroom().ClassroomID, project.ID.String()),
+		WebURL:             fmt.Sprintf("/api/v1/classrooms/%s/projects/%s/gitlab", ctx.GetUserClassroom().ClassroomID, project.ID.String()),
+		ReportWebURL:       fmt.Sprintf("/api/v1/classrooms/%s/projects/%s/report/gitlab", ctx.GetUserClassroom().ClassroomID, project.ID.String()),
 	}
 
 	return c.JSON(response)

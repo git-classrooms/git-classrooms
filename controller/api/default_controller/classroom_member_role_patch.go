@@ -35,7 +35,7 @@ func (r updateMemberRoleRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/members/{memberId}/role [patch]
+// @Router			/api/v1/classrooms/{classroomId}/members/{memberId}/role [patch]
 func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()

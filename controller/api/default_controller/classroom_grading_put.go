@@ -48,7 +48,7 @@ func (r updateGradingRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/grading [put]
+// @Router			/api/v1/classrooms/{classroomId}/grading [put]
 func (ctrl *DefaultController) UpdateGradingRubrics(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom().Classroom

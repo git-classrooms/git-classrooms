@@ -34,7 +34,7 @@ func TestGetClassroom(t *testing.T) {
 
 	t.Run("return a classroom by id", func(t *testing.T) {
 		// prepare request
-		route := fmt.Sprintf("/api/v2/classrooms/%s", classroom.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s", classroom.ID)
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)

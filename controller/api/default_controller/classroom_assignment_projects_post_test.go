@@ -43,7 +43,7 @@ func TestPostClassroomAssignmentProjects(t *testing.T) {
 	app, _, mockMailRepo := setupApp(t, owner)
 
 	t.Run("PostOwnedClassroomAssignmentProjects", func(t *testing.T) {
-		route := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects", classroom.ID.String(), assignment.ID.String())
+		route := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s/projects", classroom.ID.String(), assignment.ID.String())
 
 		mockMailRepo.
 			EXPECT().

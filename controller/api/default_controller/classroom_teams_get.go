@@ -20,7 +20,7 @@ import (
 // @Failure		401			{object}	HTTPError
 // @Failure		404			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/teams [get]
+// @Router			/api/v1/classrooms/{classroomId}/teams [get]
 func (ctrl *DefaultController) GetClassroomTeams(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
@@ -35,7 +35,7 @@ func (ctrl *DefaultController) GetClassroomTeams(c *fiber.Ctx) (err error) {
 		members := utils.Map(team.Member, func(member *database.UserClassrooms) *UserClassroomResponse {
 			return &UserClassroomResponse{
 				UserClassrooms:   member,
-				WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/users/%d", classroom.ClassroomID.String(), member.UserID),
+				WebURL:           fmt.Sprintf("/api/v1/classrooms/%s/users/%d", classroom.ClassroomID.String(), member.UserID),
 				AssignmentsCount: len(classroom.Classroom.Assignments),
 			}
 		})
@@ -43,7 +43,7 @@ func (ctrl *DefaultController) GetClassroomTeams(c *fiber.Ctx) (err error) {
 		return &TeamResponse{
 			Team:    team,
 			Members: members,
-			WebURL:  fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/gitlab", classroom.ClassroomID.String(), team.ID.String()),
+			WebURL:  fmt.Sprintf("/api/v1/classrooms/%s/teams/%s/gitlab", classroom.ClassroomID.String(), team.ID.String()),
 		}
 	})
 

@@ -31,9 +31,9 @@ func TestArchivedClassroomMiddleware(t *testing.T) {
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
 	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-	app.Use("/api/v2/classrooms/:classroomId", handler.ArchivedMiddleware)
+	app.Use("/api/v1/classrooms/:classroomId", handler.ArchivedMiddleware)
 
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s", userClassroom.Classroom.ID.String())
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s", userClassroom.Classroom.ID.String())
 
 	t.Run("Forbiddes post for archived classroom", func(t *testing.T) {
 		testForbiddenMethod(t, app, targetRoute, fiber.MethodPost)

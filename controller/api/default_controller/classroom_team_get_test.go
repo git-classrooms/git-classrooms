@@ -47,7 +47,7 @@ func TestGetClassroomTeam(t *testing.T) {
 	app, _, _ := setupApp(t, member)
 
 	t.Run("TestGetClassroomTeam", func(t *testing.T) {
-		route := fmt.Sprintf("/api/v2/classrooms/%s/teams/%s", classroom.ID.String(), team.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s", classroom.ID.String(), team.ID)
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)

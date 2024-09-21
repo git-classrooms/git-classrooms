@@ -70,7 +70,7 @@ func TestCreateTeam(t *testing.T) {
 			Return(nil, nil).
 			Times(1)
 
-		route := fmt.Sprintf("/api/v2/classrooms/%s/teams", classroom.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s/teams", classroom.ID)
 
 		req := newPostJsonRequest(route, requestBody)
 		resp, err := app.Test(req)

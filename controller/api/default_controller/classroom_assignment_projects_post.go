@@ -29,7 +29,7 @@ import (
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects [post]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects [post]
 func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()

@@ -42,11 +42,11 @@ func (r createClassroomRequest) isValid() bool {
 // @Param			classroom		body	api.createClassroomRequest	true	"Classroom Info"
 // @Param			X-Csrf-Token	header	string						true	"Csrf-Token"
 // @Success		201
-// @Header			201	{string}	Location	"/api/v2/classroom/{classroomId}"
+// @Header			201	{string}	Location	"/api/v1/classroom/{classroomId}"
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms [post]
+// @Router			/api/v1/classrooms [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()
@@ -139,6 +139,6 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s", classroom.ID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s", classroom.ID.String()))
 	return c.SendStatus(fiber.StatusCreated)
 }

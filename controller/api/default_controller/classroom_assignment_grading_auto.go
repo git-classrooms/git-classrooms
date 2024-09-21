@@ -34,7 +34,7 @@ func (r startAutoGradingRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading/auto [post]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/grading/auto [post]
 func (ctrl *DefaultController) StartAutoGrading(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
 	repo := ctx.GetGitlabRepository()

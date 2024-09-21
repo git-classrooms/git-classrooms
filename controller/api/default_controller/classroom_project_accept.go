@@ -26,13 +26,13 @@ import (
 // @Param			X-Csrf-Token	header	string	true	"Csrf-Token"
 // @Success		201
 // @Success		202
-// @Header			202	{string}	Location	"/api/v2/classroom/{classroomId}/projects/{projectId}"
+// @Header			202	{string}	Location	"/api/v1/classroom/{classroomId}/projects/{projectId}"
 // @Failure		400	{object}	HTTPError
 // @Failure		401	{object}	HTTPError
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/projects/{projectId}/accept [post]
+// @Router			/api/v1/classrooms/{classroomId}/projects/{projectId}/accept [post]
 func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
@@ -73,7 +73,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	// Make the actual project creation and assignment acceptance async
 	go ctrl.acceptAssignment(repo, userID, classroom.Classroom.OwnerID, templateProject, assignmentProject)
 
-	c.Set("Location", fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignmentProject.AssignmentID.String()))
+	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignmentProject.AssignmentID.String()))
 	return c.SendStatus(fiber.StatusAccepted)
 }
 

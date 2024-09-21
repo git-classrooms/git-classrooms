@@ -64,7 +64,7 @@ func TestJoinTeam(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		route := fmt.Sprintf("/api/v2/classrooms/%s/teams/%s/join", classroom.ID, team.ID)
+		route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s/join", classroom.ID, team.ID)
 
 		req := newPostJsonRequest(route, nil)
 		resp, err := app.Test(req)

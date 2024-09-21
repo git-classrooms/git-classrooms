@@ -37,7 +37,7 @@ type assignmentTestResponse struct {
 // @Failure		403				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/tests [get]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/tests [get]
 func (ctrl *DefaultController) GetClassroomAssignmentTests(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	repo := ctx.GetGitlabRepository()

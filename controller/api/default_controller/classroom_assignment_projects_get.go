@@ -22,7 +22,7 @@ import (
 // @Failure		403				{object}	HTTPError
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects [get]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects [get]
 func (strl *DefaultController) GetClassroomAssignmentProjects(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
@@ -37,8 +37,8 @@ func (strl *DefaultController) GetClassroomAssignmentProjects(c *fiber.Ctx) (err
 	response := utils.Map(projects, func(project *database.AssignmentProjects) *ProjectResponse {
 		return &ProjectResponse{
 			AssignmentProjects: project,
-			WebURL:             fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects/%s/gitlab", classroom.ClassroomID.String(), assignment.ID.String(), project.ID.String()),
-			ReportWebURL:       fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/projects/%s/report/gitlab", classroom.ClassroomID.String(), assignment.ID.String(), project.ID.String()),
+			WebURL:             fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s/projects/%s/gitlab", classroom.ClassroomID.String(), assignment.ID.String(), project.ID.String()),
+			ReportWebURL:       fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s/projects/%s/report/gitlab", classroom.ClassroomID.String(), assignment.ID.String(), project.ID.String()),
 		}
 	})
 

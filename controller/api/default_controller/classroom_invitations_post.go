@@ -37,7 +37,7 @@ func (r inviteToClassroomRequest) isValid() bool {
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/invitations [post]
+// @Router			/api/v1/classrooms/{classroomId}/invitations [post]
 func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()

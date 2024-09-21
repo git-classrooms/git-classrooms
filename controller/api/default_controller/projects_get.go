@@ -28,7 +28,7 @@ type activeAssignmentRequestQuery struct {
 //	@Success		200		{array}		ActiveAssignmentResponse
 //	@Failure		401		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
-//	@Router			/api/v2/assignments [get]
+//	@Router			/api/v1/assignments [get]
 func (ctrl *DefaultController) GetActiveAssignments(c *fiber.Ctx) (err error) {
 
 	ctx := context.Get(c)

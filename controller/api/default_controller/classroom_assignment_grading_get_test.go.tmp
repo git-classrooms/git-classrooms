@@ -44,7 +44,7 @@ func TestGradingGet(t *testing.T) {
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	app := setupApp(t, owner, gitlabRepo)
 
-	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/grading", classroom.ID, assignment.ID)
+	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s/grading", classroom.ID, assignment.ID)
 
 	t.Run("TestGradingGet", func(t *testing.T) {
 		req := httptest.NewRequest("GET", targetRoute, nil)

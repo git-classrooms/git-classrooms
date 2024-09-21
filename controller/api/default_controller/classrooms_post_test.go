@@ -75,7 +75,7 @@ func TestCreateClassroom(t *testing.T) {
 			Return(nil, nil).
 			Times(1)
 
-		req := newPostJsonRequest("/api/v2/classrooms", requestBody)
+		req := newPostJsonRequest("/api/v1/classrooms", requestBody)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
@@ -93,6 +93,6 @@ func TestCreateClassroom(t *testing.T) {
 		assert.Equal(t, "token", classRoom.GroupAccessToken)
 		assert.Equal(t, false, classRoom.StudentsViewAllProjects)
 
-		assert.Equal(t, fmt.Sprintf("/api/v2/classrooms/%s", classRoom.ID.String()), resp.Header.Get("Location"))
+		assert.Equal(t, fmt.Sprintf("/api/v1/classrooms/%s", classRoom.ID.String()), resp.Header.Get("Location"))
 	})
 }

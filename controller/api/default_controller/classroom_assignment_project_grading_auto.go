@@ -28,7 +28,7 @@ import (
 // @Failure		403	{object}	HTTPError
 // @Failure		404	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading/auto [post]
+// @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading/auto [post]
 func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()

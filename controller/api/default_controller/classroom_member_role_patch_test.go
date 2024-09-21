@@ -208,7 +208,7 @@ type RunTest struct {
 func (r RunTest) run(t *testing.T) {
 	// ------------ END OF SEEDING DATA -----------------
 	app, gitlabRepo, _ := setupApp(t, r.loginUser)
-	route := fmt.Sprintf("/api/v2/classrooms/%s/members/%d/role", r.classroom.ID.String(), r.user.ID)
+	route := fmt.Sprintf("/api/v1/classrooms/%s/members/%d/role", r.classroom.ID.String(), r.user.ID)
 
 	requestBody := &updateMemberRoleRequest{
 		Role: utils.NewPtr(r.changeTo),

@@ -33,7 +33,7 @@ type classroomRequestQuery struct {
 // @Success		200			{array}		api.UserClassroomResponse
 // @Failure		401			{object}	HTTPError
 // @Failure		500			{object}	HTTPError
-// @Router			/api/v2/classrooms [get]
+// @Router			/api/v1/classrooms [get]
 func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
@@ -69,7 +69,7 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	response := utils.Map(classrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
 		return &UserClassroomResponse{
 			UserClassrooms:   classroom,
-			WebURL:           fmt.Sprintf("/api/v2/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+			WebURL:           fmt.Sprintf("/api/v1/classrooms/%s/gitlab", classroom.ClassroomID.String()),
 			AssignmentsCount: len(classroom.Classroom.Assignments),
 		}
 	})
