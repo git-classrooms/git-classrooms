@@ -3,115 +3,54 @@ package api
 import (
 	"context"
 	"fmt"
+
 	"io"
 	"testing"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 func TestPutOwnedAssignments(t *testing.T) {
-	testDb := db_tests.NewTestDB(t)
+	restoreDatabase(t)
 
-	owner := database.User{
-		ID:             1,
-		GitlabUsername: "owner",
-		GitlabEmail:    "owner",
+	owner := factory.User()
+	student1 := factory.User()
+	student2 := factory.User()
+
+	classroom := factory.Classroom(owner.ID)
+
+	dueDate := time.Now().Add(1 * time.Hour)
+	dueDate = dueDate.Truncate(time.Second)
+
+	assignment := factory.Assignment(classroom.ID, &dueDate, false)
+
+	members := []*database.UserClassrooms{
+		factory.UserClassroom(owner.ID, classroom.ID, database.Owner),
+		factory.UserClassroom(student1.ID, classroom.ID, database.Student),
+		factory.UserClassroom(student2.ID, classroom.ID, database.Student),
 	}
-	testDb.InsertUser(&owner)
 
-	student1 := database.User{
-		ID:             2,
-		GitlabUsername: "student1",
-		GitlabEmail:    "student1",
-	}
-	testDb.InsertUser(&student1)
+	team := factory.Team(classroom.ID, members)
+	project := factory.AssignmentProject(assignment.ID, team.ID)
 
-	student2 := database.User{
-		ID:             3,
-		GitlabUsername: "student2",
-		GitlabEmail:    "student2",
-	}
-	testDb.InsertUser(&student2)
+	project.ProjectStatus = database.Pending
+	query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
-	classroom := database.Classroom{
-		ID:      uuid.New(),
-		OwnerID: owner.ID,
-	}
-	testDb.InsertClassroom(&classroom)
-	oldTime := time.Date(1970, 1, 1, 0, 0, 0, 0, time.Local)
-	oldTime = oldTime.Truncate(time.Second)
-	assignment := database.Assignment{
-		ID:          uuid.New(),
-		Name:        "Test",
-		Description: "test",
-		DueDate:     &oldTime,
-		ClassroomID: classroom.ID,
-	}
-	testDb.InsertAssignment(&assignment)
-
-	team := database.Team{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-		GroupID:     10,
-		Member: []*database.UserClassrooms{
-			{
-				UserID:      owner.ID,
-				ClassroomID: classroom.ID,
-				Role:        database.Owner,
-			},
-			{
-				UserID:      student1.ID,
-				ClassroomID: classroom.ID,
-				Role:        database.Student,
-			},
-			{
-				UserID:      student2.ID,
-				ClassroomID: classroom.ID,
-				Role:        database.Student,
-			},
-		},
-	}
-	testDb.InsertTeam(&team)
-
-	project := database.AssignmentProjects{
-		AssignmentID: assignment.ID,
-		TeamID:       team.ID,
-		ProjectID:    1,
-	}
-	testDb.InsertAssignmentProjects(&project)
-	assignment.Projects = append(assignment.Projects, &project)
-
-	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
-	mailRepo := mailRepoMock.NewMockRepository(t)
-
-	app := fiber.New()
-	app.Use("/api", func(c *fiber.Ctx) error {
-		ctx := contextWrapper.Get(c)
-		ctx.SetAssignment(&assignment)
-		ctx.SetGitlabRepository(gitlabRepo)
-
-		return c.Next()
-	})
-
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-	app.Put("/api/classrooms/:classroomId/assignments/:assignmentId", handler.UpdateAssignment)
-
-	targetRoute := fmt.Sprintf("/api/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
+	app, gitlabRepo, _ := setupApp(t, owner)
+	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s", classroom.ID.String(), assignment.ID.String())
 
 	t.Run("updates assignment", func(t *testing.T) {
 		newTime := time.Now().Add(time.Hour * 24)
 		newTime = newTime.Truncate(time.Second)
+
 		requestBody := updateAssignmentRequest{
 			Name:        "New",
 			Description: "new",
@@ -128,6 +67,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			WithContext(context.Background()).
 			Where(query.Assignment.ID.Eq(assignment.ID)).
 			First()
+
 		assert.NoError(t, err)
 		assert.Equal(t, requestBody.Name, updatedAssignment.Name)
 		assert.Equal(t, requestBody.Description, updatedAssignment.Description)
@@ -163,7 +103,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 		}
 
 		project.ProjectStatus = database.Accepted
-		testDb.SaveAssignmentProjects(&project)
+		query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
 		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
@@ -187,10 +127,10 @@ func TestPutOwnedAssignments(t *testing.T) {
 		}
 
 		project.ProjectStatus = database.Accepted
-		testDb.SaveAssignmentProjects(&project)
+		query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
 		assignment.Closed = true
-		testDb.SaveAssignment(&assignment)
+		query.Assignment.WithContext(context.Background()).Save(assignment)
 
 		gitlabRepo.EXPECT().
 			GetAccessLevelOfUserInProject(project.ProjectID, owner.ID).
@@ -242,10 +182,10 @@ func TestPutOwnedAssignments(t *testing.T) {
 		}
 
 		project.ProjectStatus = database.Accepted
-		testDb.SaveAssignmentProjects(&project)
+		query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
 		assignment.Closed = true
-		testDb.SaveAssignment(&assignment)
+		query.Assignment.WithContext(context.Background()).Save(assignment)
 
 		gitlabRepo.EXPECT().
 			GetAccessLevelOfUserInProject(project.ProjectID, owner.ID).

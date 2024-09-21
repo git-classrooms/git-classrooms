@@ -38,9 +38,9 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
 
-	var urlQuery classroomRequestQuery
+	urlQuery := new(classroomRequestQuery)
 
-	if err = c.QueryParser(&urlQuery); err != nil {
+	if err = c.QueryParser(urlQuery); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 

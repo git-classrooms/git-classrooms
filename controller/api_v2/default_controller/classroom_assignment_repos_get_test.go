@@ -1,123 +1,74 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	contextWrapper "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
 
 func TestGetMultipleProjectCloneUrl(t *testing.T) {
-	projectId1 := 1
-	projectId2 := 2
+	restoreDatabase(t)
 
-	assignmentProjectId1 := uuid.New()
-	assignmentProjectId2 := uuid.New()
+	user := factory.User()
+	classroom := factory.Classroom(user.ID)
+	factory.UserClassroom(user.ID, classroom.ID, database.Owner)
+
+	team := factory.Team(classroom.ID, make([]*database.UserClassrooms, 0))
+
+	dueDate := time.Now().Add(1 * time.Hour)
+	assignment := factory.Assignment(classroom.ID, &dueDate, false)
+
+	project1 := factory.AssignmentProject(assignment.ID, team.ID)
+	project2 := factory.AssignmentProject(assignment.ID, team.ID)
+	project3 := factory.AssignmentProject(assignment.ID, team.ID)
+
+	project3.ProjectStatus = database.Pending
+
+	err := query.AssignmentProjects.WithContext(context.Background()).Save(project3)
+	if err != nil {
+		t.Fatal("Could not save classroom!")
+	}
 
 	expectedResponse := []ProjectCloneUrlResponse{
 		{
-			ProjectId:     assignmentProjectId1,
+			ProjectId:     project1.ID,
 			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
 			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
 		},
 		{
-			ProjectId:     assignmentProjectId2,
+			ProjectId:     project2.ID,
 			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
 			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
 		},
 	}
-
-	testDb := db_tests.NewTestDB(t)
-
-	user := &database.User{
-		ID:             1,
-		GitlabUsername: "user1",
-		GitlabEmail:    "user1",
-	}
-	testDb.InsertUser(user)
-
-	classroom := &database.Classroom{
-		ID:      uuid.New(),
-		OwnerID: user.ID,
-	}
-	testDb.InsertClassroom(classroom)
-
-	team := &database.Team{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-	}
-	testDb.InsertTeam(team)
-
-	assignment := &database.Assignment{
-		ID:          uuid.New(),
-		ClassroomID: classroom.ID,
-	}
-	testDb.InsertAssignment(assignment)
-
-	assignmentProject1 := &database.AssignmentProjects{
-		ID:            assignmentProjectId1,
-		ProjectID:     projectId1,
-		AssignmentID:  assignment.ID,
-		TeamID:        team.ID,
-		ProjectStatus: database.Accepted,
-	}
-	testDb.InsertAssignmentProjects(assignmentProject1)
-
-	assignmentProject2 := &database.AssignmentProjects{
-		ID:            assignmentProjectId2,
-		ProjectID:     projectId2,
-		AssignmentID:  assignment.ID,
-		TeamID:        team.ID,
-		ProjectStatus: database.Accepted,
-	}
-	testDb.InsertAssignmentProjects(assignmentProject2)
-
-	assignmentProject3 := &database.AssignmentProjects{
-		AssignmentID:  assignment.ID,
-		TeamID:        team.ID,
-		ProjectStatus: database.Pending,
-	}
-	testDb.InsertAssignmentProjects(assignmentProject3)
 
 	expectedResponseBody, err := json.Marshal(expectedResponse)
 	if err != nil {
 		t.Fatalf("Could not prepare Expected Response Body")
 	}
 
-	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
-	mailRepo := mailRepoMock.NewMockRepository(t)
-
-	app := fiber.New()
-	app.Use("api/v2", func(c *fiber.Ctx) error {
-		ctx := contextWrapper.Get(c)
-		ctx.SetGitlabRepository(gitlabRepo)
-		ctx.SetAssignment(assignment)
-
-		return c.Next()
-	})
-
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
-	app.Get("/api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", handler.GetMultipleProjectCloneUrls)
+	app, gitlabRepo, _ := setupApp(t, user)
+	targetRoute := fmt.Sprintf("/api/v2/classrooms/%s/assignments/%s/repos", classroom.ID, assignment.ID)
 
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(projectId1).
+			GetProjectById(project1.ProjectID).
 			Return(nil, assert.AnError).
 			Times(1)
 
-		req := httptest.NewRequest("GET", "/api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", nil)
+		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
 		gitlabRepo.AssertExpectations(t)
@@ -126,15 +77,15 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 	})
 
-	t.Run("GetProjectCloneUrls - /api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", func(t *testing.T) {
+	t.Run("GetProjectCloneUrls", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(projectId1).
+			GetProjectById(project1.ProjectID).
 			Return(
 				&model.Project{
 					SSHURLToRepo:  expectedResponse[0].SshUrlToRepo,
 					HTTPURLToRepo: expectedResponse[0].HttpUrlToRepo,
-					ID:            projectId1,
+					ID:            project1.ProjectID,
 				},
 				nil,
 			).
@@ -142,18 +93,18 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(projectId2).
+			GetProjectById(project2.ProjectID).
 			Return(
 				&model.Project{
 					SSHURLToRepo:  expectedResponse[1].SshUrlToRepo,
 					HTTPURLToRepo: expectedResponse[1].HttpUrlToRepo,
-					ID:            projectId2,
+					ID:            project2.ProjectID,
 				},
 				nil,
 			).
 			Times(1)
 
-		req := httptest.NewRequest("GET", "/api/v2/classrooms/:classroomId/assignments/:assignmentId/repos", nil)
+		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
 		gitlabRepo.AssertExpectations(t)
