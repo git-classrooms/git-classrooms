@@ -67,8 +67,8 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMeV2: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v2/me`;
+        getMe: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/me`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -123,8 +123,8 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMeV2(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetMeResponse>>> {
-            const localVarAxiosArgs = await AuthApiAxiosParamCreator(configuration).getMeV2(options);
+        async getMe(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetMeResponse>>> {
+            const localVarAxiosArgs = await AuthApiAxiosParamCreator(configuration).getMe(options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -154,8 +154,8 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMeV2(options?: AxiosRequestConfig): Promise<AxiosResponse<GetMeResponse>> {
-            return AuthApiFp(configuration).getMeV2(options).then((request) => request(axios, basePath));
+        async getMe(options?: AxiosRequestConfig): Promise<AxiosResponse<GetMeResponse>> {
+            return AuthApiFp(configuration).getMe(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -184,7 +184,7 @@ export class AuthApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof AuthApi
      */
-    public async getMeV2(options?: AxiosRequestConfig) : Promise<AxiosResponse<GetMeResponse>> {
-        return AuthApiFp(this.configuration).getMeV2(options).then((request) => request(this.axios, this.basePath));
+    public async getMe(options?: AxiosRequestConfig) : Promise<AxiosResponse<GetMeResponse>> {
+        return AuthApiFp(this.configuration).getMe(options).then((request) => request(this.axios, this.basePath));
     }
 }

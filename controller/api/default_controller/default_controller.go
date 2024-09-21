@@ -1,14 +1,12 @@
-package default_controller
+package api
 
 import (
-	"time"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
+	"golang.org/x/sync/singleflight"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type Params struct {
@@ -21,26 +19,39 @@ type Params struct {
 }
 
 type DefaultController struct {
+	config   config.ApplicationConfig
 	mailRepo mailRepo.Repository
+	g        *singleflight.Group
 }
 
-func NewApiController(mailRepo mailRepo.Repository) *DefaultController {
-	return &DefaultController{mailRepo: mailRepo}
+func NewApiV1Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
+	g := &singleflight.Group{}
+	return &DefaultController{mailRepo: mailRepo, config: config, g: g}
 }
 
-func (ctrl *DefaultController) RotateAccessToken(c *fiber.Ctx, classroom *database.Classroom) error {
-	repo := context.Get(c).GetGitlabRepository()
-	expiresAt := time.Now().AddDate(0, 0, 364)
-	accessToken, err := repo.RotateGroupAccessToken(classroom.GroupID, classroom.GroupAccessTokenID, expiresAt)
-	if err != nil {
-		return err
-	}
+type UserResponse struct {
+	*database.User
+	WebURL string `json:"webUrl"`
+} //@Name UserResponse
 
-	classroom.GroupAccessTokenID = accessToken.ID
-	classroom.GroupAccessToken = accessToken.Token
-	err = query.Classroom.WithContext(c.Context()).Save(classroom)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+type TeamResponse struct {
+	*database.Team
+	Members []*UserClassroomResponse `json:"members"`
+	WebURL  string                   `json:"webUrl"`
+} //@Name TeamResponse
+
+type AssignmentResponse struct {
+	*database.Assignment
+} //@Name AssignmentResponse
+
+type ProjectResponse struct {
+	*database.AssignmentProjects
+	WebURL       string `json:"webUrl"`
+	ReportWebURL string `json:"reportWebUrl"`
+} //@Name ProjectResponse
+
+type UserClassroomResponse struct {
+	*database.UserClassrooms
+	WebURL           string `json:"webUrl"`
+	AssignmentsCount int    `json:"assignmentsCount"`
+} //@Name UserClassroomResponse

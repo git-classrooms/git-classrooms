@@ -69,7 +69,7 @@ export const useInviteToAssignment = (classroomId: string, assignmentId: string)
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async () => {
-      const res = await apiClient.inviteToAssignmentV2(classroomId, assignmentId, csrfToken);
+      const res = await apiClient.inviteToAssignment(classroomId, assignmentId, csrfToken);
       return res.data;
     },
     onSuccess: () => {
@@ -86,7 +86,7 @@ export const useAcceptAssignment = (classroomId: string, projectId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async () => {
-      const res = await apiClient.acceptAssignmentV2(classroomId, projectId, csrfToken);
+      const res = await apiClient.acceptAssignment(classroomId, projectId, csrfToken);
       return res.data;
     },
     onSuccess: () => {

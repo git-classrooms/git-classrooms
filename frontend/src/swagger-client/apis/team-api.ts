@@ -50,7 +50,7 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling createTeam.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -103,7 +103,7 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             if (teamId === null || teamId === undefined) {
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getClassroomTeam.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -144,7 +144,7 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomTeams.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -194,7 +194,7 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             if (xCsrfToken === null || xCsrfToken === undefined) {
                 throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling joinTeam.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/join`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/join`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -254,7 +254,7 @@ export const TeamApiAxiosParamCreator = function (configuration?: Configuration)
             if (teamId === null || teamId === undefined) {
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling updateTeam.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.

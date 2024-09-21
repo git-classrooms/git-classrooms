@@ -46,7 +46,7 @@ export const projectGradingResultsQueryOptions = (classroomId: string, projectId
   queryOptions({
     queryKey: ["classrooms", classroomId, "projects", projectId, "grading"],
     queryFn: async () => {
-      const res = await apiClient.apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId);
+      const res = await apiClient.apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId);
       return res.data;
     },
   });

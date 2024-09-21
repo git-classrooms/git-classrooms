@@ -43,7 +43,7 @@ export const ReportApiAxiosParamCreator = function (configuration?: Configuratio
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getClassroomAssignmentReport.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading/report`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/grading/report`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -84,7 +84,7 @@ export const ReportApiAxiosParamCreator = function (configuration?: Configuratio
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomReport.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/grading/report`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/grading/report`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -129,7 +129,7 @@ export const ReportApiAxiosParamCreator = function (configuration?: Configuratio
             if (teamId === null || teamId === undefined) {
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getClassroomTeamReport.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/grading/report`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/grading/report`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
