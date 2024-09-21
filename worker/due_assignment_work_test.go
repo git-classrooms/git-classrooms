@@ -46,12 +46,6 @@ func TestDueAssignmentWorker(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 1. Migrate database
-	err = utils.MigrateDatabase(db)
-	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
-	}
-
 	query.SetDefault(db)
 	repo := gitlabRepoMock.NewMockRepository(t)
 
@@ -71,6 +65,10 @@ func TestDueAssignmentWorker(t *testing.T) {
 	team1 := factory.Team(classroom.ID, members)
 
 	assignmentProject1 := factory.AssignmentProject(assignment1.ID, team1.ID)
+
+	assignmentProject1.ProjectStatus = database.Accepted
+	assignmentProject1.Team = *team1
+	assignment1.Projects = []*database.AssignmentProjects{assignmentProject1}
 
 	work := NewDueAssignmentWork(&gitlab.GitlabConfig{})
 
@@ -112,10 +110,7 @@ func TestDueAssignmentWorker(t *testing.T) {
 		SaveAssignment(t, assignment1)
 
 		assignmentProject1.ProjectStatus = database.Pending
-		err := query.AssignmentProjects.WithContext(context.Background()).Save(assignmentProject1)
-		if err != nil {
-			t.Fatalf("could not update assignment project: %s", err.Error())
-		}
+		query.AssignmentProjects.WithContext(context.Background()).Save(assignmentProject1)
 
 		err = work.closeAssignment(context.Background(), assignment1, repo)
 		assert.NoError(t, err)
@@ -127,10 +122,6 @@ func TestDueAssignmentWorker(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, assignment1After.Closed)
 	})
-
-	assignmentProject1.ProjectStatus = database.Accepted
-	assignmentProject1.Team = *team1
-	assignment1.Projects = []*database.AssignmentProjects{assignmentProject1}
 
 	t.Run("repo.GetAccessLevelOfUserInProject throws error -> restore old permissions", func(t *testing.T) {
 		assignment1.Closed = false
@@ -170,12 +161,16 @@ func TestDueAssignmentWorker(t *testing.T) {
 			WithContext(context.Background()).
 			Where(query.Assignment.ID.Eq(assignment1.ID)).
 			First()
+
 		assert.NoError(t, err)
 		assert.False(t, assignment1After.Closed)
 	})
 
 	t.Run("repo.ChangeUserAccessLevelInProject throws error", func(t *testing.T) {
+		dueDate = time.Now().Add(-1 * time.Hour)
+
 		assignment1.Closed = false
+		assignment1.DueDate = &dueDate
 		SaveAssignment(t, assignment1)
 
 		repo.EXPECT().

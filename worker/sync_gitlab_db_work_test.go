@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -14,97 +14,65 @@ import (
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func TestSyncClassroomsWork(t *testing.T) {
 	repo := gitlabRepoMock.NewMockRepository(t)
 
-	testDb := db_tests.NewTestDB(t)
-
-	owner := database.User{
-		ID:             1,
-		GitlabUsername: "owner",
-		GitlabEmail:    "owner",
+	pg, err := tests.StartPostgres()
+	if err != nil {
+		t.Fatalf("could not start database container: %s", err.Error())
 	}
-	testDb.InsertUser(&owner)
 
-	member1 := database.User{
-		ID:             2,
-		GitlabUsername: "member1",
-		GitlabEmail:    "member1",
+	dbUrl, err := pg.ConnectionString(context.Background())
+	if err != nil {
+		t.Fatalf("could not get database connection string: %s", err.Error())
 	}
-	testDb.InsertUser(&member1)
 
-	member2 := database.User{
-		ID:             3,
-		GitlabUsername: "member2",
-		GitlabEmail:    "member2",
+	db, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("could not connect to database: %s", err.Error())
 	}
-	testDb.InsertUser(&member2)
 
-	classroom1 := database.Classroom{
-		ID:       uuid.New(),
-		OwnerID:  owner.ID,
-		Archived: false,
+	err = utils.MigrateDatabase(db)
+	if err != nil {
+		t.Fatalf("could not migrate database: %s", err.Error())
 	}
-	testDb.InsertClassroom(&classroom1)
 
-	team1 := database.Team{
-		ID:          uuid.New(),
-		Name:        "team1",
-		ClassroomID: classroom1.ID,
-		GroupID:     10,
-		Member: []*database.UserClassrooms{
-			{
-				UserID:      owner.ID,
-				ClassroomID: classroom1.ID,
-			},
-			{
-				UserID:      member1.ID,
-				ClassroomID: classroom1.ID,
-			},
-			{
-				UserID:      member2.ID,
-				ClassroomID: classroom1.ID,
-			},
-		},
-	}
-	testDb.InsertTeam(&team1)
+	query.SetDefault(db)
 
-	assignment1 := database.Assignment{
-		ID:          uuid.New(),
-		Name:        "Assignment1",
-		ClassroomID: classroom1.ID,
-	}
-	testDb.InsertAssignment(&assignment1)
+	owner := factory.User()
+	member1 := factory.User()
+	member2 := factory.User()
 
-	assignment1Project := database.AssignmentProjects{
-		ID:            uuid.New(),
-		AssignmentID:  assignment1.ID,
-		Assignment:    assignment1,
-		TeamID:        team1.ID,
-		ProjectID:     15,
-		ProjectStatus: database.Accepted,
+	classroom1 := factory.Classroom(owner.ID)
+
+	members := []*database.UserClassrooms{
+		factory.UserClassroom(owner.ID, classroom1.ID, database.Owner),
+		factory.UserClassroom(member1.ID, classroom1.ID, database.Student),
+		factory.UserClassroom(member2.ID, classroom1.ID, database.Student),
 	}
-	testDb.InsertAssignmentProjects(&assignment1Project)
+
+	team1 := factory.Team(classroom1.ID, members)
+	dueDate := time.Now().Add(1 * time.Hour)
+	assignment1 := factory.Assignment(classroom1.ID, &dueDate, false)
+	assignment1Project := factory.AssignmentProject(assignment1.ID, team1.ID)
 
 	publicUrl := &url.URL{Scheme: "http", Host: "localhost"}
 
 	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{}, publicUrl)
 
 	t.Run("getUnarchivedClassrooms", func(t *testing.T) {
-		classroom2 := database.Classroom{
-			ID:      uuid.New(),
-			OwnerID: owner.ID,
-			Member: []*database.UserClassrooms{
-				{
-					UserID: owner.ID,
-				},
-			},
-			Archived: true,
-		}
-		testDb.InsertClassroom(&classroom2)
+		classroom2 := factory.Classroom(owner.ID)
+		factory.UserClassroom(owner.ID, classroom2.ID, database.Owner)
+
+		classroom2.Archived = true
+
+		query.Classroom.WithContext(context.Background()).Save(classroom2)
 
 		dbClassrooms := w.getUnarchivedClassrooms(context.Background())
 
@@ -134,11 +102,11 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Times(1)
 
 		repo.EXPECT().
-			ChangeGroupDescription(classroom1.GroupID, utils.CreateClassroomGitlabDescription(&classroom1, publicUrl)).
+			ChangeGroupDescription(classroom1.GroupID, utils.CreateClassroomGitlabDescription(classroom1, publicUrl)).
 			Return(nil, nil).
 			Times(1)
 
-		w.syncClassroom(context.Background(), classroom1, repo)
+		w.syncClassroom(context.Background(), *classroom1, repo)
 
 		repo.AssertExpectations(t)
 
@@ -190,10 +158,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Nil(t, leftMember)
 
 		// revert changes for next tests
-		testDb.InsertUserClassrooms(&database.UserClassrooms{
-			UserID:      member2.ID,
-			ClassroomID: classroom1.ID,
-		})
+		factory.UserClassroom(member2.ID, classroom1.ID, database.Student)
 	})
 
 	t.Run("syncClassroomMember - added via gitlab", func(t *testing.T) {
@@ -256,11 +221,11 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Times(1)
 
 		repo.EXPECT().
-			ChangeGroupDescription(team1.GroupID, utils.CreateTeamGitlabDescription(&classroom1, &team1, publicUrl)).
+			ChangeGroupDescription(team1.GroupID, utils.CreateTeamGitlabDescription(classroom1, team1, publicUrl)).
 			Return(nil, nil).
 			Times(1)
 
-		w.syncTeam(context.Background(), &classroom1, team1, repo)
+		w.syncTeam(context.Background(), classroom1, *team1, repo)
 
 		repo.AssertExpectations(t)
 
@@ -313,7 +278,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 			First()
 		assert.NoError(t, err)
 		leftMember.TeamID = &team1.ID
-		leftMember.Team = &team1
+		leftMember.Team = team1
 		query.UserClassrooms.WithContext(context.Background()).Updates(leftMember)
 	})
 
@@ -375,7 +340,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Return(nil, fiber.NewError(404, "404 {message: 404 Project Not Found}")).
 			Times(1)
 
-		w.syncProject(context.Background(), assignment1Project, repo)
+		w.syncProject(context.Background(), *assignment1Project, repo)
 
 		repo.AssertExpectations(t)
 

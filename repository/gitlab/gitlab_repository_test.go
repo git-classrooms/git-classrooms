@@ -28,10 +28,10 @@ type TestCredentials struct {
 }
 
 func SetupTestCredentials() (*TestCredentials, error) {
-	err := godotenv.Load(".env.test")
-	if err != nil {
-		log.Print(err.Error())
-	}
+	//err := godotenv.Load(".env.test")
+	//if err != nil {
+	//	log.Print(err.Error())
+	//}
 
 	idStr := os.Getenv("GO_GITLAB_TEST_USER_ID")
 	id, err := strconv.Atoi(idStr)
