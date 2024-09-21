@@ -19,7 +19,6 @@ import { Configuration } from '../configuration';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 import { AuthGetCsrfResponse } from '../models';
-import { GetMeResponse } from '../models';
 import { HTTPError } from '../models';
 /**
  * AuthApi - axios parameter creator
@@ -35,40 +34,6 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
          */
         getCsrf: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/auth/csrf`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, 'https://example.com');
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-            const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            const query = new URLSearchParams(localVarUrlObj.search);
-            for (const key in localVarQueryParameter) {
-                query.set(key, localVarQueryParameter[key]);
-            }
-            for (const key in options.params) {
-                query.set(key, options.params[key]);
-            }
-            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * Get your user account
-         * @summary Show your user account
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getMeV2: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v2/me`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;
@@ -117,19 +82,6 @@ export const AuthApiFp = function(configuration?: Configuration) {
                 return axios.request(axiosRequestArgs);
             };
         },
-        /**
-         * Get your user account
-         * @summary Show your user account
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getMeV2(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<GetMeResponse>>> {
-            const localVarAxiosArgs = await AuthApiAxiosParamCreator(configuration).getMeV2(options);
-            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
-                const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
-                return axios.request(axiosRequestArgs);
-            };
-        },
     }
 };
 
@@ -147,15 +99,6 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          */
         async getCsrf(options?: AxiosRequestConfig): Promise<AxiosResponse<AuthGetCsrfResponse>> {
             return AuthApiFp(configuration).getCsrf(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Get your user account
-         * @summary Show your user account
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getMeV2(options?: AxiosRequestConfig): Promise<AxiosResponse<GetMeResponse>> {
-            return AuthApiFp(configuration).getMeV2(options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -176,15 +119,5 @@ export class AuthApi extends BaseAPI {
      */
     public async getCsrf(options?: AxiosRequestConfig) : Promise<AxiosResponse<AuthGetCsrfResponse>> {
         return AuthApiFp(this.configuration).getCsrf(options).then((request) => request(this.axios, this.basePath));
-    }
-    /**
-     * Get your user account
-     * @summary Show your user account
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AuthApi
-     */
-    public async getMeV2(options?: AxiosRequestConfig) : Promise<AxiosResponse<GetMeResponse>> {
-        return AuthApiFp(this.configuration).getMeV2(options).then((request) => request(this.axios, this.basePath));
     }
 }
