@@ -108,7 +108,6 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name, GitlabUsername: gitlabUser.Username})).
 		FirstOrCreate()
 	if err != nil {
-		// TODO: Use sentry to log errors
 		log.Println(err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
@@ -133,7 +132,6 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	redirect := state.Redirect
 
 	if err = s.Save(); err != nil {
-		// TODO: Use sentry to log errors
 		log.Println(err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
