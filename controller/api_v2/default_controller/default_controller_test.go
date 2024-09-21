@@ -46,6 +46,7 @@ func TestMain(m *testing.M) {
 		snapshotName: "integration-test",
 	}
 
+	os.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 	pg, err := db_tests.StartPostgres()
 	if err != nil {
 		log.Fatalf("Failed to start postgres container: %s", err.Error())

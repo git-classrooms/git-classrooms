@@ -21,6 +21,8 @@ import (
 )
 
 func TestSyncClassroomsWork(t *testing.T) {
+	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
+
 	repo := gitlabRepoMock.NewMockRepository(t)
 
 	pg, err := tests.StartPostgres()

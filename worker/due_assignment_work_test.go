@@ -20,6 +20,8 @@ import (
 )
 
 func TestDueAssignmentWorker(t *testing.T) {
+	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
+
 	pg, err := db_tests.StartPostgres()
 	if err != nil {
 		t.Fatalf("Failed to start postgres container: %s", err.Error())
