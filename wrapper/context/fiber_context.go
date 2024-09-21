@@ -24,7 +24,6 @@ const (
 	joinedClassroomAssignmentKey       contextKey = "joined-classroom-assignment"
 	joinedClassroomTeamKey             contextKey = "joined-classroom-team"
 
-	// API v2 specific
 	userClassroomKey     contextKey = "user-classroom"
 	assignmentKey        contextKey = "assignment"
 	assignmentProjectKey contextKey = "assignment-project"
@@ -82,78 +81,6 @@ func (c *FiberContext) SetGitlabProjectID(projectID int) {
 
 func (c *FiberContext) GetGitlabProjectID() int {
 	return c.Locals(gitlabProjectIDKey).(int)
-}
-
-func (c *FiberContext) SetOwnedClassroom(classroom *database.Classroom) {
-	c.Locals(ownedClassroomKey, classroom)
-}
-
-func (c *FiberContext) GetOwnedClassroom() *database.Classroom {
-	return c.Locals(ownedClassroomKey).(*database.Classroom)
-}
-
-func (c *FiberContext) GetOwnedClassroomAssignment() *database.Assignment {
-	return c.Locals(ownedClassroomAssignmentKey).(*database.Assignment)
-}
-
-func (c *FiberContext) SetOwnedClassroomAssignment(assignment *database.Assignment) {
-	c.Locals(ownedClassroomAssignmentKey, assignment)
-}
-
-func (c *FiberContext) GetOwnedClassroomAssignmentProject() *database.AssignmentProjects {
-	return c.Locals(ownedClassroomAssignmentProjectKey).(*database.AssignmentProjects)
-}
-
-func (c *FiberContext) SetOwnedClassroomAssignmentProject(assignmentProject *database.AssignmentProjects) {
-	c.Locals(ownedClassroomAssignmentProjectKey, assignmentProject)
-}
-
-func (c *FiberContext) SetJoinedClassroom(classroom *database.UserClassrooms) {
-	c.Locals(joinedClassroomKey, classroom)
-}
-
-func (c *FiberContext) GetJoinedClassroom() *database.UserClassrooms {
-	return c.Locals(joinedClassroomKey).(*database.UserClassrooms)
-}
-
-func (c *FiberContext) GetJoinedClassroomAssignment() *database.AssignmentProjects {
-	return c.Locals(joinedClassroomAssignmentKey).(*database.AssignmentProjects)
-}
-
-func (c *FiberContext) SetJoinedClassroomAssignment(assignment *database.AssignmentProjects) {
-	c.Locals(joinedClassroomAssignmentKey, assignment)
-}
-
-func (c *FiberContext) GetJoinedClassroomTeam() *database.Team {
-	return c.Locals(joinedClassroomTeamKey).(*database.Team)
-}
-
-func (c *FiberContext) SetJoinedClassroomTeam(team *database.Team) {
-	c.Locals(joinedClassroomTeamKey, team)
-}
-
-func (c *FiberContext) GetOwnedClassroomMember() *database.UserClassrooms {
-	return c.Locals(ownedClassroomMemberKey).(*database.UserClassrooms)
-}
-
-func (c *FiberContext) SetOwnedClassroomMember(member *database.UserClassrooms) {
-	c.Locals(ownedClassroomMemberKey, member)
-}
-
-func (c *FiberContext) GetOwnedClassroomTeam() *database.Team {
-	return c.Locals(ownedClassroomTeamKey).(*database.Team)
-}
-
-func (c *FiberContext) SetOwnedClassroomTeam(team *database.Team) {
-	c.Locals(ownedClassroomTeamKey, team)
-}
-
-func (c *FiberContext) GetOwnedClassroomTeamMember() *database.UserClassrooms {
-	return c.Locals(ownedClassroomTeamMemberKey).(*database.UserClassrooms)
-}
-
-func (c *FiberContext) SetOwnedClassroomTeamMember(member *database.UserClassrooms) {
-	c.Locals(ownedClassroomTeamMemberKey, member)
 }
 
 // API v2 specific

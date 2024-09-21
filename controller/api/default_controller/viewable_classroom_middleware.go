@@ -2,12 +2,12 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	apiV2 "gitlab.hs-flensburg.de/gitlab-classroom/controller/api_v2"
+	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 
 func (ctrl *DefaultController) ViewableClassroomMiddleware() fiber.Handler {
-	var validateViewable apiV2.ValidateUserFunc = func(classroom database.UserClassrooms) bool {
+	var validateViewable apiController.ValidateUserFunc = func(classroom database.UserClassrooms) bool {
 		return classroom.Classroom.StudentsViewAllProjects || classroom.Role != database.Student
 	}
 

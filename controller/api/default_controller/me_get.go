@@ -1,4 +1,4 @@
-package default_controller
+package api
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -14,13 +14,13 @@ type getMeResponse struct {
 
 // @Summary		Show your user account
 // @Description	Get your user account
-// @Id				GetMe
+// @Id				GetMeV2
 // @Tags			auth
 // @Produce		json
-// @Success		200	{object}	default_controller.getMeResponse
+// @Success		200	{object}	api.getMeResponse
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
-// @Router			/api/v1/me [get]
+// @Router			/api/v2/me [get]
 func (ctrl *DefaultController) GetMe(c *fiber.Ctx) error {
 	queryUser := query.User
 	user, err := queryUser.WithContext(c.Context()).
