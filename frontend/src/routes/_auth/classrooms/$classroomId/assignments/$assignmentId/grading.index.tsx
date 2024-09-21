@@ -208,7 +208,9 @@ function AssignmentProjectTable({
         </TableHeader>
         <TableBody>
           {zippedProjects.map((a) => {
-            const alreadyGraded = Object.keys(a.gradingResult?.rubricResults ?? {}).length !== 0;
+            const alreadyGraded =
+              Object.keys(a.gradingResult?.rubricResults ?? {}).length === rubrics.length &&
+              (a.gradingResult?.autogradingMaxScore === 0 || a.gradingResult?.autogradingScore !== 0);
             return (
               <TableRow key={`${a.assignment.id}-${a.team.id}`}>
                 <TableCell className="font-medium">{a.team.name}</TableCell>
