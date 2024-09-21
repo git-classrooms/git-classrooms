@@ -24,7 +24,6 @@ type getMeResponse struct {
 func (ctrl *DefaultController) GetMe(c *fiber.Ctx) error {
 	queryUser := query.User
 	user, err := queryUser.WithContext(c.Context()).
-		Preload(queryUser.GitLabAvatar).
 		Where(queryUser.ID.Eq(context.Get(c).GetUserID())).
 		First()
 	if err != nil {

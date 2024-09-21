@@ -35,7 +35,6 @@ func (ctrl *DefaultController) GetClassroomInvitation(c *fiber.Ctx) (err error) 
 		WithContext(c.Context()).
 		Preload(queryInvitation.Classroom).
 		Preload(queryInvitation.Classroom.Owner).
-		Preload(queryInvitation.Classroom.Owner.GitLabAvatar).
 		Where(queryInvitation.ClassroomID.Eq(*params.ClassroomID)).
 		Where(queryInvitation.ID.Eq(*params.InvitationID)).
 		First()

@@ -135,8 +135,8 @@ function MemberListElement({ member, showTeams }: { member: UserClassroomRespons
       <HoverCardTrigger className="cursor-default flex">
         <div className="pr-2">
           <Avatar
-            avatarUrl={member.user.gitlabAvatar?.avatarURL}
-            fallbackUrl={member.user.gitlabAvatar?.fallbackAvatarURL}
+            avatarUrl={member.user.avatarURL}
+            fallbackUrl={member.user.fallbackAvatarURL}
             name={member.user.name!}
           />
         </div>

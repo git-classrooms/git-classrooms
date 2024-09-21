@@ -91,8 +91,8 @@ function AvatarDropdown(props: NavbarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar
-              avatarUrl={props.auth.gitlabAvatar?.avatarURL}
-              fallbackUrl={props.auth.gitlabAvatar?.fallbackAvatarURL}
+              avatarUrl={props.auth.avatarURL}
+              fallbackUrl={props.auth.fallbackAvatarURL}
               name={props.auth.name!}
             />
           </DropdownMenuTrigger>

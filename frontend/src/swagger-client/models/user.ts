@@ -12,7 +12,6 @@
  * Do not edit the class manually.
  */
 
-import { UserAvatar } from './user-avatar';
  /**
  * 
  *
@@ -22,10 +21,16 @@ import { UserAvatar } from './user-avatar';
 export interface User {
 
     /**
-     * @type {UserAvatar}
+     * @type {string}
      * @memberof User
      */
-    gitlabAvatar: UserAvatar;
+    avatarURL: string;
+
+    /**
+     * @type {string}
+     * @memberof User
+     */
+    fallbackAvatarURL: string;
 
     /**
      * @type {string}
