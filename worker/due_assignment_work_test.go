@@ -126,11 +126,10 @@ func TestDueAssignmentWorker(t *testing.T) {
 	t.Run("repo.GetAccessLevelOfUserInProject throws error -> restore old permissions", func(t *testing.T) {
 		assignment1.Closed = false
 		SaveAssignment(t, assignment1)
+		assignmentProject1.ProjectStatus = database.Accepted
 
-		repo.EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
-			Return(model.OwnerPermissions, nil).
-			Times(1)
+		SaveAssignmentProjects(t, assignmentProject1)
+		assignment1.Projects = []*database.AssignmentProjects{assignmentProject1}
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
@@ -174,11 +173,6 @@ func TestDueAssignmentWorker(t *testing.T) {
 		SaveAssignment(t, assignment1)
 
 		repo.EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
-			Return(model.OwnerPermissions, nil).
-			Times(1)
-
-		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).
 			Return(model.DeveloperPermissions, nil).
 			Times(1)
@@ -204,11 +198,6 @@ func TestDueAssignmentWorker(t *testing.T) {
 	t.Run("Close due Assignment", func(t *testing.T) {
 		assignment1.Closed = false
 		SaveAssignment(t, assignment1)
-
-		repo.EXPECT().
-			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, owner.ID).
-			Return(model.OwnerPermissions, nil).
-			Times(1)
 
 		repo.EXPECT().
 			GetAccessLevelOfUserInProject(assignmentProject1.ProjectID, student1.ID).

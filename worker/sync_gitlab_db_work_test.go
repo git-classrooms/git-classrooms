@@ -331,7 +331,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		if len(dbAssignments) != 1 {
 			t.Errorf("Expected 1 assignment, got %d", len(dbAssignments))
 		}
-		assert.Equal(t, 15, dbAssignments[0].ProjectID)
+		assert.Equal(t, assignment1Project.ProjectID, dbAssignments[0].ProjectID)
 	})
 
 	t.Run("syncProject", func(t *testing.T) {

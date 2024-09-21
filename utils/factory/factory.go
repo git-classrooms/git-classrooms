@@ -21,6 +21,7 @@ func Classroom(ownerID int) *database.Classroom {
 	classroom.GroupAccessToken = "token"
 	classroom.MaxTeamSize = 3
 	classroom.MaxTeams = 5
+	classroom.GroupAccessTokenCreatedAt = time.Now()
 
 	err := query.Classroom.WithContext(context.Background()).Create(&classroom)
 	if err != nil {
