@@ -51,7 +51,7 @@ export const useCreateAssignment = (classroomId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: CreateAssignmentRequest) => {
-      const res = await apiClient.createAssignmentV2(values, csrfToken, classroomId);
+      const res = await apiClient.createAssignment(values, csrfToken, classroomId);
       return res.headers.location as string;
     },
     onSuccess: () => {

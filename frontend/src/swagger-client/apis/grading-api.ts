@@ -42,20 +42,20 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet: async (classroomId: string, assignmentId: string, projectId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet: async (classroomId: string, assignmentId: string, projectId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet.');
             }
             // verify required parameter 'assignmentId' is not null or undefined
             if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet.');
+                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet.');
             }
             // verify required parameter 'projectId' is not null or undefined
             if (projectId === null || projectId === undefined) {
-                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet.');
+                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
@@ -93,16 +93,16 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet: async (classroomId: string, projectId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet: async (classroomId: string, projectId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet.');
             }
             // verify required parameter 'projectId' is not null or undefined
             if (projectId === null || projectId === undefined) {
-                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet.');
+                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/projects/{projectId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/projects/{projectId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -148,7 +148,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getAssignmentGradingRubrics.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -194,7 +194,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getClassroomAssignmentTests.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/tests`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/tests`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -235,7 +235,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getGradingRubrics.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -290,7 +290,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling startAutoGrading.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading/auto`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/grading/auto`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -359,7 +359,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (projectId === null || projectId === undefined) {
                 throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling startAutoGradingForProject.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading/auto`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading/auto`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
@@ -424,7 +424,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling updateAssignmentGradingRubrics.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -488,7 +488,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling updateAssignmentTests.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/tests`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/tests`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -557,7 +557,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (projectId === null || projectId === undefined) {
                 throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling updateGradingResults.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
@@ -617,7 +617,7 @@ export const GradingApiAxiosParamCreator = function (configuration?: Configurati
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling updateGradingRubrics.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/grading`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/grading`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -671,8 +671,8 @@ export const GradingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<ManualGradingResult>>>> {
-            const localVarAxiosArgs = await GradingApiAxiosParamCreator(configuration).apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId, assignmentId, projectId, options);
+        async apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<ManualGradingResult>>>> {
+            const localVarAxiosArgs = await GradingApiAxiosParamCreator(configuration).apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId, assignmentId, projectId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -686,8 +686,8 @@ export const GradingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId: string, projectId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<ManualGradingResult>>>> {
-            const localVarAxiosArgs = await GradingApiAxiosParamCreator(configuration).apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId, options);
+        async apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId: string, projectId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<ManualGradingResult>>>> {
+            const localVarAxiosArgs = await GradingApiAxiosParamCreator(configuration).apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -858,8 +858,8 @@ export const GradingApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ManualGradingResult>>> {
-            return GradingApiFp(configuration).apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId, assignmentId, projectId, options).then((request) => request(axios, basePath));
+        async apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ManualGradingResult>>> {
+            return GradingApiFp(configuration).apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId, assignmentId, projectId, options).then((request) => request(axios, basePath));
         },
         /**
          * GetGradingResults
@@ -869,8 +869,8 @@ export const GradingApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId: string, projectId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ManualGradingResult>>> {
-            return GradingApiFp(configuration).apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId, options).then((request) => request(axios, basePath));
+        async apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId: string, projectId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ManualGradingResult>>> {
+            return GradingApiFp(configuration).apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId, options).then((request) => request(axios, basePath));
         },
         /**
          * GetAssignmentGradingRubrics
@@ -1003,8 +1003,8 @@ export class GradingApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof GradingApi
      */
-    public async apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ManualGradingResult>>> {
-        return GradingApiFp(this.configuration).apiV2ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId, assignmentId, projectId, options).then((request) => request(this.axios, this.basePath));
+    public async apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId: string, assignmentId: string, projectId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ManualGradingResult>>> {
+        return GradingApiFp(this.configuration).apiV1ClassroomsClassroomIdAssignmentsAssignmentIdProjectsProjectIdGradingGet(classroomId, assignmentId, projectId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * GetGradingResults
@@ -1015,8 +1015,8 @@ export class GradingApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof GradingApi
      */
-    public async apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId: string, projectId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ManualGradingResult>>> {
-        return GradingApiFp(this.configuration).apiV2ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId, options).then((request) => request(this.axios, this.basePath));
+    public async apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId: string, projectId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ManualGradingResult>>> {
+        return GradingApiFp(this.configuration).apiV1ClassroomsClassroomIdProjectsProjectIdGradingGet(classroomId, projectId, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * GetAssignmentGradingRubrics

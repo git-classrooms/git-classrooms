@@ -1,4 +1,4 @@
-package default_controller
+package api
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +17,7 @@ type getMeResponse struct {
 // @Id				GetMe
 // @Tags			auth
 // @Produce		json
-// @Success		200	{object}	default_controller.getMeResponse
+// @Success		200	{object}	api.getMeResponse
 // @Failure		401	{object}	HTTPError
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v1/me [get]
