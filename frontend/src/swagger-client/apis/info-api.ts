@@ -1,6 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck
-// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
@@ -35,7 +33,7 @@ export const InfoApiAxiosParamCreator = function (configuration?: Configuration)
          * @throws {RequiredError}
          */
         getGitlabInfo: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v2/info/gitlab`;
+            const localVarPath = `/api/v1/info/gitlab`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
             let baseOptions;

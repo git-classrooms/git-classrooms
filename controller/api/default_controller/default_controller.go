@@ -24,7 +24,7 @@ type DefaultController struct {
 	g        *singleflight.Group
 }
 
-func NewApiV2Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
+func NewApiV1Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
 	g := &singleflight.Group{}
 	return &DefaultController{mailRepo: mailRepo, config: config, g: g}
 }

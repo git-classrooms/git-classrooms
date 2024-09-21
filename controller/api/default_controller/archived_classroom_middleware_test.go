@@ -30,7 +30,7 @@ func TestArchivedClassroomMiddleware(t *testing.T) {
 	})
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	handler := NewApiV2Controller(mailRepo, config.ApplicationConfig{})
+	handler := NewApiV1Controller(mailRepo, config.ApplicationConfig{})
 	app.Use("/api/v1/classrooms/:classroomId", handler.ArchivedMiddleware)
 
 	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s", userClassroom.Classroom.ID.String())

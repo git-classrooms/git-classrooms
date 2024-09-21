@@ -36,7 +36,7 @@ func (r createClassroomRequest) isValid() bool {
 
 // @Summary		Create a new classroom
 // @Description	Create a new classroom
-// @Id				CreateClassroomV2
+// @Id				CreateClassroom
 // @Tags			classroom
 // @Accept			json
 // @Param			classroom		body	api.createClassroomRequest	true	"Classroom Info"

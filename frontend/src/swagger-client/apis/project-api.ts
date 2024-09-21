@@ -1,6 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck
-// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
@@ -38,20 +36,20 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptAssignmentV2: async (classroomId: string, projectId: string, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        acceptAssignment: async (classroomId: string, projectId: string, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling acceptAssignmentV2.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling acceptAssignment.');
             }
             // verify required parameter 'projectId' is not null or undefined
             if (projectId === null || projectId === undefined) {
-                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling acceptAssignmentV2.');
+                throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling acceptAssignment.');
             }
             // verify required parameter 'xCsrfToken' is not null or undefined
             if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling acceptAssignmentV2.');
+                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling acceptAssignment.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/projects/{projectId}/accept`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/projects/{projectId}/accept`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -106,7 +104,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (projectId === null || projectId === undefined) {
                 throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling getClassroomAssignmentProject.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
@@ -153,7 +151,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentId === null || assignmentId === undefined) {
                 throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling getClassroomAssignmentProjects.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -199,7 +197,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (projectId === null || projectId === undefined) {
                 throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling getClassroomProject.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/projects/{projectId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/projects/{projectId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -240,7 +238,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomProjects.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/projects`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -290,7 +288,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (projectId === null || projectId === undefined) {
                 throw new RequiredError('projectId','Required parameter projectId was null or undefined when calling getClassroomTeamProject.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/projects/{projectId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/projects/{projectId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
                 .replace(`{${"projectId"}}`, encodeURIComponent(String(projectId)));
@@ -337,7 +335,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (teamId === null || teamId === undefined) {
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getClassroomTeamProjects.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/projects`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -388,7 +386,7 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
             if (assignmentProjectId === null || assignmentProjectId === undefined) {
                 throw new RequiredError('assignmentProjectId','Required parameter assignmentProjectId was null or undefined when calling getProjectCloneUrls.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{assignmentProjectId}/repo`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)))
                 .replace(`{${"assignmentProjectId"}}`, encodeURIComponent(String(assignmentProjectId)));
@@ -427,20 +425,20 @@ export const ProjectApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inviteToAssignmentV2: async (classroomId: string, assignmentId: string, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        inviteToAssignment: async (classroomId: string, assignmentId: string, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling inviteToAssignmentV2.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling inviteToAssignment.');
             }
             // verify required parameter 'assignmentId' is not null or undefined
             if (assignmentId === null || assignmentId === undefined) {
-                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling inviteToAssignmentV2.');
+                throw new RequiredError('assignmentId','Required parameter assignmentId was null or undefined when calling inviteToAssignment.');
             }
             // verify required parameter 'xCsrfToken' is not null or undefined
             if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling inviteToAssignmentV2.');
+                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling inviteToAssignment.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/assignments/{assignmentId}/projects`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"assignmentId"}}`, encodeURIComponent(String(assignmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -491,8 +489,8 @@ export const ProjectApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async acceptAssignmentV2(classroomId: string, projectId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).acceptAssignmentV2(classroomId, projectId, xCsrfToken, options);
+        async acceptAssignment(classroomId: string, projectId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
+            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).acceptAssignment(classroomId, projectId, xCsrfToken, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -614,8 +612,8 @@ export const ProjectApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async inviteToAssignmentV2(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).inviteToAssignmentV2(classroomId, assignmentId, xCsrfToken, options);
+        async inviteToAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
+            const localVarAxiosArgs = await ProjectApiAxiosParamCreator(configuration).inviteToAssignment(classroomId, assignmentId, xCsrfToken, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -639,8 +637,8 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async acceptAssignmentV2(classroomId: string, projectId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return ProjectApiFp(configuration).acceptAssignmentV2(classroomId, projectId, xCsrfToken, options).then((request) => request(axios, basePath));
+        async acceptAssignment(classroomId: string, projectId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
+            return ProjectApiFp(configuration).acceptAssignment(classroomId, projectId, xCsrfToken, options).then((request) => request(axios, basePath));
         },
         /**
          * GetClassroomAssignmentProject
@@ -730,8 +728,8 @@ export const ProjectApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async inviteToAssignmentV2(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return ProjectApiFp(configuration).inviteToAssignmentV2(classroomId, assignmentId, xCsrfToken, options).then((request) => request(axios, basePath));
+        async inviteToAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
+            return ProjectApiFp(configuration).inviteToAssignment(classroomId, assignmentId, xCsrfToken, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -753,8 +751,8 @@ export class ProjectApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ProjectApi
      */
-    public async acceptAssignmentV2(classroomId: string, projectId: string, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return ProjectApiFp(this.configuration).acceptAssignmentV2(classroomId, projectId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
+    public async acceptAssignment(classroomId: string, projectId: string, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        return ProjectApiFp(this.configuration).acceptAssignment(classroomId, projectId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * GetClassroomAssignmentProject
@@ -852,7 +850,7 @@ export class ProjectApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ProjectApi
      */
-    public async inviteToAssignmentV2(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return ProjectApiFp(this.configuration).inviteToAssignmentV2(classroomId, assignmentId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
+    public async inviteToAssignment(classroomId: string, assignmentId: string, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        return ProjectApiFp(this.configuration).inviteToAssignment(classroomId, assignmentId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
     }
 }

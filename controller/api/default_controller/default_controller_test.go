@@ -16,7 +16,6 @@ import (
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
-	apiControllerMock "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/_mock"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -137,11 +136,10 @@ func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.Mo
 
 	app := fiber.New()
 
-	apiCtrl := apiControllerMock.NewMockController(t)
-	v2Controller := NewApiV2Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicUrl})
+	apiController := NewApiV1Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicUrl})
 	authCtrl := authController.NewTestAuthController(user, gitlabRepo)
 
-	router.Routes(app, authCtrl, apiCtrl, v2Controller, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
+	router.Routes(app, authCtrl, apiController, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
 
 	return app, gitlabRepo, mailRepo
 }

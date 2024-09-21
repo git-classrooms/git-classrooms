@@ -32,7 +32,7 @@ func (r *joinClassroomRequest) isValid() bool {
 
 // @Summary		JoinClassroom
 // @Description	JoinClassroom
-// @Id				JoinClassroomV2
+// @Id				JoinClassroom
 // @Tags			classroom
 // @Accept			json
 // @Param			classroomId		path	string						true	"Classroom ID"	Format(uuid)

@@ -1,6 +1,6 @@
 //go:generate go run ./code_gen/gorm/main.go
-//go:generate swag fmt --exclude frontend,controller/api
-//go:generate swag init --requiredByDefault --exclude frontend,controller/api
+//go:generate swag fmt --exclude frontend
+//go:generate swag init --requiredByDefault --exclude frontend
 //go:generate mockery
 package main
 
@@ -107,7 +107,7 @@ func main() {
 	})
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
-	apiController := api.NewApiV2Controller(mailRepo, *appConfig)
+	apiController := api.NewApiV1Controller(mailRepo, *appConfig)
 
 	router.Routes(app, authCtrl, apiController, appConfig.FrontendPath, appConfig.Auth)
 

@@ -18,7 +18,7 @@ func (r updateClassroomRequest) isValid() bool {
 
 // @Summary		UpdateClassroom
 // @Description	UpdateClassroom
-// @Id				UpdateClassroomV2
+// @Id				UpdateClassroom
 // @Tags			classroom
 // @Accept			json
 // @Param			classroomId		path	string						true	"Classroom ID"	Format(uuid)

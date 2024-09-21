@@ -68,7 +68,7 @@ export const useCreateClassroom = () => {
         maxTeamSize: values.teamsEnabled ? values.maxTeamSize : 1,
         maxTeams: values.teamsEnabled ? values.maxTeams : 0,
       };
-      const res = await apiClient.createClassroomV2(body, csrfToken);
+      const res = await apiClient.createClassroom(body, csrfToken);
       return res.headers.location as string;
     },
     onSuccess: () => {
@@ -86,7 +86,7 @@ export const useUpdateClassroom = (classroomId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: ClassroomUpdateForm) => {
-      const res = await apiClient.updateClassroomV2(values, csrfToken, classroomId);
+      const res = await apiClient.updateClassroom(values, csrfToken, classroomId);
       return res.data;
     },
     onSuccess: () => {
@@ -125,7 +125,7 @@ export const useInviteClassroomMembers = (classroomId: string) => {
   return useMutation({
     mutationFn: async (values: InviteForm) => {
       const data = { memberEmails: values.memberEmails.split("\n").filter(Boolean) };
-      const res = await apiClient.inviteToClassroomV2(data, csrfToken, classroomId);
+      const res = await apiClient.inviteToClassroom(data, csrfToken, classroomId);
       return res.data;
     },
     onSuccess: () => {
@@ -142,7 +142,7 @@ export const useJoinClassroom = (classroomId: string, invitationId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (action: Action) => {
-      const res = await apiClient.joinClassroomV2({ invitationId, action }, csrfToken, classroomId);
+      const res = await apiClient.joinClassroom({ invitationId, action }, csrfToken, classroomId);
       return res.headers.location as string;
     },
     onSuccess: () => {

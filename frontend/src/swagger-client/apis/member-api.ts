@@ -1,6 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck
-// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
@@ -47,7 +45,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             if (memberId === null || memberId === undefined) {
                 throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling getClassroomMember.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/members/{memberId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/members/{memberId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -88,7 +86,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomMembers.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/members`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/members`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -138,7 +136,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             if (memberId === null || memberId === undefined) {
                 throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling getClassroomTeamMember.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/members/{memberId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/members/{memberId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
                 .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
@@ -185,7 +183,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             if (teamId === null || teamId === undefined) {
                 throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling getClassroomTeamMembers.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/members`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/members`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -224,24 +222,24 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeMemberFromTeamV2: async (classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        removeMemberFromTeam: async (classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
-                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling removeMemberFromTeamV2.');
+                throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling removeMemberFromTeam.');
             }
             // verify required parameter 'teamId' is not null or undefined
             if (teamId === null || teamId === undefined) {
-                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling removeMemberFromTeamV2.');
+                throw new RequiredError('teamId','Required parameter teamId was null or undefined when calling removeMemberFromTeam.');
             }
             // verify required parameter 'memberId' is not null or undefined
             if (memberId === null || memberId === undefined) {
-                throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling removeMemberFromTeamV2.');
+                throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling removeMemberFromTeam.');
             }
             // verify required parameter 'xCsrfToken' is not null or undefined
             if (xCsrfToken === null || xCsrfToken === undefined) {
-                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling removeMemberFromTeamV2.');
+                throw new RequiredError('xCsrfToken','Required parameter xCsrfToken was null or undefined when calling removeMemberFromTeam.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/teams/{teamId}/members/{memberId}`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/teams/{teamId}/members/{memberId}`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"teamId"}}`, encodeURIComponent(String(teamId)))
                 .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
@@ -302,7 +300,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             if (memberId === null || memberId === undefined) {
                 throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling updateMemberRole.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/members/{memberId}/role`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/members/{memberId}/role`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -366,7 +364,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             if (memberId === null || memberId === undefined) {
                 throw new RequiredError('memberId','Required parameter memberId was null or undefined when calling updateMemberTeam.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/members/{memberId}/team`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/members/{memberId}/team`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)))
                 .replace(`{${"memberId"}}`, encodeURIComponent(String(memberId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -482,8 +480,8 @@ export const MemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async removeMemberFromTeamV2(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
-            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).removeMemberFromTeamV2(classroomId, teamId, memberId, xCsrfToken, options);
+        async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>> {
+            const localVarAxiosArgs = await MemberApiAxiosParamCreator(configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -586,8 +584,8 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async removeMemberFromTeamV2(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return MemberApiFp(configuration).removeMemberFromTeamV2(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(axios, basePath));
+        async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
+            return MemberApiFp(configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(axios, basePath));
         },
         /**
          * Update Classroom Members role
@@ -684,8 +682,8 @@ export class MemberApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof MemberApi
      */
-    public async removeMemberFromTeamV2(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return MemberApiFp(this.configuration).removeMemberFromTeamV2(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
+    public async removeMemberFromTeam(classroomId: string, teamId: string, memberId: number, xCsrfToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        return MemberApiFp(this.configuration).removeMemberFromTeam(classroomId, teamId, memberId, xCsrfToken, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * Update Classroom Members role

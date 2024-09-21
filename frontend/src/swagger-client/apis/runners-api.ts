@@ -1,6 +1,4 @@
 // @ts-nocheck
-// @ts-nocheck
-// @ts-nocheck
 /* tslint:disable */
 /* eslint-disable */
 /**
@@ -40,7 +38,7 @@ export const RunnersApiAxiosParamCreator = function (configuration?: Configurati
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomRunners.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/runners`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/runners`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');
@@ -80,7 +78,7 @@ export const RunnersApiAxiosParamCreator = function (configuration?: Configurati
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomRunnersAreAvailable.');
             }
-            const localVarPath = `/api/v2/classrooms/{classroomId}/runners/available`
+            const localVarPath = `/api/v1/classrooms/{classroomId}/runners/available`
                 .replace(`{${"classroomId"}}`, encodeURIComponent(String(classroomId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, 'https://example.com');

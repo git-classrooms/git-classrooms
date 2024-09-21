@@ -25,7 +25,7 @@ func (r inviteToClassroomRequest) isValid() bool {
 
 // @Summary		InviteToClassroom
 // @Description	InviteToClassroom
-// @Id				InviteToClassroomV2
+// @Id				InviteToClassroom
 // @Tags			classroom
 // @Accept			json
 // @Param			classroomId		path	string							true	"Classroom ID"	Format(uuid)

@@ -8,7 +8,7 @@ import (
 
 // @Summary		Remove Member from the team
 // @Description	Remove Member from the team
-// @Id				RemoveMemberFromTeamV2
+// @Id				RemoveMemberFromTeam
 // @Tags			member
 // @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
 // @Param			teamId			path	string	true	"Team ID"		Format(uuid)

@@ -23,7 +23,7 @@ func (r createAssignmentRequest) isValid() bool {
 
 // @Summary		CreateAssignment
 // @Description	CreateAssignment
-// @Id				CreateAssignmentV2
+// @Id				CreateAssignment
 // @Tags			assignment
 // @Accept			json
 // @Param			classroomId		path	string						true	"Classroom ID"	Format(uuid)

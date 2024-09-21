@@ -14,7 +14,7 @@ type getMeResponse struct {
 
 // @Summary		Show your user account
 // @Description	Get your user account
-// @Id				GetMeV2
+// @Id				GetMe
 // @Tags			auth
 // @Produce		json
 // @Success		200	{object}	api.getMeResponse

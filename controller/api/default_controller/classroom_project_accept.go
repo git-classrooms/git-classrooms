@@ -19,7 +19,7 @@ import (
 
 // @Summary		Accept the assignment
 // @Description	Accept the assignment and work on your repository
-// @Id				AcceptAssignmentV2
+// @Id				AcceptAssignment
 // @Tags			project
 // @Param			classroomId		path	string	true	"Classroom ID"	Format(uuid)
 // @Param			projectId		path	string	true	"Project ID"	Format(uuid)
