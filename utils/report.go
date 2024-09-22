@@ -42,7 +42,7 @@ func GenerateReports(assignments []*database.Assignment, rubrics []*database.Man
 	reports := make([][]*ReportDataItem, len(assignments))
 
 	for i, assignment := range assignments {
-		report, err := GenerateReport(assignment, rubrics, teamID)
+		report, err := GenerateReport(assignment, teamID)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +53,7 @@ func GenerateReports(assignments []*database.Assignment, rubrics []*database.Man
 }
 
 // GenerateReport generates a report for the given assignment and rubrics.
-func GenerateReport(assignment *database.Assignment, rubrics []*database.ManualGradingRubric, teamID *uuid.UUID) ([]*ReportDataItem, error) {
+func GenerateReport(assignment *database.Assignment, teamID *uuid.UUID) ([]*ReportDataItem, error) {
 	reportData := createReportDataItems(assignment, teamID)
 
 	return reportData, nil
@@ -89,7 +89,10 @@ func GenerateCSVReport(w io.Writer, assignment *database.Assignment, rubrics []*
 	writer.Comma = ';'
 
 	if includeHeader {
-		writeHeader(writer, rubrics)
+		err := writeHeader(writer, rubrics)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, item := range reportData {
