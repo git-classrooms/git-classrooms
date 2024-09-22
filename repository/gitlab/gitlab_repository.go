@@ -1,3 +1,4 @@
+// Reference to Go Gitlab Documentation: https://pkg.go.dev/github.com/xanzy/go-gitlab#section-documentation
 package gitlab
 
 import (
@@ -15,18 +16,19 @@ import (
 	goGitlab "github.com/xanzy/go-gitlab"
 )
 
+// GitlabRepo manages interactions with the GitLab API.
 type GitlabRepo struct {
 	client      *goGitlab.Client
 	config      gitlabConfig.Config
 	isConnected bool
 }
 
+// NewGitlabRepo initializes a new GitlabRepo with the given configuration.
 func NewGitlabRepo(config gitlabConfig.Config) *GitlabRepo {
 	return &GitlabRepo{client: nil, config: config, isConnected: false}
 }
 
-// Reference to Go Gitlab Documentation: https://pkg.go.dev/github.com/xanzy/go-gitlab#section-documentation
-
+// Login authenticates with GitLab using an OAuth token.
 func (repo *GitlabRepo) Login(token string) error {
 	// With oauth tokens we need the OAuthClient to make requests
 	// TODO: But all tests act with a personal token, we just use the normal client for a while
@@ -38,6 +40,7 @@ func (repo *GitlabRepo) Login(token string) error {
 	return nil
 }
 
+// GroupAccessLogin logs in using a group access token.
 func (repo *GitlabRepo) GroupAccessLogin(token string) error {
 	cli, err := goGitlab.NewClient(token, goGitlab.WithBaseURL(repo.config.GetURL()))
 	if err != nil {
@@ -47,6 +50,7 @@ func (repo *GitlabRepo) GroupAccessLogin(token string) error {
 	return nil
 }
 
+// GetCurrentUser fetches the current user from GitLab.
 func (repo *GitlabRepo) GetCurrentUser() (*model.User, error) {
 	repo.assertIsConnected()
 
@@ -60,6 +64,7 @@ func (repo *GitlabRepo) GetCurrentUser() (*model.User, error) {
 	return classroomUser, nil
 }
 
+// CreateProject creates a new project with the given name, visibility, and members.
 func (repo *GitlabRepo) CreateProject(name string, visibility model.Visibility, description string, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -77,6 +82,7 @@ func (repo *GitlabRepo) CreateProject(name string, visibility model.Visibility, 
 	return repo.AddProjectMembers(gitlabProject.ID, members)
 }
 
+// ForkProject forks an existing project with the specified parameters.
 func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -97,6 +103,7 @@ func (repo *GitlabRepo) ForkProject(projectId int, visibility model.Visibility, 
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+// ForkProjectWithOnlyDefaultBranch forks a project with only the default branch.
 func (repo *GitlabRepo) ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -127,6 +134,7 @@ func (repo *GitlabRepo) ForkProjectWithOnlyDefaultBranch(projectId int, visibili
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+// CreateBranch creates a new branch from an existing one.
 func (repo *GitlabRepo) CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error) {
 	repo.assertIsConnected()
 
@@ -142,6 +150,7 @@ func (repo *GitlabRepo) CreateBranch(projectId int, branchName string, fromBranc
 	return BranchFromGoGitlab(branch), nil
 }
 
+// ProtectBranch protects a branch with the specified access level.
 func (repo *GitlabRepo) ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
@@ -156,6 +165,7 @@ func (repo *GitlabRepo) ProtectBranch(projectId int, branchName string, accessLe
 	return ErrorFromGoGitlab(err)
 }
 
+// UnprotectBranch removes the protection from a branch.
 func (repo *GitlabRepo) UnprotectBranch(projectId int, branchName string) error {
 	repo.assertIsConnected()
 
@@ -163,6 +173,7 @@ func (repo *GitlabRepo) UnprotectBranch(projectId int, branchName string) error 
 	return ErrorFromGoGitlab(err)
 }
 
+// CreateMergeRequest creates a merge request between branches.
 func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, reviewerId int) error {
 	repo.assertIsConnected()
 
@@ -181,6 +192,7 @@ func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, t
 	return ErrorFromGoGitlab(err)
 }
 
+// ProtectedBranchExists checks if a branch is protected in a project.
 func (repo *GitlabRepo) ProtectedBranchExists(projectId int, branchName string) (bool, error) {
 	repo.assertIsConnected()
 
@@ -195,6 +207,7 @@ func (repo *GitlabRepo) ProtectedBranchExists(projectId int, branchName string) 
 	return true, nil
 }
 
+// BranchExists checks if a branch exists in a project.
 func (repo *GitlabRepo) BranchExists(projectId int, branchName string) (bool, error) {
 	repo.assertIsConnected()
 
@@ -209,6 +222,7 @@ func (repo *GitlabRepo) BranchExists(projectId int, branchName string) (bool, er
 	return true, nil
 }
 
+// AddProjectMember adds a user to a project with the specified access level.
 func (repo *GitlabRepo) AddProjectMember(projectId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
@@ -219,6 +233,7 @@ func (repo *GitlabRepo) AddProjectMember(projectId int, userId int, accessLevel 
 	return ErrorFromGoGitlab(err)
 }
 
+// RemoveUserFromProject removes a user from a project.
 func (repo *GitlabRepo) RemoveUserFromProject(projectId int, userId int) error {
 	repo.assertIsConnected()
 
@@ -226,6 +241,7 @@ func (repo *GitlabRepo) RemoveUserFromProject(projectId int, userId int) error {
 	return ErrorFromGoGitlab(err)
 }
 
+// AddProjectMembers adds multiple users to a project.
 func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -242,6 +258,7 @@ func (repo *GitlabRepo) AddProjectMembers(projectId int, members []model.User) (
 	return repo.GetProjectById(projectId)
 }
 
+// ChangeUserAccessLevelInProject changes the access level of a user in a project.
 func (repo *GitlabRepo) ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
@@ -254,6 +271,7 @@ func (repo *GitlabRepo) ChangeUserAccessLevelInProject(projectId int, userId int
 	return ErrorFromGoGitlab(err)
 }
 
+// GetAccessLevelOfUserInProject retrieves the access level of a user in a project.
 func (repo *GitlabRepo) GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error) {
 	repo.assertIsConnected()
 
@@ -265,6 +283,7 @@ func (repo *GitlabRepo) GetAccessLevelOfUserInProject(projectId int, userId int)
 	return model.AccessLevelValue(member.AccessLevel), nil
 }
 
+// GetNamespaceOfProject fetches the namespace of a project.
 func (repo *GitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
 	repo.assertIsConnected()
 
@@ -276,6 +295,7 @@ func (repo *GitlabRepo) GetNamespaceOfProject(projectId int) (*string, error) {
 	return &project.Namespace.Path, nil
 }
 
+// CreateGroup creates a new GitLab group.
 func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -298,6 +318,7 @@ func (repo *GitlabRepo) CreateGroup(name string, visibility model.Visibility, de
 	return GroupFromGoGitlab(*gitlabGroup), nil
 }
 
+// CreateSubGroup creates a subgroup under a parent group.
 func (repo *GitlabRepo) CreateSubGroup(name string, path string, parentId int, visibility model.Visibility, description string) (*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -321,6 +342,7 @@ func (repo *GitlabRepo) CreateSubGroup(name string, path string, parentId int, v
 	return GroupFromGoGitlab(*gitlabGroup), nil
 }
 
+// CreateGroupAccessToken creates an access token for a GitLab group.
 func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error) {
 	repo.assertIsConnected()
 
@@ -339,6 +361,7 @@ func (repo *GitlabRepo) CreateGroupAccessToken(groupID int, name string, accessL
 	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
 }
 
+// GetGroupAccessToken retrieves a specific group access token.
 func (repo *GitlabRepo) GetGroupAccessToken(groupID int, tokenID int) (*model.GroupAccessToken, error) {
 	repo.assertIsConnected()
 
@@ -350,6 +373,7 @@ func (repo *GitlabRepo) GetGroupAccessToken(groupID int, tokenID int) (*model.Gr
 	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
 }
 
+// RotateGroupAccessToken rotates an existing group access token.
 func (repo *GitlabRepo) RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error) {
 	repo.assertIsConnected()
 
@@ -363,18 +387,21 @@ func (repo *GitlabRepo) RotateGroupAccessToken(groupID int, tokenID int, expires
 	return GroupAccessTokenFromGoGitlabGroupAccessToken(*accessToken), nil
 }
 
+// DeleteProject deletes a project from GitLab.
 func (repo *GitlabRepo) DeleteProject(id int) error {
 	repo.assertIsConnected()
 	_, err := repo.client.Projects.DeleteProject(id)
 	return ErrorFromGoGitlab(err)
 }
 
+// DeleteGroup deletes a group from GitLab.
 func (repo *GitlabRepo) DeleteGroup(id int) error {
 	repo.assertIsConnected()
 	_, err := repo.client.Groups.DeleteGroup(id)
 	return ErrorFromGoGitlab(err)
 }
 
+// ChangeGroupName changes the name of a group.
 func (repo *GitlabRepo) ChangeGroupName(id int, name string) (*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -388,6 +415,7 @@ func (repo *GitlabRepo) ChangeGroupName(id int, name string) (*model.Group, erro
 	return repo.GetGroupById(id)
 }
 
+// ChangeGroupDescription changes the description of a group.
 func (repo *GitlabRepo) ChangeGroupDescription(id int, description string) (*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -401,6 +429,7 @@ func (repo *GitlabRepo) ChangeGroupDescription(id int, description string) (*mod
 	return repo.GetGroupById(id)
 }
 
+// ChangeProjectName changes the name of a project.
 func (repo *GitlabRepo) ChangeProjectName(projectId int, name string) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -414,6 +443,7 @@ func (repo *GitlabRepo) ChangeProjectName(projectId int, name string) (*model.Pr
 	return repo.GetProjectById(projectId)
 }
 
+// ChangeProjectDescription changes the description of a project.
 func (repo *GitlabRepo) ChangeProjectDescription(projectId int, description string) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -474,6 +504,7 @@ func (repo *GitlabRepo) GetProjectLatestPipeline(projectId int, ref *string) (*m
 	return PipelineFromGoGitlabPipeline(pipeline), nil
 }
 
+// GetProjectLatestPipelineTestReportSummary retrieves the test report summary for the latest pipeline
 func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error) {
 	repo.assertIsConnected()
 
@@ -485,6 +516,7 @@ func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int,
 	return repo.GetProjectPipelineTestReportSummary(projectId, pipeline.ID)
 }
 
+// AddUserToGroup adds a user to a group with the specified access level.
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
@@ -509,6 +541,7 @@ func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel mode
 	return ErrorFromGoGitlab(err)
 }
 
+// RemoveUserFromGroup removes a user from a group.
 func (repo *GitlabRepo) RemoveUserFromGroup(groupId int, userId int) error {
 	repo.assertIsConnected()
 
@@ -517,6 +550,7 @@ func (repo *GitlabRepo) RemoveUserFromGroup(groupId int, userId int) error {
 	return ErrorFromGoGitlab(err)
 }
 
+// ChangeUserAccessLevelInGroup changes the access level of a user in a group.
 func (repo *GitlabRepo) ChangeUserAccessLevelInGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
@@ -527,6 +561,7 @@ func (repo *GitlabRepo) ChangeUserAccessLevelInGroup(groupId int, userId int, ac
 	return ErrorFromGoGitlab(err)
 }
 
+// GetAccessLevelOfUserInGroup retrieves the access level of a user in a group.
 func (repo *GitlabRepo) GetAccessLevelOfUserInGroup(groupId int, userId int) (model.AccessLevelValue, error) {
 	repo.assertIsConnected()
 
@@ -538,6 +573,7 @@ func (repo *GitlabRepo) GetAccessLevelOfUserInGroup(groupId int, userId int) (mo
 	return model.AccessLevelValue(member.AccessLevel), nil
 }
 
+// GetAllProjects fetches all projects from GitLab for a given search term.
 func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -560,6 +596,7 @@ func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) 
 	return repo.convertGitlabProjects(gitlabProjects)
 }
 
+// GetPublicAvatarByMail fetches the public avatar URL for a given email address.
 func (repo *GitlabRepo) GetPublicAvatarByMail(mail string) (url *string, err error) {
 	repo.assertIsConnected()
 
@@ -575,6 +612,7 @@ func (repo *GitlabRepo) GetPublicAvatarByMail(mail string) (url *string, err err
 	return &avatar.AvatarURL, nil
 }
 
+// GetProjectById fetches a project by its ID.
 func (repo *GitlabRepo) GetProjectById(id int) (*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -586,6 +624,7 @@ func (repo *GitlabRepo) GetProjectById(id int) (*model.Project, error) {
 	return repo.convertGitlabProject(gitlabProject)
 }
 
+// GetUserById fetches a user by their ID.
 func (repo *GitlabRepo) GetUserById(id int) (*model.User, error) {
 	repo.assertIsConnected()
 
@@ -597,6 +636,7 @@ func (repo *GitlabRepo) GetUserById(id int) (*model.User, error) {
 	return UserFromGoGitlab(*gitlabUser), nil
 }
 
+// GetGroupById fetches a group by its ID.
 func (repo *GitlabRepo) GetGroupById(id int) (*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -608,6 +648,7 @@ func (repo *GitlabRepo) GetGroupById(id int) (*model.Group, error) {
 	return repo.convertGitlabGroup(gitlabGroup)
 }
 
+// GetAllUsers fetches all users from GitLab.
 func (repo *GitlabRepo) GetAllUsers() ([]*model.User, error) {
 	repo.assertIsConnected()
 
@@ -619,6 +660,7 @@ func (repo *GitlabRepo) GetAllUsers() ([]*model.User, error) {
 	return repo.convertGitlabUsers(gitlabUsers)
 }
 
+// GetAllGroups fetches all groups from GitLab.
 func (repo *GitlabRepo) GetAllGroups() ([]*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -630,6 +672,7 @@ func (repo *GitlabRepo) GetAllGroups() ([]*model.Group, error) {
 	return repo.convertGitlabGroups(gitlabGroups)
 }
 
+// GetAllProjectsOfGroup fetches all projects of a group by its ID.
 func (repo *GitlabRepo) GetAllProjectsOfGroup(id int) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -641,6 +684,7 @@ func (repo *GitlabRepo) GetAllProjectsOfGroup(id int) ([]*model.Project, error) 
 	return repo.convertGitlabProjects(gitlabProjects)
 }
 
+// GetAllUsersOfGroup fetches all users of a group by its ID.
 func (repo *GitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	repo.assertIsConnected()
 
@@ -657,6 +701,7 @@ func (repo *GitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	return users, nil
 }
 
+// SearchProjectByExpression searches for projects by a given expression.
 func (repo *GitlabRepo) SearchProjectByExpression(expression string) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
@@ -668,6 +713,7 @@ func (repo *GitlabRepo) SearchProjectByExpression(expression string) ([]*model.P
 	return repo.convertGitlabProjects(gitlabProjects)
 }
 
+// SearchUserByExpression searches for users by a given expression.
 func (repo *GitlabRepo) SearchUserByExpression(expression string) ([]*model.User, error) {
 	repo.assertIsConnected()
 
@@ -679,6 +725,7 @@ func (repo *GitlabRepo) SearchUserByExpression(expression string) ([]*model.User
 	return repo.convertGitlabUsers(gitlabUsers)
 }
 
+// SearchUserByExpressionInGroup searches for users by a given expression in a group.
 func (repo *GitlabRepo) SearchUserByExpressionInGroup(expression string, groupId int) ([]*model.User, error) {
 	repo.assertIsConnected()
 
@@ -690,6 +737,7 @@ func (repo *GitlabRepo) SearchUserByExpressionInGroup(expression string, groupId
 	return repo.convertGitlabUsers(gitlabUsers)
 }
 
+// SearchUserByExpressionInProject searches for users by a given expression in a project.
 func (repo *GitlabRepo) SearchUserByExpressionInProject(expression string, projectId int) ([]*model.User, error) {
 	repo.assertIsConnected()
 
@@ -701,6 +749,7 @@ func (repo *GitlabRepo) SearchUserByExpressionInProject(expression string, proje
 	return repo.convertGitlabUsers(gitlabUsers)
 }
 
+// SearchGroupByExpression searches for groups by a given expression.
 func (repo *GitlabRepo) SearchGroupByExpression(expression string) ([]*model.Group, error) {
 	repo.assertIsConnected()
 
@@ -717,6 +766,7 @@ func (repo *GitlabRepo) SearchGroupByExpression(expression string) ([]*model.Gro
 	return groups, nil
 }
 
+// GetPendingProjectInvitations fetches all pending project invitations for a project.
 func (repo *GitlabRepo) GetPendingProjectInvitations(projectId int) ([]*model.PendingInvite, error) {
 	repo.assertIsConnected()
 
@@ -728,6 +778,7 @@ func (repo *GitlabRepo) GetPendingProjectInvitations(projectId int) ([]*model.Pe
 	return repo.convertGitlabPendingInvites(pendingInvites)
 }
 
+// GetPendingGroupInvitations fetches all pending group invitations for a group.
 func (repo *GitlabRepo) GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error) {
 	repo.assertIsConnected()
 
@@ -739,6 +790,7 @@ func (repo *GitlabRepo) GetPendingGroupInvitations(groupId int) ([]*model.Pendin
 	return repo.convertGitlabPendingInvites(pendingInvites)
 }
 
+// CreateGroupInvite creates an invitation for a user to join a group.
 func (repo *GitlabRepo) CreateGroupInvite(groupId int, email string) error {
 	repo.assertIsConnected()
 
@@ -750,6 +802,7 @@ func (repo *GitlabRepo) CreateGroupInvite(groupId int, email string) error {
 	return ErrorFromGoGitlab(err)
 }
 
+// CreateProjectInvite creates an invitation for a user to join a project.
 func (repo *GitlabRepo) CreateProjectInvite(id int, email string) error {
 	repo.assertIsConnected()
 
@@ -807,6 +860,7 @@ func (repo *GitlabRepo) changeProjectMemberPermissions(projectId int, accessLeve
 	return nil
 }
 
+// GetAvailableRunnersForGitLab fetches all available runners for GitLab.
 func (repo *GitlabRepo) GetAvailableRunnersForGitLab() ([]*model.Runner, error) {
 	repo.assertIsConnected()
 
@@ -821,6 +875,7 @@ func (repo *GitlabRepo) GetAvailableRunnersForGitLab() ([]*model.Runner, error) 
 	return convertRunners(availableRunners), nil
 }
 
+// GetAvailableRunnersForGroup fetches all available runners for a group.
 func (repo *GitlabRepo) GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error) {
 	repo.assertIsConnected()
 
@@ -840,6 +895,7 @@ func (repo *GitlabRepo) GetAvailableRunnersForGroup(groupId int) ([]*model.Runne
 	return convertRunners(availableRunners), nil
 }
 
+// CheckIfFileExistsInProject checks if a file exists in a project.
 func (repo *GitlabRepo) CheckIfFileExistsInProject(projectId int, filepath string) (bool, error) {
 	repo.assertIsConnected()
 
@@ -856,6 +912,7 @@ func (repo *GitlabRepo) CheckIfFileExistsInProject(projectId int, filepath strin
 	return true, nil
 }
 
+// GetProjectLanguages retrieves the languages used in a project.
 func (repo *GitlabRepo) GetProjectLanguages(projectId int) (map[string]float32, error) {
 	repo.assertIsConnected()
 
@@ -890,6 +947,7 @@ func (repo *GitlabRepo) getUserByUsername(username string) (*model.User, error) 
 	return UserFromGoGitlab(*users[0]), nil
 }
 
+// FindUserIDByEmail finds a user ID by their email address.
 func (repo *GitlabRepo) FindUserIDByEmail(email string) (int, error) {
 	repo.assertIsConnected()
 

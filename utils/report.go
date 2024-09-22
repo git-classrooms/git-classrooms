@@ -12,6 +12,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 
+// ManualResult represents the result of a manual grading rubric.
 type ManualResult struct {
 	RubricID   uuid.UUID `json:"rubricId"`
 	RubricName string    `json:"rubricName"`
@@ -19,6 +20,8 @@ type ManualResult struct {
 	Feedback   string    `json:"feedback"`
 	MaxScore   int       `json:"maxScore"`
 }
+
+// ReportDataItem represents a single item in a report.
 type ReportDataItem struct {
 	ProjectID           uuid.UUID               `json:"projectId"`
 	AssignmentName      string                  `json:"assignmentName"`
@@ -34,11 +37,12 @@ type ReportDataItem struct {
 	Percentage          float64                 `json:"percentage"`
 }
 
+// GenerateReports generates reports for the given assignments and rubrics.
 func GenerateReports(assignments []*database.Assignment, rubrics []*database.ManualGradingRubric, teamID *uuid.UUID) ([][]*ReportDataItem, error) {
 	reports := make([][]*ReportDataItem, len(assignments))
 
 	for i, assignment := range assignments {
-		report, err := GenerateReport(assignment, rubrics, teamID)
+		report, err := GenerateReport(assignment, teamID)
 		if err != nil {
 			return nil, err
 		}
@@ -48,16 +52,21 @@ func GenerateReports(assignments []*database.Assignment, rubrics []*database.Man
 	return reports, nil
 }
 
-func GenerateReport(assignment *database.Assignment, rubrics []*database.ManualGradingRubric, teamID *uuid.UUID) ([]*ReportDataItem, error) {
+// GenerateReport generates a report for the given assignment and rubrics.
+func GenerateReport(assignment *database.Assignment, teamID *uuid.UUID) ([]*ReportDataItem, error) {
 	reportData := createReportDataItems(assignment, teamID)
 
 	return reportData, nil
 }
 
+// GenerateCSVReports generates CSV reports for the given assignments and rubrics.
 func GenerateCSVReports(w io.Writer, assignments []*database.Assignment, rubrics []*database.ManualGradingRubric, teamID *uuid.UUID) error {
 	writer := csv.NewWriter(w)
 	writer.Comma = ';'
-	writeHeader(writer, rubrics)
+	err := writeHeader(writer, rubrics)
+	if err != nil {
+		return err
+	}
 	writer.Flush()
 	if err := writer.Error(); err != nil {
 		return err
@@ -72,6 +81,7 @@ func GenerateCSVReports(w io.Writer, assignments []*database.Assignment, rubrics
 	return nil
 }
 
+// GenerateCSVReport generates a CSV report for the given assignment and rubrics.
 func GenerateCSVReport(w io.Writer, assignment *database.Assignment, rubrics []*database.ManualGradingRubric, teamID *uuid.UUID, includeHeader bool) error {
 	reportData := createReportDataItems(assignment, teamID)
 
@@ -79,7 +89,10 @@ func GenerateCSVReport(w io.Writer, assignment *database.Assignment, rubrics []*
 	writer.Comma = ';'
 
 	if includeHeader {
-		writeHeader(writer, rubrics)
+		err := writeHeader(writer, rubrics)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, item := range reportData {
@@ -111,6 +124,7 @@ func GenerateCSVReport(w io.Writer, assignment *database.Assignment, rubrics []*
 	return nil
 }
 
+// GenerateCSVReportForTeam generates a CSV report for the given assignment and rubrics for a specific team.
 func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) []*ReportDataItem {
 	reportData := make([]*ReportDataItem, 0)
 
@@ -165,6 +179,7 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 	return reportData
 }
 
+// createManualRubricResults creates a map of manual rubric results for a project.
 func createManualRubricResults(project *database.AssignmentProjects, _ []*database.ManualGradingRubric) map[string]ManualResult {
 	results := make(map[string]ManualResult)
 	for _, result := range project.GradingManualResults {
@@ -196,6 +211,7 @@ func createManualRubricResults(project *database.AssignmentProjects, _ []*databa
 	return results
 }
 
+// calculateMaxScore calculates the maximum score for a project.
 func calculateMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest, rubrics []*database.ManualGradingRubric) int {
 	maxScore := 0
 	for _, rubric := range rubrics {
@@ -204,6 +220,7 @@ func calculateMaxScore(project *database.AssignmentProjects, tests []*database.A
 	return maxScore + calculateAutogradingMaxScore(project, tests)
 }
 
+// calculateAutogradingMaxScore calculates the maximum score for the autograding tests.
 func calculateAutogradingMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
 	if len(tests) == 0 {
 		if project.GradingJUnitTestResult != nil {
@@ -218,6 +235,7 @@ func calculateAutogradingMaxScore(project *database.AssignmentProjects, tests []
 	return maxScore
 }
 
+// calculateAutogradingScore calculates the score for the autograding tests.
 func calculateAutogradingScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
 	score := 0
 	if project.GradingJUnitTestResult != nil {
@@ -243,6 +261,7 @@ func calculateAutogradingScore(project *database.AssignmentProjects, tests []*da
 	return score
 }
 
+// calculateScore calculates the score for a project.
 func calculateScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
 	score := 0
 	for _, result := range project.GradingManualResults {
@@ -251,6 +270,7 @@ func calculateScore(project *database.AssignmentProjects, tests []*database.Assi
 	return score + calculateAutogradingScore(project, tests)
 }
 
+// writeHeader writes the header for the CSV report.
 func writeHeader(writer *csv.Writer, rubrics []*database.ManualGradingRubric) error {
 	header := []string{
 		// 1               2	       3       4           5

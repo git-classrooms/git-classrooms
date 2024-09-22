@@ -9,6 +9,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+// StartPostgres starts a new postgres container.
 func StartPostgres() (*postgres.PostgresContainer, error) {
 	return postgres.Run(context.Background(),
 		"postgres:14-alpine",
@@ -22,6 +23,7 @@ func StartPostgres() (*postgres.PostgresContainer, error) {
 	)
 }
 
+// GetPostgresData returns the postgres container and the host of the container.
 func GetPostgresData(postgres testcontainers.Container, err error) (testcontainers.Container, string, error) {
 	if err != nil {
 		return nil, "", err
