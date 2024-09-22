@@ -11,7 +11,8 @@ type User struct {
 	GitlabUsername string `gorm:"unique;not null" json:"gitlabUsername"`
 	GitlabEmail    string `gorm:"unique;not null" json:"gitlabEmail"`
 
-	GitLabAvatar UserAvatar `gorm:"constraint:OnDelete:CASCADE;" json:"gitlabAvatar"`
+	AvatarURL         *string `json:"avatarURL"`
+	FallbackAvatarURL *string `json:"fallbackAvatarURL"`
 
 	Name      string    `gorm:"not null" json:"name"`
 	CreatedAt time.Time `json:"-"`

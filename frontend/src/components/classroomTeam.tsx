@@ -110,11 +110,7 @@ function ClassroomTeamMemberListElement({ member }: { member: UserClassroomRespo
   return (
     <div className="flex">
       <div className="pr-2">
-        <Avatar
-          avatarUrl={member.user.gitlabAvatar?.avatarURL}
-          fallbackUrl={member.user.gitlabAvatar?.fallbackAvatarURL}
-          name={member.user.name}
-        />
+        <Avatar avatarUrl={member.user.avatarURL} fallbackUrl={member.user.fallbackAvatarURL} name={member.user.name} />
       </div>
       <div>
         <div className="font-medium">{member.user.name}</div>

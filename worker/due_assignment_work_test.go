@@ -14,7 +14,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
@@ -37,15 +36,15 @@ func TestDueAssignmentWorker(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// 1. Migrate database
-	err = utils.MigrateDatabase(db)
+	sqlDB, err := db.DB()
 	if err != nil {
-		t.Fatalf("could not migrate database: %s", err.Error())
+		t.Fatalf("could not get database connection: %s", err.Error())
 	}
 
-	db, err = gorm.Open(postgres.Open(dbURL))
+	// 1. Migrate database
+	err = database.MigrateDatabase(sqlDB)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("could not migrate database: %s", err.Error())
 	}
 
 	query.SetDefault(db)

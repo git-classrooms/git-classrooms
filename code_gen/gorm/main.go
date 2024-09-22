@@ -48,7 +48,6 @@ func main() {
 
 	g.ApplyBasic(
 		&dbModel.User{},
-		&dbModel.UserAvatar{},
 		&dbModel.Classroom{},
 		&dbModel.Team{},
 		&dbModel.UserClassrooms{},

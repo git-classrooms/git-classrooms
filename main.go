@@ -18,6 +18,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/httputil"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
@@ -60,10 +61,14 @@ func main() {
 		log.Fatal("failed to connect database", err)
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal("failed to get database connection", err)
+	}
+
 	session.InitSessionStore(utils.Ptr(appConfig.Database.Dsn()), appConfig.PublicURL)
 
-	err = utils.MigrateDatabase(db)
-	if err != nil {
+	if err = database.MigrateDatabase(sqlDB); err != nil {
 		log.Fatal("failed to migrate database", err)
 	}
 	log.Println("DB has been initialized")

@@ -13,7 +13,6 @@ func userClassroomQuery(ctx *fiber.Ctx, userID int) query.IUserClassroomsDo {
 		WithContext(ctx.Context()).
 		Preload(queryUserClassroom.Classroom).
 		Preload(queryUserClassroom.User).
-		Preload(queryUserClassroom.User.GitLabAvatar).
 		Preload(queryUserClassroom.Team).
 		Preload(field.NewRelation("Classroom.Owner", "")).
 		Preload(field.NewRelation("Classroom.Owner.GitLabAvatar", "")).

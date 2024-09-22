@@ -41,7 +41,13 @@ func TestSyncClassroomsWork(t *testing.T) {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
 
-	err = utils.MigrateDatabase(db)
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("could not get database connection: %s", err.Error())
+	}
+
+	// 1. Migrate database
+	err = database.MigrateDatabase(sqlDB)
 	if err != nil {
 		t.Fatalf("could not migrate database: %s", err.Error())
 	}

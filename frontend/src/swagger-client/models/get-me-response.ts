@@ -12,7 +12,6 @@
  * Do not edit the class manually.
  */
 
-import { UserAvatar } from './user-avatar';
  /**
  * 
  *
@@ -22,10 +21,16 @@ import { UserAvatar } from './user-avatar';
 export interface GetMeResponse {
 
     /**
-     * @type {UserAvatar}
+     * @type {string}
      * @memberof GetMeResponse
      */
-    gitlabAvatar: UserAvatar;
+    avatarURL: string;
+
+    /**
+     * @type {string}
+     * @memberof GetMeResponse
+     */
+    fallbackAvatarURL: string;
 
     /**
      * @type {string}
