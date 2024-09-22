@@ -13,14 +13,19 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 )
 
+// DueAssignmentWork handles the processing of assignments that are due.
+// It uses the GitLab API to close assignments after their due date has passed.
 type DueAssignmentWork struct {
 	gitlabConfig gitlabConfig.Config
 }
 
+// NewDueAssignmentWork creates a new instance of DueAssignmentWork with the given GitLab configuration.
 func NewDueAssignmentWork(config gitlabConfig.Config) *DueAssignmentWork {
 	return &DueAssignmentWork{gitlabConfig: config}
 }
 
+// Do processes and closes assignments that are due.
+// It fetches assignments, logs into the corresponding GitLab repository, and closes each assignment.
 func (w *DueAssignmentWork) Do(ctx context.Context) {
 	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
@@ -30,10 +35,15 @@ func (w *DueAssignmentWork) Do(ctx context.Context) {
 			continue
 		}
 
-		w.closeAssignment(ctx, assignment, repo)
+		err = w.closeAssignment(ctx, assignment, repo)
+		if err != nil {
+			log.Default().Printf("Error occurred while closing assignment %s: %s", assignment.Name, err.Error())
+			continue
+		}
 	}
 }
 
+// getAssignments2Close retrieves assignments that are due and not yet closed from the database.
 func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*database.Assignment {
 	assignments, err := query.Assignment.
 		WithContext(ctx).
@@ -52,6 +62,7 @@ func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*databas
 	return assignments
 }
 
+// getLoggedInRepo logs into the GitLab repository associated with the assignment and returns the repository object.
 func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gitlab.Repository, error) {
 	repo := gitlab.NewGitlabRepo(w.gitlabConfig)
 	err := repo.GroupAccessLogin(assignment.Classroom.GroupAccessToken)
@@ -62,6 +73,7 @@ func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gi
 	return repo, nil
 }
 
+// closeAssignment marks the assignment as closed and performs necessary updates in the repository.
 func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *database.Assignment, repo gitlab.Repository) (err error) {
 	log.Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
 
@@ -70,7 +82,10 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *dat
 		if recover() != nil || err != nil {
 			log.Default().Printf("DueAssignmentWorker: Error occurred while closing assignment %s: %s", assignment.Name, err.Error())
 			for _, cache := range caches {
-				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
+				err := repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
+				if err != nil {
+					log.Default().Printf("DueAssignmentWorker: Error occurred while changing access level for %d in assignment %s: %s", cache.UserID, assignment.Name, err.Error())
+				}
 				// TODO: when this fails, we lose the sync between our database and the gitlab. We should handle this in the future
 			}
 		}

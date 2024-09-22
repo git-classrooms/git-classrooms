@@ -6,6 +6,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
+// Repository defines the operations for interacting with VCS resources.
 type Repository interface {
 	// Access
 	Login(token string) error

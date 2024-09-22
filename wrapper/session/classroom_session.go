@@ -92,6 +92,7 @@ func (s *ClassroomSession) GetOAuthRedirectTarget() string {
 
 //// GitLab
 
+// SetGitlabOauth2Token
 func (s *ClassroomSession) SetGitlabOauth2Token(token *oauth2.Token) {
 	s.Set(gitLabOauth2Token, token)
 }

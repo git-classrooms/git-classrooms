@@ -11,6 +11,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 )
 
+// Classroom creates a classroom with random data.
 func Classroom(ownerID int) *database.Classroom {
 	classroom := database.Classroom{}
 	classroom.Name = gofakeit.Name()
@@ -31,6 +32,7 @@ func Classroom(ownerID int) *database.Classroom {
 	return &classroom
 }
 
+// UserClassroom creates a user classroom with random data.
 func UserClassroom(userID int, classroomID uuid.UUID, role database.Role) *database.UserClassrooms {
 	userClassroom := database.UserClassrooms{}
 	userClassroom.UserID = userID
@@ -45,6 +47,7 @@ func UserClassroom(userID int, classroomID uuid.UUID, role database.Role) *datab
 	return &userClassroom
 }
 
+// Invitation creates a classroom invitation with random data.
 func Invitation(classroomID uuid.UUID) *database.ClassroomInvitation {
 	invitation := database.ClassroomInvitation{}
 	invitation.ClassroomID = classroomID
@@ -60,6 +63,7 @@ func Invitation(classroomID uuid.UUID) *database.ClassroomInvitation {
 	return &invitation
 }
 
+// User creates a user with random data.
 func User() *database.User {
 	usr := database.User{}
 	usr.GitlabEmail = gofakeit.Email()
@@ -81,6 +85,7 @@ func User() *database.User {
 	return &usr
 }
 
+// AssignmentProject creates an assignment project with random data.
 func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID) *database.AssignmentProjects {
 	project := database.AssignmentProjects{}
 	project.TeamID = teamID
@@ -96,6 +101,7 @@ func AssignmentProject(assignmentID uuid.UUID, teamID uuid.UUID) *database.Assig
 	return &project
 }
 
+// Team creates a team with random data.
 func Team(classroomID uuid.UUID, member []*database.UserClassrooms) *database.Team {
 	team := database.Team{}
 	team.ClassroomID = classroomID
@@ -108,6 +114,7 @@ func Team(classroomID uuid.UUID, member []*database.UserClassrooms) *database.Te
 	return &team
 }
 
+// Assignment creates an assignment with random data.
 func Assignment(classroomID uuid.UUID, dueDate *time.Time, autograding bool) *database.Assignment {
 	assignment := database.Assignment{}
 	assignment.ClassroomID = classroomID

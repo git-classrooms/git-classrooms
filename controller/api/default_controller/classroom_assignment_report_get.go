@@ -45,7 +45,7 @@ func (ctrl *DefaultController) GetClassroomAssignmentReport(c *fiber.Ctx) (err e
 
 	acceptHeader := c.Get("Accept")
 	if strings.Contains(acceptHeader, "application/json") {
-		jsonReport, err := utils.GenerateReport(reportAssignment, reportAssignment.GradingManualRubrics, nil)
+		jsonReport, err := utils.GenerateReport(reportAssignment, nil)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}

@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// MigrateDatabase migrates the database schema to the latest version.
 func MigrateDatabase(db *gorm.DB) error {
 	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
 
@@ -25,4 +26,3 @@ func MigrateDatabase(db *gorm.DB) error {
 		&dbModel.AssignmentJunitTest{},
 	)
 }
-
