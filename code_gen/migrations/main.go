@@ -18,7 +18,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -168,7 +167,7 @@ func main() {
 			if err = database.DatabaseStatus(db); err != nil {
 				return err
 			}
-			return utils.MigrateDatabase(gormDB)
+			return MigrateDatabase(gormDB)
 		})
 
 		wg.Go(func() error {
@@ -223,4 +222,22 @@ func main() {
 	exitCode := <-exitCodeChan
 	wg.Wait()
 	os.Exit(exitCode)
+}
+
+func MigrateDatabase(db *gorm.DB) error {
+	db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`)
+
+	log.Println("Running database migrations")
+	return db.AutoMigrate(
+		&database.User{},
+		&database.Classroom{},
+		&database.Team{},
+		&database.UserClassrooms{},
+		&database.Assignment{},
+		&database.AssignmentProjects{},
+		&database.ClassroomInvitation{},
+		&database.ManualGradingRubric{},
+		&database.ManualGradingResult{},
+		&database.AssignmentJunitTest{},
+	)
 }

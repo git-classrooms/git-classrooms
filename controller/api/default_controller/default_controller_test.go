@@ -22,7 +22,6 @@ import (
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	postgresDriver "gorm.io/driver/postgres"
@@ -63,14 +62,18 @@ func TestMain(m *testing.M) {
 		log.Fatalf("could not connect to database: %s", err.Error())
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("could not get database connection: %s", err.Error())
+	}
+
 	// 1. Migrate database
-	err = utils.MigrateDatabase(db)
+	err = database.MigrateDatabase(sqlDB)
 	if err != nil {
 		log.Fatalf("could not migrate database: %s", err.Error())
 	}
 
 	// close the database connection to create the snapshot
-	sqlDB, _ := db.DB()
 	sqlDB.Close()
 
 	// 2. Create a snapshot of the database to restore later
