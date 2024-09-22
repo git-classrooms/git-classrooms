@@ -16,9 +16,6 @@ import (
 	postgresDriver "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"

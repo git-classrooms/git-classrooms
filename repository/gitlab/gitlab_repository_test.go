@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"testing"
 
-	"golang.org/x/oauth2"
-
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/xanzy/go-gitlab"

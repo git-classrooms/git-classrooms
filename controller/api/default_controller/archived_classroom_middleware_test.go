@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

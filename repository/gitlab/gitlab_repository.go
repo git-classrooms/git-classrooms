@@ -814,14 +814,6 @@ func (repo *GitlabRepo) CreateProjectInvite(id int, email string) error {
 	return ErrorFromGoGitlab(err)
 }
 
-/*
-TODO:
-	Mit personal access tokens ist es bisher nicht möglich ein Assignment zu schließen bzw. das Pushen zu unterbinden (man bekommt bei alle aufgelisteten Möglichkeiten einen 404 zurück)
-	- Not with Push Rules
-	- Not with Protect Branches
-	- Not with change Project Member Access Level
-*/
-
 func (repo *GitlabRepo) DenyPushingToProject(projectId int) error {
 	log.Panic("No working option to close an assignment")
 
@@ -1042,14 +1034,14 @@ func (repo *GitlabRepo) convertGitlabPendingInvites(gitlabPendingInvites []*goGi
 
 func convertToGitLabPath(s string) string {
 	// Remove unwanted characters
-	reg, _ := regexp.Compile("[^a-zA-Z0-9_.-]+")
+	reg := regexp.MustCompile("[^a-zA-Z0-9_.-]+")
 	s = reg.ReplaceAllString(s, "")
 
 	// Remove leading and trailing special characters
 	s = strings.Trim(s, "_.-")
 
 	// Prevent consecutive special characters
-	reg, _ = regexp.Compile("[-_.]{2,}")
+	reg = regexp.MustCompile("[-_.]{2,}")
 	s = reg.ReplaceAllString(s, "-")
 
 	// Prevent specific endings

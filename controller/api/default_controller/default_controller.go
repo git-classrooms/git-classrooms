@@ -5,8 +5,6 @@ import (
 	"golang.org/x/sync/singleflight"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
-
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 )

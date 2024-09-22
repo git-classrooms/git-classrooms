@@ -103,14 +103,16 @@ func BranchFromGoGitlab(input *goGitlab.Branch) *model.Branch {
 }
 
 func VisibilityFromGoGitlab(input goGitlab.VisibilityValue) model.Visibility {
-	if input == "public" {
+	switch input {
+	case "public":
 		return model.Public
-	} else if input == "internal" {
+	case "internal":
 		return model.Internal
-	} else if input == "private" {
+	case "private":
 		return model.Private
+	default:
+		return 0
 	}
-	return 0
 }
 
 func VisibilityFromModel(input model.Visibility) goGitlab.VisibilityValue {

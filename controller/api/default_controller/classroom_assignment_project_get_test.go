@@ -7,9 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

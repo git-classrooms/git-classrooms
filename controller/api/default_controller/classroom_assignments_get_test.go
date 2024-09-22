@@ -7,9 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -40,7 +37,6 @@ func TestGetClassroomAssignments(t *testing.T) {
 
 	// ------------ END OF SEEDING DATA -----------------
 
-	app, _, _ := setupApp(t, owner)
 	app, _, _ := setupApp(t, owner)
 
 	t.Run("GetClassroomAssignments", func(t *testing.T) {
