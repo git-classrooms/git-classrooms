@@ -14,11 +14,14 @@ import (
 //go:embed templates
 var mailTemplates embed.FS
 
+// GoMailRepository is a repository that manages sending emails using the gomail package.
+// It stores the public URL and a configured mail dialer.
 type GoMailRepository struct {
 	publicURL *url.URL
 	dialer    *gomail.Dialer
 }
 
+// NewMailRepository creates a new instance of GoMailRepository.
 func NewMailRepository(publicURL *url.URL, config mailConfig.Config) (*GoMailRepository, error) {
 	dialer := gomail.NewDialer(config.GetHost(), config.GetPort(), config.GetUser(), config.GetPassword())
 	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
@@ -28,6 +31,8 @@ func NewMailRepository(publicURL *url.URL, config mailConfig.Config) (*GoMailRep
 	}, nil
 }
 
+// SendClassroomInvitation sends an email invitation for a classroom to the recipient.
+// The email is rendered from the 'invitation' template and includes dynamic data.
 func (m *GoMailRepository) SendClassroomInvitation(to string, subject string, data ClassroomInvitationData) error {
 	t, err := template.ParseFS(
 		mailTemplates,
@@ -46,6 +51,8 @@ func (m *GoMailRepository) SendClassroomInvitation(to string, subject string, da
 	return m.sendMail(to, subject, t, data)
 }
 
+// SendAssignmentNotification sends an email notification about an assignment to the recipient.
+// The email is rendered from the 'assignmentNotification' template and includes dynamic data.
 func (m *GoMailRepository) SendAssignmentNotification(to string, subject string, data AssignmentNotificationData) error {
 	t, err := template.ParseFS(
 		mailTemplates,
