@@ -105,21 +105,18 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	u := query.User
 	user, err := u.WithContext(c.Context()).
 		Where(u.ID.Eq(gitlabUser.ID)).
-		Assign(field.Attrs(&database.User{GitlabEmail: gitlabUser.Email, Name: gitlabUser.Name, GitlabUsername: gitlabUser.Username})).
+		Assign(field.Attrs(&database.User{
+			GitlabEmail:       gitlabUser.Email,
+			Name:              gitlabUser.Name,
+			GitlabUsername:    gitlabUser.Username,
+			AvatarURL:         gitlabUser.Avatar.AvatarURL,
+			FallbackAvatarURL: gitlabUser.Avatar.FallbackAvatarURL,
+		})).
 		FirstOrCreate()
 	if err != nil {
 		log.Println(err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
-
-	ua := query.UserAvatar
-	_, err = ua.WithContext(c.Context()).
-		Where(ua.UserID.Eq(user.ID)).
-		Assign(field.Attrs(&database.UserAvatar{
-			UserID:            user.ID,
-			AvatarURL:         gitlabUser.Avatar.AvatarURL,
-			FallbackAvatarURL: gitlabUser.Avatar.FallbackAvatarURL,
-		})).FirstOrCreate()
 
 	s := session.Get(c)
 

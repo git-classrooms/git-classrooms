@@ -44,7 +44,6 @@ export * from './update-member-role-request';
 export * from './update-member-team-request';
 export * from './update-team-request';
 export * from './user';
-export * from './user-avatar';
 export * from './user-classroom-response';
 export * from './utils-manual-result';
 export * from './utils-report-data-item';

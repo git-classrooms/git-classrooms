@@ -22,7 +22,7 @@ services:
       - ./frontend:/app
 
   postgres:
-    image: postgres:13-alpine
+    image: postgres:16-alpine
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
