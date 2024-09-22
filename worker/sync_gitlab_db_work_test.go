@@ -20,6 +20,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TestSyncClassroomsWork tests the main syncing functionalities of SyncGitlabDbWork.
 func TestSyncClassroomsWork(t *testing.T) {
 	t.Setenv("TESTCONTAINERS_RYUK_DISABLED", "true")
 
@@ -47,10 +48,10 @@ func TestSyncClassroomsWork(t *testing.T) {
 
 	query.SetDefault(db)
 
+	// Setup test data: users, classroom, teams, assignments
 	owner := factory.User()
 	member1 := factory.User()
 	member2 := factory.User()
-
 	classroom1 := factory.Classroom(owner.ID)
 
 	members := []*database.UserClassrooms{
@@ -68,6 +69,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 
 	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{}, publicUrl)
 
+	// Test the getUnarchivedClassrooms method.
 	t.Run("getUnarchivedClassrooms", func(t *testing.T) {
 		classroom2 := factory.Classroom(owner.ID)
 		factory.UserClassroom(owner.ID, classroom2.ID, database.Owner)
@@ -86,6 +88,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Len(t, dbClassrooms[0].Teams, 1)
 	})
 
+	// Test the syncClassroom method.
 	t.Run("syncClassroom", func(t *testing.T) {
 		newName := "new name"
 		newDescription := "new description"
@@ -119,12 +122,13 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Equal(t, classroom1.Name, dbClassroom1.Name)
 		assert.Equal(t, classroom1.Description, dbClassroom1.Description)
 
-		// revert changes of db object for next tests
+		// Revert changes of db object for the next tests
 		dbClassroom1.Name = classroom1.Name
 		dbClassroom1.Description = classroom1.Description
 		query.UserClassrooms.WithContext(context.Background()).Updates(dbClassroom1)
 	})
 
+	// Test syncClassroomMember method: handle case when members have left via GitLab.
 	t.Run("syncClassroomMember - left via gitlab", func(t *testing.T) {
 		repo.EXPECT().
 			GetAllUsersOfGroup(classroom1.GroupID).
@@ -159,10 +163,11 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Error(t, err)
 		assert.Nil(t, leftMember)
 
-		// revert changes for next tests
+		// Revert changes for the next tests
 		factory.UserClassroom(member2.ID, classroom1.ID, database.Student)
 	})
 
+	// Test syncClassroomMember method: handle case when members are added via GitLab.
 	t.Run("syncClassroomMember - added via gitlab", func(t *testing.T) {
 		repo.EXPECT().
 			GetAllUsersOfGroup(classroom1.GroupID).
@@ -206,6 +211,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		repo.AssertExpectations(t)
 	})
 
+	// Test syncTeam method.
 	t.Run("syncTeam", func(t *testing.T) {
 		newName := "new name"
 		newDescription := "new description"
@@ -238,6 +244,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Equal(t, team1.Name, dbTeam1.Name)
 	})
 
+	// Test syncTeamMember method: handle case when members have left the team via GitLab.
 	t.Run("syncTeamMember - left via gitlab", func(t *testing.T) {
 		repo.EXPECT().
 			GetAllUsersOfGroup(team1.GroupID).
@@ -273,7 +280,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Nil(t, leftMember.TeamID)
 		assert.Nil(t, leftMember.Team)
 
-		// revert changes of db object for next
+		// Revert changes to the db object for the next test
 		leftMember, err = query.UserClassrooms.WithContext(context.Background()).
 			Where(query.UserClassrooms.UserID.Eq(member2.ID)).
 			Where(query.UserClassrooms.ClassroomID.Eq(classroom1.ID)).
@@ -284,6 +291,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		query.UserClassrooms.WithContext(context.Background()).Updates(leftMember)
 	})
 
+	// Test syncTeamMember method: handle case when members are added to the team via GitLab.
 	t.Run("syncTeamMember - added via gitlab", func(t *testing.T) {
 		repo.EXPECT().
 			GetAllUsersOfGroup(team1.GroupID).
@@ -327,7 +335,8 @@ func TestSyncClassroomsWork(t *testing.T) {
 		repo.AssertExpectations(t)
 	})
 
-	t.Run("getAssignmentProjectes", func(t *testing.T) {
+	// Test getAssignmentProjects method.
+	t.Run("getAssignmentProjects", func(t *testing.T) {
 		dbAssignments := w.getAssignmentProjects(context.Background(), assignment1.ID)
 
 		if len(dbAssignments) != 1 {
@@ -336,6 +345,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		assert.Equal(t, assignment1Project.ProjectID, dbAssignments[0].ProjectID)
 	})
 
+	// Test syncProject method.
 	t.Run("syncProject", func(t *testing.T) {
 		repo.EXPECT().
 			GetProjectById(assignment1Project.ProjectID).
