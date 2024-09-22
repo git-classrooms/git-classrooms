@@ -2,13 +2,16 @@ package api
 
 import (
 	"fmt"
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"net/http/httptest"
 	"testing"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"

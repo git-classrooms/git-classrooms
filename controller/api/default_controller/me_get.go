@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -10,7 +11,7 @@ import (
 type getMeResponse struct {
 	*database.User
 	GitlabURL string `json:"gitlabUrl"`
-} //@Name GetMeResponse
+} // @Name GetMeResponse
 
 // @Summary		Show your user account
 // @Description	Get your user account

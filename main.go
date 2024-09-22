@@ -15,6 +15,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
@@ -26,8 +29,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/worker"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var version string = "development"

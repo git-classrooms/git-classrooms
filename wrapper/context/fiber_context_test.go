@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
+
 	gitlabRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/_mock"
 )
 
@@ -24,7 +25,7 @@ func TestClassroomSession_Delete(t *testing.T) {
 			// when
 			repo := c.GetGitlabRepository()
 
-			//then
+			// then
 			assert.Nil(t, repo)
 		})
 

@@ -5,13 +5,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gofiber/storage/postgres"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gofiber/storage/memory"
+	"github.com/gofiber/storage/postgres"
 	"golang.org/x/oauth2"
 )
 

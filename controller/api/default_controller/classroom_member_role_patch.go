@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -13,7 +14,7 @@ import (
 
 type updateMemberRoleRequest struct {
 	Role *database.Role `json:"role"`
-} //@Name UpdateMemberRoleRequest
+} // @Name UpdateMemberRoleRequest
 
 func (r updateMemberRoleRequest) isValid() bool {
 	return r.Role != nil

@@ -8,6 +8,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -16,8 +19,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 // TestSyncClassroomsWork tests the main syncing functionalities of SyncGitlabDbWork.

@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
+	goGitlab "github.com/xanzy/go-gitlab"
+
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-
-	goGitlab "github.com/xanzy/go-gitlab"
 )
 
 // GitlabRepo manages interactions with the GitLab API.

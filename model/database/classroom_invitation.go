@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type ClassroomInvitationStatus uint8 //@Name ClassroomInvitationStatus
+type ClassroomInvitationStatus uint8 // @Name ClassroomInvitationStatus
 
 const (
 	ClassroomInvitationPending ClassroomInvitationStatus = iota
@@ -27,4 +27,4 @@ type ClassroomInvitation struct {
 
 	Email      string    `gorm:"not null" json:"email"`
 	ExpiryDate time.Time `gorm:"not null" json:"expiryDate"`
-} //@Name ClassroomInvitation
+} // @Name ClassroomInvitation

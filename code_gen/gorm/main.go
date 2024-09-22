@@ -2,8 +2,9 @@ package main
 
 import (
 	"github.com/google/uuid"
-	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gorm.io/gen"
+
+	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 
 type TeamQuerier interface {

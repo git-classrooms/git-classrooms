@@ -8,13 +8,15 @@ import (
 	"strconv"
 	"testing"
 
-	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"golang.org/x/oauth2"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/xanzy/go-gitlab"
+	"golang.org/x/oauth2"
+
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 type TestCredentials struct {

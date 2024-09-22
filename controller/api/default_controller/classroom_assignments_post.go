@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -15,7 +16,7 @@ type createAssignmentRequest struct {
 	Description       string     `json:"description"`
 	TemplateProjectId int        `json:"templateProjectId"`
 	DueDate           *time.Time `json:"dueDate" validate:"optional"`
-} //@Name CreateAssignmentRequest
+} // @Name CreateAssignmentRequest
 
 func (r createAssignmentRequest) isValid() bool {
 	return r.Name != "" && r.TemplateProjectId != 0

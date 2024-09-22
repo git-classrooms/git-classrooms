@@ -7,20 +7,22 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	//"gitlab.hs-flensburg.de/gitlab-classroom/config"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	// mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	//"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	// "gitlab.hs-flensburg.de/gitlab-classroom/config"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+
+	// mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
 
 func TestGetClassrooms(t *testing.T) {
 	restoreDatabase(t)
 
-	//mailRepo := mailRepoMock.NewMockRepository(t)
+	// mailRepo := mailRepoMock.NewMockRepository(t)
 
 	db, err := gorm.Open(postgres.Open(integrationTest.dbURL))
 	if err != nil {
@@ -39,7 +41,7 @@ func TestGetClassrooms(t *testing.T) {
 	factory.UserClassroom(student.ID, classroom.ID, database.Student)
 
 	t.Run("return all classrooms where the user is the owner", func(t *testing.T) {
-		app, _,_ := setupApp(t, owner)
+		app, _, _ := setupApp(t, owner)
 		// prepare request
 		route := "/api/v1/classrooms?filter=owned"
 		req := httptest.NewRequest("GET", route, nil)
@@ -67,7 +69,7 @@ func TestGetClassrooms(t *testing.T) {
 	})
 
 	t.Run("return all classrooms where the user is moderator", func(t *testing.T) {
-		app, _,_ := setupApp(t, moderator)
+		app, _, _ := setupApp(t, moderator)
 		// prepare request
 		route := "/api/v1/classrooms?filter=moderator"
 		req := httptest.NewRequest("GET", route, nil)
@@ -95,7 +97,7 @@ func TestGetClassrooms(t *testing.T) {
 	})
 
 	t.Run("return all classrooms where the user is student", func(t *testing.T) {
-		app, _,_ := setupApp(t, student)
+		app, _, _ := setupApp(t, student)
 		// prepare request
 		route := "/api/v1/classrooms?filter=student"
 		req := httptest.NewRequest("GET", route, nil)

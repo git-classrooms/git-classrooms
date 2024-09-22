@@ -7,8 +7,9 @@ import (
 	"html/template"
 	"net/url"
 
-	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
 	"gopkg.in/gomail.v2"
+
+	mailConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
 )
 
 //go:embed templates

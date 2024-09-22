@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -10,7 +11,7 @@ import (
 type projectGradingResponse struct {
 	GradingJUnitTestResult *database.JUnitTestResult       `json:"gradingJUnitTestResult"`
 	GradingManualResults   []*database.ManualGradingResult `json:"gradingManualResults"`
-} //@Name AssignmentGradingResponse
+} // @Name AssignmentGradingResponse
 
 // @Summary		GetGradingResults
 // @Description	GetGradingResults

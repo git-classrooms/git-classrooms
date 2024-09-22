@@ -3,16 +3,15 @@ package api
 import (
 	"context"
 	"fmt"
-
 	"io"
 	"testing"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
@@ -233,5 +232,4 @@ func TestPutOwnedAssignments(t *testing.T) {
 		assert.True(t, updatedAssignment.Closed)
 		assert.NotEqual(t, newTime, *updatedAssignment.DueDate)
 	})
-
 }

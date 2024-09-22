@@ -9,13 +9,14 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"gorm.io/gen/field"
+
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gorm.io/gen/field"
 )
 
 // SyncGitlabDbWork is responsible for synchronizing the GitLab database with the local database.

@@ -16,4 +16,4 @@ type AssignmentJunitTest struct {
 	Assignment   Assignment `json:"-"`
 
 	Score int `gorm:"not null" json:"score"`
-} //@Name AssignmentJunitTest
+} // @Name AssignmentJunitTest

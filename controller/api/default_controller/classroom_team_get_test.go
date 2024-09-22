@@ -7,14 +7,15 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
 
 func TestGetClassroomTeam(t *testing.T) {

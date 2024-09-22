@@ -13,6 +13,11 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	postgresDriver "gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	postgresDriver "gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
@@ -24,8 +29,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 const testUrl = "http://example.com"
@@ -82,7 +85,7 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not create database snapshot: %s", err.Error())
 	}
 
-	// open the database connection agian
+	// open the database connection again
 	db, err = gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("could not connect to database: %s", err.Error())

@@ -6,7 +6,7 @@ import (
 
 type getInfoGitlabResponse struct {
 	GitlabUrl string `json:"gitlabUrl"`
-} //@Name GetInfoGitlabResponse
+} // @Name GetInfoGitlabResponse
 
 // @Summary		GetGitlabInfo
 // @Description	GetGitlabInfo

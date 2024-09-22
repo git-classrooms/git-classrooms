@@ -4,18 +4,17 @@ import (
 	"path"
 	"strings"
 
-	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
-	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
-	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/csrf"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
 
+	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
+	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
+	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	_ "gitlab.hs-flensburg.de/gitlab-classroom/docs"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 )
 
 func Routes(
@@ -39,7 +38,7 @@ func Routes(
 
 	app.Use(csrf.New(session.CsrfConfig))
 
-	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessable via "ctx.Locals("gitlab-repo").(repository.Repository)"
+	api := app.Group("/api", logger.New()) // behind "/api" is always a user logged into the session and this user is logged into the repository, which is accessible via "ctx.Locals("gitlab-repo").(repository.Repository)"
 	setupRoutes(&api, config, authController, apiController)
 
 	api.Get("/swagger/*", swagger.HandlerDefault) // default
@@ -49,7 +48,6 @@ func Routes(
 
 func setupRoutes(api *fiber.Router, config authConfig.Config, authController authController.Controller,
 	apiController apiController.Controller) {
-
 	v1 := (*api).Group("/v1")
 
 	v1.Get("/info/gitlab", apiController.GetGitlabInfo)

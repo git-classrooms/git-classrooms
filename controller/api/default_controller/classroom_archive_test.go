@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -132,5 +133,4 @@ func TestPatchClassroomArchive(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, true, dbClassroom.Archived)
 	})
-
 }

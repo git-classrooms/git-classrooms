@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-
 	goGitlab "github.com/xanzy/go-gitlab"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 func ErrorFromGoGitlab(err error) error {
@@ -214,7 +214,6 @@ func GroupFromGoGitlab(input goGitlab.Group) *model.Group {
 }
 
 func GroupFromGoGitlabWithMembersAndProjects(group goGitlab.Group, members []model.User, projects []model.Project) *model.Group {
-
 	return &model.Group{
 		Name:        group.Name,
 		ID:          group.ID,

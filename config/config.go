@@ -7,6 +7,7 @@ import (
 
 	"github.com/caarlos0/env/v10"
 	"github.com/joho/godotenv"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"

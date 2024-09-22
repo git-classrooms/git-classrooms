@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 

@@ -2,13 +2,14 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type ClassroomRunnerResponse struct {
 	*model.Runner
-} //@Name ClassroomRunnerResponse
+} // @Name ClassroomRunnerResponse
 
 // @Summary		GetClassroomRunners
 // @Description	GetClassroomRunners

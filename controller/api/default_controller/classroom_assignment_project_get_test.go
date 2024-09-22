@@ -7,15 +7,18 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
 
 func TestGetClassroomAssignmentProject(t *testing.T) {
@@ -66,7 +69,7 @@ func TestGetClassroomAssignmentProject(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, project.ID.String(), returnValue.ID.String())
-		//assert.Equal(t, project.AssignmentID, returnValue.AssignmentID)
+		// assert.Equal(t, project.AssignmentID, returnValue.AssignmentID)
 		//assert.Equal(t, project.Team.ID, returnValue.UserID)
 		//assert.Equal(t, project.AssignmentAccepted, returnValue.AssignmentAccepted)
 		//assert.Equal(t, project.ProjectID, returnValue.ProjectID)

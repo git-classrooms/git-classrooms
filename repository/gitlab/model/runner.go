@@ -15,4 +15,4 @@ type Runner struct {
 	Status         string     `json:"status"`
 	Token          string     `json:"token"`
 	TokenExpiresAt *time.Time `json:"token_expires_at"`
-} //@Name Runner
+} // @Name Runner

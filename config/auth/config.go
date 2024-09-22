@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"golang.org/x/oauth2"
 	"net/url"
+
+	"golang.org/x/oauth2"
 )
 
 type Config interface {

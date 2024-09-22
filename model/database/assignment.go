@@ -27,4 +27,4 @@ type Assignment struct {
 	JUnitTests                    []*AssignmentJunitTest `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 
 	GradingManualRubrics []*ManualGradingRubric `gorm:"many2many:assignment_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
-} //@Name Assignment
+} // @Name Assignment

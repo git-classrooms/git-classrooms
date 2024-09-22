@@ -6,15 +6,18 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
 
 func TestPostClassroomAssignment(t *testing.T) {
@@ -62,6 +65,6 @@ func TestPostClassroomAssignment(t *testing.T) {
 		assert.Equal(t, assignment.Name, requestBody.Name)
 		assert.Equal(t, assignment.Description, requestBody.Description)
 		assert.Equal(t, assignment.TemplateProjectID, requestBody.TemplateProjectId)
-		assert.WithinDuration(t, *assignment.DueDate, *requestBody.DueDate, 1 * time.Minute)
+		assert.WithinDuration(t, *assignment.DueDate, *requestBody.DueDate, 1*time.Minute)
 	})
 }

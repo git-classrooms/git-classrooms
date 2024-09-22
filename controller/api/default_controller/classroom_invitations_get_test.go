@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
@@ -20,7 +21,7 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 	factory.UserClassroom(user.ID, classroom.ID, database.Owner)
 	invitation := factory.Invitation(classroom.ID)
 
-	app, _,_ := setupApp(t, user)
+	app, _, _ := setupApp(t, user)
 
 	t.Run("GetClassroomInvitations", func(t *testing.T) {
 		route := fmt.Sprintf("/api/v1/classrooms/%s/invitations", classroom.ID.String())

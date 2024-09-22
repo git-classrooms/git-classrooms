@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -10,7 +11,7 @@ import (
 type updateClassroomRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
-} //@Name UpdateClassroomRequest
+} // @Name UpdateClassroomRequest
 
 func (r updateClassroomRequest) isValid() bool {
 	return r.Name != "" && r.Description != ""

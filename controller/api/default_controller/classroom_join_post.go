@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabModel "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -13,7 +14,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
-type action string //@Name action
+type action string // @Name action
 
 const (
 	accept action = "accept"
@@ -23,7 +24,7 @@ const (
 type joinClassroomRequest struct {
 	InvitationID uuid.UUID `json:"invitationId"`
 	Action       action    `json:"action"`
-} //@Name JoinClassroomRequest
+} // @Name JoinClassroomRequest
 
 func (r *joinClassroomRequest) isValid() bool {
 	return r.InvitationID != uuid.Nil &&

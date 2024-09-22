@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -12,7 +13,7 @@ import (
 
 type updateTeamRequest struct {
 	Name string `json:"name"`
-} //@Name UpdateTeamRequest
+} // @Name UpdateTeamRequest
 
 func (r updateTeamRequest) isValid() bool {
 	return r.Name != ""

@@ -6,16 +6,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestPostClassroomAssignmentProjects(t *testing.T) {
@@ -66,6 +66,5 @@ func TestPostClassroomAssignmentProjects(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
-
 	})
 }

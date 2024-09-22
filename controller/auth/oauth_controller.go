@@ -2,13 +2,16 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
-	"encoding/json"
-
 	"github.com/gofiber/fiber/v2"
+	"golang.org/x/oauth2"
+	"golang.org/x/sync/singleflight"
+	"gorm.io/gen/field"
+
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -16,9 +19,6 @@ import (
 	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"golang.org/x/oauth2"
-	"golang.org/x/sync/singleflight"
-	"gorm.io/gen/field"
 )
 
 type OAuthController struct {
