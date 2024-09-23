@@ -1,5 +1,4 @@
 -- +goose Up
--- +goose StatementBegin
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE "public"."users" (
@@ -133,10 +132,8 @@ CREATE TABLE "public"."manual_grading_results" (
     CONSTRAINT "fk_manual_grading_rubrics_results" FOREIGN KEY ("rubric_id") REFERENCES "public"."manual_grading_rubrics"("id") ON DELETE CASCADE,
     CONSTRAINT "fk_assignment_projects_grading_manual_results" FOREIGN KEY ("assignment_project_id") REFERENCES "public"."assignment_projects"("id") ON DELETE CASCADE
 );
--- +goose StatementEnd
 
 -- +goose Down
--- +goose StatementBegin
 DROP TABLE "public"."manual_grading_results";
 DROP TABLE "public"."assignment_junit_tests";
 DROP TABLE "public"."assignment_manual_grading_rubrics";
@@ -148,4 +145,3 @@ DROP TABLE "public"."user_classrooms";
 DROP TABLE "public"."teams";
 DROP TABLE "public"."classrooms";
 DROP TABLE "public"."users";
--- +goose StatementEnd
