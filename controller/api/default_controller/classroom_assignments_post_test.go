@@ -15,6 +15,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestPostClassroomAssignment(t *testing.T) {
@@ -49,7 +50,7 @@ func TestPostClassroomAssignment(t *testing.T) {
 		gitlabRepo.
 			EXPECT().GetProjectById(requestBody.TemplateProjectId).Return(nil, nil)
 
-		req := newPostJsonRequest(route, requestBody)
+		req := tests.NewPostJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)

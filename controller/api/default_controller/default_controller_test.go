@@ -1,12 +1,8 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"log"
-	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
@@ -100,26 +96,6 @@ func TestMain(m *testing.M) {
 
 	pg.Terminate(context.Background())
 	os.Exit(code)
-}
-
-func newJsonRequest(route string, object any, method string) *http.Request {
-	jsonData, err := json.Marshal(object)
-	if err != nil {
-		log.Fatalf("could not create json of object: %s", object)
-	}
-
-	req := httptest.NewRequest(method, route, bytes.NewReader(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-
-	return req
-}
-
-func newPostJsonRequest(route string, object any) *http.Request {
-	return newJsonRequest(route, object, "POST")
-}
-
-func newPutJsonRequest(route string, object any) *http.Request {
-	return newJsonRequest(route, object, "PUT")
 }
 
 func restoreDatabase(t *testing.T) {

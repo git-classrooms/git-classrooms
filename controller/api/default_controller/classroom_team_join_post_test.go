@@ -15,6 +15,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestJoinTeam(t *testing.T) {
@@ -67,7 +68,7 @@ func TestJoinTeam(t *testing.T) {
 
 		route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s/join", classroom.ID, team.ID)
 
-		req := newPostJsonRequest(route, nil)
+		req := tests.NewPostJSONRequest(route, nil)
 		resp, err := app.Test(req)
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 

@@ -16,6 +16,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestCreateClassroom(t *testing.T) {
@@ -76,7 +77,7 @@ func TestCreateClassroom(t *testing.T) {
 			Return(nil, nil).
 			Times(1)
 
-		req := newPostJsonRequest("/api/v1/classrooms", requestBody)
+		req := tests.NewPostJSONRequest("/api/v1/classrooms", requestBody)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)

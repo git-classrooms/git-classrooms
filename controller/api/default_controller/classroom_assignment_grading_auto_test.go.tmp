@@ -71,7 +71,7 @@ func TestStartAutoGrading(t *testing.T) {
 			Return(&expectedReport, nil).
 			Times(1)
 
-		req := newPostJsonRequest(targetRoute, requestBody)
+		req := tests.NewPostJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)

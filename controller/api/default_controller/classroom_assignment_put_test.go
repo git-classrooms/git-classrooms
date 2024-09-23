@@ -56,7 +56,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			DueDate:     &newTime,
 		}
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
@@ -79,7 +79,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			DueDate: &newTime,
 		}
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
@@ -104,7 +104,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 		project.ProjectStatus = database.Accepted
 		query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
@@ -156,7 +156,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
@@ -216,7 +216,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)

@@ -17,6 +17,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestCreateTeam(t *testing.T) {
@@ -73,7 +74,7 @@ func TestCreateTeam(t *testing.T) {
 
 		route := fmt.Sprintf("/api/v1/classrooms/%s/teams", classroom.ID)
 
-		req := newPostJsonRequest(route, requestBody)
+		req := tests.NewPostJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 

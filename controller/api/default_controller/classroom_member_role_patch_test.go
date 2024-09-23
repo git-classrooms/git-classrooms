@@ -13,6 +13,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestPatchMemberRole(t *testing.T) {
@@ -224,7 +225,7 @@ func (r RunTest) run(t *testing.T) {
 		ChangeUserAccessLevelInGroup(r.classroom.GroupID, r.user.ID, r.accessLevel).
 		Return(nil)
 
-	req := newJsonRequest(route, requestBody, "PATCH")
+	req := tests.NewJSONRequest(route, requestBody, "PATCH")
 	resp, err := app.Test(req)
 
 	assert.NoError(t, err)

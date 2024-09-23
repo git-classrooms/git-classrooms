@@ -15,6 +15,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestPutClassroom(t *testing.T) {
@@ -60,7 +61,7 @@ func TestPutClassroom(t *testing.T) {
 			ChangeGroupDescription(classroom.GroupID, testDescription).
 			Return(&model.Group{Description: testDescription}, nil)
 
-		req := newPutJsonRequest(route, requestBody)
+		req := tests.NewPutJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
