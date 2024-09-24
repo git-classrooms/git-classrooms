@@ -50,6 +50,8 @@ func TestGetClassroomTeamMember(t *testing.T) {
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 
 		var userClassroomResponse *UserClassroomResponse

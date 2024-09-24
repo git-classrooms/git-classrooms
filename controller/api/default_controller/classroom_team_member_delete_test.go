@@ -66,9 +66,12 @@ func TestRemoveMemberFromTeam(t *testing.T) {
 
 		req := httptest.NewRequest("DELETE", route, nil)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
+
 
 		q := query.UserClassrooms
 

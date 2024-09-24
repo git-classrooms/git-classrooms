@@ -58,6 +58,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 
@@ -82,6 +83,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 
@@ -108,6 +110,7 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 

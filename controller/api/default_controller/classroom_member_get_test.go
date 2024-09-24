@@ -45,6 +45,7 @@ func TestGetClassroomMember(t *testing.T) {
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		var classroomResponse *UserClassroomResponse
 

@@ -63,7 +63,10 @@ func TestPutClassroom(t *testing.T) {
 
 		req := tests.NewPutJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 
 		// Handle response

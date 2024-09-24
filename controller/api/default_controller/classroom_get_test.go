@@ -38,7 +38,10 @@ func TestGetClassroom(t *testing.T) {
 		route := fmt.Sprintf("/api/v1/classrooms/%s", classroom.ID)
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 
 		// Handle response

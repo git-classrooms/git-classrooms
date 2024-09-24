@@ -46,8 +46,10 @@ func TestPatchClassroomArchive(t *testing.T) {
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 		defer resp.Body.Close()
 	})
 
@@ -88,11 +90,12 @@ func TestPatchClassroomArchive(t *testing.T) {
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
 
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		gitlabRepo.AssertExpectations(t)
 
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
-		assert.NoError(t, err)
-		defer resp.Body.Close()
 	})
 
 	t.Run("updates classroom in db", func(t *testing.T) {
@@ -125,15 +128,16 @@ func TestPatchClassroomArchive(t *testing.T) {
 
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		gitlabRepo.AssertExpectations(t)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
-		assert.NoError(t, err)
 
 		dbClassroom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.ID.Eq(classroom.ID)).First()
 		assert.NoError(t, err)
-		assert.Equal(t, true, dbClassroom.Archived)
 		defer resp.Body.Close()
+		assert.Equal(t, true, dbClassroom.Archived)
 	})
 }

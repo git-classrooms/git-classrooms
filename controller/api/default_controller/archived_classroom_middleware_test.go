@@ -55,16 +55,19 @@ func TestArchivedClassroomMiddleware(t *testing.T) {
 	t.Run("Allows get for archived classroom", func(t *testing.T) {
 		req := httptest.NewRequest(fiber.MethodGet, targetRoute, nil)
 		resp, err := app.Test(req)
-		assert.NotEqual(t, fiber.StatusForbidden, resp.StatusCode)
 		assert.NoError(t, err)
 		defer resp.Body.Close()
+
+		assert.NotEqual(t, fiber.StatusForbidden, resp.StatusCode)
 	})
 }
 
 func testForbiddenMethod(t *testing.T, app *fiber.App, targetRoute string, method string) {
 	req := httptest.NewRequest(method, targetRoute, nil)
 	resp, err := app.Test(req)
-	assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
+
 	assert.NoError(t, err)
 	defer resp.Body.Close()
+
+	assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 }

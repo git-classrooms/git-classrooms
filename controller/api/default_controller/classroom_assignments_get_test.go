@@ -46,6 +46,7 @@ func TestGetClassroomAssignments(t *testing.T) {
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		type ClassroomAssignmentResponse struct {
 			ID                uuid.UUID  `json:"id"`

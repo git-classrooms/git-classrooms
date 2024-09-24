@@ -72,6 +72,9 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		gitlabRepo.AssertExpectations(t)
 
 		assert.NoError(t, err)
@@ -108,9 +111,10 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
-		gitlabRepo.AssertExpectations(t)
-
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		gitlabRepo.AssertExpectations(t)
 
 		body, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)

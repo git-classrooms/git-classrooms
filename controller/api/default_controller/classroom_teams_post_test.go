@@ -76,9 +76,11 @@ func TestCreateTeam(t *testing.T) {
 
 		req := tests.NewPostJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		queryTeam := query.Team
 

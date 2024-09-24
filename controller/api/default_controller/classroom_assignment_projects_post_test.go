@@ -65,6 +65,8 @@ func TestPostClassroomAssignmentProjects(t *testing.T) {
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 	})
 }

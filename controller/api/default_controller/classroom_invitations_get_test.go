@@ -29,8 +29,10 @@ func TestGetOwnedClassroomInvitations(t *testing.T) {
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 
 		var invitations []*database.ClassroomInvitation
 

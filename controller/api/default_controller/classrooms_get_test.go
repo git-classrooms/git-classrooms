@@ -44,7 +44,9 @@ func TestGetClassrooms(t *testing.T) {
 		route := "/api/v1/classrooms?filter=owned"
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		// Handle response
 		var classroomsResponse []*UserClassroomResponse
@@ -72,7 +74,9 @@ func TestGetClassrooms(t *testing.T) {
 		route := "/api/v1/classrooms?filter=moderator"
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		// Handle response
 		var classroomsResponse []*UserClassroomResponse
@@ -99,8 +103,11 @@ func TestGetClassrooms(t *testing.T) {
 		// prepare request
 		route := "/api/v1/classrooms?filter=student"
 		req := httptest.NewRequest("GET", route, nil)
+
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		// Handle response
 		var classroomsResponse []*UserClassroomResponse

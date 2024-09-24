@@ -57,6 +57,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 
@@ -82,6 +83,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 
@@ -103,6 +105,7 @@ func TestGetProjectCloneUrl(t *testing.T) {
 
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 

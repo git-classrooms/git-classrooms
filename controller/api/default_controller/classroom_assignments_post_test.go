@@ -54,6 +54,8 @@ func TestPostClassroomAssignment(t *testing.T) {
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ClassroomID.Eq(classroom.ID)).First()

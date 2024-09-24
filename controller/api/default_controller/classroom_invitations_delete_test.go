@@ -31,6 +31,10 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 		newTarget := fmt.Sprintf("/api/v1/classrooms/%s/invitations/%s", uuid.New(), uuid.New())
 		req := httptest.NewRequest("DELETE", newTarget, nil)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		if err != nil {
 			t.Fatalf("could not perform request: %s", err.Error())
 		}
@@ -44,9 +48,9 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
-		if err != nil {
-			t.Fatalf("could not perform request: %s", err.Error())
-		}
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
 	})
@@ -57,9 +61,8 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
-		if err != nil {
-			t.Fatalf("could not perform request: %s", err.Error())
-		}
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 	})
@@ -70,9 +73,9 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
-		if err != nil {
-			t.Fatalf("could not perform request: %s", err.Error())
-		}
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 	})
@@ -83,9 +86,9 @@ func TestDeleteClassroomInvitation(t *testing.T) {
 
 		req := httptest.NewRequest("DELETE", targetRoute, nil)
 		resp, err := app.Test(req)
-		if err != nil {
-			t.Fatalf("could not perform request: %s", err.Error())
-		}
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 

@@ -229,6 +229,9 @@ func (r RunTest) run(t *testing.T) {
 	resp, err := app.Test(req)
 
 	assert.NoError(t, err)
+	defer resp.Body.Close()
+
+	assert.NoError(t, err)
 	assert.Equal(t, r.expectedStatus, resp.StatusCode)
 
 	updatedUserClassroom, err :=

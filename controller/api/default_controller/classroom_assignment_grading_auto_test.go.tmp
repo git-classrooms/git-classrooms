@@ -74,6 +74,9 @@ func TestStartAutoGrading(t *testing.T) {
 		req := tests.NewPostJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
+    assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 

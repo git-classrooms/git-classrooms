@@ -79,7 +79,10 @@ func TestCreateClassroom(t *testing.T) {
 
 		req := tests.NewPostJSONRequest("/api/v1/classrooms", requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		classRoom, err := query.Classroom.
