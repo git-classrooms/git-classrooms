@@ -76,7 +76,6 @@ func TestJoinTeam(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
-
 		q := query.UserClassrooms
 
 		updatedUserClassoom, err := q.

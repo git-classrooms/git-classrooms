@@ -72,7 +72,6 @@ func TestRemoveMemberFromTeam(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
 
-
 		q := query.UserClassrooms
 
 		updatedUserClassoom, err := q.

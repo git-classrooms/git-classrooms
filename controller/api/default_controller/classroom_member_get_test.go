@@ -6,11 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"

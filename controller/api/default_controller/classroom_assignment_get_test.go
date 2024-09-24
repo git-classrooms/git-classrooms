@@ -46,7 +46,6 @@ func TestGetClassroomAssignment(t *testing.T) {
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 
-
 		type ClassroomAssignmentResponse struct {
 			ID                uuid.UUID  `json:"id"`
 			CreatedAt         time.Time  `json:"createdAt"`
