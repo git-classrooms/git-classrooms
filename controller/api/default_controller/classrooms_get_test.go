@@ -7,15 +7,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	//"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	// "gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 
-	// mailRepoMock "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail/_mock"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 )
 

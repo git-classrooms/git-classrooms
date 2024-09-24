@@ -1,6 +1,8 @@
 package api
 
 import (
+	"slices"
+
 	"github.com/gofiber/fiber/v2"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -38,7 +40,7 @@ func (ctrl *DefaultController) GetClassroomRunners(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	allRunners := append(globalRunners, groupRunners...)
+	allRunners := slices.Concat(globalRunners, groupRunners)
 
 	response := make([]ClassroomRunnerResponse, len(allRunners))
 	for i, runner := range allRunners {

@@ -77,6 +77,7 @@ func TestRemoveMemberFromTeam(t *testing.T) {
 			Where(q.UserID.Eq(removeMember.ID)).
 			Where(q.ClassroomID.Eq(classroom.ID)).
 			First()
+		assert.NoError(t, err)
 
 		assert.Equal(t, updatedUserClassoom.UserID, removeMember.ID)
 		assert.Nil(t, updatedUserClassoom.TeamID)

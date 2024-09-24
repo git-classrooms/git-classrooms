@@ -46,8 +46,8 @@ func TestGetClassroomAssignmentProjects(t *testing.T) {
 
 		req := httptest.NewRequest("GET", route, nil)
 		resp, err := app.Test(req)
-
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		var projectsResponse []*ProjectResponse
 

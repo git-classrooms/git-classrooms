@@ -81,6 +81,7 @@ func TestJoinTeam(t *testing.T) {
 			Where(q.UserID.Eq(newMember.ID)).
 			Where(q.ClassroomID.Eq(classroom.ID)).
 			First()
+		assert.NoError(t, err)
 
 		assert.Equal(t, updatedUserClassoom.UserID, newMember.ID)
 		assert.Equal(t, updatedUserClassoom.TeamID, &team.ID)

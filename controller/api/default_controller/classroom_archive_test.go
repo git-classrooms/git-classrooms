@@ -48,6 +48,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 	})
 
 	t.Run("gitlab throws error in changing access level", func(t *testing.T) {
@@ -91,6 +92,7 @@ func TestPatchClassroomArchive(t *testing.T) {
 
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 	})
 
 	t.Run("updates classroom in db", func(t *testing.T) {
@@ -132,5 +134,6 @@ func TestPatchClassroomArchive(t *testing.T) {
 		dbClassroom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.ID.Eq(classroom.ID)).First()
 		assert.NoError(t, err)
 		assert.Equal(t, true, dbClassroom.Archived)
+		defer resp.Body.Close()
 	})
 }

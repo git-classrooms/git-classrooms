@@ -58,9 +58,10 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
-		assert.NoError(t, err)
 
 		updatedAssignment, err := query.Assignment.
 			WithContext(context.Background()).
@@ -81,9 +82,10 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
-		assert.NoError(t, err)
 
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -106,9 +108,10 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
-		assert.NoError(t, err)
 
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -158,6 +161,9 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 		assert.NoError(t, err)
@@ -218,6 +224,10 @@ func TestPutOwnedAssignments(t *testing.T) {
 
 		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 		assert.NoError(t, err)
