@@ -24,13 +24,13 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 )
 
-const testUrl = "http://example.com"
+const testURL = "http://example.com"
 
 type IntegrationTest struct {
 	dbURL        string
 	container    *postgres.PostgresContainer
 	snapshotName string
-	publicUrl    *url.URL
+	publicURL    *url.URL
 }
 
 var integrationTest IntegrationTest
@@ -85,10 +85,10 @@ func TestMain(m *testing.M) {
 	}
 
 	query.SetDefault(db)
-	publicUrl, _ := url.Parse(testUrl)
-	session.InitSessionStore(nil, publicUrl)
+	publicURL, _ := url.Parse(testURL)
+	session.InitSessionStore(nil, publicURL)
 
-	integrationTest.publicUrl = publicUrl
+	integrationTest.publicURL = publicURL
 	integrationTest.container = pg
 	integrationTest.dbURL = dbURL
 
@@ -109,16 +109,16 @@ func restoreDatabase(t *testing.T) {
 func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.MockRepository, *mailRepoMock.MockRepository) {
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	session.InitSessionStore(nil, integrationTest.publicUrl)
+	session.InitSessionStore(nil, integrationTest.publicURL)
 
 	session.CsrfConfig.Next = func(c *fiber.Ctx) bool { return true }
 
 	app := fiber.New()
 
-	apiController := NewApiV1Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicUrl})
+	apiController := NewAPIV1Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicURL})
 	authCtrl := authController.NewTestAuthController(user, gitlabRepo)
 
-	router.Routes(app, authCtrl, apiController, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
+	router.Routes(app, authCtrl, apiController, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicURL})
 
 	return app, gitlabRepo, mailRepo
 }

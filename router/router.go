@@ -53,7 +53,7 @@ func setupRoutes(api *fiber.Router, config authConfig.Config, authController aut
 	v1.Get("/info/gitlab", apiController.GetGitlabInfo)
 	v1.Post("/auth/sign-in", authController.SignIn)
 	v1.Post("/auth/sign-out", authController.SignOut)
-	v1.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)
+	v1.Get(strings.Replace(config.GetRedirectURL().Path, "/api/v1", "", 1), authController.Callback)
 	v1.Get("/auth/csrf", authController.GetCsrf)
 	v1.Use(authController.AuthMiddleware)
 	v1.Get("/auth", authController.GetAuth)

@@ -4,7 +4,7 @@ type User struct {
 	ID       int
 	Username string
 	Name     string
-	WebUrl   string
+	WebURL   string
 	Email    string
 	Avatar   UserAvatar
 }

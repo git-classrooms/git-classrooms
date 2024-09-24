@@ -67,8 +67,8 @@ func TestGetClassroomAssignmentProject(t *testing.T) {
 
 		assert.Equal(t, project.ID.String(), returnValue.ID.String())
 		// assert.Equal(t, project.AssignmentID, returnValue.AssignmentID)
-		//assert.Equal(t, project.Team.ID, returnValue.UserID)
-		//assert.Equal(t, project.AssignmentAccepted, returnValue.AssignmentAccepted)
-		//assert.Equal(t, project.ProjectID, returnValue.ProjectID)
+		// assert.Equal(t, project.Team.ID, returnValue.UserID)
+		// assert.Equal(t, project.AssignmentAccepted, returnValue.AssignmentAccepted)
+		// assert.Equal(t, project.ProjectID, returnValue.ProjectID)
 	})
 }

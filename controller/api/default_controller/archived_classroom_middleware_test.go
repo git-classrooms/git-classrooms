@@ -31,7 +31,7 @@ func TestArchivedClassroomMiddleware(t *testing.T) {
 	})
 
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	handler := NewApiV1Controller(mailRepo, config.ApplicationConfig{})
+	handler := NewAPIV1Controller(mailRepo, config.ApplicationConfig{})
 	app.Use("/api/v1/classrooms/:classroomId", handler.ArchivedMiddleware)
 
 	targetRoute := fmt.Sprintf("/api/v1/classrooms/%s", userClassroom.Classroom.ID.String())
@@ -57,6 +57,7 @@ func TestArchivedClassroomMiddleware(t *testing.T) {
 		resp, err := app.Test(req)
 		assert.NotEqual(t, fiber.StatusForbidden, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 	})
 }
 
@@ -65,4 +66,5 @@ func testForbiddenMethod(t *testing.T, app *fiber.App, targetRoute string, metho
 	resp, err := app.Test(req)
 	assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 	assert.NoError(t, err)
+	defer resp.Body.Close()
 }

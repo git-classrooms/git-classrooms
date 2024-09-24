@@ -15,7 +15,7 @@ import (
 // @Produce		json
 // @Param			classroomId			path		string	true	"Classroom ID"			Format(uuid)
 // @Param			assignmentProjectId	path		string	true	"Assignment Project ID"	Format(uuid)
-// @Success		200					{array}		ProjectCloneUrlResponse
+// @Success		200					{array}		ProjectCloneURLResponse
 // @Failure		500					{object}	HTTPError
 // @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentProjectId}/repos [get]
 func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err error) {
@@ -32,17 +32,17 @@ func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err er
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	response := make([]*ProjectCloneUrlResponse, len(assignmentProjects))
+	response := make([]*ProjectCloneURLResponse, len(assignmentProjects))
 	for i, project := range assignmentProjects {
-		gitlabProject, err := repo.GetProjectById(project.ProjectID)
+		gitlabProject, err := repo.GetProjectByID(project.ProjectID)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		response[i] = &ProjectCloneUrlResponse{
-			ProjectId:     project.ID,
-			SshUrlToRepo:  gitlabProject.SSHURLToRepo,
-			HttpUrlToRepo: gitlabProject.HTTPURLToRepo,
+		response[i] = &ProjectCloneURLResponse{
+			ProjectID:     project.ID,
+			SSHURLToRepo:  gitlabProject.SSHURLToRepo,
+			HTTPURLToRepo: gitlabProject.HTTPURLToRepo,
 		}
 	}
 

@@ -72,7 +72,7 @@ func TestPatchMemberRole(t *testing.T) {
 	})
 
 	// TODO: Adjust case, the permissions should not change
-	//t.Run("Moderator > Student by creator, viewOtherProjects true", func(t *testing.T) {
+	// t.Run("Moderator > Student by creator, viewOtherProjects true", func(t *testing.T) {
 	//	updateUserClassroom(t, userClassroom, database.Moderator)
 	//	updateClassroom(t, classroom, true)
 
@@ -85,7 +85,7 @@ func TestPatchMemberRole(t *testing.T) {
 	//		classroom:      classroom,
 	//	}
 	//	r.run(t)
-	//})
+	// })
 
 	t.Run("Moderator > Owner by creator, viewOtherProjects false", func(t *testing.T) {
 		updateUserClassroom(t, userClassroom, database.Moderator)
@@ -133,7 +133,7 @@ func TestPatchMemberRole(t *testing.T) {
 	})
 
 	// TODO: Adjust case, the permissions should not change
-	//t.Run("Student > Moderator by creator, viewOtherProjects true", func(t *testing.T) {
+	// t.Run("Student > Moderator by creator, viewOtherProjects true", func(t *testing.T) {
 	//	updateUserClassroom(t, userClassroom, database.Student)
 	//	updateClassroom(t, classroom, true)
 
@@ -146,7 +146,7 @@ func TestPatchMemberRole(t *testing.T) {
 	//		classroom:      classroom,
 	//	}
 	//	r.run(t)
-	//})
+	// })
 
 	t.Run("Student > Owner by creator, viewOtherProjects false", func(t *testing.T) {
 		updateUserClassroom(t, userClassroom, database.Student)
@@ -238,6 +238,7 @@ func (r RunTest) run(t *testing.T) {
 			Where(query.UserClassrooms.UserID.Eq(r.user.ID)).
 			Where(query.UserClassrooms.ClassroomID.Eq(r.classroom.ID)).
 			First()
+	assert.NoError(t, err)
 
 	assert.Equal(t, r.changeTo, updatedUserClassroom.Role)
 }

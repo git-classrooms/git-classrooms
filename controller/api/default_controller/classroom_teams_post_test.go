@@ -38,7 +38,7 @@ func TestCreateTeam(t *testing.T) {
 	dueDate := time.Now().Add(1 * time.Hour)
 
 	factory.Assignment(classroom.ID, &dueDate, false)
-	teamGroupId := gofakeit.Int()
+	teamGroupID := gofakeit.Int()
 
 	app, gitlabRepo, _ := setupApp(t, owner)
 
@@ -63,12 +63,12 @@ func TestCreateTeam(t *testing.T) {
 				model.Private,
 				teamDescription,
 			).
-			Return(&model.Group{Name: requestBody.Name, ID: teamGroupId}, nil).
+			Return(&model.Group{Name: requestBody.Name, ID: teamGroupID}, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeGroupDescription(teamGroupId, mock.Anything).
+			ChangeGroupDescription(teamGroupID, mock.Anything).
 			Return(nil, nil).
 			Times(1)
 

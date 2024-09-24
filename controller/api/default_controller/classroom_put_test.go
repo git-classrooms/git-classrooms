@@ -54,7 +54,7 @@ func TestPutClassroom(t *testing.T) {
 			Description: requestBody.Description,
 		}
 
-		testDescription := utils.CreateClassroomGitlabDescription(tmpClassroom, integrationTest.publicUrl)
+		testDescription := utils.CreateClassroomGitlabDescription(tmpClassroom, integrationTest.publicURL)
 
 		gitlabRepo.
 			EXPECT().

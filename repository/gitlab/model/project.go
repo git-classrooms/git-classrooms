@@ -12,7 +12,7 @@ type Project struct {
 	Name          string
 	ID            int
 	Visibility    Visibility
-	WebUrl        string
+	WebURL        string
 	Description   string
 	Owner         *User
 	DefaultBranch string

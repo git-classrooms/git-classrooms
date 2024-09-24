@@ -95,7 +95,7 @@ func main() {
 	})
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
-	apiController := api.NewApiV1Controller(mailRepo, *appConfig)
+	apiController := api.NewAPIV1Controller(mailRepo, *appConfig)
 
 	router.Routes(app, authCtrl, apiController, appConfig.FrontendPath, appConfig.Auth)
 
@@ -133,9 +133,9 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab, appConfig.PublicURL)
-		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
-		syncGitlabDbWorker.Start(ctx, appConfig.GitLab.SyncInterval)
+		syncGitlabDBWork := worker.NewSyncGitlabDBWork(appConfig.GitLab, appConfig.PublicURL)
+		syncGitlabDBWorker := worker.NewWorker(syncGitlabDBWork)
+		syncGitlabDBWorker.Start(ctx, appConfig.GitLab.SyncInterval)
 	}()
 
 	wg.Wait()

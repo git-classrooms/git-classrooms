@@ -31,7 +31,7 @@ func TestCreateClassroom(t *testing.T) {
 	query.SetDefault(db)
 	user := factory.User()
 	app, gitlabRepo, _ := setupApp(t, user)
-	classroomGroupId := 1
+	classroomGroupID := 1
 
 	t.Run("CreateClassroom", func(t *testing.T) {
 		requestBody := createClassroomRequest{
@@ -51,7 +51,7 @@ func TestCreateClassroom(t *testing.T) {
 				requestBody.Description,
 			).
 			Return(
-				&model.Group{ID: classroomGroupId},
+				&model.Group{ID: classroomGroupID},
 				nil,
 			).
 			Times(1)
@@ -73,7 +73,7 @@ func TestCreateClassroom(t *testing.T) {
 
 		gitlabRepo.
 			EXPECT().
-			ChangeGroupDescription(classroomGroupId, mock.Anything).
+			ChangeGroupDescription(classroomGroupID, mock.Anything).
 			Return(nil, nil).
 			Times(1)
 

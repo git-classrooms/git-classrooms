@@ -8,5 +8,5 @@ import (
 
 type Config interface {
 	GetOAuthConfig() *oauth2.Config
-	GetRedirectUrl() *url.URL
+	GetRedirectURL() *url.URL
 }

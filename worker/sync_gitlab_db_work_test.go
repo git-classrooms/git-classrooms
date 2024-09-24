@@ -32,12 +32,12 @@ func TestSyncClassroomsWork(t *testing.T) {
 		t.Fatalf("could not start database container: %s", err.Error())
 	}
 
-	dbUrl, err := pg.ConnectionString(context.Background())
+	dbURL, err := pg.ConnectionString(context.Background())
 	if err != nil {
 		t.Fatalf("could not get database connection string: %s", err.Error())
 	}
 
-	db, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("could not connect to database: %s", err.Error())
 	}
@@ -72,9 +72,9 @@ func TestSyncClassroomsWork(t *testing.T) {
 	assignment1 := factory.Assignment(classroom1.ID, &dueDate, false)
 	assignment1Project := factory.AssignmentProject(assignment1.ID, team1.ID)
 
-	publicUrl := &url.URL{Scheme: "http", Host: "localhost"}
+	publicURL := &url.URL{Scheme: "http", Host: "localhost"}
 
-	w := NewSyncGitlabDbWork(&gitlabConfig.GitlabConfig{}, publicUrl)
+	w := NewSyncGitlabDBWork(&gitlabConfig.GitlabConfig{}, publicURL)
 
 	// Test the getUnarchivedClassrooms method.
 	t.Run("getUnarchivedClassrooms", func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		newDescription := "new description"
 
 		repo.EXPECT().
-			GetGroupById(classroom1.GroupID).
+			GetGroupByID(classroom1.GroupID).
 			Return(&model.Group{
 				Name:        newName,
 				Description: newDescription,
@@ -114,7 +114,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Times(1)
 
 		repo.EXPECT().
-			ChangeGroupDescription(classroom1.GroupID, utils.CreateClassroomGitlabDescription(classroom1, publicUrl)).
+			ChangeGroupDescription(classroom1.GroupID, utils.CreateClassroomGitlabDescription(classroom1, publicURL)).
 			Return(nil, nil).
 			Times(1)
 
@@ -223,7 +223,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 		newName := "new name"
 		newDescription := "new description"
 		repo.EXPECT().
-			GetGroupById(team1.GroupID).
+			GetGroupByID(team1.GroupID).
 			Return(&model.Group{
 				Name:        newName,
 				Description: newDescription,
@@ -236,7 +236,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 			Times(1)
 
 		repo.EXPECT().
-			ChangeGroupDescription(team1.GroupID, utils.CreateTeamGitlabDescription(classroom1, team1, publicUrl)).
+			ChangeGroupDescription(team1.GroupID, utils.CreateTeamGitlabDescription(classroom1, team1, publicURL)).
 			Return(nil, nil).
 			Times(1)
 
@@ -355,7 +355,7 @@ func TestSyncClassroomsWork(t *testing.T) {
 	// Test syncProject method.
 	t.Run("syncProject", func(t *testing.T) {
 		repo.EXPECT().
-			GetProjectById(assignment1Project.ProjectID).
+			GetProjectByID(assignment1Project.ProjectID).
 			Return(nil, fiber.NewError(404, "404 {message: 404 Project Not Found}")).
 			Times(1)
 

@@ -24,7 +24,7 @@ import (
 // @Failure		404				{object}	HTTPError
 // @Failure		500				{object}	HTTPError
 // @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects [get]
-func (strl *DefaultController) GetClassroomAssignmentProjects(c *fiber.Ctx) (err error) {
+func (ctrl *DefaultController) GetClassroomAssignmentProjects(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
 	assignment := ctx.GetAssignment()

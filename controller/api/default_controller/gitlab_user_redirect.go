@@ -11,10 +11,10 @@ func (ctrl *DefaultController) RedirectUserGitlab(c *fiber.Ctx) (err error) {
 	userID := ctx.GetGitlabUserID()
 	repo := ctx.GetGitlabRepository()
 
-	user, err := repo.GetUserById(userID)
+	user, err := repo.GetUserByID(userID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	return c.Redirect(user.WebUrl)
+	return c.Redirect(user.WebURL)
 }

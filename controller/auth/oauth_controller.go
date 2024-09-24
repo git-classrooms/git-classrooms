@@ -167,7 +167,7 @@ func (ctrl *OAuthController) GetAuth(c *fiber.Ctx) error {
 func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	sess := session.Get(c)
 
-	userId, err := sess.GetUserID()
+	userID, err := sess.GetUserID()
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
@@ -183,7 +183,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		// this added to prevent multiple requests from refreshing the token at the same time
 		// If 2 refresh requests are sent at the same time, the first one will refresh the token
 		// and the second would get an error because the refresh token was already used
-		_, err, _ := ctrl.g.Do(fmt.Sprintf("%d", userId), func() (interface{}, error) {
+		_, err, _ := ctrl.g.Do(fmt.Sprintf("%d", userID), func() (interface{}, error) {
 			return nil, ctrl.refreshSession(c.Context(), sess)
 		})
 		if err != nil {
@@ -205,7 +205,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	// Set every variable from the session to the context
 	ctx := fiberContext.Get(c)
 	ctx.SetGitlabRepository(repo)
-	ctx.SetUserID(userId)
+	ctx.SetUserID(userID)
 	return ctx.Next()
 }
 

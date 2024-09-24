@@ -39,7 +39,7 @@ func ProjectFromGoGitlab(gitlabProject goGitlab.Project) *model.Project {
 		Name:          gitlabProject.Name,
 		ID:            gitlabProject.ID,
 		Visibility:    VisibilityFromGoGitlab(gitlabProject.Visibility),
-		WebUrl:        gitlabProject.WebURL,
+		WebURL:        gitlabProject.WebURL,
 		Description:   gitlabProject.Description,
 		Owner:         owner,
 		DefaultBranch: gitlabProject.DefaultBranch,
@@ -61,7 +61,7 @@ func ProjectFromGoGitlabWithProjectMembers(gitlabProject goGitlab.Project, gitla
 		Name:          gitlabProject.Name,
 		ID:            gitlabProject.ID,
 		Visibility:    VisibilityFromGoGitlab(gitlabProject.Visibility),
-		WebUrl:        gitlabProject.WebURL,
+		WebURL:        gitlabProject.WebURL,
 		Description:   gitlabProject.Description,
 		Owner:         owner,
 		Members:       members,
@@ -86,7 +86,7 @@ func ProjectFromGoGitlabWithGroupMembers(gitlabProject goGitlab.Project, gitlabM
 		Name:        gitlabProject.Name,
 		ID:          gitlabProject.ID,
 		Visibility:  VisibilityFromGoGitlab(gitlabProject.Visibility),
-		WebUrl:      gitlabProject.WebURL,
+		WebURL:      gitlabProject.WebURL,
 		Description: gitlabProject.Description,
 		Owner:       owner,
 		Members:     members,
@@ -179,7 +179,7 @@ func UserFromGoGitlab(input goGitlab.User) *model.User {
 		ID:       input.ID,
 		Username: input.Username,
 		Name:     input.Name,
-		WebUrl:   input.WebURL,
+		WebURL:   input.WebURL,
 		Email:    input.Email,
 		Avatar:   model.UserAvatar{AvatarURL: &input.AvatarURL},
 	}
@@ -190,7 +190,7 @@ func UserFromGoGitlabProjectMember(input goGitlab.ProjectMember) *model.User {
 		ID:       input.ID,
 		Username: input.Username,
 		Name:     input.Name,
-		WebUrl:   input.WebURL,
+		WebURL:   input.WebURL,
 		Email:    input.Email,
 	}
 }
@@ -200,7 +200,7 @@ func UserFromGoGitlabGroupMember(input goGitlab.GroupMember) *model.User {
 		ID:       input.ID,
 		Username: input.Username,
 		Name:     input.Name,
-		WebUrl:   input.WebURL,
+		WebURL:   input.WebURL,
 		Email:    input.Email,
 	}
 }
@@ -210,7 +210,7 @@ func GroupFromGoGitlab(input goGitlab.Group) *model.Group {
 		Name:        input.Name,
 		ID:          input.ID,
 		Description: input.Description,
-		WebUrl:      input.WebURL,
+		WebURL:      input.WebURL,
 		Visibility:  VisibilityFromGoGitlab(input.Visibility),
 	}
 }
@@ -220,7 +220,7 @@ func GroupFromGoGitlabWithMembersAndProjects(group goGitlab.Group, members []mod
 		Name:        group.Name,
 		ID:          group.ID,
 		Description: group.Description,
-		WebUrl:      group.WebURL,
+		WebURL:      group.WebURL,
 		Visibility:  VisibilityFromGoGitlab(group.Visibility),
 		Projects:    projects,
 		Member:      members,
@@ -323,7 +323,7 @@ func GroupAccessTokenFromGoGitlabGroupAccessToken(input goGitlab.GroupAccessToke
 		UserID:      input.UserID,
 		Name:        input.Name,
 		Scopes:      input.Scopes,
-		CreatedAt:   time.Time(*input.CreatedAt),
+		CreatedAt:   *input.CreatedAt,
 		ExpiresAt:   time.Time(*input.ExpiresAt),
 		Token:       input.Token,
 		AccessLevel: AccessLevelFromGoGitlab(input.AccessLevel),

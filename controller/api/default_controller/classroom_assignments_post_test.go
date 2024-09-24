@@ -43,12 +43,12 @@ func TestPostClassroomAssignment(t *testing.T) {
 		requestBody := createAssignmentRequest{
 			Name:              gofakeit.Name(),
 			Description:       gofakeit.EmojiDescription(),
-			TemplateProjectId: gofakeit.Int(),
+			TemplateProjectID: gofakeit.Int(),
 			DueDate:           &dueDate,
 		}
 
 		gitlabRepo.
-			EXPECT().GetProjectById(requestBody.TemplateProjectId).Return(nil, nil)
+			EXPECT().GetProjectByID(requestBody.TemplateProjectID).Return(nil, nil)
 
 		req := tests.NewPostJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
@@ -57,12 +57,13 @@ func TestPostClassroomAssignment(t *testing.T) {
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ClassroomID.Eq(classroom.ID)).First()
+		assert.NoError(t, err)
 
 		assert.NotNil(t, assignment)
 
 		assert.Equal(t, assignment.Name, requestBody.Name)
 		assert.Equal(t, assignment.Description, requestBody.Description)
-		assert.Equal(t, assignment.TemplateProjectID, requestBody.TemplateProjectId)
+		assert.Equal(t, assignment.TemplateProjectID, requestBody.TemplateProjectID)
 		assert.WithinDuration(t, *assignment.DueDate, *requestBody.DueDate, 1*time.Minute)
 	})
 }
