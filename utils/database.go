@@ -14,7 +14,6 @@ func MigrateDatabase(db *gorm.DB) error {
 	log.Println("Running database migrations")
 	return db.AutoMigrate(
 		&dbModel.User{},
-		&dbModel.UserAvatar{},
 		&dbModel.Classroom{},
 		&dbModel.Team{},
 		&dbModel.UserClassrooms{},
