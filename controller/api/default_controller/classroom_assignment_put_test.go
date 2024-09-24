@@ -231,7 +231,6 @@ func TestPutOwnedAssignments(t *testing.T) {
 		assert.NoError(t, err)
 		defer resp.Body.Close()
 
-
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 		assert.NoError(t, err)
 

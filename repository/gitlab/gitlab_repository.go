@@ -922,24 +922,6 @@ func (repo *GitlabRepo) assertIsConnected() {
 	}
 }
 
-func (repo *GitlabRepo) getUserByUsername(username string) (*model.User, error) {
-	repo.assertIsConnected()
-
-	users, _, err := repo.client.Users.ListUsers(&goGitlab.ListUsersOptions{
-		Search: goGitlab.String(username),
-	})
-	if err != nil {
-		return nil, ErrorFromGoGitlab(err)
-	}
-
-	if len(users) == 0 {
-		return nil, fmt.Errorf("user with username [%s] not found", username)
-	}
-
-	return UserFromGoGitlab(*users[0]), nil
-}
-
-// FindUserIDByEmail finds a user ID by their email address.
 func (repo *GitlabRepo) FindUserIDByEmail(email string) (int, error) {
 	repo.assertIsConnected()
 
