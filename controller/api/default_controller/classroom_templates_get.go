@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -24,7 +25,7 @@ func (ctrl *DefaultController) GetClassroomTemplates(c *fiber.Ctx) error {
 	type templateResponse struct {
 		ID   int    `json:"id"`
 		Name string `json:"name"`
-	} //@Name TemplateResponse
+	} // @Name TemplateResponse
 
 	ctx := context.Get(c)
 	search := c.Query("search")

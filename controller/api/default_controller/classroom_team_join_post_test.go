@@ -8,12 +8,14 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestJoinTeam(t *testing.T) {
@@ -66,11 +68,13 @@ func TestJoinTeam(t *testing.T) {
 
 		route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s/join", classroom.ID, team.ID)
 
-		req := newPostJsonRequest(route, nil)
+		req := tests.NewPostJSONRequest(route, nil)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		q := query.UserClassrooms
 
@@ -79,6 +83,7 @@ func TestJoinTeam(t *testing.T) {
 			Where(q.UserID.Eq(newMember.ID)).
 			Where(q.ClassroomID.Eq(classroom.ID)).
 			First()
+		assert.NoError(t, err)
 
 		assert.Equal(t, updatedUserClassoom.UserID, newMember.ID)
 		assert.Equal(t, updatedUserClassoom.TeamID, &team.ID)

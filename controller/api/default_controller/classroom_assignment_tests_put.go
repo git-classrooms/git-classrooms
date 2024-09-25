@@ -5,18 +5,19 @@ import (
 	"slices"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gen/field"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"gorm.io/gen/field"
 )
 
 type assignmentTestRequest struct {
 	Name  string `json:"name"`
 	Score int    `json:"score"`
-} //@Name AssignmentTestRequest
+} // @Name AssignmentTestRequest
 
 func (r assignmentTestRequest) isValid() bool {
 	return r.Name != "" && r.Score > 0
@@ -29,7 +30,7 @@ func assignmentTestRequestIsValid(r assignmentTestRequest) bool {
 type updateAssignmentTestRequest struct {
 	JUnitAutoGradingActive *bool                   `json:"junitAutoGradingActive"`
 	AssignmentTests        []assignmentTestRequest `json:"assignmentTests"`
-} //@Name UpdateAssignmentTestRequest
+} // @Name UpdateAssignmentTestRequest
 
 func (r updateAssignmentTestRequest) isValid() bool {
 	return r.JUnitAutoGradingActive != nil && utils.All(r.AssignmentTests, assignmentTestRequestIsValid)

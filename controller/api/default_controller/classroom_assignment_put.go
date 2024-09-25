@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -15,7 +16,7 @@ type updateAssignmentRequest struct {
 	Name        string     `json:"name,omitempty"`
 	Description string     `json:"description,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty" validate:"optional"`
-} //@Name UpdateAssignmentRequest
+} // @Name UpdateAssignmentRequest
 
 func (r updateAssignmentRequest) isValid() (bool, string) {
 	if r.DueDate != nil {

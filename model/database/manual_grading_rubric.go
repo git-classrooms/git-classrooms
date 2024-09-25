@@ -21,4 +21,4 @@ type ManualGradingRubric struct {
 
 	Assignments []*Assignment          `gorm:"many2many:assignment_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
 	Results     []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnDelete:CASCADE;" json:"-"`
-} //@Name ManualGradingRubric
+} // @Name ManualGradingRubric

@@ -9,12 +9,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestCreateClassroom(t *testing.T) {
@@ -29,7 +31,7 @@ func TestCreateClassroom(t *testing.T) {
 	query.SetDefault(db)
 	user := factory.User()
 	app, gitlabRepo, _ := setupApp(t, user)
-	classroomGroupId := 1
+	classroomGroupID := 1
 
 	t.Run("CreateClassroom", func(t *testing.T) {
 		requestBody := createClassroomRequest{
@@ -49,7 +51,7 @@ func TestCreateClassroom(t *testing.T) {
 				requestBody.Description,
 			).
 			Return(
-				&model.Group{ID: classroomGroupId},
+				&model.Group{ID: classroomGroupID},
 				nil,
 			).
 			Times(1)
@@ -71,13 +73,16 @@ func TestCreateClassroom(t *testing.T) {
 
 		gitlabRepo.
 			EXPECT().
-			ChangeGroupDescription(classroomGroupId, mock.Anything).
+			ChangeGroupDescription(classroomGroupID, mock.Anything).
 			Return(nil, nil).
 			Times(1)
 
-		req := newPostJsonRequest("/api/v1/classrooms", requestBody)
+		req := tests.NewPostJSONRequest("/api/v1/classrooms", requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		classRoom, err := query.Classroom.

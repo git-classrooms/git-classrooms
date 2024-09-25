@@ -80,7 +80,7 @@ func TestClassroomSession_GetUserState(t *testing.T) {
 	ctx := app.AcquireCtx(req)
 	defer app.ReleaseCtx(ctx)
 
-	//Tests
+	// Tests
 	t.Run("Retrieving User State Anonymous", func(t *testing.T) {
 		ses := Get(ctx)
 		ses.Set(userState, Anonymous)
@@ -183,7 +183,7 @@ func TestClassroomSession_checkLogin(t *testing.T) {
 	ctx := app.AcquireCtx(req)
 	defer app.ReleaseCtx(ctx)
 
-	//Tests
+	// Tests
 	t.Run("User State is Anonymous", func(t *testing.T) {
 		ses := Get(ctx)
 		ses.Set(userState, Anonymous)

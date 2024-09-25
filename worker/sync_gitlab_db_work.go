@@ -9,28 +9,29 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"gorm.io/gen/field"
+
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
-	"gorm.io/gen/field"
 )
 
 // SyncGitlabDbWork is responsible for synchronizing the GitLab database with the local database.
-type SyncGitlabDbWork struct {
+type SyncGitlabDBWork struct {
 	gitlabConfig gitlabConfig.Config
 	publicURL    *url.URL
 }
 
 // NewSyncGitlabDbWork creates a new instance of SyncGitlabDbWork.
-func NewSyncGitlabDbWork(config gitlabConfig.Config, publicUrl *url.URL) *SyncGitlabDbWork {
-	return &SyncGitlabDbWork{gitlabConfig: config, publicURL: publicUrl}
+func NewSyncGitlabDBWork(config gitlabConfig.Config, publicURL *url.URL) *SyncGitlabDBWork {
+	return &SyncGitlabDBWork{gitlabConfig: config, publicURL: publicURL}
 }
 
 // Do synchronizes classrooms, teams, and projects between GitLab and the local database.
-func (w *SyncGitlabDbWork) Do(ctx context.Context) {
+func (w *SyncGitlabDBWork) Do(ctx context.Context) {
 	classrooms := w.getUnarchivedClassrooms(ctx)
 	for _, classroom := range classrooms {
 		repo, err := GetWorkerRepo(w.gitlabConfig, classroom.GroupAccessToken)
@@ -65,7 +66,7 @@ func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 }
 
 // getUnarchivedClassrooms retrieves all classrooms that are not archived or deleted.
-func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*database.Classroom {
+func (w *SyncGitlabDBWork) getUnarchivedClassrooms(ctx context.Context) []*database.Classroom {
 	classrooms, err := query.Classroom.
 		WithContext(ctx).
 		Preload(query.Classroom.Member).
@@ -86,9 +87,9 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 }
 
 // syncClassroom synchronizes the data of a classroom from GitLab with the local database.
-func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom database.Classroom, repo gitlab.Repository) error {
+func (w *SyncGitlabDBWork) syncClassroom(ctx context.Context, dbClassroom database.Classroom, repo gitlab.Repository) error {
 	log.Default().Printf("Syncing classroom %s (ID=%d)", dbClassroom.Name, dbClassroom.GroupID)
-	gitlabClassroom, err := repo.GetGroupById(dbClassroom.GroupID)
+	gitlabClassroom, err := repo.GetGroupByID(dbClassroom.GroupID)
 	if err != nil {
 		var gitLabError *model.GitLabError
 		if errors.As(err, &gitLabError) {
@@ -139,81 +140,81 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 }
 
 // syncClassroomMember synchronizes the members of a classroom between GitLab and the local database.
-func (w *SyncGitlabDbWork) syncClassroomMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
-	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository) {
+func (w *SyncGitlabDBWork) syncClassroomMember(ctx context.Context, groupID int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
+	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupID int, repo gitlab.Repository) {
 		_, err := query.UserClassrooms.WithContext(ctx).Delete(member)
 		if err != nil {
-			log.Default().Printf("Error could not remove member [%d] from classroom %d: %s", member.UserID, groupId, err.Error())
+			log.Default().Printf("Error could not remove member [%d] from classroom %d: %s", member.UserID, groupID, err.Error())
 		} else {
-			log.Default().Printf("Removed member %d from classroom %d", member.UserID, groupId)
+			log.Default().Printf("Removed member %d from classroom %d", member.UserID, groupID)
 		}
 	}
 
-	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
-		err := repo.RemoveUserFromGroup(groupId, member.ID)
+	handleAddedMembers := func(context context.Context, member *model.User, groupID int, repo gitlab.Repository) {
+		err := repo.RemoveUserFromGroup(groupID, member.ID)
 		if err != nil {
-			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
+			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupID, err.Error())
 		} else {
-			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupId)
+			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupID)
 		}
 	}
 
-	w.syncMember(ctx, groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
+	w.syncMember(ctx, groupID, dbMember, repo, handleLeftMembers, handleAddedMembers)
 }
 
 // syncTeamMember synchronizes the members of a team between GitLab and the local database.
-func (w *SyncGitlabDbWork) syncTeamMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
+func (w *SyncGitlabDBWork) syncTeamMember(ctx context.Context, groupID int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
 	// TODO delete Team if teamsize is 1
-	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository) {
+	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupID int, repo gitlab.Repository) {
 		member.TeamID = nil
 		member.Team = nil
 		err := query.UserClassrooms.WithContext(ctx).Save(member)
 		if err != nil {
-			log.Default().Printf("Error could not remove member [%d] from team %d: %s", member.UserID, groupId, err.Error())
+			log.Default().Printf("Error could not remove member [%d] from team %d: %s", member.UserID, groupID, err.Error())
 			return
 		}
 	}
 
-	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
-		err := repo.RemoveUserFromGroup(groupId, member.ID)
+	handleAddedMembers := func(context context.Context, member *model.User, groupID int, repo gitlab.Repository) {
+		err := repo.RemoveUserFromGroup(groupID, member.ID)
 		if err != nil {
-			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
+			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupID, err.Error())
 		} else {
-			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupId)
+			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupID)
 		}
 	}
 
-	w.syncMember(ctx, groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
+	w.syncMember(ctx, groupID, dbMember, repo, handleLeftMembers, handleAddedMembers)
 }
 
 // syncMember handles the synchronization of members between GitLab and the local database.
-func (w *SyncGitlabDbWork) syncMember(
+func (w *SyncGitlabDBWork) syncMember(
 	ctx context.Context,
-	groupId int,
+	groupID int,
 	dbMember []*database.UserClassrooms,
 	repo gitlab.Repository,
-	handleLeftMembers func(ctx context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository),
-	handleAddedMembers func(ctx context.Context, member *model.User, groupId int, repo gitlab.Repository),
+	handleLeftMembers func(ctx context.Context, member *database.UserClassrooms, groupID int, repo gitlab.Repository),
+	handleAddedMembers func(ctx context.Context, member *model.User, groupID int, repo gitlab.Repository),
 ) {
-	gitlabMember, err := repo.GetAllUsersOfGroup(groupId)
+	gitlabMember, err := repo.GetAllUsersOfGroup(groupID)
 	if err != nil {
-		log.Default().Printf("Could not retive members of group with id %d. ErrorMsg: %s", groupId, err.Error())
+		log.Default().Printf("Could not retive members of group with id %d. ErrorMsg: %s", groupID, err.Error())
 		return
 	}
 
 	leftMember := w.leftMembersViaGitlab(dbMember, gitlabMember)
 	for _, member := range leftMember {
-		handleLeftMembers(ctx, member, groupId, repo)
+		handleLeftMembers(ctx, member, groupID, repo)
 	}
 
-	addedMember := w.addedMembersViaGitlab(dbMember, gitlabMember, groupId)
+	addedMember := w.addedMembersViaGitlab(dbMember, gitlabMember, groupID)
 	for _, member := range addedMember {
-		handleAddedMembers(ctx, member, groupId, repo)
+		handleAddedMembers(ctx, member, groupID, repo)
 	}
 }
 
 // leftMembersViaGitlab finds members who have left the GitLab group but are still present in the local database.
-func (w *SyncGitlabDbWork) leftMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User) []*database.UserClassrooms {
+func (w *SyncGitlabDBWork) leftMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User) []*database.UserClassrooms {
 	leftMember := []*database.UserClassrooms{}
 
 	for _, dbMember := range dbMember {
@@ -235,7 +236,7 @@ func (w *SyncGitlabDbWork) leftMembersViaGitlab(dbMember []*database.UserClassro
 }
 
 // addedMembersViaGitlab finds members who have been added to the GitLab group but are not present in the local database.
-func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User, groupId int) []*model.User {
+func (w *SyncGitlabDBWork) addedMembersViaGitlab(dbMember []*database.UserClassrooms, gitlabMember []*model.User, groupID int) []*model.User {
 	addedMember := []*model.User{}
 
 	for _, gitlabMember := range gitlabMember {
@@ -248,7 +249,7 @@ func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassr
 			}
 		}
 
-		if !found && !w.isGroupBootUser(*gitlabMember, groupId) {
+		if !found && !w.isGroupBootUser(*gitlabMember, groupID) {
 			addedMember = append(addedMember, gitlabMember)
 		}
 	}
@@ -257,14 +258,14 @@ func (w *SyncGitlabDbWork) addedMembersViaGitlab(dbMember []*database.UserClassr
 }
 
 // isGroupBootUser checks if a user is a group bot user in GitLab.
-func (w *SyncGitlabDbWork) isGroupBootUser(user model.User, groupId int) bool {
-	return strings.Contains(user.Username, fmt.Sprintf("group_%d_bot_", groupId))
+func (w *SyncGitlabDBWork) isGroupBootUser(user model.User, groupID int) bool {
+	return strings.Contains(user.Username, fmt.Sprintf("group_%d_bot_", groupID))
 }
 
 // syncTeam synchronizes the data of a team from GitLab with the local database.
-func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Classroom, dbTeam database.Team, repo gitlab.Repository) error {
+func (w *SyncGitlabDBWork) syncTeam(ctx context.Context, classroom *database.Classroom, dbTeam database.Team, repo gitlab.Repository) error {
 	log.Default().Printf("Syncing team %s (ID=%d)", dbTeam.Name, dbTeam.GroupID)
-	gitlabTeam, err := repo.GetGroupById(dbTeam.GroupID)
+	gitlabTeam, err := repo.GetGroupByID(dbTeam.GroupID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
 			_, err := query.Team.WithContext(ctx).Delete(&dbTeam)
@@ -295,10 +296,10 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Cla
 }
 
 // getAssignmentProjects retrieves the list of projects associated with a given assignment.
-func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignmentId uuid.UUID) []*database.AssignmentProjects {
+func (w *SyncGitlabDBWork) getAssignmentProjects(ctx context.Context, assignmentID uuid.UUID) []*database.AssignmentProjects {
 	projects, err := query.AssignmentProjects.
 		WithContext(ctx).
-		Where(query.AssignmentProjects.AssignmentID.Eq(assignmentId)).
+		Where(query.AssignmentProjects.AssignmentID.Eq(assignmentID)).
 		Where(query.AssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
 		Find()
 	if err != nil {
@@ -310,8 +311,8 @@ func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignment
 }
 
 // syncProject synchronizes the project data between GitLab and the local database.
-func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.AssignmentProjects, repo gitlab.Repository) {
-	_, err := repo.GetProjectById(dbProject.ProjectID)
+func (w *SyncGitlabDBWork) syncProject(ctx context.Context, dbProject database.AssignmentProjects, repo gitlab.Repository) {
+	_, err := repo.GetProjectByID(dbProject.ProjectID)
 	if err == nil || !strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
 		return
 	}

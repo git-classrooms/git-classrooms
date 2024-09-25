@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
@@ -13,7 +14,7 @@ import (
 
 type updateAssignmentRubricsRequest struct {
 	RubricIDs []uuid.UUID `json:"rubricIds"`
-} //@Name UpdateAssignmentRubricsRequest
+} // @Name UpdateAssignmentRubricsRequest
 
 func (r updateAssignmentRubricsRequest) isValid() bool {
 	return r.RubricIDs != nil

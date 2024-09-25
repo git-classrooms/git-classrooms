@@ -10,12 +10,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestCreateTeam(t *testing.T) {
@@ -36,7 +38,7 @@ func TestCreateTeam(t *testing.T) {
 	dueDate := time.Now().Add(1 * time.Hour)
 
 	factory.Assignment(classroom.ID, &dueDate, false)
-	teamGroupId := gofakeit.Int()
+	teamGroupID := gofakeit.Int()
 
 	app, gitlabRepo, _ := setupApp(t, owner)
 
@@ -61,22 +63,24 @@ func TestCreateTeam(t *testing.T) {
 				model.Private,
 				teamDescription,
 			).
-			Return(&model.Group{Name: requestBody.Name, ID: teamGroupId}, nil).
+			Return(&model.Group{Name: requestBody.Name, ID: teamGroupID}, nil).
 			Times(1)
 
 		gitlabRepo.
 			EXPECT().
-			ChangeGroupDescription(teamGroupId, mock.Anything).
+			ChangeGroupDescription(teamGroupID, mock.Anything).
 			Return(nil, nil).
 			Times(1)
 
 		route := fmt.Sprintf("/api/v1/classrooms/%s/teams", classroom.ID)
 
-		req := newPostJsonRequest(route, requestBody)
+		req := tests.NewPostJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		queryTeam := query.Team
 

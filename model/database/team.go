@@ -19,4 +19,4 @@ type Team struct {
 
 	Member             []*UserClassrooms     `gorm:"foreignKey:TeamID;constraint:OnDelete:SET NULL;" json:"-"`
 	AssignmentProjects []*AssignmentProjects `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
-} //@Name Team
+} // @Name Team

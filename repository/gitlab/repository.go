@@ -17,66 +17,66 @@ type Repository interface {
 
 	// Group
 	CreateGroup(name string, visibility model.Visibility, description string) (*model.Group, error)
-	CreateSubGroup(name string, path string, parentId int, visibility model.Visibility, description string) (*model.Group, error)
+	CreateSubGroup(name string, path string, parentID int, visibility model.Visibility, description string) (*model.Group, error)
 	DeleteGroup(id int) error
 	ChangeGroupName(id int, name string) (*model.Group, error)
 	ChangeGroupDescription(id int, description string) (*model.Group, error)
-	AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error
-	RemoveUserFromGroup(groupId int, userId int) error
-	GetGroupById(id int) (*model.Group, error)
+	AddUserToGroup(groupID int, userID int, accessLevel model.AccessLevelValue) error
+	RemoveUserFromGroup(groupID int, userID int) error
+	GetGroupByID(id int) (*model.Group, error)
 	GetAllGroups() ([]*model.Group, error)
 	SearchGroupByExpression(expression string) ([]*model.Group, error)
-	CreateGroupInvite(groupId int, email string) error
-	GetPendingGroupInvitations(groupId int) ([]*model.PendingInvite, error)
-	ChangeUserAccessLevelInGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error
-	GetAccessLevelOfUserInGroup(groupId int, userId int) (model.AccessLevelValue, error)
+	CreateGroupInvite(groupID int, email string) error
+	GetPendingGroupInvitations(groupID int) ([]*model.PendingInvite, error)
+	ChangeUserAccessLevelInGroup(groupID int, userID int, accessLevel model.AccessLevelValue) error
+	GetAccessLevelOfUserInGroup(groupID int, userID int) (model.AccessLevelValue, error)
 
 	// User
 	GetCurrentUser() (*model.User, error)
-	GetUserById(id int) (*model.User, error)
+	GetUserByID(id int) (*model.User, error)
 	GetAllUsers() ([]*model.User, error)
 	GetAllUsersOfGroup(id int) ([]*model.User, error)
 	SearchUserByExpression(expression string) ([]*model.User, error)
-	SearchUserByExpressionInGroup(expression string, groupId int) ([]*model.User, error)
-	SearchUserByExpressionInProject(expression string, projectId int) ([]*model.User, error)
+	SearchUserByExpressionInGroup(expression string, groupID int) ([]*model.User, error)
+	SearchUserByExpressionInProject(expression string, projectID int) ([]*model.User, error)
 	FindUserIDByEmail(email string) (int, error)
 
 	// Project
 	CreateProject(name string, visibility model.Visibility, description string, member []model.User) (*model.Project, error)
 	DeleteProject(id int) error
 	GetAllProjects(search string) ([]*model.Project, error)
-	GetProjectById(id int) (*model.Project, error)
+	GetProjectByID(id int) (*model.Project, error)
 	GetAllProjectsOfGroup(id int) ([]*model.Project, error)
 	SearchProjectByExpression(expression string) ([]*model.Project, error)
-	CreateProjectInvite(projectId int, email string) error
-	GetPendingProjectInvitations(projectId int) ([]*model.PendingInvite, error)
-	DenyPushingToProject(projectId int) error
-	AllowPushingToProject(projectId int) error
-	ForkProject(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
-	ForkProjectWithOnlyDefaultBranch(projectId int, visibility model.Visibility, namespaceId int, name string, description string) (*model.Project, error)
-	AddProjectMembers(projectId int, members []model.User) (*model.Project, error)
-	AddProjectMember(projectId int, userId int, accessLevel model.AccessLevelValue) error
-	RemoveUserFromProject(projectId int, userId int) error
-	GetNamespaceOfProject(projectId int) (*string, error)
-	ChangeUserAccessLevelInProject(projectId int, userId int, accessLevel model.AccessLevelValue) error
-	GetAccessLevelOfUserInProject(projectId int, userId int) (model.AccessLevelValue, error)
-	ChangeProjectName(projectId int, name string) (*model.Project, error)
-	ChangeProjectDescription(projectId int, description string) (*model.Project, error)
-	GetProjectLatestPipeline(projectId int, ref *string) (*model.Pipeline, error)
-	GetProjectPipelineTestReportSummary(projectId, pipelineId int) (*model.TestReport, error)
-	GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error)
+	CreateProjectInvite(projectID int, email string) error
+	GetPendingProjectInvitations(projectID int) ([]*model.PendingInvite, error)
+	DenyPushingToProject(projectID int) error
+	AllowPushingToProject(projectID int) error
+	ForkProject(projectID int, visibility model.Visibility, namespaceID int, name string, description string) (*model.Project, error)
+	ForkProjectWithOnlyDefaultBranch(projectID int, visibility model.Visibility, namespaceID int, name string, description string) (*model.Project, error)
+	AddProjectMembers(projectID int, members []model.User) (*model.Project, error)
+	AddProjectMember(projectID int, userID int, accessLevel model.AccessLevelValue) error
+	RemoveUserFromProject(projectID int, userID int) error
+	GetNamespaceOfProject(projectID int) (*string, error)
+	ChangeUserAccessLevelInProject(projectID int, userID int, accessLevel model.AccessLevelValue) error
+	GetAccessLevelOfUserInProject(projectID int, userID int) (model.AccessLevelValue, error)
+	ChangeProjectName(projectID int, name string) (*model.Project, error)
+	ChangeProjectDescription(projectID int, description string) (*model.Project, error)
+	GetProjectLatestPipeline(projectID int, ref *string) (*model.Pipeline, error)
+	GetProjectPipelineTestReportSummary(projectID, pipelineID int) (*model.TestReport, error)
+	GetProjectLatestPipelineTestReportSummary(projectID int, ref *string) (*model.TestReport, error)
 
 	// Branches
-	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
-	ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error
-	UnprotectBranch(projectId int, branchName string) error
-	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
-	ProtectedBranchExists(projectId int, branchName string) (bool, error)
-	BranchExists(projectId int, branchName string) (bool, error)
+	CreateBranch(projectID int, branchName string, fromBranch string) (*model.Branch, error)
+	ProtectBranch(projectID int, branchName string, accessLevel model.AccessLevelValue) error
+	UnprotectBranch(projectID int, branchName string) error
+	CreateMergeRequest(projectID int, sourceBranch string, targetBranch string, title string, description string, assigneeID int, reviewerID int) error
+	ProtectedBranchExists(projectID int, branchName string) (bool, error)
+	BranchExists(projectID int, branchName string) (bool, error)
 
 	// Runners
 	GetAvailableRunnersForGitLab() ([]*model.Runner, error)
-	GetAvailableRunnersForGroup(groupId int) ([]*model.Runner, error)
-	CheckIfFileExistsInProject(projectId int, filePath string) (bool, error)
-	GetProjectLanguages(projectId int) (map[string]float32, error)
+	GetAvailableRunnersForGroup(groupID int) ([]*model.Runner, error)
+	CheckIfFileExistsInProject(projectID int, filePath string) (bool, error)
+	GetProjectLanguages(projectID int) (map[string]float32, error)
 }

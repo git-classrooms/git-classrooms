@@ -9,11 +9,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func TestRemoveMemberFromTeam(t *testing.T) {
@@ -65,9 +66,11 @@ func TestRemoveMemberFromTeam(t *testing.T) {
 
 		req := httptest.NewRequest("DELETE", route, nil)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusNoContent, resp.StatusCode)
 
 		q := query.UserClassrooms
 
@@ -76,6 +79,7 @@ func TestRemoveMemberFromTeam(t *testing.T) {
 			Where(q.UserID.Eq(removeMember.ID)).
 			Where(q.ClassroomID.Eq(classroom.ID)).
 			First()
+		assert.NoError(t, err)
 
 		assert.Equal(t, updatedUserClassoom.UserID, removeMember.ID)
 		assert.Nil(t, updatedUserClassoom.TeamID)

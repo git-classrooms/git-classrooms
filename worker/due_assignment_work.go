@@ -62,18 +62,6 @@ func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*databas
 	return assignments
 }
 
-// getLoggedInRepo logs into the GitLab repository associated with the assignment and returns the repository object.
-func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gitlab.Repository, error) {
-	repo := gitlab.NewGitlabRepo(w.gitlabConfig)
-	err := repo.GroupAccessLogin(assignment.Classroom.GroupAccessToken)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo, nil
-}
-
-// closeAssignment marks the assignment as closed and performs necessary updates in the repository.
 func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *database.Assignment, repo gitlab.Repository) (err error) {
 	log.Printf("DueAssignmentWorker: Closing assignment %s", assignment.Name)
 

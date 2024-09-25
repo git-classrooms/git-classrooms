@@ -8,13 +8,12 @@ import (
 	"strconv"
 	"testing"
 
-	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"golang.org/x/oauth2"
-
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
-	"github.com/xanzy/go-gitlab"
+	"golang.org/x/oauth2"
+
+	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 type TestCredentials struct {
@@ -22,7 +21,7 @@ type TestCredentials struct {
 	Password string
 	ID       int
 	Email    string
-	WebUrl   string
+	WebURL   string
 	Name     string
 	Token    string
 }
@@ -49,7 +48,7 @@ func SetupTestCredentials() (*TestCredentials, error) {
 		Password: os.Getenv("GO_GITLAB_TEST_PASSWORD"),
 		ID:       id,
 		Email:    os.Getenv("GO_GITLAB_TEST_EMAIL"),
-		WebUrl:   os.Getenv("GO_GITLAB_TEST_WEB_URL"),
+		WebURL:   os.Getenv("GO_GITLAB_TEST_WEB_URL"),
 		Name:     os.Getenv("GO_GITLAB_TEST_NAME"),
 		Token:    *token,
 	}
@@ -170,21 +169,21 @@ func TestGoGitlabRepo(t *testing.T) {
 	//     assert.Error(t, err)
 	// })
 
-	groupId := 20 // Example groupId
-	userId := 9   // You can use the ID from credentials or another user's ID
+	groupID := 20 // Example groupId
+	userID := 9   // You can use the ID from credentials or another user's ID
 
 	t.Run("AddUserToGroup", func(t *testing.T) {
-		err := repo.AddUserToGroup(groupId, userId, model.DeveloperPermissions)
+		err := repo.AddUserToGroup(groupID, userID, model.DeveloperPermissions)
 
 		assert.NoError(t, err)
 
 		// After adding, verify if the user is actually in the group
-		group, err := repo.GetGroupById(groupId)
+		group, err := repo.GetGroupByID(groupID)
 		assert.NoError(t, err)
 
 		found := false
 		for _, member := range group.Member {
-			if member.ID == userId {
+			if member.ID == userID {
 				found = true
 				break
 			}
@@ -194,17 +193,17 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("RemoveUserFromGroup", func(t *testing.T) {
-		err := repo.RemoveUserFromGroup(groupId, userId)
+		err := repo.RemoveUserFromGroup(groupID, userID)
 
 		assert.NoError(t, err)
 
 		// After removing, verify if the user is actually removed from the group
-		group, err := repo.GetGroupById(groupId)
+		group, err := repo.GetGroupByID(groupID)
 		assert.NoError(t, err)
 
 		found := false
 		for _, member := range group.Member {
-			if member.ID == userId {
+			if member.ID == userID {
 				found = true
 				break
 			}
@@ -221,50 +220,50 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetProjectById", func(t *testing.T) {
-		project, err := repo.GetProjectById(2)
+		project, err := repo.GetProjectByID(2)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 2, project.ID)
 		assert.Equal(t, "IntegrationTestsProject2", project.Name)
-		assert.Equal(t, "https://hs-flensburg.dev/IntegrationTestsUser2/integrationtestsproject2", project.WebUrl)
+		assert.Equal(t, "https://hs-flensburg.dev/IntegrationTestsUser2/integrationtestsproject2", project.WebURL)
 		assert.Equal(t, model.Internal, project.Visibility)
 	})
 
 	t.Run("GetUserById", func(t *testing.T) {
-		user, err := repo.GetUserById(credentials.ID)
+		user, err := repo.GetUserByID(credentials.ID)
 
-		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+		webURL := fmt.Sprintf("%s/%s", credentials.WebURL, credentials.Username)
 
 		assert.NoError(t, err)
 		assert.Equal(t, credentials.ID, user.ID)
 		assert.Equal(t, credentials.Username, user.Username)
 		assert.Equal(t, credentials.Name, user.Name)
-		assert.Equal(t, webUrl, user.WebUrl)
+		assert.Equal(t, webURL, user.WebURL)
 		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
 	})
 
 	t.Run("GetCurrentUser", func(t *testing.T) {
 		user, err := repo.GetCurrentUser()
-		webUrl := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
+		webURL := fmt.Sprintf("%s/%s", credentials.WebURL, credentials.Username)
 
 		assert.NoError(t, err)
 		assert.Equal(t, credentials.ID, user.ID)
 		assert.Equal(t, credentials.Username, user.Username)
 		assert.Equal(t, credentials.Name, user.Name)
-		assert.Equal(t, webUrl, user.WebUrl)
+		assert.Equal(t, webURL, user.WebURL)
 		// assert.Equal(t, credentials.Email, user.Email) // TODO no emails available yet
 	})
 
 	t.Run("GetGroupById", func(t *testing.T) {
-		Group, err := repo.GetGroupById(15)
+		Group, err := repo.GetGroupByID(15)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 15, Group.ID)
 		assert.Equal(t, "IntegrationsTestGroup1", Group.Name)
-		assert.Equal(t, "https://hs-flensburg.dev/groups/integrationstestgroup11", Group.WebUrl)
-		user_web_url := fmt.Sprintf("%s/%s", credentials.WebUrl, credentials.Username)
-		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebUrl: user_web_url}, Group.Member)
-		assertContainProject(t, model.Project{ID: 3, Name: "IntegrationTestsProject3", WebUrl: "https://hs-flensburg.dev/integrationstestgroup11/integrationtestsproject3", Description: ""}, Group.Projects)
+		assert.Equal(t, "https://hs-flensburg.dev/groups/integrationstestgroup11", Group.WebURL)
+		userWebURL := fmt.Sprintf("%s/%s", credentials.WebURL, credentials.Username)
+		assertContainUser(t, model.User{ID: credentials.ID, Name: credentials.Name, Username: credentials.Username, WebURL: userWebURL}, Group.Member)
+		assertContainProject(t, model.Project{ID: 3, Name: "IntegrationTestsProject3", WebURL: "https://hs-flensburg.dev/integrationstestgroup11/integrationtestsproject3", Description: ""}, Group.Projects)
 	})
 
 	t.Run("ChangeGroupName", func(t *testing.T) {
@@ -376,7 +375,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("SearchUserByExpressionInGroup", func(t *testing.T) {
-		users, err := repo.SearchUserByExpressionInGroup(searchExpression, groupId)
+		users, err := repo.SearchUserByExpressionInGroup(searchExpression, groupID)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, users, "Expected to find at least one user")
@@ -387,10 +386,10 @@ func TestGoGitlabRepo(t *testing.T) {
 		}
 	})
 
-	projectId := 5 // Example project ID, replace with an actual project ID
+	projectID := 5 // Example project ID, replace with an actual project ID
 
 	t.Run("SearchUserByExpressionInProject", func(t *testing.T) {
-		users, err := repo.SearchUserByExpressionInProject(searchExpression, projectId)
+		users, err := repo.SearchUserByExpressionInProject(searchExpression, projectID)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, users)
@@ -429,7 +428,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	email := credentials.Email // Use a test email address
 
 	t.Run("CreateGroupInvite", func(t *testing.T) {
-		err := repo.CreateGroupInvite(groupId, email)
+		err := repo.CreateGroupInvite(groupID, email)
 		assert.NoError(t, err)
 
 		// Verify if the invite was sent
@@ -437,7 +436,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("CreateProjectInvite", func(t *testing.T) {
-		err := repo.CreateProjectInvite(projectId, email)
+		err := repo.CreateProjectInvite(projectID, email)
 		assert.NoError(t, err)
 
 		// Verify if the invite was sent
@@ -445,7 +444,7 @@ func TestGoGitlabRepo(t *testing.T) {
 	})
 
 	t.Run("GetPendingGroupInvitations", func(t *testing.T) {
-		pendingInvites, err := repo.GetPendingGroupInvitations(groupId)
+		pendingInvites, err := repo.GetPendingGroupInvitations(groupID)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, pendingInvites)
@@ -461,64 +460,6 @@ func TestGoGitlabRepo(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "integrationstestgroup11", *namespace)
 	})
-
-	/*
-		Test schmeisst Error, dont know why
-		t.Run("GetPendingProjectInvitations", func(t *testing.T) {
-			pendingInvites, err := repo.GetPendingProjectInvitations(groupId)
-
-			assert.NoError(t, err)
-			assert.NotNil(t, pendingInvites)
-
-			// Optionally, check for specific properties of the pending invitations
-			// For example, assert that the length of pendingInvites is as expected
-			// or check for specific user IDs in the pending invitations
-		})
-	*/
-
-	/*
-		Mit personal access tokens ist es bisher nicht möglich ein Assignment zu schließen bzw. das Pushen zu unterbinden (man bekommt bei alle aufgelisteten Möglichkeiten einen 404 zurück)
-			- Not with Push Rules
-			- Not with Protect Branches
-			- Not with change Project Member Access Level
-
-		t.Run("Push rules", func(t *testing.T) {
-			client := createTestClient(t, credentials.Token)
-
-			err := repo.DenyPushingToProject(3)
-			assert.NoError(t, err)
-
-			assert.True(t, allProjectMembersHaveSameAccessLevel(t, client, 3, gitlab.AccessLevelValue(gitlab.MinimalAccessPermissions)))
-
-			err = repo.AllowPushingToProject(685)
-			assert.NoError(t, err)
-
-			assert.False(t, allProjectMembersHaveSameAccessLevel(t, client, 3, gitlab.AccessLevelValue(gitlab.DeveloperPermissions)))
-		})
-	*/
-}
-
-func createTestClient(t *testing.T, token string) *gitlab.Client {
-	cli, err := gitlab.NewClient(token, gitlab.WithBaseURL("https://gitlab.hs-flensburg.de"))
-	if err != nil {
-		t.Errorf("Could not create extra client for test")
-	}
-	return cli
-}
-
-func allProjectMembersHaveSameAccessLevel(t *testing.T, client *gitlab.Client, projectId int, accessLevel gitlab.AccessLevelValue) bool {
-	members, _, err := client.ProjectMembers.ListAllProjectMembers(projectId, &gitlab.ListProjectMembersOptions{})
-	if err != nil {
-		return false
-	}
-
-	for _, member := range members {
-		if member.AccessLevel != accessLevel {
-			return false
-		}
-	}
-
-	return true
 }
 
 func assertContainUser(t *testing.T, expectedUser model.User, users []model.User) {
@@ -533,7 +474,7 @@ func assertContainUser(t *testing.T, expectedUser model.User, users []model.User
 
 func assertContainProject(t *testing.T, expectedProject model.Project, projects []model.Project) {
 	for _, project := range projects {
-		if project.ID == expectedProject.ID && project.Name == expectedProject.Name && project.WebUrl == expectedProject.WebUrl && project.Description == expectedProject.Description {
+		if project.ID == expectedProject.ID && project.Name == expectedProject.Name && project.WebURL == expectedProject.WebURL && project.Description == expectedProject.Description {
 			return
 		}
 	}

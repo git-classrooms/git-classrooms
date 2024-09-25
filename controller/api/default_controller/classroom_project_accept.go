@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
@@ -58,7 +59,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 
 	// Check if template repository still exists
-	templateProject, err := repo.GetProjectById(assignmentProject.Assignment.TemplateProjectID)
+	templateProject, err := repo.GetProjectByID(assignmentProject.Assignment.TemplateProjectID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -230,7 +231,7 @@ func waitForDefaultBranch(ctx context.Context, repo gitlab.Repository, projectID
 		case <-ctx.Done():
 			return errors.New("timeout while waiting for default branch to be the same as the template project")
 		case <-ticker.C:
-			project, err := repo.GetProjectById(projectID)
+			project, err := repo.GetProjectByID(projectID)
 			if err != nil {
 				return err
 			}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -14,7 +15,7 @@ import (
 
 type createTeamRequest struct {
 	Name string `json:"name"`
-} //@Name CreateTeamRequest
+} // @Name CreateTeamRequest
 
 func (r createTeamRequest) isValid() bool {
 	return r.Name != ""

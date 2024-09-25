@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
@@ -17,7 +18,7 @@ import (
 
 type inviteToClassroomRequest struct {
 	MemberEmails []string `json:"memberEmails"`
-} //@Name InviteToClassroomRequest
+} // @Name InviteToClassroomRequest
 
 func (r inviteToClassroomRequest) isValid() bool {
 	return len(r.MemberEmails) != 0

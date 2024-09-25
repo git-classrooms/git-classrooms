@@ -2,9 +2,10 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gen/field"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-	"gorm.io/gen/field"
 )
 
 func userClassroomQuery(ctx *fiber.Ctx, userID int) query.IUserClassroomsDo {

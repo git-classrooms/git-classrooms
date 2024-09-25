@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -40,16 +41,16 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		t.Fatal("Could not save classroom!")
 	}
 
-	expectedResponse := []ProjectCloneUrlResponse{
+	expectedResponse := []ProjectCloneURLResponse{
 		{
-			ProjectId:     project1.ID,
-			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
-			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
+			ProjectID:     project1.ID,
+			SSHURLToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project.git",
+			HTTPURLToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project.git",
 		},
 		{
-			ProjectId:     project2.ID,
-			SshUrlToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
-			HttpUrlToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
+			ProjectID:     project2.ID,
+			SSHURLToRepo:  "git@hs-flensburg.dev:fape2866/ci-test-project2.git",
+			HTTPURLToRepo: "https://hs-flensburg.dev/fape2866/ci-test-project2.git",
 		},
 	}
 
@@ -64,12 +65,15 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(project1.ProjectID).
+			GetProjectByID(project1.ProjectID).
 			Return(nil, assert.AnError).
 			Times(1)
 
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		gitlabRepo.AssertExpectations(t)
 
@@ -80,11 +84,11 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 	t.Run("GetProjectCloneUrls", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(project1.ProjectID).
+			GetProjectByID(project1.ProjectID).
 			Return(
 				&model.Project{
-					SSHURLToRepo:  expectedResponse[0].SshUrlToRepo,
-					HTTPURLToRepo: expectedResponse[0].HttpUrlToRepo,
+					SSHURLToRepo:  expectedResponse[0].SSHURLToRepo,
+					HTTPURLToRepo: expectedResponse[0].HTTPURLToRepo,
 					ID:            project1.ProjectID,
 				},
 				nil,
@@ -93,11 +97,11 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(project2.ProjectID).
+			GetProjectByID(project2.ProjectID).
 			Return(
 				&model.Project{
-					SSHURLToRepo:  expectedResponse[1].SshUrlToRepo,
-					HTTPURLToRepo: expectedResponse[1].HttpUrlToRepo,
+					SSHURLToRepo:  expectedResponse[1].SSHURLToRepo,
+					HTTPURLToRepo: expectedResponse[1].HTTPURLToRepo,
 					ID:            project2.ProjectID,
 				},
 				nil,
@@ -107,9 +111,10 @@ func TestGetMultipleProjectCloneUrl(t *testing.T) {
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
 
-		gitlabRepo.AssertExpectations(t)
-
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		gitlabRepo.AssertExpectations(t)
 
 		body, err := io.ReadAll(resp.Body)
 		assert.NoError(t, err)

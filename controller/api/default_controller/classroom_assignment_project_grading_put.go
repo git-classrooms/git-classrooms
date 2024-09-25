@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
@@ -16,7 +17,7 @@ type gradingManualResultRequest struct {
 	RubricID *uuid.UUID `json:"id"`
 	Score    *int       `json:"score"`
 	Feedback *string    `json:"feedback" validate:"optional"`
-} //@Name GradingManualResultRequest
+} // @Name GradingManualResultRequest
 
 func (r gradingManualResultRequest) isValid() bool {
 	return r.RubricID != nil && r.Score != nil
@@ -28,7 +29,7 @@ func resultRequestIsValid(r gradingManualResultRequest) bool {
 
 type updateProjectGradingRequest struct {
 	GradingManualResults []gradingManualResultRequest `json:"gradingManualRubrics"`
-} //@Name UpdateAssignmentGradingRequest
+} // @Name UpdateAssignmentGradingRequest
 
 func (r updateProjectGradingRequest) isValid() bool {
 	return utils.All(r.GradingManualResults, resultRequestIsValid)

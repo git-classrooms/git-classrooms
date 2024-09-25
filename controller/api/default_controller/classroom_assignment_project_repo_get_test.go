@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -20,8 +21,8 @@ import (
 func TestGetProjectCloneUrl(t *testing.T) {
 	restoreDatabase(t)
 
-	shh_url := "git@hs-flensburg.dev:fape2866/ci-test-project.git"
-	http_url := "https://hs-flensburg.dev/fape2866/ci-test-project.git"
+	shhURL := "git@hs-flensburg.dev:fape2866/ci-test-project.git"
+	httpURL := "https://hs-flensburg.dev/fape2866/ci-test-project.git"
 
 	user := factory.User()
 	classroom := factory.Classroom(user.ID)
@@ -34,10 +35,10 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	assignment := factory.Assignment(classroom.ID, &dueDate, false)
 	assignmentProject := factory.AssignmentProject(assignment.ID, team.ID)
 
-	expectedResponse := ProjectCloneUrlResponse{
-		ProjectId:     assignmentProject.ID,
-		SshUrlToRepo:  shh_url,
-		HttpUrlToRepo: http_url,
+	expectedResponse := ProjectCloneURLResponse{
+		ProjectID:     assignmentProject.ID,
+		SSHURLToRepo:  shhURL,
+		HTTPURLToRepo: httpURL,
 	}
 	expectedResponseBody, err := json.Marshal(expectedResponse)
 	if err != nil {
@@ -50,12 +51,15 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	t.Run("GetProjectCloneUrls - repo throws error", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(assignmentProject.ProjectID).
+			GetProjectByID(assignmentProject.ProjectID).
 			Return(nil, assert.AnError).
 			Times(1)
 
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		gitlabRepo.AssertExpectations(t)
 
@@ -66,11 +70,11 @@ func TestGetProjectCloneUrl(t *testing.T) {
 	t.Run("GetProjectCloneUrls - /api/v1/classrooms/:classroomId/projects/:projectId/repo", func(t *testing.T) {
 		gitlabRepo.
 			EXPECT().
-			GetProjectById(assignmentProject.ProjectID).
+			GetProjectByID(assignmentProject.ProjectID).
 			Return(
 				&model.Project{
-					SSHURLToRepo:  shh_url,
-					HTTPURLToRepo: http_url,
+					SSHURLToRepo:  shhURL,
+					HTTPURLToRepo: httpURL,
 					ID:            assignmentProject.ProjectID,
 				},
 				nil,
@@ -79,6 +83,9 @@ func TestGetProjectCloneUrl(t *testing.T) {
 
 		req := httptest.NewRequest("GET", targetRoute, nil)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		gitlabRepo.AssertExpectations(t)
 
@@ -100,6 +107,8 @@ func TestGetProjectCloneUrl(t *testing.T) {
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusNotFound, resp.StatusCode)
 	})
 }

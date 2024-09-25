@@ -4,6 +4,7 @@ import (
 	"slices"
 
 	"github.com/gofiber/fiber/v2"
+
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )

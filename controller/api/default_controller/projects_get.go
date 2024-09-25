@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
@@ -19,18 +20,17 @@ type activeAssignmentRequestQuery struct {
 	Filter filter `query:"filter"`
 }
 
-//	@Summary		GetActiveAssignments
-//	@Description	GetActiveAssignments
-//	@Id				GetActiveAssignments
-//	@Tags			assignment
-//	@Produce		json
-//	@Param			filter	query		api.filter	false	"Filter Options"
-//	@Success		200		{array}		ActiveAssignmentResponse
-//	@Failure		401		{object}	HTTPError
-//	@Failure		500		{object}	HTTPError
-//	@Router			/api/v1/assignments [get]
+// @Summary		GetActiveAssignments
+// @Description	GetActiveAssignments
+// @Id				GetActiveAssignments
+// @Tags			assignment
+// @Produce		json
+// @Param			filter	query		api.filter	false	"Filter Options"
+// @Success		200		{array}		ActiveAssignmentResponse
+// @Failure		401		{object}	HTTPError
+// @Failure		500		{object}	HTTPError
+// @Router			/api/v1/assignments [get]
 func (ctrl *DefaultController) GetActiveAssignments(c *fiber.Ctx) (err error) {
-
 	ctx := context.Get(c)
 	userID := ctx.GetUserID()
 

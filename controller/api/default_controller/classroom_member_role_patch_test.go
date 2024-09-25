@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gofiber/fiber/v2"
+	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestPatchMemberRole(t *testing.T) {
@@ -70,112 +71,112 @@ func TestPatchMemberRole(t *testing.T) {
 		r.run(t)
 	})
 
-	 // TODO: Adjust case, the permissions should not change
-	 //t.Run("Moderator > Student by creator, viewOtherProjects true", func(t *testing.T) {
-	 //	updateUserClassroom(t, userClassroom, database.Moderator)
-	 //	updateClassroom(t, classroom, true)
+	// TODO: Adjust case, the permissions should not change
+	// t.Run("Moderator > Student by creator, viewOtherProjects true", func(t *testing.T) {
+	//	updateUserClassroom(t, userClassroom, database.Moderator)
+	//	updateClassroom(t, classroom, true)
 
-	 //	r := RunTest{
-	 //		loginUser:      creator,
-	 //		user:           user,
-	 //		changeTo:       database.Student,
-	 //		accessLevel:    model.ReporterPermissions,
-	 //		expectedStatus: fiber.StatusAccepted,
-	 //		classroom:      classroom,
-	 //	}
-	 //	r.run(t)
-	 //})
+	//	r := RunTest{
+	//		loginUser:      creator,
+	//		user:           user,
+	//		changeTo:       database.Student,
+	//		accessLevel:    model.ReporterPermissions,
+	//		expectedStatus: fiber.StatusAccepted,
+	//		classroom:      classroom,
+	//	}
+	//	r.run(t)
+	// })
 
-	 t.Run("Moderator > Owner by creator, viewOtherProjects false", func(t *testing.T) {
-	 	updateUserClassroom(t, userClassroom, database.Moderator)
-	 	updateClassroom(t, classroom, false)
+	t.Run("Moderator > Owner by creator, viewOtherProjects false", func(t *testing.T) {
+		updateUserClassroom(t, userClassroom, database.Moderator)
+		updateClassroom(t, classroom, false)
 
-	 	r := RunTest{
-	 		loginUser:      creator,
-	 		user:           user,
-	 		changeTo:       database.Owner,
-	 		accessLevel:    model.OwnerPermissions,
-	 		expectedStatus: fiber.StatusAccepted,
-	 		classroom:      classroom,
-	 	}
-	 	r.run(t)
-	 })
+		r := RunTest{
+			loginUser:      creator,
+			user:           user,
+			changeTo:       database.Owner,
+			accessLevel:    model.OwnerPermissions,
+			expectedStatus: fiber.StatusAccepted,
+			classroom:      classroom,
+		}
+		r.run(t)
+	})
 
-	 t.Run("Moderator > Owner by creator, viewOtherProjects true", func(t *testing.T) {
-	 	updateUserClassroom(t, userClassroom, database.Moderator)
-	 	updateClassroom(t, classroom, true)
+	t.Run("Moderator > Owner by creator, viewOtherProjects true", func(t *testing.T) {
+		updateUserClassroom(t, userClassroom, database.Moderator)
+		updateClassroom(t, classroom, true)
 
-	 	r := RunTest{
-	 		loginUser:      creator,
-	 		user:           user,
-	 		changeTo:       database.Owner,
-	 		accessLevel:    model.OwnerPermissions,
-	 		expectedStatus: fiber.StatusAccepted,
-	 		classroom:      classroom,
-	 	}
-	 	r.run(t)
-	 })
+		r := RunTest{
+			loginUser:      creator,
+			user:           user,
+			changeTo:       database.Owner,
+			accessLevel:    model.OwnerPermissions,
+			expectedStatus: fiber.StatusAccepted,
+			classroom:      classroom,
+		}
+		r.run(t)
+	})
 
-	 t.Run("Student > Moderator by creator, viewOtherProjects false", func(t *testing.T) {
-	 	updateUserClassroom(t, userClassroom, database.Student)
-	 	updateClassroom(t, classroom, false)
+	t.Run("Student > Moderator by creator, viewOtherProjects false", func(t *testing.T) {
+		updateUserClassroom(t, userClassroom, database.Student)
+		updateClassroom(t, classroom, false)
 
-	 	r := RunTest{
-	 		loginUser:      creator,
-	 		user:           user,
-	 		changeTo:       database.Moderator,
-	 		accessLevel:    model.ReporterPermissions,
-	 		expectedStatus: fiber.StatusAccepted,
-	 		classroom:      classroom,
-	 	}
-	 	r.run(t)
-	 })
+		r := RunTest{
+			loginUser:      creator,
+			user:           user,
+			changeTo:       database.Moderator,
+			accessLevel:    model.ReporterPermissions,
+			expectedStatus: fiber.StatusAccepted,
+			classroom:      classroom,
+		}
+		r.run(t)
+	})
 
-	 // TODO: Adjust case, the permissions should not change
-	 //t.Run("Student > Moderator by creator, viewOtherProjects true", func(t *testing.T) {
-	 //	updateUserClassroom(t, userClassroom, database.Student)
-	 //	updateClassroom(t, classroom, true)
+	// TODO: Adjust case, the permissions should not change
+	// t.Run("Student > Moderator by creator, viewOtherProjects true", func(t *testing.T) {
+	//	updateUserClassroom(t, userClassroom, database.Student)
+	//	updateClassroom(t, classroom, true)
 
-	 //	r := RunTest{
-	 //		loginUser:      creator,
-	 //		user:           user,
-	 //		changeTo:       database.Moderator,
-	 //		accessLevel:    model.ReporterPermissions,
-	 //		expectedStatus: fiber.StatusAccepted,
-	 //		classroom:      classroom,
-	 //	}
-	 //	r.run(t)
-	 //})
+	//	r := RunTest{
+	//		loginUser:      creator,
+	//		user:           user,
+	//		changeTo:       database.Moderator,
+	//		accessLevel:    model.ReporterPermissions,
+	//		expectedStatus: fiber.StatusAccepted,
+	//		classroom:      classroom,
+	//	}
+	//	r.run(t)
+	// })
 
-	 t.Run("Student > Owner by creator, viewOtherProjects false", func(t *testing.T) {
-	 	updateUserClassroom(t, userClassroom, database.Student)
-	 	updateClassroom(t, classroom, false)
+	t.Run("Student > Owner by creator, viewOtherProjects false", func(t *testing.T) {
+		updateUserClassroom(t, userClassroom, database.Student)
+		updateClassroom(t, classroom, false)
 
-	 	r := RunTest{
-	 		loginUser:      creator,
-	 		user:           user,
-	 		changeTo:       database.Owner,
-	 		accessLevel:    model.OwnerPermissions,
-	 		expectedStatus: fiber.StatusAccepted,
-	 		classroom:      classroom,
-	 	}
-	 	r.run(t)
-	 })
+		r := RunTest{
+			loginUser:      creator,
+			user:           user,
+			changeTo:       database.Owner,
+			accessLevel:    model.OwnerPermissions,
+			expectedStatus: fiber.StatusAccepted,
+			classroom:      classroom,
+		}
+		r.run(t)
+	})
 
-	 t.Run("Student > Owner by creator, viewOtherProjects true", func(t *testing.T) {
-	 	updateUserClassroom(t, userClassroom, database.Student)
-	 	updateClassroom(t, classroom, true)
+	t.Run("Student > Owner by creator, viewOtherProjects true", func(t *testing.T) {
+		updateUserClassroom(t, userClassroom, database.Student)
+		updateClassroom(t, classroom, true)
 
-	 	r := RunTest{
-	 		loginUser:      creator,
-	 		user:           user,
-	 		changeTo:       database.Owner,
-	 		accessLevel:    model.OwnerPermissions,
-	 		expectedStatus: fiber.StatusAccepted,
-	 		classroom:      classroom,
-	 	}
-	 	r.run(t)
-	 })
+		r := RunTest{
+			loginUser:      creator,
+			user:           user,
+			changeTo:       database.Owner,
+			accessLevel:    model.OwnerPermissions,
+			expectedStatus: fiber.StatusAccepted,
+			classroom:      classroom,
+		}
+		r.run(t)
+	})
 }
 
 func updateClassroom(t *testing.T, classroom *database.Classroom, viewOtherProjects bool) {
@@ -224,8 +225,11 @@ func (r RunTest) run(t *testing.T) {
 		ChangeUserAccessLevelInGroup(r.classroom.GroupID, r.user.ID, r.accessLevel).
 		Return(nil)
 
-	req := newJsonRequest(route, requestBody, "PATCH")
+	req := tests.NewJSONRequest(route, requestBody, "PATCH")
 	resp, err := app.Test(req)
+
+	assert.NoError(t, err)
+	defer resp.Body.Close()
 
 	assert.NoError(t, err)
 	assert.Equal(t, r.expectedStatus, resp.StatusCode)
@@ -237,6 +241,7 @@ func (r RunTest) run(t *testing.T) {
 			Where(query.UserClassrooms.UserID.Eq(r.user.ID)).
 			Where(query.UserClassrooms.ClassroomID.Eq(r.classroom.ID)).
 			First()
+	assert.NoError(t, err)
 
 	assert.Equal(t, r.changeTo, updatedUserClassroom.Role)
 }

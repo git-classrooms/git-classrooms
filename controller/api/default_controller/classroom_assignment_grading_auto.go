@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -13,7 +14,7 @@ import (
 
 type startAutoGradingRequest struct {
 	JUnitAutoGrading *bool `json:"jUnitAutoGrading"`
-} //@Name StartAutoGradingRequest
+} // @Name StartAutoGradingRequest
 
 func (r startAutoGradingRequest) isValid() bool {
 	return r.JUnitAutoGrading != nil

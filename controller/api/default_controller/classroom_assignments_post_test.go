@@ -6,15 +6,16 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestPostClassroomAssignment(t *testing.T) {
@@ -42,26 +43,29 @@ func TestPostClassroomAssignment(t *testing.T) {
 		requestBody := createAssignmentRequest{
 			Name:              gofakeit.Name(),
 			Description:       gofakeit.EmojiDescription(),
-			TemplateProjectId: gofakeit.Int(),
+			TemplateProjectID: gofakeit.Int(),
 			DueDate:           &dueDate,
 		}
 
 		gitlabRepo.
-			EXPECT().GetProjectById(requestBody.TemplateProjectId).Return(nil, nil)
+			EXPECT().GetProjectByID(requestBody.TemplateProjectID).Return(nil, nil)
 
-		req := newPostJsonRequest(route, requestBody)
+		req := tests.NewPostJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
 		assignment, err := query.Assignment.WithContext(context.Background()).Where(query.Assignment.ClassroomID.Eq(classroom.ID)).First()
+		assert.NoError(t, err)
 
 		assert.NotNil(t, assignment)
 
 		assert.Equal(t, assignment.Name, requestBody.Name)
 		assert.Equal(t, assignment.Description, requestBody.Description)
-		assert.Equal(t, assignment.TemplateProjectID, requestBody.TemplateProjectId)
-		assert.WithinDuration(t, *assignment.DueDate, *requestBody.DueDate, 1 * time.Minute)
+		assert.Equal(t, assignment.TemplateProjectID, requestBody.TemplateProjectID)
+		assert.WithinDuration(t, *assignment.DueDate, *requestBody.DueDate, 1*time.Minute)
 	})
 }

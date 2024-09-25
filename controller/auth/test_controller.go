@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -50,7 +51,8 @@ func (ctrl *TestAuthController) GetAuth(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func (ctrl *TestAuthController) AuthMiddleware(c *fiber.Ctx) error { ctx := fiberContext.Get(c)
+func (ctrl *TestAuthController) AuthMiddleware(c *fiber.Ctx) error {
+	ctx := fiberContext.Get(c)
 	ctx.SetGitlabRepository(ctrl.gitlabRepo)
 	ctx.SetUserID(ctrl.user.ID)
 

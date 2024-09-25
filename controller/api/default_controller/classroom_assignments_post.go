@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -13,12 +14,12 @@ import (
 type createAssignmentRequest struct {
 	Name              string     `json:"name"`
 	Description       string     `json:"description"`
-	TemplateProjectId int        `json:"templateProjectId"`
+	TemplateProjectID int        `json:"templateProjectId"`
 	DueDate           *time.Time `json:"dueDate" validate:"optional"`
-} //@Name CreateAssignmentRequest
+} // @Name CreateAssignmentRequest
 
 func (r createAssignmentRequest) isValid() bool {
-	return r.Name != "" && r.TemplateProjectId != 0
+	return r.Name != "" && r.TemplateProjectID != 0
 }
 
 // @Summary		CreateAssignment
@@ -52,7 +53,7 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) (err error) {
 	}
 
 	// Check if template repository exists
-	if _, err = repo.GetProjectById(requestBody.TemplateProjectId); err != nil {
+	if _, err = repo.GetProjectByID(requestBody.TemplateProjectID); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
@@ -60,7 +61,7 @@ func (ctrl *DefaultController) CreateAssignment(c *fiber.Ctx) (err error) {
 	assignmentQuery := query.Assignment
 	assignment := &database.Assignment{
 		ClassroomID:       classroom.ClassroomID,
-		TemplateProjectID: requestBody.TemplateProjectId,
+		TemplateProjectID: requestBody.TemplateProjectID,
 		Name:              requestBody.Name,
 		Description:       requestBody.Description,
 		DueDate:           requestBody.DueDate,

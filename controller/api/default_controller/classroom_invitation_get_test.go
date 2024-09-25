@@ -8,11 +8,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func TestGetClassroomInvitation(t *testing.T) {
@@ -37,8 +38,10 @@ func TestGetClassroomInvitation(t *testing.T) {
 	req := httptest.NewRequest("GET", route, nil)
 	resp, err := app.Test(req)
 
-	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 	assert.NoError(t, err)
+	defer resp.Body.Close()
+
+	assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 
 	t.Log(resp.Body)
 

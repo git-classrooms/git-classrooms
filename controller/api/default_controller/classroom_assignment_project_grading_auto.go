@@ -5,11 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
-
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 // @Summary		StartAutoGradingForProject

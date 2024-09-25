@@ -8,11 +8,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestUpdateTeam(t *testing.T) {
@@ -68,11 +70,13 @@ func TestUpdateTeam(t *testing.T) {
 
 		route := fmt.Sprintf("/api/v1/classrooms/%s/teams/%s", classroom.ID, team.ID)
 
-		req := newPutJsonRequest(route, requestBody)
+		req := tests.NewPutJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
-		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 
 		q := query.Team
 
@@ -80,6 +84,7 @@ func TestUpdateTeam(t *testing.T) {
 			WithContext(context.Background()).
 			Where(q.ID.Eq(team.ID)).
 			First()
+		assert.NoError(t, err)
 
 		assert.Equal(t, updatedTeam.ID, team.ID)
 		assert.Equal(t, updatedTeam.Name, requestBody.Name)

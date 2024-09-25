@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
@@ -21,7 +22,7 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 	}
 
 	repo := ctx.GetGitlabRepository()
-	_, err = repo.GetGroupById(classroom.GroupID)
+	_, err = repo.GetGroupByID(classroom.GroupID)
 	if err == nil {
 		// User has access to the group --> group access token got revoked
 

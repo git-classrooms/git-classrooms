@@ -12,4 +12,4 @@ type ManualGradingResult struct {
 
 	Score    int     `gorm:"not null" json:"score"`
 	Feedback *string `json:"feedback" validate:"optional"`
-} //@Name ManualGradingResult
+} // @Name ManualGradingResult

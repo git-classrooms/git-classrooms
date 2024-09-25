@@ -1,10 +1,10 @@
 package api
 
 import (
-	"gitlab.hs-flensburg.de/gitlab-classroom/config"
+	"github.com/google/uuid"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	mailRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/mail"
 )
@@ -24,7 +24,7 @@ type DefaultController struct {
 	g        *singleflight.Group
 }
 
-func NewApiV1Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
+func NewAPIV1Controller(mailRepo mailRepo.Repository, config config.ApplicationConfig) *DefaultController {
 	g := &singleflight.Group{}
 	return &DefaultController{mailRepo: mailRepo, config: config, g: g}
 }
@@ -32,26 +32,26 @@ func NewApiV1Controller(mailRepo mailRepo.Repository, config config.ApplicationC
 type UserResponse struct {
 	*database.User
 	WebURL string `json:"webUrl"`
-} //@Name UserResponse
+} // @Name UserResponse
 
 type TeamResponse struct {
 	*database.Team
 	Members []*UserClassroomResponse `json:"members"`
 	WebURL  string                   `json:"webUrl"`
-} //@Name TeamResponse
+} // @Name TeamResponse
 
 type AssignmentResponse struct {
 	*database.Assignment
-} //@Name AssignmentResponse
+} // @Name AssignmentResponse
 
 type ProjectResponse struct {
 	*database.AssignmentProjects
 	WebURL       string `json:"webUrl"`
 	ReportWebURL string `json:"reportWebUrl"`
-} //@Name ProjectResponse
+} // @Name ProjectResponse
 
 type UserClassroomResponse struct {
 	*database.UserClassrooms
 	WebURL           string `json:"webUrl"`
 	AssignmentsCount int    `json:"assignmentsCount"`
-} //@Name UserClassroomResponse
+} // @Name UserClassroomResponse

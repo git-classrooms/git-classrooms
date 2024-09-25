@@ -7,13 +7,15 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 )
 
 func TestPutClassroom(t *testing.T) {
@@ -52,16 +54,19 @@ func TestPutClassroom(t *testing.T) {
 			Description: requestBody.Description,
 		}
 
-		testDescription := utils.CreateClassroomGitlabDescription(tmpClassroom, integrationTest.publicUrl)
+		testDescription := utils.CreateClassroomGitlabDescription(tmpClassroom, integrationTest.publicURL)
 
 		gitlabRepo.
 			EXPECT().
 			ChangeGroupDescription(classroom.GroupID, testDescription).
 			Return(&model.Group{Description: testDescription}, nil)
 
-		req := newPutJsonRequest(route, requestBody)
+		req := tests.NewPutJSONRequest(route, requestBody)
 		resp, err := app.Test(req)
+
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 
 		// Handle response

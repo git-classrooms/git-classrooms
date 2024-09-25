@@ -20,4 +20,4 @@ type User struct {
 
 	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID;constraint:OnDelete:CASCADE;" json:"-"`
 	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;" json:"-"`
-} //@Name User
+} // @Name User

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
@@ -36,7 +37,7 @@ type AssignmentProjects struct {
 
 	GradingJUnitTestResult *JUnitTestResult       `gorm:"type:jsonb;" json:"gradingJUnitTestResult" validate:"optional"`
 	GradingManualResults   []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID;constraint:OnDelete:CASCADE;" json:"gradingManualResults"`
-} //@Name AssignmentProjects
+} // @Name AssignmentProjects
 
 type JUnitTestResult struct {
 	model.TestReport

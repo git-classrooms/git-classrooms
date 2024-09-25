@@ -1,18 +1,16 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"log"
-	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
+	postgresDriver "gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
@@ -24,17 +22,15 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/router"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	postgresDriver "gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-const testUrl = "http://example.com"
+const testURL = "http://example.com"
 
 type IntegrationTest struct {
 	dbURL        string
 	container    *postgres.PostgresContainer
 	snapshotName string
-	publicUrl    *url.URL
+	publicURL    *url.URL
 }
 
 var integrationTest IntegrationTest
@@ -82,17 +78,17 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not create database snapshot: %s", err.Error())
 	}
 
-	// open the database connection agian
+	// open the database connection again
 	db, err = gorm.Open(postgresDriver.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("could not connect to database: %s", err.Error())
 	}
 
 	query.SetDefault(db)
-	publicUrl, _ := url.Parse(testUrl)
-	session.InitSessionStore(nil, publicUrl)
+	publicURL, _ := url.Parse(testURL)
+	session.InitSessionStore(nil, publicURL)
 
-	integrationTest.publicUrl = publicUrl
+	integrationTest.publicURL = publicURL
 	integrationTest.container = pg
 	integrationTest.dbURL = dbURL
 
@@ -100,26 +96,6 @@ func TestMain(m *testing.M) {
 
 	pg.Terminate(context.Background())
 	os.Exit(code)
-}
-
-func newJsonRequest(route string, object any, method string) *http.Request {
-	jsonData, err := json.Marshal(object)
-	if err != nil {
-		log.Fatalf("could not create json of object: %s", object)
-	}
-
-	req := httptest.NewRequest(method, route, bytes.NewReader(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-
-	return req
-}
-
-func newPostJsonRequest(route string, object any) *http.Request {
-	return newJsonRequest(route, object, "POST")
-}
-
-func newPutJsonRequest(route string, object any) *http.Request {
-	return newJsonRequest(route, object, "PUT")
 }
 
 func restoreDatabase(t *testing.T) {
@@ -133,16 +109,16 @@ func restoreDatabase(t *testing.T) {
 func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.MockRepository, *mailRepoMock.MockRepository) {
 	gitlabRepo := gitlabRepoMock.NewMockRepository(t)
 	mailRepo := mailRepoMock.NewMockRepository(t)
-	session.InitSessionStore(nil, integrationTest.publicUrl)
+	session.InitSessionStore(nil, integrationTest.publicURL)
 
 	session.CsrfConfig.Next = func(c *fiber.Ctx) bool { return true }
 
 	app := fiber.New()
 
-	apiController := NewApiV1Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicUrl})
+	apiController := NewAPIV1Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicURL})
 	authCtrl := authController.NewTestAuthController(user, gitlabRepo)
 
-	router.Routes(app, authCtrl, apiController, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
+	router.Routes(app, authCtrl, apiController, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicURL})
 
 	return app, gitlabRepo, mailRepo
 }

@@ -5,8 +5,8 @@ import (
 )
 
 type getInfoGitlabResponse struct {
-	GitlabUrl string `json:"gitlabUrl"`
-} //@Name GetInfoGitlabResponse
+	GitlabURL string `json:"gitlabUrl"`
+} // @Name GetInfoGitlabResponse
 
 // @Summary		GetGitlabInfo
 // @Description	GetGitlabInfo
@@ -18,7 +18,7 @@ type getInfoGitlabResponse struct {
 // @Router			/api/v1/info/gitlab [get]
 func (ctrl *DefaultController) GetGitlabInfo(c *fiber.Ctx) error {
 	response := getInfoGitlabResponse{
-		GitlabUrl: ctrl.config.GitLab.GetURL(),
+		GitlabURL: ctrl.config.GitLab.GetURL(),
 	}
 
 	return c.JSON(response)

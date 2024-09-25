@@ -15,6 +15,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
@@ -26,8 +29,6 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/worker"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var version string = "development"
@@ -94,7 +95,7 @@ func main() {
 	})
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
-	apiController := api.NewApiV1Controller(mailRepo, *appConfig)
+	apiController := api.NewAPIV1Controller(mailRepo, *appConfig)
 
 	router.Routes(app, authCtrl, apiController, appConfig.FrontendPath, appConfig.Auth)
 
@@ -132,9 +133,9 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab, appConfig.PublicURL)
-		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
-		syncGitlabDbWorker.Start(ctx, appConfig.GitLab.SyncInterval)
+		syncGitlabDBWork := worker.NewSyncGitlabDBWork(appConfig.GitLab, appConfig.PublicURL)
+		syncGitlabDBWorker := worker.NewWorker(syncGitlabDBWork)
+		syncGitlabDBWorker.Start(ctx, appConfig.GitLab.SyncInterval)
 	}()
 
 	wg.Wait()

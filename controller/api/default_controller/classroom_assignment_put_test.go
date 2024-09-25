@@ -3,16 +3,15 @@ package api
 import (
 	"context"
 	"fmt"
-
 	"io"
 	"testing"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils/factory"
 	db_tests "gitlab.hs-flensburg.de/gitlab-classroom/utils/tests"
@@ -57,11 +56,13 @@ func TestPutOwnedAssignments(t *testing.T) {
 			DueDate:     &newTime,
 		}
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 
 		updatedAssignment, err := query.Assignment.
 			WithContext(context.Background()).
@@ -80,11 +81,13 @@ func TestPutOwnedAssignments(t *testing.T) {
 			DueDate: &newTime,
 		}
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -105,11 +108,13 @@ func TestPutOwnedAssignments(t *testing.T) {
 		project.ProjectStatus = database.Accepted
 		query.AssignmentProjects.WithContext(context.Background()).Save(project)
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusBadRequest, resp.StatusCode)
 
 		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -157,8 +162,11 @@ func TestPutOwnedAssignments(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
 		assert.NoError(t, err)
@@ -217,8 +225,11 @@ func TestPutOwnedAssignments(t *testing.T) {
 			Return(nil).
 			Times(1)
 
-		req := db_tests.NewPutJsonRequest(targetRoute, requestBody)
+		req := db_tests.NewPutJSONRequest(targetRoute, requestBody)
 		resp, err := app.Test(req)
+
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
 		assert.NoError(t, err)
@@ -233,5 +244,4 @@ func TestPutOwnedAssignments(t *testing.T) {
 		assert.True(t, updatedAssignment.Closed)
 		assert.NotEqual(t, newTime, *updatedAssignment.DueDate)
 	})
-
 }

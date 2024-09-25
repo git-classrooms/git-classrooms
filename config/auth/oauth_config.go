@@ -15,7 +15,7 @@ type OAuthConfig struct {
 	Scopes       []string `env:"SCOPES" envSeparator:"," envDefault:"api"`
 }
 
-func (c *OAuthConfig) GetRedirectUrl() *url.URL {
+func (c *OAuthConfig) GetRedirectURL() *url.URL {
 	return c.RedirectURL
 }
 

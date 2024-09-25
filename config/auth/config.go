@@ -1,11 +1,12 @@
 package auth
 
 import (
-	"golang.org/x/oauth2"
 	"net/url"
+
+	"golang.org/x/oauth2"
 )
 
 type Config interface {
 	GetOAuthConfig() *oauth2.Config
-	GetRedirectUrl() *url.URL
+	GetRedirectURL() *url.URL
 }

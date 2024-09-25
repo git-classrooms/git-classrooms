@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -45,8 +46,11 @@ func TestPatchClassroomArchive(t *testing.T) {
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
 
-		assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
 		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, fiber.StatusForbidden, resp.StatusCode)
+		defer resp.Body.Close()
 	})
 
 	t.Run("gitlab throws error in changing access level", func(t *testing.T) {
@@ -86,10 +90,12 @@ func TestPatchClassroomArchive(t *testing.T) {
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
 
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
 		gitlabRepo.AssertExpectations(t)
 
 		assert.Equal(t, fiber.StatusInternalServerError, resp.StatusCode)
-		assert.NoError(t, err)
 	})
 
 	t.Run("updates classroom in db", func(t *testing.T) {
@@ -122,15 +128,16 @@ func TestPatchClassroomArchive(t *testing.T) {
 
 		req := httptest.NewRequest("PATCH", targetRoute, nil)
 		resp, err := app.Test(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
 
 		gitlabRepo.AssertExpectations(t)
 
 		assert.Equal(t, fiber.StatusAccepted, resp.StatusCode)
-		assert.NoError(t, err)
 
 		dbClassroom, err := query.Classroom.WithContext(context.Background()).Where(query.Classroom.ID.Eq(classroom.ID)).First()
 		assert.NoError(t, err)
+		defer resp.Body.Close()
 		assert.Equal(t, true, dbClassroom.Archived)
 	})
-
 }

@@ -36,4 +36,4 @@ type Classroom struct {
 
 	Archived           bool `gorm:"not null;default:false" json:"archived"`
 	PotentiallyDeleted bool `gorm:"not null;default:false" json:"potentiallyDeleted"`
-} //@Name Classroom
+} // @Name Classroom
