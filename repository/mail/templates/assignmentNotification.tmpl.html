@@ -1,0 +1,12 @@
+{{define "title"}}Home{{end}}
+
+{{define "preheader"}}X{{end}}
+
+{{define "content"}}
+<h2>You've been invited by <i>{{.ClassroomOwnerName}}</i> to join the Assignment &raquo;{{.AssignmentName}}&laquo;</h2>
+<hr>
+<p>Hello {{.RecipientName}}. You can accept to get a fork of the repo.</p>
+<p><center><a href='{{.JoinPath}}'>{{.JoinPath}}</a></center></p>
+<hr>
+<p>Invitation not working? Make sure you're logged in to the right account.</p>
+{{end}}
