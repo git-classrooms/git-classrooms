@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   classroom:
     image: registry.hs-flensburg.dev/gitlab/classroom:develop
