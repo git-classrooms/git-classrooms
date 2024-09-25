@@ -1,7 +1,7 @@
 #############################################
 # Preparer go
 #############################################
-FROM golang:1.22-alpine as preparer-go
+FROM golang:1.22-alpine AS preparer-go
 
 # install mockery
 RUN go install github.com/vektra/mockery/v2@v2.42.2
@@ -20,7 +20,7 @@ RUN go generate
 #############################################
 # Swagger client
 #############################################
-FROM swaggerapi/swagger-codegen-cli-v3 as swagger-client-builder
+FROM swaggerapi/swagger-codegen-cli-v3 AS swagger-client-builder
 
 WORKDIR /app/build
 
@@ -37,7 +37,7 @@ RUN cd swagger-client && \
 #############################################
 # Builder web
 #############################################
-FROM node:20-alpine as builder-web
+FROM node:20-alpine AS builder-web
 
 WORKDIR /app/build
 COPY ./frontend/package.json ./frontend/yarn.lock ./
@@ -50,15 +50,15 @@ RUN yarn build
 #############################################
 # Builder go
 #############################################
-ARG APP_VERSION="v0.0.0"
-FROM preparer-go as builder-go
+FROM preparer-go AS builder-go
 
+ARG APP_VERSION="v0.0.0"
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$APP_VERSION" -o /app/build/app
 
 #############################################
 # Runtime image
 #############################################
-FROM alpine:3.18 as release
+FROM alpine:3.18 AS release
 
 ENV FRONTEND_PATH=/public
 ENV PORT=3000
@@ -73,4 +73,4 @@ WORKDIR /
 COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
 COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
 
-ENTRYPOINT /app
+ENTRYPOINT ["/app"]
