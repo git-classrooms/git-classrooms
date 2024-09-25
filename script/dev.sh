@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 docker compose -f docker-compose.local.yml up -d
 
 air -c .air.toml &
@@ -14,10 +16,10 @@ YARN_PID=$!
 cd ..
 
 function kill_dev() {
-    kill $AIR_PID
-    kill $YARN_PID
-    docker compose -f docker-compose.local.yml stop
-    exit 0
+  kill $AIR_PID
+  kill $YARN_PID
+  docker compose -f docker-compose.local.yml stop
+  exit 0
 }
 
 trap kill_dev SIGINT SIGTERM
