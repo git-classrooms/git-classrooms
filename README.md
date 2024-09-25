@@ -1,5 +1,7 @@
 # Gitlab-Classrooms
 
+Version: development
+
 ## Project Structure 
 
 The project has two parts:

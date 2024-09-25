@@ -37,11 +37,11 @@ jobs:
       - name: Extract version parts from env
         id: version_parts
         run: |
-          MAJOR=$(echo $RELEASE_VERSION | cut -d. -f1)
-          MINOR=$(echo $RELEASE_VERSION | cut -d. -f2)
-          PATCH=$(echo $RELEASE_VERSION | cut -d. -f3)
+          VERSION=${RELEASE_VERSION#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
 
-          echo "RELEASE_VERSION=$VERSION"
           echo "major=$MAJOR" >> $GITHUB_OUTPUT
           echo "minor=$MINOR" >> $GITHUB_OUTPUT
           echo "patch=$PATCH" >> $GITHUB_OUTPUT
@@ -108,4 +108,4 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64 #,linux/arm64
           push: true
-          tags: ghcr.io/${{ env.REPO_LC }}:${{ env.RELEASE_VERSION }}, ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}.${{ steps.version_parts.outputs.minor }}, ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}, ghcr.io/${{ env.REPO_LC }}:latest
+          tags: ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}.${{ steps.version_parts.outputs.minor }}.${{ steps.version_parts.outputs.patch }}, ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}.${{ steps.version_parts.outputs.minor }}, ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}, ghcr.io/${{ env.REPO_LC }}:latest
