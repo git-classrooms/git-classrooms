@@ -1,0 +1,14 @@
+{{define "title"}}Home{{end}}
+
+{{define "preheader"}}X{{end}}
+
+{{define "content"}}
+<h2>You've been invited by <i>{{.ClassroomOwnerName}}</i> to join Classroom &raquo;{{.ClassroomName}}&laquo;</h2>
+<hr>
+<p>You can accept or decline this invitation.</p>
+<p>This invitation will expire on {{.ExpireDate.Format "02. January 2006"}} </p>
+<p><center><a href='{{.InvitationPath}}'>{{.InvitationPath}}</a></center></p>
+<p><b>Note:</b> This email was intended for {{.RecipientEmail}}. If you were not expecting this invitation, ignore this email.</p>
+<hr>
+<p>Invitation not working? Make sure you're logged in to the right account.</p>
+{{end}}

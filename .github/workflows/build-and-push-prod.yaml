@@ -1,0 +1,111 @@
+name: Build and Push Docker Image Production
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+
+jobs:
+  merge_and_publish_prod:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true &&
+      (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/'))
+    permissions:
+      contents: write
+      packages: write
+      actions: write
+      pull-requests: write
+    steps:
+      - name: Extract version from branch name (for release branches)
+        if: startsWith(github.event.pull_request.head.ref, 'release/')
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#release/}
+
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Extract version from branch name (for hotfix branches)
+        if: startsWith(github.event.pull_request.head.ref, 'hotfix/')
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#hotfix/}
+
+          echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Extract version parts from env
+        id: version_parts
+        run: |
+          VERSION=${RELEASE_VERSION#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: thomaseizinger/create-release@1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          target_commitish: ${{ github.event.pull_request.merge_commit_sha }}
+          tag_name: ${{ env.RELEASE_VERSION }}
+          name: ${{ env.RELEASE_VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Merge main into develop branch
+        uses: thomaseizinger/create-pull-request@1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          head: main
+          base: develop
+          title: Merge main into develop branch
+          body: |
+            This PR merges the main branch back into develop.
+            This happens to ensure that the updates that happend on the release branch, i.e. CHANGELOG and manifest updates are also present on the develop branch.
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: set lower case owner name
+        run: |
+          echo "REPO_LC=${REPO,,}" >>${GITHUB_ENV}
+        env:
+          REPO: "${{ github.repository }}"
+
+      - name: get build time
+        run: |
+          echo "BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >>${GITHUB_ENV}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            APP_VERSION=${{env.RELEASE_VERSION}}
+            APP_GIT_COMMIT=${{env.COMMIT_SHA}}
+            APP_GIT_BRANCH=main
+            APP_BUILD_TIME=${{env.BUILD_TIME}}
+            APP_GIT_REPOSITORY=${{github.repository}}
+          file: ./Dockerfile
+          platforms: linux/amd64 #,linux/arm64
+          push: true
+          tags: ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}.${{ steps.version_parts.outputs.minor }}.${{ steps.version_parts.outputs.patch }}, ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}.${{ steps.version_parts.outputs.minor }}, ghcr.io/${{ env.REPO_LC }}:${{ steps.version_parts.outputs.major }}, ghcr.io/${{ env.REPO_LC }}:latest

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="SwaggerUI" />
+    <title>Swagger UI</title>
+    <link rel="stylesheet" href="/css/swagger-ui.css" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <style>
+      button {
+        font-size: large;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        padding-top: 1rem;
+        max-width: 1450px;
+        margin-left: auto;
+        margin-right: auto;
+      "
+    >
+      <a style="padding-left: 1rem" href="/">Link to Normal Dashboard</a>
+      <div style="padding-right: 1rem">
+        <form id="sign-in-form" method="post" action="/api/v1/auth/sign-in">
+          <input id="sign-in-csrf" type="hidden" name="csrf_token" value="" />
+          <input type="hidden" name="redirect" value="/docs.html" />
+          <button type="submit" id="sign-in-btn" disabled>Sign-In</button>
+        </form>
+        <form id="sign-out-form" style="display: none" method="post" action="/api/v1/auth/sign-out">
+          <input id="sign-out-csrf" type="hidden" name="csrf_token" value="" />
+          <input type="hidden" name="redirect" value="/docs.html" />
+          <button type="submit" id="sign-out-btn" disabled>Sign-Out</button>
+        </form>
+      </div>
+    </div>
+    <div id="swagger-ui"></div>
+    <script src="/js/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = async () => {
+        window.ui = SwaggerUIBundle({
+          url: "/api/swagger/doc.json",
+          dom_id: "#swagger-ui",
+        });
+
+        const SignInForm = document.getElementById("sign-in-form");
+        const SignInButton = document.getElementById("sign-in-btn");
+        const SignInCsrfInput = document.getElementById("sign-in-csrf");
+
+        const SignOutForm = document.getElementById("sign-out-form");
+        const SignOutButton = document.getElementById("sign-out-btn");
+        const SignOutCsrfInput = document.getElementById("sign-out-csrf");
+
+        await fetch("/api/v1/auth")
+          .then((res) => {
+            if (res.status === 200) {
+              SignInForm.style = "display: none";
+              SignOutForm.style = "";
+            } else {
+              SignInForm.style = "";
+              SignOutForm.style = "display: none";
+            }
+          })
+          .catch((err) => alert(err.message));
+
+        await fetch("/api/v1/auth/csrf")
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.error) {
+              alert(data.error);
+              return;
+            }
+            if (!data.csrf) {
+              alert("Can't get csrf-token");
+              return;
+            }
+
+            SignInCsrfInput.value = data.csrf;
+            SignOutCsrfInput.value = data.csrf;
+
+            SignInButton.disabled = false;
+            SignOutButton.disabled = false;
+          })
+          .catch((err) => alert(err.message));
+      };
+    </script>
+  </body>
+</html>

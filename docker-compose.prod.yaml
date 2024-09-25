@@ -1,0 +1,65 @@
+services:
+  classroom:
+    image: registry.hs-flensburg.dev/gitlab/classroom:develop
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.classroom.rule=Host(`staging.hs-flensburg.dev`)"
+      - "traefik.http.routers.classroom.entrypoints=websecure"
+      - "traefik.http.routers.classroom.tls.certresolver=myresolver"
+      - "traefik.http.services.classroom.loadbalancer.server.port=3000"
+
+  mail:
+    image: axllent/mailpit
+    ports:
+      - 8025:8025
+      - 1025:1025
+    volumes:
+      - .docker/mail:/secrets
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_SMTP_TLS_CERT: /secrets/cert.pem
+      MP_SMTP_TLS_KEY: /secrets/privkey.pem
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mail.rule=Host(`mail.hs-flensburg.dev`)"
+      - "traefik.http.routers.mail.entrypoints=websecure"
+      - "traefik.http.routers.mail.tls.certresolver=myresolver"
+      - "traefik.http.services.mail.loadbalancer.server.port=8025"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  traefik:
+    image: "traefik:v2.10"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.myresolver.acme.email=hauke.ingwersen@stud.hs-flensburg.de"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

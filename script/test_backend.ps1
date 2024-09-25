@@ -1,0 +1,3 @@
+go mod download
+go generate
+go test -v ./...
