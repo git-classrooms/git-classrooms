@@ -22,7 +22,7 @@ jobs:
         if: startsWith(github.event.pull_request.head.ref, 'release/')
         run: |
           BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
-          VERSION=${BRANCH_NAME#release/}
+          VERSION=${BRANCH_NAME#release/v}
 
           echo "RELEASE_VERSION=$VERSION" >> $GITHUB_ENV
 
