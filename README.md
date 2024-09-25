@@ -1,6 +1,6 @@
 # Gitlab-Classrooms
 
-Version: development
+Version: v1.0.0
 
 ## Project Structure 
 
