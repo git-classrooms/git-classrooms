@@ -1,0 +1,25 @@
+# Build dir
+tmp
+
+.idea
+.vscode
+
+### dotenv ###
+!.env.example
+.env*
+
+### Gorm Gen ###
+model/database/query
+
+### mockery ###
+_mock
+
+### Swag ignores ###
+docs/docs.go
+docs/swagger.json
+docs/swagger.yaml
+
+## Ignore certificates for mailpit
+
+public/*
+!frontend/public/*

@@ -1,0 +1,63 @@
+cff-version: 1.2.0
+title: GitClassrooms
+message: >-
+  This project is licensed under the MPL 2.0, if you use it
+  or parts of it, please cite us with this attribution.
+type: software
+authors:
+  - given-names: Philipp
+    family-names: Borucki
+    email: philipp.borucki@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+  - affiliation: Flensburg University of Applied Sciences
+    family-names: Friedrichsen
+    given-names: Pascal
+    email: pascal.friedrichsen@stud.hs-flensburg.de
+  - given-names: Dominik
+    family-names: Heckner
+    email: dominik.heckner@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+  - family-names: Ingwersen
+    given-names: Hauke
+    email: hauke.ingwersen@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+  - family-names: Klein
+    given-names: Claas Thore
+    email: claas.klein@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+  - email: jannes.nebendahl@stud.hs-flensburg.de
+    given-names: Jannes
+    family-names: Nebendahl
+    affiliation: Flensburg University of Applied Sciences
+  - family-names: Neufeldt
+    given-names: Stefan
+    email: stefan.neufeldt@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+  - family-names: Petersen
+    given-names: Fabian
+    email: fabian.petersen@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+  - family-names: Porsche
+    given-names: Nils
+    email: nils.porsche@stud.hs-flensburg.de
+    affiliation: Flensburg University of Applied Sciences
+repository-code: 'https://github.com/GitClassrooms/git-classrooms'
+abstract: >-
+  The "GitClassrooms" project aims to develop a teaching
+  tool integrated with GitLab to manage digital classrooms,
+  distribute assignments, and automate the grading of
+  students' work. Traditional learning management systems
+  often lack integration with version control systems like
+  Git, making it difficult to manage and evaluate
+  programming tasks. This project addresses that gap by
+  creating a standalone application that interacts with
+  GitLab's API. The solution enables instructors to create
+  and manage classrooms, assign programming tasks, and
+  implement both manual and automated grading systems.
+  Through features like OAuth-based authentication, team
+  management, and GitLab repository integration, the tool
+  facilitates efficient course management, offering both
+  autonomy and data sovereignty to educational
+  institutions.
+license: MPL-2.0
+version: 1.0.0
