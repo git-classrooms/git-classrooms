@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-docker compose -f docker-compose.local.yml up -d
+docker compose -f docker-compose.local.yaml up -d
 
 air -c .air.toml &
 AIR_PID=$!
@@ -16,7 +16,7 @@ cd ..
 function kill_dev() {
     kill $AIR_PID
     kill $YARN_PID
-    docker compose -f docker-compose.local.yml stop
+    docker compose -f docker-compose.local.yaml stop
     exit 0
 }
 

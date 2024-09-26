@@ -70,16 +70,16 @@ cd gitlab-classroom
 ### Clone the project
 1. Open your Terminal and clone the project:
 ```
-git clone https://gitlab.hs-flensburg.de/fb3-masterprojekt-gitlab-classroom/gitlab-classroom.git
+git clone https://github.com/git-classrooms/git-classrooms.git
 ```
 * When prompted, enter your HS-Flensburg Gitlab credentials.
 2. Navigate to the project directory:
 ```
-cd gitlab-classroom
+cd git-classrooms
 ```
 
-### Set up your Enviromets
-1. Copy the default Enviromets:
+### Set up your Environment
+1. Copy the default Environment:
 ```
 cp .env.example .env
 ```
@@ -96,7 +96,7 @@ Since we use Gitlab as an OAuth provider, add this application in your Gitlab.
 1. Open Gitlab in your browser and navigate to Edit profile.
 2. Under Applications:
 * Click on "Add new application."
-    * Name: e.g.: Gitlab Classroom
+    * Name: e.g.: GitClassrooms
     * Redirect URI: The Callback URI for backend and frontend, e.g.:
       http://localhost:3000/api/v1/auth/gitlab/callback
       http://localhost:5173/api/v1/auth/gitlab/callback
@@ -144,16 +144,4 @@ bash ./script/dev.sh
 ##### Windows
 ```poweshell
 .\script\dev.ps1
-```
-
-#### Docker
-
-##### Start the Application via Docker Compose
-```
-docker compose up
-```
-
-### To exit the application call
-```
-docker compose down|stop
 ```
