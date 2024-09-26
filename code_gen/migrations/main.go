@@ -19,10 +19,11 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
-	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 )
 
 var migraImage = "supabase/migra:3.0.1663481299"
@@ -40,7 +41,6 @@ func main() {
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
 
 	var eg errgroup.Group
 	eg.SetLimit(2)
@@ -54,6 +54,7 @@ func main() {
 	if err = eg.Wait(); err != nil {
 		log.Fatal("failed to pull image", err)
 	}
+
 	log.Println("Pulled images")
 	log.Println("Starting postgres instance...")
 
@@ -100,15 +101,9 @@ func main() {
 		wg.SetLimit(2)
 		log.Println("Migrating databases")
 
-		wg.Go(func() error {
-			// Connect gorm to the postgres container on the first db
-			return MigrateGormDatabase()
-		})
-
-		wg.Go(func() error {
-			// Connect goose to the second postgres container
-			return MigrateGooseDatabase()
-		})
+		// Connect gorm to the postgres container on the first db
+		wg.Go(MigrateGormDatabase)
+		wg.Go(MigrateGooseDatabase)
 
 		if err := wg.Wait(); err != nil {
 			log.Println("failed to migrate databases", err)
@@ -133,6 +128,8 @@ func main() {
 
 	exitCode := <-exitCodeChan
 	wg.Wait()
+
+	cancel()
 	os.Exit(exitCode)
 }
 
