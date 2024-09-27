@@ -24,6 +24,7 @@ institutions.
 ## Documents
 
 - [Project report (German)](docs/2024-09-26_GitClassrooms_ProjectReport.pdf)
+- [Presentation slides (German)](docs/2024-09-27_GitClassrooms_Presentation.pdf)
 
 ## Project Structure 
 
