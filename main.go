@@ -6,10 +6,12 @@ package main
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"log"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -18,6 +20,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
+	"gitlab.hs-flensburg.de/gitlab-classroom/docs"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/httputil"
@@ -30,24 +33,30 @@ import (
 	"gorm.io/gorm"
 )
 
-var version string = "development"
+//go:embed frontend/dist/*
+var frontendFS embed.FS
+
+var version string = "develop"
 
 //	@title			GitClassrooms – Backend API
-//	@version		1.0.0
-//	@description	This is the API for our Gitlab Classroom Webapp
+//	@version		develop
+//	@description	This is the API for our GitClassrooms Webapp.
 //	@termsOfService	http://swagger.io/terms/
 
-//	@contact.name	Hochschule Flensburg – Applied Computer Science (Master)
-//	@contact.url	https://hs-flensburg.de
+//	@contact.name	GitClassrooms
+//	@contact.url	https://git-classrooms.dev
+//	@contact.email	info@git-classrooms.dev
 
-//	@license.name	Proprietary
-//	@license.url	https://gitlab.hs-flensburg.de/fb3-masterprojekt-gitlab-classroom/gitlab-classroom/-/raw/develop/LICENSE.md
+//	@license.name	Mozilla Public License 2.0
+//	@license.url	https://raw.githubusercontent.com/git-classrooms/git-classrooms/refs/heads/develop/LICENSE
 
 func main() {
 	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {
 		log.Fatal("failed to get application configuration", err)
 	}
+
+	setSwaggerInfo(appConfig.PublicURL.String())
 
 	log.Printf("Starting GitClassrooms %s", version)
 
@@ -77,26 +86,17 @@ func main() {
 	query.SetDefault(db)
 
 	app := fiber.New(fiber.Config{
-		EnableTrustedProxyCheck: true,
+		AppName:                 "GitClassrooms",
+		ServerHeader:            "GitClassrooms",
+		EnableTrustedProxyCheck: len(appConfig.TrustedProxies) > 0,
 		TrustedProxies:          appConfig.TrustedProxies,
-		ErrorHandler: func(c *fiber.Ctx, err error) error {
-			code := fiber.StatusInternalServerError
-
-			var e *fiber.Error
-			if errors.As(err, &e) {
-				code = e.Code
-			}
-
-			return c.Status(code).JSON(httputil.HTTPError{
-				Error: err.Error(),
-			})
-		},
+		ErrorHandler:            errorHandler,
 	})
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
 	apiController := api.NewApiV1Controller(mailRepo, *appConfig)
 
-	router.Routes(app, authCtrl, apiController, appConfig.FrontendPath, appConfig.Auth)
+	app.Mount("/", router.Routes(authCtrl, apiController, frontendFS, appConfig.Auth))
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
@@ -138,4 +138,35 @@ func main() {
 	}()
 
 	wg.Wait()
+}
+
+func errorHandler(c *fiber.Ctx, err error) error {
+	code := fiber.StatusInternalServerError
+
+	var e *fiber.Error
+	if errors.As(err, &e) {
+		code = e.Code
+	}
+
+	return c.Status(code).JSON(httputil.HTTPError{
+		Error: err.Error(),
+	})
+}
+
+func setSwaggerInfo(appURL string) {
+	var schemes []string
+	var trimmedAppURL string
+	if strings.HasPrefix(appURL, "http://") {
+		schemes = []string{"http"}
+		trimmedAppURL = strings.TrimPrefix(appURL, "http://")
+	} else {
+		trimmedAppURL = strings.TrimPrefix(appURL, "https://")
+		schemes = []string{"https"}
+	}
+
+	docs.SwaggerInfo.Title = "GitClassrooms Backend API"
+	docs.SwaggerInfo.Version = version
+	docs.SwaggerInfo.Description = "This is the API for our GitClassrooms Webapp."
+	docs.SwaggerInfo.Host = trimmedAppURL
+	docs.SwaggerInfo.Schemes = schemes
 }
