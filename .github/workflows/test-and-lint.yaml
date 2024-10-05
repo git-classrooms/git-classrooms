@@ -1,0 +1,91 @@
+name: Test and Lint
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  generate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Generate code
+        run: go generate ./...
+
+      - name: Generate frontend client
+        run: ./script/swagger-codegen.sh
+
+      - name: Upload openapi artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: openapi
+          path: |
+            docs/swagger.json
+            docs/swagger.yaml
+
+      - name: Upload frontend artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          retention-days: 1
+          name: openapi-client
+          path: |
+            frontend/swagger-client/
+
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Install dependencies
+        run: go generate ./...
+
+      - name: Run tests
+        run: go test ./...
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    needs: generate-code
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      - run: mkdir -p frontend/swagger-client
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: openapi-client
+          path: frontend/swagger-client/
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run tests
+        run: yarn test:ci
+
+      - name: Lint code
+        run: yarn lint

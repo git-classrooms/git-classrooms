@@ -53,13 +53,13 @@ jobs:
 
       - name: set lower case owner name
         run: |
-          echo "REPO_LC=${REPO,,}" >>${GITHUB_ENV}
+          echo "REPO_LC=${REPO,,}" >> $GITHUB_ENV
         env:
           REPO: "${{ github.repository }}"
 
       - name: get build time
         run: |
-          echo "BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >>${GITHUB_ENV}
+          echo "BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -67,10 +67,10 @@ jobs:
           context: .
           build-args: |
             APP_VERSION=development
-            APP_GIT_COMMIT=${{env.COMMIT_SHA}}
+            APP_GIT_COMMIT=${{ env.COMMIT_SHA }}
             APP_GIT_BRANCH=develop
-            APP_BUILD_TIME=${{env.BUILD_TIME}}
-            APP_GIT_REPOSITORY=${{github.repository}}
+            APP_BUILD_TIME=${{ env.BUILD_TIME }}
+            APP_GIT_REPOSITORY=${{ github.repository }}
           file: ./Dockerfile
           platforms: linux/amd64 #,linux/arm64
           push: true
