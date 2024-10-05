@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ ! -f frontend/dist/robots.txt ]; then
+  mkdir -p frontend/dist
+  cp frontend/public/robots.txt frontend/dist/robots.txt
+fi
+
 docker compose -f docker-compose.local.yaml up -d
 
 air -c .air.toml &

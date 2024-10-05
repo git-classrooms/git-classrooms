@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1.7-labs
 #############################################
-# Preparer go
+#                Preparer go                #
 #############################################
 FROM golang:1.22-alpine AS preparer-go
 
@@ -10,15 +11,16 @@ RUN go install github.com/vektra/mockery/v2@v2.42.2
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 WORKDIR /app/build
+RUN mkdir -p ./frontend/dist && touch ./frontend/dist/robots.txt
 
 COPY ./go.mod ./go.sum ./
 RUN go mod download
-COPY ./ ./
+COPY --exclude=frontend ./ ./
 
 RUN go generate
 
 #############################################
-# Swagger client
+#              Swagger client               #
 #############################################
 FROM swaggerapi/swagger-codegen-cli-v3 AS swagger-client-builder
 
@@ -35,7 +37,7 @@ RUN cd swagger-client && \
     done
 
 #############################################
-# Builder web
+#                Builder web                #
 #############################################
 FROM node:20-alpine AS builder-web
 
@@ -48,29 +50,23 @@ COPY --from=swagger-client-builder /app/build/swagger-client ./src/swagger-clien
 RUN yarn build
 
 #############################################
-# Builder go
+#                Builder go                 #
 #############################################
 FROM preparer-go AS builder-go
 
+COPY --from=builder-web /app/build/dist ./frontend/dist
+
 ARG APP_VERSION="v0.0.0"
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$APP_VERSION" -o /app/build/app
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.version=$APP_VERSION" -o /app/build/app
 
 #############################################
-# Runtime image
+#               Runtime image               #
 #############################################
-FROM alpine:3.18 AS release
+FROM scratch AS release
 
-ENV FRONTEND_PATH=/public
 ENV PORT=3000
 EXPOSE 3000
 
-RUN adduser -D gorunner
-
-USER gorunner
-
-WORKDIR /
-
-COPY --chown=gorunner:gorunner --from=builder-go /app/build/app /app
-COPY --chown=gorunner:gorunner --from=builder-web /app/build/dist /public
+COPY --from=builder-go /app/build/app /app
 
 ENTRYPOINT ["/app"]

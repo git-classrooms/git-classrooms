@@ -137,12 +137,10 @@ func setupApp(t *testing.T, user *database.User) (*fiber.App, *gitlabRepoMock.Mo
 
 	session.CsrfConfig.Next = func(c *fiber.Ctx) bool { return true }
 
-	app := fiber.New()
-
 	apiController := NewApiV1Controller(mailRepo, config.ApplicationConfig{PublicURL: integrationTest.publicUrl})
 	authCtrl := authController.NewTestAuthController(user, gitlabRepo)
 
-	router.Routes(app, authCtrl, apiController, "public", &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
+	app := router.Routes(authCtrl, apiController, os.DirFS("."), &auth.OAuthConfig{RedirectURL: integrationTest.publicUrl})
 
 	return app, gitlabRepo, mailRepo
 }
