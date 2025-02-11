@@ -63,7 +63,7 @@ run: build
 .PHONY: build
 build: generate
 	@echo "Building binary..."
-	@if [-d "frontend/dist"]; then \
+	@if ! [ -d "frontend/dist" ]; then \
 		$(MAKE) build/frontend; \
 	fi
 	@CGO_ENABLED=0 go build $(GOFLAGS) -o ./bin/$(BINARY_NAME) $(MAIN_PACKAGE_PATH)
