@@ -40,6 +40,9 @@ func Routes(
 
 	app.Use(csrf.New(session.CsrfConfig))
 
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
 	api := app.Group("/api", logger.New())
 	api.Mount("/v1", setupApiRoutes(config, authController, apiController))
 	api.Get("/swagger/*", swagger.HandlerDefault) // default
