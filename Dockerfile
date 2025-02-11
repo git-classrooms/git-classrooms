@@ -9,8 +9,8 @@ RUN apk add --no-cache make git
 WORKDIR /app/build
 RUN mkdir -p ./frontend/dist && touch ./frontend/dist/robots.txt
 
-COPY ./Makefile ./go.mod ./go.sum ./
-RUN make setup/ci
+COPY ./go.mod ./go.sum ./
+RUN go mod download
 COPY --exclude=frontend ./ ./
 RUN go generate
 

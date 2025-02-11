@@ -11,7 +11,6 @@ define GOFLAGS
   -X main.version=$(APP_VERSION) \
 "
 endef
-MOCKERY_VERSION := v2.42.2
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.version=$(APP_VERSION) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitCommit=$(APP_GIT_COMMIT) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitBranch=$(APP_GIT_BRANCH) \
@@ -53,7 +52,7 @@ help:
 .PHONY: run/dev
 run/dev: generate
 	@echo "Starting development environment..."
-	@concur || true
+	@go tool concur || true
 
 .PHONY: run
 run: build
@@ -77,16 +76,8 @@ build/frontend:
 setup:
 	# Backend
 	@echo "Setting up environment..."
-	go install github.com/akatranlp/concur@latest
-	go install github.com/air-verse/air@latest
-	go install github.com/swaggo/swag/cmd/swag@latest
-	go install github.com/vektra/mockery/v2@$(MOCKERY_VERSION)
-	go install github.com/golangci/golangci-lint@latest
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	go install github.com/go-delve/delve/cmd/dlv@latest
 	# TODO: maybe go install github.com/mikefarah/yq/v4@latest
 	go mod download
-	# TODO: with go 1.24 we can simply use go install tool
 
 	# Frontend
 	@cd frontend
@@ -95,8 +86,6 @@ setup:
 .PHONY: setup/ci
 setup/ci:
 	@echo "Installing..."
-	go install github.com/vektra/mockery/v2@$(MOCKERY_VERSION)
-	go install github.com/swaggo/swag/cmd/swag@latest
 	go mod download
 
 .PHONY: setup/frontend
@@ -178,13 +167,13 @@ migrate/check:
 tidy:
 	@echo "Tidying up..."
 	go fmt ./...
-	swag fmt --exclude frontend
+	go tool swag fmt --exclude frontend
 	go mod tidy
 
 .PHONY: lint
 lint:
 	@echo "Linting..."
-	golangci-lint run
+	go tool golangci-lint run
 
 .PHONY: lint/frontend
 lint/frontend:
@@ -221,7 +210,7 @@ infra/down:
 .PHONY: debug
 debug:
 	@echo "Debugging..."
-	dlv debug
+	go tool dlv debug
 
 .PHONY: config
 config:

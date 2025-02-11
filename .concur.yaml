@@ -12,7 +12,7 @@ commands:
     name: infra
     color: "#093A3E"
     bold: true
-  - command: air
+  - command: go tool air
     name: backend
     color: "#64E9EE"
     bold: true
