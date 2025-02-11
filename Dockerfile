@@ -2,7 +2,7 @@
 #############################################
 #                Preparer go                #
 #############################################
-FROM golang:1.22-alpine AS preparer-go
+FROM golang:1.24-alpine3.21 AS preparer-go
 
 RUN apk add --no-cache make git
 
@@ -67,7 +67,7 @@ RUN make build \
 #############################################
 #               Runtime image               #
 #############################################
-FROM alpine:3.18 AS release
+FROM alpine:3.21 AS release
 
 ENV PORT=3000
 EXPOSE 3000
