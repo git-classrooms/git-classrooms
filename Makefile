@@ -36,6 +36,7 @@ help:
 	@echo "  infra/up                          Run infrastructure in docker compose (postgres, (pgadmin) and mailpit)"
 	@echo "  infra/stop                        Run infrastructure stop"
 	@echo "  infra/down                        Run infrastructure down (delete)"
+	@echo "  migrate/build                     Build custom goose tool"
 	@echo "  migrate/new name=<name>           Create new migration"
 	@echo "  migrate/check                     Check and print outstanding migrations"
 	@echo "  migrate/status                    Migrate status"
@@ -134,34 +135,41 @@ run/docker:
 infra/up:
 	@docker compose -f docker-compose.local.yaml up -d
 
+.PHONY: migrate/build
+migrate/build:
+	@echo "Building custom goose..."
+	@go build -o ./bin/goose $(MAIN_PACKAGE_PATH)/code_gen/goose/.
+
 .PHONY: migrate/new
-migrate/new:
+migrate/new: migrate/build
 	@echo "Migrating up..."
 	@if [ -z "$(name)" ]; then \
 		echo "error: name is required"; \
 		echo "usage: make migrate/new name=name_of_migration"; \
 		exit 1; \
 	fi
-	go run ./code_gen/goose/. normal create $(name) sql
+	./bin/goose normal create $(name) sql
 
 .PHONY: migrate/status
-migrate/status:
+migrate/status: migrate/build
 	@echo "Migrating status..."
-	go run ./code_gen/goose/. normal status
+	./bin/goose normal status
 
 .PHONY: seed/up
-seed/up:
+seed/up: migrate/build
 	@echo "Seeding up..."
-	go run ./code_gen/goose/. seed -no-versioning up
+	./bin/goose seed -no-versioning up
 
 .PHONY: seed/reset
-seed/reset:
+seed/reset: migrate/build
 	@echo "Seeding reset..."
-	go run ./code_gen/goose/. seed -no-versioning reset
+	./bin/goose seed -no-versioning reset
 
 .PHONY: migrate/check
 migrate/check:
-	go run ./code_gen/migrations/.
+	@echo "Building migrate tool..."
+	@go build -o ./bin/migrate $(MAIN_PACKAGE_PATH)/code_gen/migrations/.
+	./bin/migrate
 
 .PHONY: tidy
 tidy:
