@@ -51,7 +51,7 @@ help:
 
 
 .PHONY: run/dev
-run/dev: generate
+run/dev:
 	@echo "Starting development environment..."
 	@go tool concur || true
 
