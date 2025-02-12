@@ -1,4 +1,5 @@
 **/node_modules
+**/bin
 **/.env*
 **/.git*
 **/.idea
@@ -8,12 +9,18 @@
 **/dist
 **/_mocks
 **/docs
+**/tmp
+**/.direnv
+flake.*
 model/database/query
 frontend/src/swagger-client
 Dockerfile
+.dockerignore
 README.md
 .air.toml
 docker-compose*.yaml
+compose*.yaml
+LICENSE
 CITATION.cff
 .gitignore
 .editorconfig
