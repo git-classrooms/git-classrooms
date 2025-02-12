@@ -9,6 +9,9 @@ tool (
 	github.com/golangci/golangci-lint/cmd/golangci-lint
 	github.com/swaggo/swag/cmd/swag
 	github.com/vektra/mockery/v2
+	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/goose
+	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/gorm
+	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/migrations
 )
 
 require (

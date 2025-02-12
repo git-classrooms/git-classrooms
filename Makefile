@@ -37,7 +37,6 @@ help:
 	@echo "  infra/up                          Run infrastructure in docker compose (postgres, (pgadmin) and mailpit)"
 	@echo "  infra/stop                        Run infrastructure stop"
 	@echo "  infra/down                        Run infrastructure down (delete)"
-	@echo "  migrate/build                     Build custom goose tool"
 	@echo "  migrate/new name=<name>           Create new migration"
 	@echo "  migrate/check                     Check and print outstanding migrations"
 	@echo "  migrate/status                    Migrate status"
@@ -78,15 +77,10 @@ build/frontend:
 	@cd frontend && yarn build
 
 .PHONY: setup
-setup:
-	# Backend
+setup: setup/frontend
 	@echo "Setting up environment..."
-	# TODO: maybe go install github.com/mikefarah/yq/v4@latest
+	@# TODO: maybe go install github.com/mikefarah/yq/v4@latest
 	go mod download
-
-	# Frontend
-	@cd frontend
-	yarn install
 
 .PHONY: setup/ci
 setup/ci:
@@ -95,8 +89,7 @@ setup/ci:
 
 .PHONY: setup/frontend
 setup/frontend:
-	@cd frontend
-	yarn install
+	@cd frontend &&	yarn install
 
 .PHONY: clean
 clean:
@@ -142,11 +135,6 @@ run/docker:
 infra/up:
 	@docker compose -f docker-compose.local.yaml up -d
 
-.PHONY: migrate/build
-migrate/build:
-	@echo "Building custom goose..."
-	@go build -o ./bin/goose $(MAIN_PACKAGE_PATH)/code_gen/goose/.
-
 .PHONY: migrate/new
 migrate/new: migrate/build
 	@echo "Migrating up..."
@@ -155,28 +143,28 @@ migrate/new: migrate/build
 		echo "usage: make migrate/new name=name_of_migration"; \
 		exit 1; \
 	fi
-	./bin/goose normal create $(name) sql
+	go tool goose normal create $(name) sql
 
 .PHONY: migrate/status
 migrate/status: migrate/build
 	@echo "Migrating status..."
-	./bin/goose normal status
+	go tool goose normal status
 
 .PHONY: seed/up
 seed/up: migrate/build
 	@echo "Seeding up..."
-	./bin/goose seed -no-versioning up
+	go tool goose seed -no-versioning up
 
 .PHONY: seed/reset
 seed/reset: migrate/build
 	@echo "Seeding reset..."
-	./bin/goose seed -no-versioning reset
+	go tool goose seed -no-versioning reset
 
 .PHONY: migrate/check
 migrate/check:
 	@echo "Building migrate tool..."
 	@go build -o ./bin/migrate $(MAIN_PACKAGE_PATH)/code_gen/migrations/.
-	./bin/migrate
+	go tool migrations
 
 .PHONY: tidy
 tidy:
