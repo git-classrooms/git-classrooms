@@ -1,3 +1,4 @@
+MAKEFLAGS += --no-print-directory
 MAIN_PACKAGE_PATH := .
 BINARY_NAME := git-classrooms
 APP_VERSION ?= $(shell git describe --tags --always --dirty)
@@ -61,11 +62,14 @@ run: build
 	@./bin/$(BINARY_NAME)
 
 .PHONY: build
-build: generate
-	@echo "Building binary..."
-	@if ! [ -d "frontend/dist" ]; then \
+build:
+	@if [ -z "$(CI)" ]; then \
+		$(MAKE) generate; \
+	fi
+	@if ! [ -d ./frontend/dist ]; then \
 		$(MAKE) build/frontend; \
 	fi
+	@echo "Building binary..."
 	@CGO_ENABLED=0 go build $(GOFLAGS) -o ./bin/$(BINARY_NAME) $(MAIN_PACKAGE_PATH)
 
 .PHONY: build/frontend
@@ -106,6 +110,9 @@ clean:
 generate:
 	@echo "Generating code..."
 	@go generate ./...
+	@if [ -z "$(CI)" ]; then \
+		$(MAKE) generate/client; \
+	fi
 
 .PHONY: generate/client
 generate/client:
@@ -205,7 +212,7 @@ test/verbose:
 
 .PHONY: infra/logs
 infra/logs:
-	@docker compose -f docker-compose.local.yaml logs -n 10 -f
+	@docker compose -f docker-compose.local.yaml logs -n 10 -f || true
 
 .PHONY: infra/stop
 infra/stop:
@@ -214,6 +221,10 @@ infra/stop:
 .PHONY: infra/down
 infra/down:
 	@docker compose -f docker-compose.local.yaml down --volumes
+
+.PHONY: infra/status
+infra/status:
+	@docker compose -f docker-compose.local.yaml ps -a --format="table {{.Service}}\t{{.State}}\t{{.Status}}"
 
 .PHONY: debug
 debug:

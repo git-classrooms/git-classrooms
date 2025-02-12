@@ -56,7 +56,7 @@ ARG APP_GIT_REPOSITORY="https://github.com/git-classrooms/git-classrooms"
 ARG APP_BUILD_TIME="unknown"
 
 COPY --from=builder-web /app/build/dist ./frontend/dist
-RUN make build \
+RUN make CI=true build \
     APP_VERSION=${APP_VERSION} \
     APP_GIT_COMMIT=${APP_GIT_COMMIT} \
     APP_GIT_BRANCH=${APP_GIT_BRANCH} \
