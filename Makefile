@@ -1,3 +1,4 @@
+MAKEFLAGS += --no-print-directory
 MAIN_PACKAGE_PATH := .
 BINARY_NAME := git-classrooms
 APP_VERSION ?= $(shell git describe --tags --always --dirty)
@@ -11,7 +12,6 @@ define GOFLAGS
   -X main.version=$(APP_VERSION) \
 "
 endef
-MOCKERY_VERSION := v2.42.2
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.version=$(APP_VERSION) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitCommit=$(APP_GIT_COMMIT) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitBranch=$(APP_GIT_BRANCH) \
@@ -51,9 +51,9 @@ help:
 
 
 .PHONY: run/dev
-run/dev: generate
+run/dev:
 	@echo "Starting development environment..."
-	@concur || true
+	@go tool concur || true
 
 .PHONY: run
 run: build
@@ -61,11 +61,14 @@ run: build
 	@./bin/$(BINARY_NAME)
 
 .PHONY: build
-build: generate
-	@echo "Building binary..."
-	@if [-d "frontend/dist"]; then \
+build:
+	@if [ -z "$(CI)" ]; then \
+		$(MAKE) generate; \
+	fi
+	@if ! [ -d ./frontend/dist ]; then \
 		$(MAKE) build/frontend; \
 	fi
+	@echo "Building binary..."
 	@CGO_ENABLED=0 go build $(GOFLAGS) -o ./bin/$(BINARY_NAME) $(MAIN_PACKAGE_PATH)
 
 .PHONY: build/frontend
@@ -74,35 +77,19 @@ build/frontend:
 	@cd frontend && yarn build
 
 .PHONY: setup
-setup:
-	# Backend
+setup: setup/frontend
 	@echo "Setting up environment..."
-	go install github.com/akatranlp/concur@latest
-	go install github.com/air-verse/air@latest
-	go install github.com/swaggo/swag/cmd/swag@latest
-	go install github.com/vektra/mockery/v2@$(MOCKERY_VERSION)
-	go install github.com/golangci/golangci-lint@latest
-	go install github.com/pressly/goose/v3/cmd/goose@latest
-	go install github.com/go-delve/delve/cmd/dlv@latest
-	# TODO: maybe go install github.com/mikefarah/yq/v4@latest
+	@# TODO: maybe go install github.com/mikefarah/yq/v4@latest
 	go mod download
-	# TODO: with go 1.24 we can simply use go install tool
-
-	# Frontend
-	@cd frontend
-	yarn install
 
 .PHONY: setup/ci
 setup/ci:
 	@echo "Installing..."
-	go install github.com/vektra/mockery/v2@$(MOCKERY_VERSION)
-	go install github.com/swaggo/swag/cmd/swag@latest
 	go mod download
 
 .PHONY: setup/frontend
 setup/frontend:
-	@cd frontend
-	yarn install
+	@cd frontend &&	yarn install
 
 .PHONY: clean
 clean:
@@ -116,6 +103,9 @@ clean:
 generate:
 	@echo "Generating code..."
 	@go generate ./...
+	@if [ -z "$(CI)" ]; then \
+		$(MAKE) generate/client; \
+	fi
 
 .PHONY: generate/client
 generate/client:
@@ -146,45 +136,47 @@ infra/up:
 	@docker compose -f docker-compose.local.yaml up -d
 
 .PHONY: migrate/new
-migrate/new:
+migrate/new: migrate/build
 	@echo "Migrating up..."
 	@if [ -z "$(name)" ]; then \
 		echo "error: name is required"; \
 		echo "usage: make migrate/new name=name_of_migration"; \
 		exit 1; \
 	fi
-	go run ./code_gen/goose/. normal create $(name) sql
+	go tool goose normal create $(name) sql
 
 .PHONY: migrate/status
-migrate/status:
+migrate/status: migrate/build
 	@echo "Migrating status..."
-	go run ./code_gen/goose/. normal status
+	go tool goose normal status
 
 .PHONY: seed/up
-seed/up:
+seed/up: migrate/build
 	@echo "Seeding up..."
-	go run ./code_gen/goose/. seed -no-versioning up
+	go tool goose seed -no-versioning up
 
 .PHONY: seed/reset
-seed/reset:
+seed/reset: migrate/build
 	@echo "Seeding reset..."
-	go run ./code_gen/goose/. seed -no-versioning reset
+	go tool goose seed -no-versioning reset
 
 .PHONY: migrate/check
 migrate/check:
-	go run ./code_gen/migrations/.
+	@echo "Building migrate tool..."
+	@go build -o ./bin/migrate $(MAIN_PACKAGE_PATH)/code_gen/migrations/.
+	go tool migrations
 
 .PHONY: tidy
 tidy:
 	@echo "Tidying up..."
 	go fmt ./...
-	swag fmt --exclude frontend
+	go tool swag fmt --exclude frontend
 	go mod tidy
 
 .PHONY: lint
 lint:
 	@echo "Linting..."
-	golangci-lint run
+	go tool golangci-lint run
 
 .PHONY: lint/frontend
 lint/frontend:
@@ -208,7 +200,7 @@ test/verbose:
 
 .PHONY: infra/logs
 infra/logs:
-	@docker compose -f docker-compose.local.yaml logs -n 10 -f
+	@docker compose -f docker-compose.local.yaml logs -n 10 -f || true
 
 .PHONY: infra/stop
 infra/stop:
@@ -217,6 +209,10 @@ infra/stop:
 .PHONY: infra/down
 infra/down:
 	@docker compose -f docker-compose.local.yaml down --volumes
+
+.PHONY: infra/status
+infra/status:
+	@docker compose -f docker-compose.local.yaml ps -a --format="table {{.Service}}\t{{.State}}\t{{.Status}}"
 
 .PHONY: debug
 debug:

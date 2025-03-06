@@ -1,4 +1,6 @@
 with-expecter: true
+issue-845-fix: true
+resolve-type-alias: false
 packages:
   gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab:
     config:

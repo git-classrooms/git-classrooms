@@ -1,31 +1,49 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/akatranlp/concur/refs/heads/main/config.schema.json
 
-prefix: "{{.Time}} {{.Padding}}{{.Name}}"
-padPrefix: true
+prefix:
+  template: "{{.Time}} {{.Padding}}{{.Name}}"
+  padPrefix: true
 
 runBefore:
   commands:
     - command: make infra/up
+    - command: make generate
 
 commands:
   - command: make infra/logs
     name: infra
-    color: "#093A3E"
+    color: "#8ec07c"
     bold: true
-  - command: air
+  - command: go tool air
     name: backend
-    color: "#64E9EE"
+    color: "#458588"
     bold: true
   - command: yarn dev:tsr
     name: tsr
     cwd: ./frontend
-    color: "#3AAFB9"
+    color: "#cc241d"
     bold: true
   - command: yarn dev:vite
     name: frontend
     cwd: ./frontend
-    color: "#97C8EB"
+    color: "#fe8019"
     bold: true
+
+status:
+  enabled: true
+  printInterval: 200ms
+  checks:
+    - type: command
+      command: make infra/status
+      interval: 1s
+    - type: http
+      url: http://localhost:3000/health
+      interval: 200ms
+      template: |-
+        {{- if .Error }}{{ .Error }}{{ else -}}
+        {{- $body := jsonParse .Body -}}
+        {{ .URL }} -> {{ .StatusCode }} Status: {{ index $body "status" }}
+        {{- end -}}
 
 runAfter:
   commands:

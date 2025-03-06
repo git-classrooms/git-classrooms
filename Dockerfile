@@ -2,15 +2,15 @@
 #############################################
 #                Preparer go                #
 #############################################
-FROM golang:1.22-alpine AS preparer-go
+FROM golang:1.24-alpine3.21 AS preparer-go
 
 RUN apk add --no-cache make git
 
 WORKDIR /app/build
 RUN mkdir -p ./frontend/dist && touch ./frontend/dist/robots.txt
 
-COPY ./Makefile ./go.mod ./go.sum ./
-RUN make setup/ci
+COPY ./go.mod ./go.sum ./
+RUN go mod download
 COPY --exclude=frontend ./ ./
 RUN go generate
 
@@ -56,7 +56,7 @@ ARG APP_GIT_REPOSITORY="https://github.com/git-classrooms/git-classrooms"
 ARG APP_BUILD_TIME="unknown"
 
 COPY --from=builder-web /app/build/dist ./frontend/dist
-RUN make build \
+RUN make CI=true build \
     APP_VERSION=${APP_VERSION} \
     APP_GIT_COMMIT=${APP_GIT_COMMIT} \
     APP_GIT_BRANCH=${APP_GIT_BRANCH} \
@@ -67,7 +67,7 @@ RUN make build \
 #############################################
 #               Runtime image               #
 #############################################
-FROM alpine:3.18 AS release
+FROM alpine:3.21 AS release
 
 ENV PORT=3000
 EXPOSE 3000
