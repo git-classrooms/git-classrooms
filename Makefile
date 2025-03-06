@@ -217,7 +217,7 @@ infra/status:
 .PHONY: debug
 debug:
 	@echo "Debugging..."
-	go tool dlv debug
+	dlv debug
 
 .PHONY: config
 config:

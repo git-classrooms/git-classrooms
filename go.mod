@@ -5,7 +5,6 @@ go 1.24
 tool (
 	github.com/air-verse/air
 	github.com/akatranlp/concur
-	github.com/go-delve/delve/cmd/dlv
 	github.com/golangci/golangci-lint/cmd/golangci-lint
 	github.com/swaggo/swag/cmd/swag
 	github.com/vektra/mockery/v2
@@ -37,19 +36,6 @@ require (
 	gorm.io/gen v0.3.23
 	gorm.io/gorm v1.25.5
 	gorm.io/plugin/dbresolver v1.4.7
-)
-
-require (
-	github.com/cilium/ebpf v0.17.2 // indirect
-	github.com/cosiner/argv v0.1.0 // indirect
-	github.com/derekparker/trie v0.0.0-20230829180723-39f4de51ef7d // indirect
-	github.com/go-delve/delve v1.24.0 // indirect
-	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
-	github.com/google/go-dap v0.12.0 // indirect
-	github.com/hashicorp/golang-lru v1.0.2 // indirect
-	go.starlark.net v0.0.0-20250205221240-492d3672b3f4 // indirect
-	golang.org/x/arch v0.14.0 // indirect
-	golang.org/x/telemetry v0.0.0-20250206143958-557cf9c30e9f // indirect
 )
 
 require (
