@@ -61,13 +61,14 @@ func Routes(
 
 func setupApiRoutes(config authConfig.Config, authController authController.Controller,
 	apiController apiController.Controller) *fiber.App {
+	redirectEndpoint, _ := strings.CutPrefix(config.GetRedirectEndpoint(), "/api/v1")
 
 	app := fiber.New()
 
 	app.Get("/info/gitlab", apiController.GetGitlabInfo)
 	app.Post("/auth/sign-in", authController.SignIn)
 	app.Post("/auth/sign-out", authController.SignOut)
-	app.Get(strings.Replace(config.GetRedirectUrl().Path, "/api/v1", "", 1), authController.Callback)
+	app.Get(redirectEndpoint, authController.Callback)
 	app.Get("/auth/csrf", authController.GetCsrf)
 	app.Use(authController.AuthMiddleware)
 	app.Get("/auth", authController.GetAuth)

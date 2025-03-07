@@ -71,6 +71,7 @@ services:
     #   - "--providers.docker=true"
     #   - "--providers.docker.exposedbydefault=false"
     #   - "--entryPoints.web.address=:6969"
+    #   - "--entryPoints.web.forwardedheaders.insecure=true"
 
     # TODO: Disable on version 3.4
     entrypoint: /bin/sh
@@ -82,7 +83,8 @@ services:
       --providers.file.directory=/etc/traefik
       --providers.docker=true
       --providers.docker.exposedbydefault=false
-      --entryPoints.web.address=:6969"
+      --entryPoints.web.address=:6969
+      --entryPoints.web.forwardedheaders.insecure=true"
     environment:
       APP_SERVICE: |
         http:

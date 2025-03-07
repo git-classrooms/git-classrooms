@@ -22,16 +22,16 @@ import (
 )
 
 type OAuthController struct {
-	authConfig   *oauth2.Config
 	gitlabConfig gitlabConfig.Config
+	authConfig   authConfig.Config
 	g            *singleflight.Group
 }
 
 func NewOAuthController(authConfig authConfig.Config, gitlabConfig gitlabConfig.Config) *OAuthController {
 	g := &singleflight.Group{}
 	return &OAuthController{
-		authConfig:   authConfig.GetOAuthConfig(),
 		gitlabConfig: gitlabConfig,
+		authConfig:   authConfig,
 		g:            g,
 	}
 }
@@ -54,6 +54,7 @@ func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 		redirect = body.Redirect
 	}
 
+	origin := fmt.Sprintf("%s://%s", c.Protocol(), c.Hostname())
 	csrf := c.Locals("csrf").(string)
 
 	stateBytes, err := json.Marshal(authState{csrf, redirect})
@@ -61,16 +62,20 @@ func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	authCodeOption := oauth2.S256ChallengeOption("Challenge")              // here include PKCE-Challenge against csrf-attacks should be random
-	url := ctrl.authConfig.AuthCodeURL(string(stateBytes), authCodeOption) // the string state is sent back by the auth-server of gitlab here we could include the redirect url | and or we include a random csrf token that will be validated
+	oauthConfig := ctrl.authConfig.GetOAuthConfig(origin)
+	authCodeOption := oauth2.S256ChallengeOption("Challenge")          // here include PKCE-Challenge against csrf-attacks should be random
+	url := oauthConfig.AuthCodeURL(string(stateBytes), authCodeOption) // the string state is sent back by the auth-server of gitlab here we could include the redirect url | and or we include a random csrf token that will be validated
 
 	return c.Redirect(url, fiber.StatusSeeOther)
 }
 
 // Callback to receive gitlabs' response
 func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
+	origin := fmt.Sprintf("%s://%s", c.Protocol(), c.Hostname())
+
+	oauthConfig := ctrl.authConfig.GetOAuthConfig(origin)
 	authCodeOption := oauth2.VerifierOption("Challenge") // this is the validation of the PKCE-Challenge
-	token, err := ctrl.authConfig.Exchange(c.Context(), c.FormValue("code"), authCodeOption)
+	token, err := oauthConfig.Exchange(c.Context(), c.FormValue("code"), authCodeOption)
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
@@ -241,7 +246,8 @@ func (ctrl *OAuthController) refreshSession(c context.Context, sess *session.Cla
 	token.Expiry = time.Now().Add(-1 * time.Minute)
 
 	// Refresh token
-	newToken, err := ctrl.authConfig.TokenSource(c, token).Token()
+	oauthConfig := ctrl.authConfig.GetOAuthConfig("")
+	newToken, err := oauthConfig.TokenSource(c, token).Token()
 	if err != nil {
 		oldError := err
 		err = sess.Destroy()
