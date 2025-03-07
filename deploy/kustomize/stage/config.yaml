@@ -6,4 +6,6 @@ metadata:
 data:
   PUBLIC_URL: https://app.stage.git-classrooms.dev
   GITLAB_URL: https://gitlab.git-classrooms.dev
+  POSTGRES_HOST: postgresql.postgresql.svc.cluster.local
+  POSTGRES_DB: git-classrooms-stage
 
