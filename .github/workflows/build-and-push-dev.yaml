@@ -88,6 +88,8 @@ jobs:
           kustomize edit set image app-image=ghcr.io/${{ env.REPO_LC }}:${{ env.COMMIT_SHA }}
 
       - name: Commit changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.COMMIT_PAT }}
         run: |
           git add deploy/kustomize/stage/kustomization.yaml
           git commit -m "chore: update stage image tag [skip ci]" && git push origin develop || echo "No changes to commit"
