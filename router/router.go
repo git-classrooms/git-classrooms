@@ -27,6 +27,11 @@ func Routes(
 	config authConfig.Config,
 ) *fiber.App {
 	app := fiber.New()
+
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"status": "ok"})
+	})
+
 	app.Use(func(c *fiber.Ctx) error {
 		sess := session.Get(c)
 		if sess.Session.Fresh() {
@@ -37,12 +42,8 @@ func Routes(
 		}
 		return c.Next()
 	})
-
 	app.Use(csrf.New(session.CsrfConfig))
 
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "ok"})
-	})
 	api := app.Group("/api", logger.New())
 	api.Mount("/v1", setupApiRoutes(config, authController, apiController))
 	api.Get("/swagger/*", swagger.HandlerDefault) // default

@@ -1,0 +1,7 @@
+version: 3
+
+tunnels:
+  app:
+    proto: http
+    addr: 6969
+

@@ -11,7 +11,6 @@ services:
   mail:
     image: axllent/mailpit
     ports:
-      - "8025:8025"
       - "1025:1025"
     volumes:
       - .docker/mail:/secrets
@@ -21,3 +20,89 @@ services:
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
       MP_SMTP_TLS_CERT: /secrets/cert.pem
       MP_SMTP_TLS_KEY: /secrets/privkey.pem
+      MP_WEBROOT: mail
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailpit.rule=PathPrefix(`/mail`)"
+      - "traefik.http.routers.mailpit.entrypoints=web"
+      - "traefik.http.routers.mailpit.service=mailpit"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    entrypoint: /bin/sh
+    command: >
+      -c "echo \"$$SERVERS_JSON\" > /tmp/servers.json &&
+      exec /entrypoint.sh"
+    environment:
+      SERVERS_JSON: |
+        {
+          "Servers": {
+            "1": {
+              "Name": "GitClassrooms",
+              "Group": "Servers",
+              "Port": 5432,
+              "Username": "${POSTGRES_USER}",
+              "PasswordExecCommand": "echo '${POSTGRES_PASSWORD}'",
+              "Host": "postgres",
+              "SSLMode": "prefer",
+              "MaintenanceDB": "postgres"
+            }
+          }
+        }
+
+      PGADMIN_SERVER_JSON_FILE: /tmp/servers.json
+      PGADMIN_DEFAULT_EMAIL: 1@1.com
+      PGADMIN_DEFAULT_PASSWORD: "1"
+      PGADMIN_DISABLE_POSTFIX: "true"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      SCRIPT_NAME: /pgadmin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=PathPrefix(`/pgadmin`)"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+
+  traefik:
+    image: traefik:latest
+    # TODO: Enable on version 3.4
+    # command:
+    #   - "--api.insecure=true"
+    #   - "--providers.docker=true"
+    #   - "--providers.docker.exposedbydefault=false"
+    #   - "--entryPoints.web.address=:6969"
+
+    # TODO: Disable on version 3.4
+    entrypoint: /bin/sh
+    command: >
+      -c "mkdir -p /etc/traefik &&
+      echo \"$$APP_SERVICE\" > /etc/traefik/config.yaml &&
+      exec /entrypoint.sh
+      --api.insecure=true
+      --providers.file.directory=/etc/traefik
+      --providers.docker=true
+      --providers.docker.exposedbydefault=false
+      --entryPoints.web.address=:6969"
+    environment:
+      APP_SERVICE: |
+        http:
+          services:
+            app:
+              loadBalancer:
+                servers:
+                - url: http://host.docker.internal:5173/
+
+    ports:
+      - "6969:6969"
+      - "8080:8080"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      # TODO: Remove @file on 3.4
+      - "traefik.http.routers.app.service=app@file"
+      - "traefik.http.services.app.loadbalancer.server.url=http://host.docker.internal:5173"
