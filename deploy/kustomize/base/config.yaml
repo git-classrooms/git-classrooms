@@ -1,0 +1,14 @@
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  PUBLIC_URL: https://app.git-classrooms.dev
+  POSTGRES_HOST: db
+  POSTGRES_DB: git-classrooms
+  GITLAB_URL: <your-gitlab-url>
+  GITLAB_SYNC_INTERVAL: 5m
+
+  SMTP_HOST: mail
+  SMTP_PORT: "1025"

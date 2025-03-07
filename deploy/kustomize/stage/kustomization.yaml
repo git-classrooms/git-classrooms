@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ingress.yaml
+- ../base
+
+components:
+- ../components/mailpit
+
+images:
+- name: app-image
+  newName: ghcr.io/git-classrooms/git-classrooms
+  newTag: "dev"
+
+generators:
+- ./secret-generator.yaml
+
+patches:
+- path: config.yaml

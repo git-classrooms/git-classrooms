@@ -1,0 +1,9 @@
+# https://kubernetes.io/docs/concepts/configuration/configmap/
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  PUBLIC_URL: https://app.stage.git-classrooms.dev
+  GITLAB_URL: https://gitlab.git-classrooms.dev
+

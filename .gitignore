@@ -26,3 +26,6 @@ docs/swagger.yaml
 public/*
 !frontend/public/*
 .pre-commit-config.yaml
+
+## Deployment
+deploy/kustomize/**/*secrets.yaml
