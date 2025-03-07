@@ -1,0 +1,9 @@
+keys:
+  - &primary age120smthme2cve6kfak2gpnle5nqzzamnj2rmpw9gmr9dwyyvnfahq0fq454
+  - &local age166dzurutpwqelp8f8vwc8typhz8psfa5hdn86umndmn3hwtngcdqklj0u5
+
+creation_rules:
+  # git classrooms stage
+  - path_regex: "deploy/kustomize/stage/(.*)secrets.yaml"
+    unencrypted_regex: "^(apiVersion|metadata|kind|type)$"
+    age: *primary
