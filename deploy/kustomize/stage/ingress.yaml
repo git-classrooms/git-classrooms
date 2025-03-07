@@ -15,4 +15,11 @@ spec:
             name: git-classrooms
             port:
               name: http
+      - path: /mail
+        pathType: Prefix
+        backend:
+          service:
+            name: mailpit
+            port:
+              name: http
 
