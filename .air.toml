@@ -7,7 +7,7 @@ tmp_dir = "tmp"
   bin = "./bin/main"
   cmd = "go build -buildvcs=false -o ./bin/main ."
   delay = 1000
-  exclude_dir = ["frontend", "assets", "tmp", "bin", "vendor", "testdata", "docs", "model/database/query"]
+  exclude_dir = ["frontend", "assets", "tmp", "bin", "vendor", "testdata", "docs", "model/database/query", "identity_provider/stores/query"]
   exclude_file = []
   exclude_regex = ["_test.go", "_mock"]
   exclude_unchanged = false

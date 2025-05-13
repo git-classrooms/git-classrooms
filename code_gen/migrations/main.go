@@ -18,6 +18,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"gitlab.hs-flensburg.de/gitlab-classroom/identity_provider/stores/models"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/driver/postgres"
@@ -150,6 +151,10 @@ func MigrateDatabase(db *gorm.DB) error {
 		&database.ManualGradingRubric{},
 		&database.ManualGradingResult{},
 		&database.AssignmentJunitTest{},
+		&models.Session{},
+		&models.TokenSession{},
+		&models.AuthUser{},
+		&models.AuthAccount{},
 	)
 }
 

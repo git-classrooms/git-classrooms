@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/identity_provider/stores/models"
 	dbModel "gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gorm.io/gen"
 )
@@ -63,4 +64,18 @@ func main() {
 	g.ApplyInterface(func(ManualGradingRubricQuerier) {}, dbModel.ManualGradingRubric{})
 
 	g.Execute()
+
+	a := gen.NewGenerator(gen.Config{
+		WithUnitTest: false,
+		OutPath:      "identity_provider/stores/query",
+		Mode:         gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
+	})
+
+	a.ApplyBasic(
+		&models.TokenSession{},
+		&models.AuthUser{},
+		&models.AuthAccount{},
+	)
+
+	a.Execute()
 }

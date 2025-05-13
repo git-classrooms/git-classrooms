@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	identityprovider "gitlab.hs-flensburg.de/gitlab-classroom/identity_provider"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	gitlabRepo "gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
@@ -95,8 +96,13 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid csrf token")
 	}
 
+	newToken, err := identityprovider.ExchangeAccessToken(c.Context(), oauthConfig, token.AccessToken)
+	if err != nil {
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
+
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
-	if err := repo.Login(token.AccessToken); err != nil {
+	if err := repo.Login(newToken.AccessToken); err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
@@ -184,11 +190,11 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 
 	// exp.Add(-20 * time.Minute).After(time.Now())
 	// If
-	if token.Expiry.Before(time.Now().Add(20 * time.Minute)) {
+	if token.Expiry.Before(time.Now().Add(1 * time.Minute)) {
 		// this added to prevent multiple requests from refreshing the token at the same time
 		// If 2 refresh requests are sent at the same time, the first one will refresh the token
 		// and the second would get an error because the refresh token was already used
-		_, err, _ := ctrl.g.Do(fmt.Sprintf("%d", userId), func() (interface{}, error) {
+		_, err, _ := ctrl.g.Do(fmt.Sprintf("refresh-token-%d", userId), func() (any, error) {
 			return nil, ctrl.refreshSession(c.Context(), sess)
 		})
 		if err != nil {
@@ -202,8 +208,21 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		}
 	}
 
+	data, err, _ := ctrl.g.Do(fmt.Sprintf("token-exchange-%d", userId), func() (any, error) {
+		oauthConfig := ctrl.authConfig.GetOAuthConfig("")
+		newToken, err := identityprovider.ExchangeAccessToken(c.Context(), oauthConfig, token.AccessToken)
+		if err != nil {
+			return nil, err
+		}
+		return newToken, nil
+	})
+	if err != nil {
+		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
+	}
+	newToken := data.(*identityprovider.TokenResponse)
+
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
-	if err := repo.Login(token.AccessToken); err != nil {
+	if err := repo.Login(newToken.AccessToken); err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 

@@ -10,17 +10,21 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os/signal"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config"
 	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/docs"
+	identityprovider "gitlab.hs-flensburg.de/gitlab-classroom/identity_provider"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/httputil"
@@ -101,10 +105,27 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
+	identityProviderHandler, err := identityprovider.CreateIdentityProvider(context.Background(), db, appConfig)
+	if err != nil {
+		log.Fatal("failed to create identity provider", err)
+	}
+
+	router := chi.NewRouter()
+	router.Mount("/auth", identityProviderHandler)
+	router.Mount("/", adaptor.FiberApp(app))
+	server := http.Server{
+		Addr:         fmt.Sprintf(":%d", appConfig.Port),
+		Handler:      router,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+	}
+
 	go func() {
 		<-ctx.Done()
 		log.Println("Shutting down server...")
-		if err := app.Shutdown(); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
 			log.Println(err)
 		}
 	}()
@@ -114,7 +135,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err := app.Listen(fmt.Sprintf(":%d", appConfig.Port)); err != nil {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Println(err)
 		}
 	}()
