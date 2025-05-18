@@ -23,10 +23,15 @@ func CreateIdentityProvider(ctx context.Context, db *gorm.DB, config *config.App
 		return nil, err
 	}
 	defer f.Close()
-	userStore := stores.NewGORMUserStore(db)
+	// userStore := stores.NewGORMUserStore(db)
+	userStore := stores.NewBasicGORMUserStore(db)
 	// userStore := accmemorystore.NewMemoryUserStore()
-	tokenStore := stores.NewGORMTokenStore(db)
+	// tokenStore := stores.NewGORMTokenStore(db)
+	tokenStore, err := stores.NewBasicGORMTokenStore(db)
 	// tokenStore := tokenmemorystore.NewMemoryTokenStore()
+	if err != nil {
+		return nil, err
+	}
 
 	sessionStore, err := stores.NewSessionStore(db)
 	if err != nil {
