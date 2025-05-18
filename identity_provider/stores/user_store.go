@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/akatranlp/go-pkg/its"
-	"github.com/akatranlp/identity-provider/account"
+	"github.com/akatranlp/sentinel/account"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/identity_provider/stores/models"
 	"gitlab.hs-flensburg.de/gitlab-classroom/identity_provider/stores/query"

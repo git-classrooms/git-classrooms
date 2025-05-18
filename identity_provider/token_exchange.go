@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/akatranlp/identity-provider/openid"
-	"github.com/akatranlp/identity-provider/openid/enums"
+	"github.com/akatranlp/sentinel/openid"
+	"github.com/akatranlp/sentinel/openid/enums"
 	"golang.org/x/oauth2"
 )
 

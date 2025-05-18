@@ -2,7 +2,7 @@ module gitlab.hs-flensburg.de/gitlab-classroom
 
 go 1.24.1
 
-replace github.com/akatranlp/identity-provider => ../identity-provider/
+replace github.com/akatranlp/sentinel => ../sentinel/
 
 tool (
 	github.com/air-verse/air
@@ -17,9 +17,9 @@ tool (
 
 require (
 	github.com/akatranlp/go-pkg/its v0.0.0-20250323121821-1816104e2574
-	github.com/akatranlp/identity-provider v0.0.0
+	github.com/akatranlp/sentinel v0.0.0
 	github.com/alexedwards/scs/gormstore v0.0.0-20250417082927-ab20b3feb5e9
-	github.com/alexedwards/scs/v2 v2.8.0
+	github.com/alexedwards/scs/v2 v2.8.1-0.20250417082927-ab20b3feb5e9
 	github.com/brianvoe/gofakeit/v7 v7.0.4
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/docker/docker v27.2.1+incompatible
@@ -51,7 +51,6 @@ require (
 	github.com/akatranlp/go-pkg/middleware v0.0.0-20250513173302-988d700e2a27 // indirect
 	github.com/coreos/go-oidc/v3 v3.14.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
-	github.com/go-chi/chi v1.5.5 // indirect
 	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect

@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/akatranlp/identity-provider/token"
+	"github.com/akatranlp/sentinel/token"
 	"gitlab.hs-flensburg.de/gitlab-classroom/identity_provider/stores/models"
 	"gitlab.hs-flensburg.de/gitlab-classroom/identity_provider/stores/query"
 	"gorm.io/gorm"

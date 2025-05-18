@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/akatranlp/identity-provider/account"
+	"github.com/akatranlp/sentinel/account"
 	"github.com/google/uuid"
 )
 
