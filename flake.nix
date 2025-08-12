@@ -11,45 +11,56 @@
     nixpkgs,
     flake-utils,
     ...
-  } @ inputs: (flake-utils.lib.eachDefaultSystem
-    (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
-      pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
-        src = ./.;
-        hooks = {
-          golangci-lint.enable = false;
-          gofmt.enable = true;
-          gotest.enable = false;
+  } @ inputs:
+    {
+      overlays.default = final: prev: {
+        git-classrooms = prev.callPackage ./nix/package.nix {};
+      };
+
+      nixosModules = {
+        default = import ./nix/module.nix;
+        git-classrooms = import ./nix/module.nix;
+      };
+    }
+    // (flake-utils.lib.eachDefaultSystem
+      (system: let
+        pkgs = nixpkgs.legacyPackages.${system};
+        pre-commit-check = inputs.pre-commit-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            golangci-lint.enable = false;
+            gofmt.enable = true;
+            gotest.enable = false;
+          };
         };
-      };
-    in {
-      packages.default = pkgs.callPackage ./nix/package.nix {};
+      in {
+        packages.default = pkgs.callPackage ./nix/package.nix {};
 
-      devShells.default = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          # Frontend
-          nodejs_24
-          pnpm
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            # Frontend
+            nodejs_24
+            pnpm
 
-          # Backend and tools
-          go
-          delve
+            # Backend and tools
+            go
+            delve
 
-          yq-go
-          docker
-          docker-compose
-          gnumake
-          git
-          postgresql
-        ];
+            yq-go
+            docker
+            docker-compose
+            gnumake
+            git
+            postgresql
+          ];
 
-        shellHook = ''
-          cd ./frontend && pnpm install
+          shellHook = ''
+            cd ./frontend && pnpm install
 
-          cd ..
-          go mod download
-          ${pre-commit-check.shellHook}
-        '';
-      };
-    }));
+            cd ..
+            go mod download
+            ${pre-commit-check.shellHook}
+          '';
+        };
+      }));
 }
