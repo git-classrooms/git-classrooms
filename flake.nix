@@ -24,13 +24,13 @@
       };
     in {
       devShells.default = pkgs.mkShell {
-        nativeBuildInputs = with pkgs; [
+        buildInputs = with pkgs; [
           # Frontend
           nodejs_24
           pnpm
 
           # Backend and tools
-          go_1_24
+          go
           delve
 
           yq-go
