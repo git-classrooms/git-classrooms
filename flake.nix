@@ -23,6 +23,8 @@
         };
       };
     in {
+      packages.default = pkgs.callPackage ./nix/package.nix {};
+
       devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [
           # Frontend
