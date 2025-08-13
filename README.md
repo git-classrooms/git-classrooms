@@ -53,7 +53,7 @@ Docker Compose is used to deploy the application.
 5. Configure the database in the `.env` file.
 6. **Starting the application**<br> To start the application and a PostgreSQL database using Docker Compose:
    ```bash
-   docker compose up –env-file .env -d
+   docker compose -–env-file .env up -d
    ```
 
 Alternatively, deployment can also take place with an already present PostgreSQL server by running only the application image 
