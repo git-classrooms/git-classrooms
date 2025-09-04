@@ -52,6 +52,7 @@ type ProjectResponse struct {
 
 type UserClassroomResponse struct {
 	*database.UserClassrooms
-	WebURL           string `json:"webUrl"`
-	AssignmentsCount int    `json:"assignmentsCount"`
+	WebURL           string     `json:"webUrl"`
+	AssignmentsCount int        `json:"assignmentsCount"`
+	InviteCode       *uuid.UUID `json:"inviteCode"`
 } //@Name UserClassroomResponse

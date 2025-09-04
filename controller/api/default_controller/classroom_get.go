@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -23,10 +25,16 @@ func (ctrl *DefaultController) GetClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
 	classroom := ctx.GetUserClassroom()
 
+	var inviteCode *uuid.UUID
+	if classroom.Role <= database.Moderator {
+		inviteCode = &classroom.Classroom.InviteCode
+	}
+
 	response := &UserClassroomResponse{
 		UserClassrooms:   classroom,
 		WebURL:           fmt.Sprintf("/api/v1/classrooms/%s/gitlab", classroom.ClassroomID.String()),
 		AssignmentsCount: len(classroom.Classroom.Assignments),
+		InviteCode:       inviteCode,
 	}
 
 	return c.JSON(response)

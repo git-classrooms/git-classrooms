@@ -34,6 +34,8 @@ type Classroom struct {
 	ManualGradingRubrics    []*ManualGradingRubric `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
 
+	InviteCode uuid.UUID `gorm:"type:uuid;not null;default:uuid_generate_v4()" json:"-"`
+
 	Archived           bool `gorm:"not null;default:false" json:"archived"`
 	PotentiallyDeleted bool `gorm:"not null;default:false" json:"potentiallyDeleted"`
 } //@Name Classroom
