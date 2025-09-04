@@ -37,6 +37,12 @@ export interface UserClassroomResponse {
     classroom: Classroom;
 
     /**
+     * @type {string}
+     * @memberof UserClassroomResponse
+     */
+    inviteCode: string;
+
+    /**
      * @type {Role}
      * @memberof UserClassroomResponse
      */

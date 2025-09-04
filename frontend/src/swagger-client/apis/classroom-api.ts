@@ -178,10 +178,11 @@ export const ClassroomApiAxiosParamCreator = function (configuration?: Configura
          * @summary GetClassroomInvitation
          * @param {string} classroomId Classroom ID
          * @param {string} invitationId Invitation ID
+         * @param {boolean} [groupLink] is Group Link
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getClassroomInvitation: async (classroomId: string, invitationId: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getClassroomInvitation: async (classroomId: string, invitationId: string, groupLink?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classroomId' is not null or undefined
             if (classroomId === null || classroomId === undefined) {
                 throw new RequiredError('classroomId','Required parameter classroomId was null or undefined when calling getClassroomInvitation.');
@@ -202,6 +203,10 @@ export const ClassroomApiAxiosParamCreator = function (configuration?: Configura
             const localVarRequestOptions :AxiosRequestConfig = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (groupLink !== undefined) {
+                localVarQueryParameter['groupLink'] = groupLink;
+            }
 
             const query = new URLSearchParams(localVarUrlObj.search);
             for (const key in localVarQueryParameter) {
@@ -575,11 +580,12 @@ export const ClassroomApiFp = function(configuration?: Configuration) {
          * @summary GetClassroomInvitation
          * @param {string} classroomId Classroom ID
          * @param {string} invitationId Invitation ID
+         * @param {boolean} [groupLink] is Group Link
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getClassroomInvitation(classroomId: string, invitationId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<ClassroomInvitation>>> {
-            const localVarAxiosArgs = await ClassroomApiAxiosParamCreator(configuration).getClassroomInvitation(classroomId, invitationId, options);
+        async getClassroomInvitation(classroomId: string, invitationId: string, groupLink?: boolean, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<ClassroomInvitation>>> {
+            const localVarAxiosArgs = await ClassroomApiAxiosParamCreator(configuration).getClassroomInvitation(classroomId, invitationId, groupLink, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
                 return axios.request(axiosRequestArgs);
@@ -722,11 +728,12 @@ export const ClassroomApiFactory = function (configuration?: Configuration, base
          * @summary GetClassroomInvitation
          * @param {string} classroomId Classroom ID
          * @param {string} invitationId Invitation ID
+         * @param {boolean} [groupLink] is Group Link
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getClassroomInvitation(classroomId: string, invitationId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<ClassroomInvitation>> {
-            return ClassroomApiFp(configuration).getClassroomInvitation(classroomId, invitationId, options).then((request) => request(axios, basePath));
+        async getClassroomInvitation(classroomId: string, invitationId: string, groupLink?: boolean, options?: AxiosRequestConfig): Promise<AxiosResponse<ClassroomInvitation>> {
+            return ClassroomApiFp(configuration).getClassroomInvitation(classroomId, invitationId, groupLink, options).then((request) => request(axios, basePath));
         },
         /**
          * GetClassroomInvitations
@@ -845,12 +852,13 @@ export class ClassroomApi extends BaseAPI {
      * @summary GetClassroomInvitation
      * @param {string} classroomId Classroom ID
      * @param {string} invitationId Invitation ID
+     * @param {boolean} [groupLink] is Group Link
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof ClassroomApi
      */
-    public async getClassroomInvitation(classroomId: string, invitationId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<ClassroomInvitation>> {
-        return ClassroomApiFp(this.configuration).getClassroomInvitation(classroomId, invitationId, options).then((request) => request(this.axios, this.basePath));
+    public async getClassroomInvitation(classroomId: string, invitationId: string, groupLink?: boolean, options?: AxiosRequestConfig) : Promise<AxiosResponse<ClassroomInvitation>> {
+        return ClassroomApiFp(this.configuration).getClassroomInvitation(classroomId, invitationId, groupLink, options).then((request) => request(this.axios, this.basePath));
     }
     /**
      * GetClassroomInvitations

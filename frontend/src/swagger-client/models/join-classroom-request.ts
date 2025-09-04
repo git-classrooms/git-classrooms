@@ -28,6 +28,12 @@ export interface JoinClassroomRequest {
     action: Action;
 
     /**
+     * @type {boolean}
+     * @memberof JoinClassroomRequest
+     */
+    classroomCode: boolean;
+
+    /**
      * @type {string}
      * @memberof JoinClassroomRequest
      */

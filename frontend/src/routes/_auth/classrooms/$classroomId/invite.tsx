@@ -143,6 +143,7 @@ function InvitationsTable({
           const path = router.buildLocation({
             to: "/classrooms/$classroomId/invitations/$invitationId",
             params: { classroomId: userClassroom.classroom.id, invitationId: i.id },
+            search: { groupLink: false }
           });
           return (
             <TableRow key={i.email}>
@@ -154,7 +155,7 @@ function InvitationsTable({
                   <Button
                     variant="outline"
                     onClick={() => {
-                      navigator.clipboard.writeText(`${location.origin}${path.pathname}`);
+                      navigator.clipboard.writeText(`${location.origin}${path.href}`);
                       toast.success("Link copied to clipboard");
                     }}
                   >
