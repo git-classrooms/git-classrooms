@@ -34,7 +34,12 @@ func (ctrl *DefaultController) GetClassroomTemplates(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	response := utils.Map(projects, func(project *model.Project) *templateResponse {
+
+	publicAndInternal := utils.Filter(projects, func(project *model.Project) bool {
+		return project.Visibility == model.Public || project.Visibility == model.Internal
+	})
+
+	response := utils.Map(publicAndInternal, func(project *model.Project) *templateResponse {
 		return &templateResponse{
 			ID:   project.ID,
 			Name: project.Name,

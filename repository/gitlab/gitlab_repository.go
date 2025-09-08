@@ -578,11 +578,10 @@ func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) 
 	repo.assertIsConnected()
 
 	gitlabProjects, _, err := repo.client.Projects.ListProjects(&goGitlab.ListProjectsOptions{
-		Archived:   goGitlab.Bool(false),
-		Visibility: goGitlab.Visibility(goGitlab.PublicVisibility),
-		Owned:      goGitlab.Bool(true),
-		OrderBy:    goGitlab.String("created_at"),
-		Search:     goGitlab.String(search),
+		Archived: goGitlab.Bool(false),
+		Owned:    goGitlab.Bool(true),
+		OrderBy:  goGitlab.String("created_at"),
+		Search:   goGitlab.String(search),
 	}, func(r *retryablehttp.Request) error {
 		query := r.URL.Query()
 		query.Add("per_page", "100")
