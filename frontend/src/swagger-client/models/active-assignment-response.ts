@@ -22,6 +22,12 @@ import { Classroom } from './classroom';
 export interface ActiveAssignmentResponse {
 
     /**
+     * @type {string}
+     * @memberof ActiveAssignmentResponse
+     */
+    acceptableSince: string;
+
+    /**
      * @type {Classroom}
      * @memberof ActiveAssignmentResponse
      */

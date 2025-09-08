@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"log"
+	"time"
 
 	"gorm.io/gen/field"
 
@@ -50,6 +51,13 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 	ids := utils.Map(assignmentProjects, func(p *database.AssignmentProjects) driver.Valuer {
 		return p.TeamID
 	})
+
+	if assignment.AcceptableSince == nil {
+		assignment.AcceptableSince = utils.Ptr(time.Now())
+		if err := query.Assignment.WithContext(c.Context()).Save(assignment); err != nil {
+			return err
+		}
+	}
 
 	queryTeam := query.Team
 	invitableTeams, err := queryTeam.

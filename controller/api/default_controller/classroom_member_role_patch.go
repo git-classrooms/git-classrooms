@@ -210,6 +210,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			if err != nil {
 				return err
 			}
+			ctrl.createAssignmentProjectsIfNeeded(c.Context(), tx, &classroom.Classroom, team.ID)
 			member.TeamID = &team.ID
 			member.Team = team
 

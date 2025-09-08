@@ -69,6 +69,8 @@ RUN make CI=true build \
 #############################################
 FROM alpine:3.21 AS release
 
+RUN apk add --no-cache tzdata
+
 ENV PORT=3000
 EXPOSE 3000
 
