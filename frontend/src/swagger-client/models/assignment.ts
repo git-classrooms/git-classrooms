@@ -24,6 +24,12 @@ export interface Assignment {
      * @type {string}
      * @memberof Assignment
      */
+    acceptableSince: string;
+
+    /**
+     * @type {string}
+     * @memberof Assignment
+     */
     classroomId: string;
 
     /**

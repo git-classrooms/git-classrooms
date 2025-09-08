@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -9,7 +10,8 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type createTeamRequest struct {
@@ -37,7 +39,7 @@ func (r createTeamRequest) isValid() bool {
 // @Failure		500	{object}	HTTPError
 // @Router			/api/v1/classrooms/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
+	ctx := fiberContext.Get(c)
 	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
 	team := classroom.Team
@@ -131,6 +133,8 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	ctrl.createAssignmentProjectsIfNeeded(c.Context(), query.Q, &classroom.Classroom, newTeam.ID)
+
 	if _, err = repo.ChangeGroupDescription(group.ID, ctrl.createTeamGitlabDescription(&classroom.Classroom, newTeam.ID)); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -141,4 +145,35 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 
 func (ctrl *DefaultController) createTeamGitlabDescription(classroom *database.Classroom, teamID uuid.UUID) string {
 	return fmt.Sprintf("%s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s/teams/%s)__", classroom.Description, ctrl.config.PublicURL, classroom.ID.String(), teamID.String())
+}
+
+func (ctrl *DefaultController) createAssignmentProjectsIfNeeded(ctx context.Context, tx *query.Query, classroom *database.Classroom, teamID uuid.UUID) error {
+	fmt.Println("Team was created trying to invite them to acceptable assignments")
+	queryAssignment := tx.Assignment
+	assignments, err := queryAssignment.WithContext(ctx).
+		Preload(queryAssignment.Projects).
+		Where(queryAssignment.ClassroomID.Eq(classroom.ID)).
+		Find()
+	if err != nil {
+		return err
+	}
+	for _, a := range assignments {
+		if a.AcceptableSince == nil || utils.Some(a.Projects, func(ap *database.AssignmentProjects) bool {
+			return ap.TeamID == teamID
+		}) {
+			continue
+		}
+
+		fmt.Printf("assignment %s is acceptable inviting team %s\n", a.ID, teamID)
+
+		assignmentProject := &database.AssignmentProjects{
+			AssignmentID:  a.ID,
+			TeamID:        teamID,
+			ProjectStatus: database.Pending,
+		}
+		if err = tx.AssignmentProjects.WithContext(ctx).Create(assignmentProject); err != nil {
+			return err
+		}
+	}
+	return nil
 }

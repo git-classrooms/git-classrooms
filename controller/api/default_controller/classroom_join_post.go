@@ -240,6 +240,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			if err = tx.Team.WithContext(c.Context()).Create(team); err != nil {
 				return err
 			}
+			ctrl.createAssignmentProjectsIfNeeded(c.Context(), query.Q, &invitation.Classroom, team.ID)
 
 			repo.ChangeGroupDescription(subgroup.ID, utils.CreateTeamGitlabDescription(&invitation.Classroom, team, ctrl.config.PublicURL))
 
