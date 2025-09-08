@@ -1,6 +1,6 @@
 import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
 import { MemberListCard } from "@/components/classroomMembers.tsx";
 import { TeamListCard } from "@/components/classroomTeams.tsx";
 import { AssignmentListSection } from "@/components/classroomAssignments.tsx";
@@ -15,6 +15,7 @@ import {
   Archive,
   CalendarCheck2,
   CalendarClock,
+  Clipboard,
   Download,
   ExternalLink,
   Eye,
@@ -45,6 +46,7 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { projectsQueryOptions } from "@/api/project";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { ProjectListSection } from "@/components/classroomProjects";
+import { toast } from "sonner";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
@@ -91,6 +93,7 @@ function ClassroomDetail() {
   const [showHeaderCards, setShowHeaderCards] = useLocalStorage("classroom-header", true);
   const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
   const { teamsReportUrls } = Route.useLoaderData();
+  const router = useRouter();
 
   const handleConfirmArchive = () => {
     mutate();
@@ -144,6 +147,21 @@ function ClassroomDetail() {
           </Button>
           {!userClassroom.classroom.archived && isModerator(userClassroom) && (
             <>
+              <Button variant="secondary" size="sm" title="Copy InviteLink"
+                onClick={() => {
+                  const path = router.buildLocation({
+                    to: "/classrooms/$classroomId/invitations/$invitationId",
+                    params: { classroomId: userClassroom.classroom.id, invitationId: userClassroom.inviteCode },
+                    search: { groupLink: true }
+                  });
+
+                  navigator.clipboard.writeText(`${location.origin}${path.href}`);
+                  toast.success("Link copied to clipboard");
+                }}
+              >
+                <Clipboard className="mr-2 h-4 w-4" />
+                Copy Invite Link
+              </Button>
               <Button variant="secondary" asChild size="sm" title="Download report">
                 <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
                   <Download className="mr-2 h-4 w-4" />

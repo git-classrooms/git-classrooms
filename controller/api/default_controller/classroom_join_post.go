@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,8 +22,9 @@ const (
 )
 
 type joinClassroomRequest struct {
-	InvitationID uuid.UUID `json:"invitationId"`
-	Action       action    `json:"action"`
+	InvitationID  uuid.UUID `json:"invitationId"`
+	Action        action    `json:"action"`
+	ClassroomCode bool      `json:"classroomCode"`
 } //@Name JoinClassroomRequest
 
 func (r *joinClassroomRequest) isValid() bool {
@@ -68,30 +70,6 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		return fiber.ErrBadRequest
 	}
 
-	queryClassroomInvitation := query.ClassroomInvitation
-	invitation, err := queryClassroomInvitation.
-		WithContext(c.Context()).
-		Preload(queryClassroomInvitation.Classroom).
-		Where(queryClassroomInvitation.ClassroomID.Eq(*params.ClassroomID)).
-		Where(queryClassroomInvitation.ID.Eq(requestBody.InvitationID)).
-		First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	}
-
-	switch invitation.Status {
-	case database.ClassroomInvitationRevoked:
-		return fiber.NewError(fiber.StatusForbidden, "This invitation has been revoked.")
-	case database.ClassroomInvitationPending:
-		break
-	default:
-		return fiber.NewError(fiber.StatusForbidden, "This invitation has already been processed.")
-	}
-
-	if time.Now().After(invitation.ExpiryDate) {
-		return fiber.NewError(fiber.StatusForbidden, "The link to this classroom expired. Please ask the owner for a new invitation link.")
-	}
-
 	userID := ctx.GetUserID()
 	queryUser := query.User
 	user, err := queryUser.WithContext(c.Context()).
@@ -101,27 +79,103 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	queryUserClassrooms := query.UserClassrooms
-	_, err = queryUserClassrooms.WithContext(c.Context()).
-		Where(queryUserClassrooms.UserID.Eq(userID)).
-		Where(queryUserClassrooms.ClassroomID.Eq(invitation.ClassroomID)).
-		First()
-	if err == nil {
-		if _, err := queryClassroomInvitation.WithContext(c.Context()).Delete(invitation); err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	queryClassroomInvitation := query.ClassroomInvitation
+	var invitation *database.ClassroomInvitation
+	if requestBody.ClassroomCode {
+		if requestBody.Action == reject {
+			return c.SendStatus(fiber.StatusAccepted)
 		}
 
-		return fiber.NewError(fiber.StatusForbidden, "You are already a member of this classroom.")
-	}
-
-	if requestBody.Action == reject {
-		invitation.Status = database.ClassroomInvitationRejected
-		invitation.Email = user.GitlabEmail
-		err = queryClassroomInvitation.WithContext(c.Context()).Save(invitation)
+		queryClassroom := query.Classroom
+		classroom, err := queryClassroom.WithContext(c.Context()).
+			Where(queryClassroom.ID.Eq(*params.ClassroomID)).
+			First()
 		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
 		}
-		return c.SendStatus(fiber.StatusAccepted)
+
+		if classroom.InviteCode != requestBody.InvitationID {
+			return fiber.NewError(fiber.StatusForbidden, "This invitation has been revoked or does not exist.")
+		}
+
+		queryUserClassrooms := query.UserClassrooms
+		_, err = queryUserClassrooms.WithContext(c.Context()).
+			Where(queryUserClassrooms.UserID.Eq(userID)).
+			Where(queryUserClassrooms.ClassroomID.Eq(*params.ClassroomID)).
+			First()
+		if err == nil {
+			return fiber.NewError(fiber.StatusForbidden, "You are already a member of this classroom.")
+		}
+
+		invitation = &database.ClassroomInvitation{
+			Status:      database.ClassroomInvitationAccepted,
+			ClassroomID: *params.ClassroomID,
+			Classroom:   *classroom,
+			Email:       user.GitlabEmail,
+			ExpiryDate:  time.Now().AddDate(0, 0, 14),
+		}
+
+		if err := queryClassroomInvitation.
+			WithContext(c.Context()).
+			Save(invitation); err != nil {
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
+		}
+
+		defer func() {
+			if recover() != nil || err != nil {
+				if queryClassroomInvitation.
+					WithContext(c.Context()).
+					Delete(invitation); err != nil {
+					log.Println(err.Error())
+				}
+			}
+		}()
+	} else {
+		invitation, err = queryClassroomInvitation.
+			WithContext(c.Context()).
+			Preload(queryClassroomInvitation.Classroom).
+			Where(queryClassroomInvitation.ClassroomID.Eq(*params.ClassroomID)).
+			Where(queryClassroomInvitation.ID.Eq(requestBody.InvitationID)).
+			First()
+		if err != nil {
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
+		}
+
+		switch invitation.Status {
+		case database.ClassroomInvitationRevoked:
+			return fiber.NewError(fiber.StatusForbidden, "This invitation has been revoked.")
+		case database.ClassroomInvitationPending:
+			break
+		default:
+			return fiber.NewError(fiber.StatusForbidden, "This invitation has already been processed.")
+		}
+
+		if time.Now().After(invitation.ExpiryDate) {
+			return fiber.NewError(fiber.StatusForbidden, "The link to this classroom expired. Please ask the owner for a new invitation link.")
+		}
+
+		queryUserClassrooms := query.UserClassrooms
+		_, err = queryUserClassrooms.WithContext(c.Context()).
+			Where(queryUserClassrooms.UserID.Eq(userID)).
+			Where(queryUserClassrooms.ClassroomID.Eq(invitation.ClassroomID)).
+			First()
+		if err == nil {
+			if _, err := queryClassroomInvitation.WithContext(c.Context()).Delete(invitation); err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+
+			return fiber.NewError(fiber.StatusForbidden, "You are already a member of this classroom.")
+		}
+
+		if requestBody.Action == reject {
+			invitation.Status = database.ClassroomInvitationRejected
+			invitation.Email = user.GitlabEmail
+			err = queryClassroomInvitation.WithContext(c.Context()).Save(invitation)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+			return c.SendStatus(fiber.StatusAccepted)
+		}
 	}
 
 	// reauthenticate the repo with the group access token

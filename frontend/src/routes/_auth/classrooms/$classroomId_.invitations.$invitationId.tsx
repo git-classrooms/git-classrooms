@@ -9,11 +9,18 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classroom";
 import GitlabLogo from "@/assets/gitlab_logo.svg";
 import { AxiosError } from "axios";
+import { z } from "zod";
+
+const seachSchema = z.object({
+  groupLink: z.boolean().catch(false)
+})
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
-  loader: async ({ context: { queryClient }, params }) => {
+  validateSearch: seachSchema,
+  loaderDeps: ({ search }) => ({ search }),
+  loader: async ({ context: { queryClient }, params, deps: { search: { groupLink } } }) => {
     const invitationInfo = await queryClient.ensureQueryData(
-      classroomInvitationQueryOptions(params.classroomId, params.invitationId),
+      classroomInvitationQueryOptions(params.classroomId, params.invitationId, groupLink),
     );
     return { invitationInfo };
   },
@@ -23,8 +30,9 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations
 function JoinClassroom() {
   const navigate = useNavigate();
   const { classroomId, invitationId } = Route.useParams();
-  const { data: invitation } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId));
-  const { mutateAsync, isError, isPending, error } = useJoinClassroom(classroomId, invitationId);
+  const { groupLink } = Route.useSearch();
+  const { data: invitation } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId, groupLink));
+  const { mutateAsync, isError, isPending, error } = useJoinClassroom(classroomId, invitationId, groupLink);
 
   const onAccept = async () => {
     const location = await mutateAsync(Action.Accept);

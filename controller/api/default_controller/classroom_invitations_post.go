@@ -144,8 +144,10 @@ func (ctrl *DefaultController) sendMailsWorker(classroom *database.Classroom, in
 				InvitationPath:     fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ID.String(), invitation.ID.String()),
 				ExpireDate:         invitation.ExpiryDate,
 			}
+
+			var err error
 			for range 3 {
-				if err := ctrl.mailRepo.SendClassroomInvitation(
+				if err = ctrl.mailRepo.SendClassroomInvitation(
 					email,
 					fmt.Sprintf(`New Invitation for Classroom "%s"`, classroom.Name),
 					data,
@@ -155,7 +157,7 @@ func (ctrl *DefaultController) sendMailsWorker(classroom *database.Classroom, in
 				}
 			}
 
-			log.Println("Could not send invitation to", email)
+			log.Println("Could not send invitation to", email, err)
 			invitation.Status = database.ClassroomInvitationFailed
 			if _, err := query.ClassroomInvitation.WithContext(context.Background()).Updates(invitation); err != nil {
 				log.Println("Could not update invitation status")

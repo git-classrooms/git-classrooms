@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -114,6 +115,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 			GroupAccessToken:        accessToken.Token,
 			StudentsViewAllProjects: *requestBody.StudentsViewAllProjects,
 			Member:                  []*database.UserClassrooms{{UserID: userID, Role: database.Owner}},
+			InviteCode:              uuid.New(),
 		}
 
 		if err = classroomQuery.WithContext(c.Context()).Create(classroom); err != nil {

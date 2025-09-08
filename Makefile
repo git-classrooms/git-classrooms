@@ -136,7 +136,7 @@ infra/up:
 	@docker compose -f docker-compose.local.yaml up -d
 
 .PHONY: migrate/new
-migrate/new: migrate/build
+migrate/new:
 	@echo "Migrating up..."
 	@if [ -z "$(name)" ]; then \
 		echo "error: name is required"; \
@@ -146,24 +146,24 @@ migrate/new: migrate/build
 	go tool goose normal create $(name) sql
 
 .PHONY: migrate/status
-migrate/status: migrate/build
+migrate/status:
 	@echo "Migrating status..."
 	go tool goose normal status
 
 .PHONY: seed/up
-seed/up: migrate/build
+seed/up:
 	@echo "Seeding up..."
 	go tool goose seed -no-versioning up
 
 .PHONY: seed/reset
-seed/reset: migrate/build
+seed/reset:
 	@echo "Seeding reset..."
 	go tool goose seed -no-versioning reset
 
 .PHONY: migrate/check
 migrate/check:
 	@echo "Building migrate tool..."
-	@go build -o ./bin/migrate $(MAIN_PACKAGE_PATH)/code_gen/migrations/.
+	# @go build -o ./bin/migrate $(MAIN_PACKAGE_PATH)/code_gen/migrations/.
 	go tool migrations
 
 .PHONY: tidy

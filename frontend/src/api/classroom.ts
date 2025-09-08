@@ -36,11 +36,11 @@ export const classroomInvitationsQueryOptions = (classroomId: string) =>
     },
   });
 
-export const classroomInvitationQueryOptions = (classroomId: string, invitationId: string) =>
+export const classroomInvitationQueryOptions = (classroomId: string, invitationId: string, groupLink: boolean) =>
   queryOptions({
     queryKey: ["classrooms", classroomId, "invitations", invitationId],
     queryFn: async () => {
-      const res = await apiClient.getClassroomInvitation(classroomId, invitationId);
+      const res = await apiClient.getClassroomInvitation(classroomId, invitationId, groupLink);
       return res.data;
     },
   });
@@ -137,18 +137,18 @@ export const useInviteClassroomMembers = (classroomId: string) => {
   });
 };
 
-export const useJoinClassroom = (classroomId: string, invitationId: string) => {
+export const useJoinClassroom = (classroomId: string, invitationId: string, classroomCode: boolean) => {
   const queryClient = useQueryClient();
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (action: Action) => {
-      const res = await apiClient.joinClassroom({ invitationId, action }, csrfToken, classroomId);
+      const res = await apiClient.joinClassroom({ invitationId, action, classroomCode }, csrfToken, classroomId);
       return res.headers.location as string;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(classroomsQueryOptions());
       queryClient.invalidateQueries(classroomsQueryOptions(Filter.Student));
-      queryClient.invalidateQueries(classroomInvitationQueryOptions(classroomId, invitationId));
+      queryClient.invalidateQueries(classroomInvitationQueryOptions(classroomId, invitationId, classroomCode));
     },
     onSettled: () => {
       queryClient.invalidateQueries(authCsrfQueryOptions);
