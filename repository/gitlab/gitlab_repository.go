@@ -520,9 +520,9 @@ func (repo *GitlabRepo) GetProjectLatestPipelineTestReportSummary(projectId int,
 func (repo *GitlabRepo) AddUserToGroup(groupId int, userId int, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()
 
-	members, _, err := repo.client.Groups.ListGroupMembers(groupId, &goGitlab.ListGroupMembersOptions{})
+	members, err := repo.GetAllUsersOfGroup(groupId)
 	if err != nil {
-		return err // Handle error appropriately
+		return err
 	}
 
 	// Check if user is already a member
@@ -577,19 +577,32 @@ func (repo *GitlabRepo) GetAccessLevelOfUserInGroup(groupId int, userId int) (mo
 func (repo *GitlabRepo) GetAllProjects(search string) ([]*model.Project, error) {
 	repo.assertIsConnected()
 
-	gitlabProjects, _, err := repo.client.Projects.ListProjects(&goGitlab.ListProjectsOptions{
-		Archived: goGitlab.Bool(false),
-		Owned:    goGitlab.Bool(true),
-		OrderBy:  goGitlab.String("created_at"),
-		Search:   goGitlab.String(search),
-	}, func(r *retryablehttp.Request) error {
-		query := r.URL.Query()
-		query.Add("per_page", "100")
-		r.URL.RawQuery = query.Encode()
-		return nil
-	})
-	if err != nil {
-		return nil, ErrorFromGoGitlab(err)
+	var gitlabProjects []*goGitlab.Project
+	hasNextPage := true
+	currentPage := 1
+	for hasNextPage {
+		projects, res, err := repo.client.Projects.ListProjects(&goGitlab.ListProjectsOptions{
+			ListOptions: goGitlab.ListOptions{
+				Page:    currentPage,
+				PerPage: 100,
+			},
+			Archived: goGitlab.Bool(false),
+			Owned:    goGitlab.Bool(true),
+			OrderBy:  goGitlab.String("created_at"),
+			Search:   goGitlab.String(search),
+		}, func(r *retryablehttp.Request) error {
+			query := r.URL.Query()
+			query.Add("per_page", "100")
+			r.URL.RawQuery = query.Encode()
+			return nil
+		})
+		if err != nil {
+			return nil, ErrorFromGoGitlab(err)
+		}
+
+		gitlabProjects = append(gitlabProjects, projects...)
+		hasNextPage = res.CurrentPage != res.TotalPages
+		currentPage = res.CurrentPage + 1
 	}
 
 	return repo.convertGitlabProjects(gitlabProjects)
@@ -687,9 +700,23 @@ func (repo *GitlabRepo) GetAllProjectsOfGroup(id int) ([]*model.Project, error) 
 func (repo *GitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	repo.assertIsConnected()
 
-	gitlabMembers, _, err := repo.client.Groups.ListGroupMembers(id, &goGitlab.ListGroupMembersOptions{})
-	if err != nil {
-		return nil, ErrorFromGoGitlab(err)
+	var gitlabMembers []*goGitlab.GroupMember
+	hasNextPage := true
+	currentPage := 1
+	for hasNextPage {
+		currentMembers, res, err := repo.client.Groups.ListGroupMembers(id,
+			&goGitlab.ListGroupMembersOptions{
+				ListOptions: goGitlab.ListOptions{
+					Page:    currentPage,
+					PerPage: 100,
+				},
+			})
+		if err != nil {
+			return nil, ErrorFromGoGitlab(err)
+		}
+		gitlabMembers = append(gitlabMembers, currentMembers...)
+		hasNextPage = res.CurrentPage != res.TotalPages
+		currentPage = res.CurrentPage + 1
 	}
 
 	users := make([]*model.User, len(gitlabMembers))
