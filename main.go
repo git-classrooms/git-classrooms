@@ -91,6 +91,7 @@ func main() {
 		EnableTrustedProxyCheck: len(appConfig.TrustedProxies) > 0,
 		TrustedProxies:          appConfig.TrustedProxies,
 		ErrorHandler:            errorHandler,
+		Immutable:               true,
 	})
 
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
