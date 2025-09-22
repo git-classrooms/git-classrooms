@@ -92,6 +92,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 			WithContext(c.Context()).
 			Preload(queryAssignmentProjects.Assignment).
 			Where(queryAssignmentProjects.TeamID.Eq(*member.TeamID)).
+			Where(queryAssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
 			Find()
 
 		if err != nil {
