@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/controller/api/common"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -119,49 +120,8 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		}()
 	}
 
-	if err = repo.AddUserToGroup(newTeam.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-	member.TeamID = &newTeam.ID
-	defer func() {
-		if recover() != nil || err != nil {
-			if err := repo.RemoveUserFromGroup(newTeam.GroupID, member.UserID); err != nil {
-				log.Println(err)
-			}
-		}
-	}()
-
-	queryAssignmentProjects := query.AssignmentProjects
-	projects, err := queryAssignmentProjects.
-		WithContext(c.Context()).
-		Preload(queryAssignmentProjects.Assignment).
-		Where(queryAssignmentProjects.TeamID.Eq(*member.TeamID)).
-		Find()
-
-	for _, project := range projects {
-		accessLevel := model.DeveloperPermissions
-		if project.Assignment.Closed {
-			accessLevel = model.ReporterPermissions
-		}
-		if err := repo.AddProjectMember(project.ProjectID, member.UserID, accessLevel); err != nil {
-			log.Println(err)
-		}
-	}
-	defer func() {
-		if recover() != nil || err != nil {
-			for _, project := range projects {
-				if err = repo.RemoveUserFromProject(project.ProjectID, member.UserID); err != nil {
-					log.Println(err)
-				}
-			}
-		}
-	}()
-
-	queryUserClassrooms := query.UserClassrooms
-	if err = queryUserClassrooms.
-		WithContext(c.Context()).
-		Save(member); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	if err := common.AddToTeam(c.Context(), repo, member, *requestBody.TeamID); err != nil {
+		return err
 	}
 
 	return c.SendStatus(fiber.StatusAccepted)
