@@ -338,16 +338,17 @@ func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.A
 		targetPermission = model.ReporterPermissions
 	}
 
-	for userID := range userIDs {
+	for _, userID := range userIDs {
 		foundIdx := slices.IndexFunc(gitlabProjectUsers, func(g *model.User) bool {
 			return g.ID == userID
 		})
 
 		if foundIdx == -1 {
 			if err := repo.AddProjectMember(dbProject.ProjectID, userID, targetPermission); err != nil {
-				log.Default().Printf("Failed to add member %d to project %d with persmission %d. error message: %s", userID, dbProject.ProjectID, targetPermission, err.Error())
+				log.Default().Printf("Failed to add member %d to project %d with permission %d. error message: %s", userID, dbProject.ProjectID, targetPermission, err.Error())
 				continue
 			}
+			log.Default().Printf("Add new member %d to project %d with permission %d", userID, dbProject.ProjectID, targetPermission)
 			continue
 		}
 
@@ -357,6 +358,7 @@ func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.A
 				log.Default().Printf("Failed to change permission from user %d in project %d to permission %d. error message: %s", userID, dbProject.ProjectID, targetPermission, err.Error())
 				continue
 			}
+			log.Default().Printf("Change user %d permission in project %d to permission %d", userID, dbProject.ProjectID, targetPermission)
 		}
 	}
 }
