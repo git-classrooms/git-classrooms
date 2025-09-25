@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 
 	goGitlab "github.com/xanzy/go-gitlab"
 )
@@ -185,21 +186,23 @@ func UserFromGoGitlab(input goGitlab.User) *model.User {
 
 func UserFromGoGitlabProjectMember(input goGitlab.ProjectMember) *model.User {
 	return &model.User{
-		ID:       input.ID,
-		Username: input.Username,
-		Name:     input.Name,
-		WebUrl:   input.WebURL,
-		Email:    input.Email,
+		ID:         input.ID,
+		Username:   input.Username,
+		Name:       input.Name,
+		WebUrl:     input.WebURL,
+		Email:      input.Email,
+		Permission: utils.NewPtr(AccessLevelFromGoGitlab(input.AccessLevel)),
 	}
 }
 
 func UserFromGoGitlabGroupMember(input goGitlab.GroupMember) *model.User {
 	return &model.User{
-		ID:       input.ID,
-		Username: input.Username,
-		Name:     input.Name,
-		WebUrl:   input.WebURL,
-		Email:    input.Email,
+		ID:         input.ID,
+		Username:   input.Username,
+		Name:       input.Name,
+		WebUrl:     input.WebURL,
+		Email:      input.Email,
+		Permission: utils.NewPtr(AccessLevelFromGoGitlab(input.AccessLevel)),
 	}
 }
 
