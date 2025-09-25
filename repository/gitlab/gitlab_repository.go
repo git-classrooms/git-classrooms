@@ -727,6 +727,37 @@ func (repo *GitlabRepo) GetAllUsersOfGroup(id int) ([]*model.User, error) {
 	return users, nil
 }
 
+// GetAllUsersOfProject fetches all users of a project by its ID.
+func (repo *GitlabRepo) GetAllUsersOfProject(id int) ([]*model.User, error) {
+	repo.assertIsConnected()
+
+	var gitlabMembers []*goGitlab.ProjectMember
+	hasNextPage := true
+	currentPage := 1
+	for hasNextPage {
+		currentMembers, res, err := repo.client.ProjectMembers.ListProjectMembers(id,
+			&goGitlab.ListProjectMembersOptions{
+				ListOptions: goGitlab.ListOptions{
+					Page:    currentPage,
+					PerPage: 100,
+				},
+			})
+		if err != nil {
+			return nil, ErrorFromGoGitlab(err)
+		}
+		gitlabMembers = append(gitlabMembers, currentMembers...)
+		hasNextPage = res.CurrentPage != res.TotalPages
+		currentPage = res.CurrentPage + 1
+	}
+
+	users := make([]*model.User, len(gitlabMembers))
+	for i, gitlabMember := range gitlabMembers {
+		users[i] = UserFromGoGitlabProjectMember(*gitlabMember)
+	}
+
+	return users, nil
+}
+
 // SearchProjectByExpression searches for projects by a given expression.
 func (repo *GitlabRepo) SearchProjectByExpression(expression string) ([]*model.Project, error) {
 	repo.assertIsConnected()

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -298,6 +299,9 @@ func (w *SyncGitlabDbWork) syncTeam(ctx context.Context, classroom *database.Cla
 func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignmentId uuid.UUID) []*database.AssignmentProjects {
 	projects, err := query.AssignmentProjects.
 		WithContext(ctx).
+		Preload(query.AssignmentProjects.Team).
+		Preload(field.NewRelation("Team.Member", "")).
+		Preload(query.AssignmentProjects.Assignment).
 		Where(query.AssignmentProjects.AssignmentID.Eq(assignmentId)).
 		Where(query.AssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
 		Find()
@@ -312,14 +316,47 @@ func (w *SyncGitlabDbWork) getAssignmentProjects(ctx context.Context, assignment
 // syncProject synchronizes the project data between GitLab and the local database.
 func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.AssignmentProjects, repo gitlab.Repository) {
 	_, err := repo.GetProjectById(dbProject.ProjectID)
-	if err == nil || !strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
-		return
+	if err != nil && strings.Contains(err.Error(), "404 {message: 404 Project Not Found}") {
+		_, err = query.AssignmentProjects.WithContext(ctx).Delete(&dbProject)
+		if err != nil {
+			log.Default().Printf("Error while fetching project with id %s. ErrorMsg: %s", dbProject.ID.String(), err.Error())
+		}
+		log.Default().Printf("Project with id %d deleted via gitlab", dbProject.ProjectID)
 	}
 
-	_, err = query.AssignmentProjects.WithContext(ctx).Delete(&dbProject)
+	userIDs := utils.Map(dbProject.Team.Member, func(member *database.UserClassrooms) int {
+		return member.UserID
+	})
+
+	gitlabProjectUsers, err := repo.GetAllUsersOfProject(dbProject.ProjectID)
 	if err != nil {
-		log.Default().Printf("Error while fetching project with id %s. ErrorMsg: %s", dbProject.ID.String(), err.Error())
+		log.Default().Printf("Can't get users of group with id %d. ErrorMsg: %s", dbProject.Team.GroupID, err.Error())
 	}
 
-	log.Default().Printf("Project with id %d deleted via gitlab", dbProject.ProjectID)
+	targetPermission := model.DeveloperPermissions
+	if dbProject.Assignment.Closed {
+		targetPermission = model.ReporterPermissions
+	}
+
+	for userID := range userIDs {
+		foundIdx := slices.IndexFunc(gitlabProjectUsers, func(g *model.User) bool {
+			return g.ID == userID
+		})
+
+		if foundIdx == -1 {
+			if err := repo.AddProjectMember(dbProject.ProjectID, userID, targetPermission); err != nil {
+				log.Default().Printf("Failed to add member %d to project %d with persmission %d. error message: %s", userID, dbProject.ProjectID, targetPermission, err.Error())
+				continue
+			}
+			continue
+		}
+
+		gitlabUser := gitlabProjectUsers[foundIdx]
+		if *gitlabUser.Permission != targetPermission {
+			if err := repo.ChangeUserAccessLevelInProject(dbProject.ProjectID, userID, targetPermission); err != nil {
+				log.Default().Printf("Failed to change permission from user %d in project %d to permission %d. error message: %s", userID, dbProject.ProjectID, targetPermission, err.Error())
+				continue
+			}
+		}
+	}
 }

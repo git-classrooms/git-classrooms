@@ -65,6 +65,7 @@ type Repository interface {
 	GetProjectLatestPipeline(projectId int, ref *string) (*model.Pipeline, error)
 	GetProjectPipelineTestReportSummary(projectId, pipelineId int) (*model.TestReport, error)
 	GetProjectLatestPipelineTestReportSummary(projectId int, ref *string) (*model.TestReport, error)
+	GetAllUsersOfProject(projectID int) ([]*model.User, error)
 
 	// Branches
 	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
