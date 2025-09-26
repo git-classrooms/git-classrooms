@@ -47,20 +47,19 @@ export function MemberListCard({
           <CardDescription>All members of this classroom</CardDescription>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {!deactivateInteraction && isOwner(userClassroom) && (
-            <Button variant="outline" asChild>
-              <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-                Manage members
-              </Link>
-            </Button>
-          )}
-
           {!deactivateInteraction && isModerator(userClassroom) && (
-            <Button variant="outline" asChild>
-              <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
-                Invite members
-              </Link>
-            </Button>
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
+                  Manage members
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+                  Invite members
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </CardHeader>
