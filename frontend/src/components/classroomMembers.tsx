@@ -10,7 +10,7 @@ import { UserClassroomResponse } from "@/swagger-client";
 import List from "@/components/list.tsx";
 import ListItem from "@/components/listItem.tsx";
 import { ClassroomTeamModal } from "./classroomTeam";
-import { isModerator, isOwner, isStudent } from "@/lib/utils";
+import { isModerator, isStudent } from "@/lib/utils";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -47,20 +47,19 @@ export function MemberListCard({
           <CardDescription>All members of this classroom</CardDescription>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {!deactivateInteraction && isOwner(userClassroom) && (
-            <Button variant="outline" asChild>
-              <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-                Manage members
-              </Link>
-            </Button>
-          )}
-
           {!deactivateInteraction && isModerator(userClassroom) && (
-            <Button variant="outline" asChild>
-              <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
-                Invite members
-              </Link>
-            </Button>
+            <>
+              <Button variant="outline" asChild>
+                <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
+                  Manage members
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+                  Invite members
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </CardHeader>
