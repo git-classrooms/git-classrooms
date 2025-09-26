@@ -10,7 +10,6 @@ import { Avatar } from "@/components/avatar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { teamsQueryOptions } from "@/api/team.ts";
 import { classroomQueryOptions } from "@/api/classroom.ts";
-import { assignmentsQueryOptions } from "@/api/assignment.ts";
 import { Loader } from "@/components/loader.tsx";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { z } from "zod";
@@ -45,12 +44,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")(
 
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-    if (isStudent(userClassroom)) {
-      const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
-      return { userClassroom, assignments, members, teams, reportDownloadUrl };
-    } else {
-      return { userClassroom, members, teams, reportDownloadUrl };
-    }
+
+    return { userClassroom, members, teams, reportDownloadUrl };
   },
   pendingComponent: Loader,
 });
