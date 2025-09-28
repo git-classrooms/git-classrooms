@@ -143,7 +143,7 @@ func setupApiRoutes(config authConfig.Config, authController authController.Cont
 	app.Use("/classrooms/:classroomId/members/:memberId", apiController.ClassroomMemberMiddleware)
 	app.Get("/classrooms/:classroomId/members/:memberId", apiController.GetClassroomMember)
 	app.Patch("/classrooms/:classroomId/members/:memberId/team", apiController.RoleMiddleware(database.Moderator, database.Owner), apiController.UpdateMemberTeam)
-	app.Patch("/classrooms/:classroomId/members/:memberId/role", apiController.RoleMiddleware(database.Owner), apiController.UpdateMemberRole)
+	app.Patch("/classrooms/:classroomId/members/:memberId/role", apiController.RoleMiddleware(database.Moderator, database.Owner), apiController.UpdateMemberRole)
 	// app.Delete("/classrooms/:classroomId/members/:memberId", apiController.RoleMiddleware(database.Moderator, database.Owner), apiController.RemoveClassroomMember)
 	app.Get("/classrooms/:classroomId/members/:memberId/gitlab", apiController.RedirectUserGitlab)
 
