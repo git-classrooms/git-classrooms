@@ -18,6 +18,10 @@ func teamMemberQuery(c *fiber.Ctx, classroomID uuid.UUID, teamID uuid.UUID) quer
 }
 
 func (ctrl *DefaultController) ClassroomTeamMemberMiddleware(c *fiber.Ctx) (err error) {
+	ctx := context.Get(c)
+	cleanLogger := ctx.GetLogger()
+	log := ctx.GetLoggerForHandler("ClassroomTeamMemberMiddleware")
+
 	var params Params
 	if err = c.ParamsParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -27,6 +31,8 @@ func (ctrl *DefaultController) ClassroomTeamMemberMiddleware(c *fiber.Ctx) (err 
 		return fiber.ErrBadRequest
 	}
 
+	log.Debug("retrieving classroomTeamMember from db", "memberID", *params.MemberID)
+
 	member, err := teamMemberQuery(c, *params.ClassroomID, *params.TeamID).
 		Where(query.UserClassrooms.UserID.Eq(*params.MemberID)).
 		First()
@@ -34,7 +40,8 @@ func (ctrl *DefaultController) ClassroomTeamMemberMiddleware(c *fiber.Ctx) (err 
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	ctx := context.Get(c)
+	ctx.SetLogger(cleanLogger.With("member", member))
+
 	ctx.SetClassroomMember(member)
 	ctx.SetGitlabUserID(member.UserID)
 
