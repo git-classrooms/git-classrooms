@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,3 +23,15 @@ type ManualGradingRubric struct {
 	Assignments []*Assignment          `gorm:"many2many:assignment_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
 	Results     []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnDelete:CASCADE;" json:"-"`
 } //@Name ManualGradingRubric
+
+var _ (slog.LogValuer) = (*ManualGradingRubric)(nil)
+
+// LogValue implements slog.LogValuer.
+func (r *ManualGradingRubric) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("id", r.ID.String()),
+		slog.String("name", r.Name),
+		slog.String("classroomID", r.ClassroomID.String()),
+		slog.Int("maxScore", r.MaxScore),
+	)
+}

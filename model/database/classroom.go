@@ -2,6 +2,7 @@
 package database
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -39,3 +40,16 @@ type Classroom struct {
 	Archived           bool `gorm:"not null;default:false" json:"archived"`
 	PotentiallyDeleted bool `gorm:"not null;default:false" json:"potentiallyDeleted"`
 } //@Name Classroom
+
+var _ (slog.LogValuer) = (*Classroom)(nil)
+
+// LogValue implements slog.LogValuer.
+func (c *Classroom) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("id", c.ID.String()),
+		slog.String("name", c.Name),
+		slog.Bool("archived", c.Archived),
+		slog.Int("maxTeamSize", c.MaxTeamSize),
+		slog.Int("maxTeams", c.MaxTeams),
+	)
+}
