@@ -53,6 +53,16 @@ type LogConfig struct {
 	Source bool     `env:"SOURCE" envDefault:"false"`
 }
 
+var _ slog.LogValuer = (*LogConfig)(nil)
+
+func (c *LogConfig) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("level", string(c.Level)),
+		slog.String("type", string(c.Type)),
+		slog.Bool("source", c.Source),
+	)
+}
+
 func (c LogConfig) GetLogger() *slog.Logger {
 	level := c.Level.toSlog()
 	opts := &slog.HandlerOptions{

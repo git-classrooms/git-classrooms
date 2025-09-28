@@ -68,7 +68,7 @@ func main() {
 
 	setSwaggerInfo(appConfig.PublicURL.String())
 
-	log.Info("Starting GitClassrooms", "version", version)
+	log.Info("Starting GitClassrooms", "version", version, "config", appConfig)
 
 	mailRepo, err := mail.NewMailRepository(appConfig.PublicURL, appConfig.Mail)
 	if err != nil {

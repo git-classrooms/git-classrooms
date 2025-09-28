@@ -1,9 +1,11 @@
 package config
 
 import (
+	"log/slog"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/caarlos0/env/v10"
 	"github.com/joho/godotenv"
@@ -43,4 +45,20 @@ func LoadApplicationConfig() (*ApplicationConfig, error) {
 	}
 
 	return config, nil
+}
+
+var _ slog.LogValuer = (*ApplicationConfig)(nil)
+
+func (c *ApplicationConfig) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("publicURL", c.PublicURL.String()),
+		slog.Int("port", c.Port),
+		slog.String("frontendPath", c.FrontendPath),
+		slog.String("trustedProxies", strings.Join(c.TrustedProxies, ", ")),
+		slog.Any("gitlab", c.GitLab),
+		slog.Any("database", c.Database),
+		slog.Any("auth", c.Auth),
+		slog.Any("mail", c.Mail),
+		slog.Any("log", c.Log),
+	)
 }
