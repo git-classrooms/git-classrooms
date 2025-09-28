@@ -286,7 +286,7 @@ func (w *SyncGitlabDbWork) syncMember(
 	}
 
 	for _, member := range leftMember {
-		log := log.With("userID", member.UserID, "role", member.Role.String(), "teamID", member.TeamID)
+		log := log.With("member", member)
 		ctx := logging.SetLogger(ctx, log)
 		handleLeftMembers(ctx, member, groupId, repo)
 	}

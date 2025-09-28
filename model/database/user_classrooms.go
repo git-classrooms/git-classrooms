@@ -55,6 +55,5 @@ func (u *UserClassrooms) LogValue() slog.Value {
 		slog.Int("userID", u.UserID),
 		slog.Any("teamID", u.TeamID),
 		slog.String("role", u.Role.String()),
-		slog.Any("classroom", u.Classroom),
 	)
 }
