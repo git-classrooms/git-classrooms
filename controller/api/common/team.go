@@ -2,10 +2,10 @@ package common
 
 import (
 	"context"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
@@ -18,6 +18,7 @@ func AddToTeam(
 	member *database.UserClassrooms,
 	teamID uuid.UUID,
 ) error {
+	log := logging.GetLogger(ctx)
 	var err error
 	tx := query.Q.Begin()
 	defer tx.Rollback()
@@ -34,7 +35,7 @@ func AddToTeam(
 	defer func() {
 		if err != nil {
 			if err := repo.RemoveUserFromGroup(newTeam.GroupID, member.UserID); err != nil {
-				log.Println(err)
+				log.Error("error while removing user from group", "groupID", newTeam.GroupID, "memberID", member.UserID, "error", err)
 			}
 		}
 	}()
@@ -63,7 +64,7 @@ func AddToTeam(
 		defer func() {
 			if err != nil {
 				if err := repo.RemoveUserFromProject(project.ProjectID, member.UserID); err != nil {
-					log.Println(err)
+					log.Error("error while removing user from project", "projectID", project.ProjectID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()

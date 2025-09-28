@@ -22,6 +22,8 @@ func userClassroomQuery(ctx *fiber.Ctx, userID int) query.IUserClassroomsDo {
 
 func (ctrl *DefaultController) ClassroomMiddleware(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	cleanLogger := ctx.GetLogger()
+	log := ctx.GetLoggerForHandler("ClassroomMiddleware")
 	userID := ctx.GetUserID()
 
 	var params Params
@@ -33,12 +35,20 @@ func (ctrl *DefaultController) ClassroomMiddleware(c *fiber.Ctx) (err error) {
 		return fiber.ErrBadRequest
 	}
 
+	log.Debug("retrieving userClassroom from db", "classroomID", *params.ClassroomID)
+
 	classroom, err := userClassroomQuery(c, userID).
 		Where(query.UserClassrooms.ClassroomID.Eq(params.ClassroomID)).
 		First()
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
+
+	ctx.SetLogger(cleanLogger.With(
+		"classroom", classroom.Classroom,
+		"role", classroom.Role.String(),
+		"teamID", classroom.TeamID,
+	))
 
 	ctx.SetUserClassroom(classroom)
 	ctx.SetGitlabGroupID(classroom.Classroom.GroupID)

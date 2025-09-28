@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql/driver"
 	"fmt"
-	"log"
 	"time"
 
 	"gorm.io/gen/field"
@@ -33,6 +32,7 @@ import (
 // @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects [post]
 func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("InviteToAssignment")
 	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
 	assignment := ctx.GetAssignment()
@@ -100,7 +100,7 @@ func (ctrl *DefaultController) InviteToAssignment(c *fiber.Ctx) (err error) {
 
 	for _, team := range invitableTeams {
 		for _, member := range team.Member {
-			log.Println("Sending invitation to", member.User.GitlabEmail)
+			log.Info("Sending invitation", "email", member.User.GitlabEmail)
 
 			joinPath := fmt.Sprintf("/classrooms/%s/projects/%s/accept", classroom.ClassroomID.String(), team.AssignmentProjects[0].ID.String())
 			err = ctrl.mailRepo.SendAssignmentNotification(member.User.GitlabEmail,

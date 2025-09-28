@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
@@ -32,11 +33,12 @@ func NewSyncGitlabDbWork(config gitlabConfig.Config, publicUrl *url.URL) *SyncGi
 
 // Do synchronizes classrooms, teams, and projects between GitLab and the local database.
 func (w *SyncGitlabDbWork) Do(ctx context.Context) {
+	log := logging.GetLogger(ctx)
 	classrooms := w.getUnarchivedClassrooms(ctx)
 	for _, classroom := range classrooms {
-		repo, err := GetWorkerRepo(w.gitlabConfig, classroom.GroupAccessToken)
+		repo, err := GetWorkerRepo(ctx, w.gitlabConfig, classroom.GroupAccessToken)
 		if err != nil {
-			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
+			log.Error("Error occurred while login into gitlab", "classroom", classroom, "error", err)
 			continue
 		}
 

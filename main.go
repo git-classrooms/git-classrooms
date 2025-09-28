@@ -138,7 +138,7 @@ func main() {
 		defer wg.Done()
 
 		dueAssignmentWork := worker.NewDueAssignmentWork(appConfig.GitLab)
-		dueAssignmentWorker := worker.NewWorker(dueAssignmentWork)
+		dueAssignmentWorker := worker.NewWorker(dueAssignmentWork, "dueAssignment")
 		dueAssignmentWorker.Start(ctx, 1*time.Minute)
 	}()
 
@@ -147,7 +147,7 @@ func main() {
 		defer wg.Done()
 
 		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab, appConfig.PublicURL)
-		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
+		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork, "syncGitlab")
 		syncGitlabDbWorker.Start(ctx, appConfig.GitLab.SyncInterval)
 	}()
 

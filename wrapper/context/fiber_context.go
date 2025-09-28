@@ -152,6 +152,10 @@ func (c *FiberContext) GetLogger() *slog.Logger {
 	return logging.GetFiberContextLogger(c.Ctx)
 }
 
+func (c *FiberContext) GetLoggerForHandler(handlerName string) *slog.Logger {
+	return logging.GetFiberContextLogger(c.Ctx).With(slog.String("handler", handlerName))
+}
+
 func (c *FiberContext) SetLogger(logger *slog.Logger) {
 	logging.SetFiberContextLogger(c.Ctx, logger)
 }

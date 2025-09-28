@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"encoding/json"
@@ -46,6 +45,9 @@ type authRequest struct {
 }
 
 func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
+	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("SignIn")
+
 	body := &authRequest{}
 	c.BodyParser(body)
 
@@ -55,6 +57,9 @@ func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 	}
 
 	origin := fmt.Sprintf("%s://%s", c.Protocol(), c.Hostname())
+
+	log.Debug("signin request", "redirect", redirect, "origin", origin)
+
 	csrf := c.Locals("csrf").(string)
 
 	stateBytes, err := json.Marshal(authState{csrf, redirect})
@@ -71,7 +76,12 @@ func (ctrl *OAuthController) SignIn(c *fiber.Ctx) error {
 
 // Callback to receive gitlabs' response
 func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
+	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("Callback")
+
 	origin := fmt.Sprintf("%s://%s", c.Protocol(), c.Hostname())
+
+	log.Debug("callback received", "origin", origin)
 
 	oauthConfig := ctrl.authConfig.GetOAuthConfig(origin)
 	authCodeOption := oauth2.VerifierOption("Challenge") // this is the validation of the PKCE-Challenge
@@ -79,6 +89,9 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
+
+	log.Debug("code exchange successfull", "provider", oauthConfig.Endpoint.TokenURL)
+
 	stateVal := c.FormValue("state") // get the state passed from auth, which was sent by gitlab
 	state := &authState{}
 
@@ -95,16 +108,22 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid csrf token")
 	}
 
+	log.Debug("creating gitlab repo from accessToken")
+
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
-	if err := repo.Login(token.AccessToken); err != nil {
+	if err := repo.Login(token.AccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
+
+	log.Debug("retrieving user data from gitlab")
 
 	// Get user from GitLab
 	gitlabUser, err := repo.GetCurrentUser()
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
+
+	log.Debug("saving user data from gitlab in db", "userID", gitlabUser.ID)
 
 	// Save or Update user in DB
 	u := query.User
@@ -119,7 +138,7 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 		})).
 		FirstOrCreate()
 	if err != nil {
-		log.Println(err)
+		log.Error("error while saving user in db", "userID", gitlabUser.ID, "error", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
 
@@ -133,8 +152,10 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 
 	redirect := state.Redirect
 
+	log.Debug("saving user data in session", "userID", user.ID)
+
 	if err = s.Save(); err != nil {
-		log.Println(err)
+		log.Error("error while saving session in db and cookie", "error", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
 	}
 
@@ -142,6 +163,9 @@ func (ctrl *OAuthController) Callback(c *fiber.Ctx) error {
 }
 
 func (ctrl *OAuthController) SignOut(c *fiber.Ctx) error {
+	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("SignOut")
+
 	body := &authRequest{}
 	c.BodyParser(body)
 
@@ -149,6 +173,8 @@ func (ctrl *OAuthController) SignOut(c *fiber.Ctx) error {
 	if body.Redirect != "" {
 		redirect = body.Redirect
 	}
+
+	log.Debug("signout request", "redirect", redirect)
 
 	err := session.Get(c).Destroy()
 	if err != nil {
@@ -177,6 +203,11 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
+	ctx := fiberContext.Get(c)
+	cleanLogger := ctx.GetLogger().With("userID", userId)
+	ctx.SetLogger(cleanLogger)
+	log := ctx.GetLoggerForHandler("AuthMiddleware")
+
 	token, err := sess.GetGitlabOauth2Token()
 	if err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
@@ -185,6 +216,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 	// exp.Add(-20 * time.Minute).After(time.Now())
 	// If
 	if token.Expiry.Before(time.Now().Add(20 * time.Minute)) {
+		log.Info("accessToken is expired starting to refresh", "expiry", token.Expiry)
 		// this added to prevent multiple requests from refreshing the token at the same time
 		// If 2 refresh requests are sent at the same time, the first one will refresh the token
 		// and the second would get an error because the refresh token was already used
@@ -192,7 +224,7 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 			return nil, ctrl.refreshSession(c.Context(), sess)
 		})
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 		}
 		// sess.Save does save the session, which invalidates the pointer and we must get a new one
 		sess = session.Get(c)
@@ -202,13 +234,14 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 		}
 	}
 
+	log.Debug("creating gitlab repo for request")
+
 	repo := gitlabRepo.NewGitlabRepo(ctrl.gitlabConfig)
-	if err := repo.Login(token.AccessToken); err != nil {
+	if err := repo.Login(token.AccessToken, cleanLogger); err != nil {
 		return fiber.NewError(fiber.StatusUnauthorized, err.Error())
 	}
 
 	// Set every variable from the session to the context
-	ctx := fiberContext.Get(c)
 	ctx.SetGitlabRepository(repo)
 	ctx.SetUserID(userId)
 	return ctx.Next()
@@ -226,6 +259,9 @@ func (ctrl *OAuthController) AuthMiddleware(c *fiber.Ctx) error {
 //	@Failure		500	{object}	HTTPError
 //	@Router			/api/v1/auth/csrf [get]
 func (ctrl *OAuthController) GetCsrf(c *fiber.Ctx) error {
+	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("GetCsrf")
+	log.Debug("received request")
 	type response struct {
 		Csrf string `json:"csrf"`
 	}

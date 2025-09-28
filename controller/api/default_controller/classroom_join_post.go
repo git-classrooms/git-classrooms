@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -50,6 +49,7 @@ func (r *joinClassroomRequest) isValid() bool {
 // @Router			/api/v1/classrooms/{classroomId}/join [post]
 func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("JoinClassroom")
 	repo := ctx.GetGitlabRepository()
 
 	var params Params
@@ -126,7 +126,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 				if queryClassroomInvitation.
 					WithContext(c.Context()).
 					Delete(invitation); err != nil {
-					log.Println(err.Error())
+					log.Error("error while deleting invitation", "error", err)
 				}
 			}
 		}()
@@ -179,7 +179,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	if err = repo.GroupAccessLogin(invitation.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(invitation.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

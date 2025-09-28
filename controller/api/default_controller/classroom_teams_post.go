@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -40,6 +39,7 @@ func (r createTeamRequest) isValid() bool {
 // @Router			/api/v1/classrooms/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("CreateTeam")
 	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
 	team := classroom.Team
@@ -81,7 +81,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -98,7 +98,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	defer func() {
 		if recover() != nil || err != nil {
 			if err := repo.DeleteGroup(group.ID); err != nil {
-				log.Println(err.Error())
+				log.Error("error while deleting gitlab group", "groupID", group.ID, "error", err)
 			}
 		}
 	}()

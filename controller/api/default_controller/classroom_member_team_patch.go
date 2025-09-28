@@ -1,8 +1,6 @@
 package api
 
 import (
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/controller/api/common"
@@ -39,6 +37,7 @@ func (r updateMemberTeamRequest) isValid() bool {
 // @Router			/api/v1/classrooms/{classroomId}/members/{memberId}/team [patch]
 func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("UpdateMemberTeam")
 	classroom := ctx.GetUserClassroom()
 	member := ctx.GetClassroomMember()
 	repo := ctx.GetGitlabRepository()
@@ -60,7 +59,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		return fiber.ErrBadRequest
 	}
 
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -83,7 +82,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while adding user to group", "groupID", member.Team.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -113,7 +112,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 						accessLevel = model.ReporterPermissions
 					}
 					if err := repo.AddProjectMember(project.ProjectID, member.UserID, accessLevel); err != nil {
-						log.Println(err)
+						log.Error("error while adding user to project", "projectID", project.ProjectID, "memberID", member.UserID, "error", err)
 					}
 				}
 			}

@@ -26,6 +26,7 @@ import (
 // @Router			/api/v1/classrooms/{classroomId}/teams/{teamId}/join [post]
 func (ctrl *DefaultController) JoinTeam(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("JoinTeam")
 	classroom := ctx.GetUserClassroom()
 	ownTeam := classroom.Team
 	team := ctx.GetTeam()
@@ -44,7 +45,7 @@ func (ctrl *DefaultController) JoinTeam(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

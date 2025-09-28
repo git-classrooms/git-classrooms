@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -36,6 +35,7 @@ func (r updateTeamRequest) isValid() bool {
 // @Router			/api/v1/classrooms/{classroomId}/teams/{teamId} [put]
 func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("UpdateTeam")
 	classroom := ctx.GetUserClassroom()
 	team := ctx.GetTeam()
 	repo := ctx.GetGitlabRepository()
@@ -58,7 +58,7 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken)
+	err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -72,7 +72,7 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 	defer func() {
 		if recover() != nil || err != nil {
 			if _, err := repo.ChangeGroupName(team.GroupID, oldTeamName); err != nil {
-				log.Printf("Failed to revert group name: %v", err)
+				log.Error("Failed to revert group name", "groupID", team.GroupID, "name", oldTeamName, "error", err)
 			}
 		}
 	}()

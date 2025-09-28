@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
@@ -35,6 +35,7 @@ import (
 // @Router			/api/v1/classrooms/{classroomId}/projects/{projectId}/accept [post]
 func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("AcceptAssignment")
 	classroom := ctx.GetUserClassroom()
 	userID := ctx.GetUserID()
 	assignmentProject := ctx.GetAssignmentProject()
@@ -53,7 +54,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 
 	repo := ctx.GetGitlabRepository()
 
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -71,7 +72,7 @@ func (ctrl *DefaultController) AcceptAssignment(c *fiber.Ctx) (err error) {
 	}
 
 	// Make the actual project creation and assignment acceptance async
-	go ctrl.acceptAssignment(repo, userID, classroom.Classroom.OwnerID, templateProject, assignmentProject)
+	go ctrl.acceptAssignment(c.Context(), repo, userID, classroom.Classroom.OwnerID, templateProject, assignmentProject)
 
 	c.Set("Location", fmt.Sprintf("/api/v1/classrooms/%s/assignments/%s", classroom.ClassroomID.String(), assignmentProject.AssignmentID.String()))
 	return c.SendStatus(fiber.StatusAccepted)
@@ -100,11 +101,15 @@ Use this MR to leave feedback. Here are some tips:
 `
 )
 
-func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID int, classroomOwnerID int, templateProject *gitlabModel.Project, assignmentProject *database.AssignmentProjects) {
-	fmt.Println("Template defaultbranch ", templateProject.DefaultBranch)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+func (ctrl *DefaultController) acceptAssignment(ctx context.Context, repo gitlab.Repository, userID int, classroomOwnerID int, templateProject *gitlabModel.Project, assignmentProject *database.AssignmentProjects) {
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
 	defer cancel()
+
+	log := logging.GetLogger(ctx).With(
+		"assignmentProject", assignmentProject,
+		"templateProjectID", assignmentProject.Assignment.TemplateProjectID,
+		"groupID", assignmentProject.Team.GroupID,
+	)
 
 	queryAssignmentProjects := query.AssignmentProjects
 
@@ -114,20 +119,21 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 			assignmentProject.ProjectStatus = database.Failed
 			if err := queryAssignmentProjects.WithContext(ctx).
 				Save(assignmentProject); err != nil {
-				log.Println("Error while setting Project to Failed!", err)
+				log.Error("error while setting project to failed!", "error", err)
 			}
 		}
 	}()
 
 	project, err := repo.ForkProjectWithOnlyDefaultBranch(assignmentProject.Assignment.TemplateProjectID, gitlabModel.Private, assignmentProject.Team.GroupID, assignmentProject.Assignment.Name, assignmentProject.Assignment.Description)
 	if err != nil {
-		log.Println("Error while forking the template Project", err)
+		log.Error("error while forking the template Project", "error", err)
 		return
 	}
+	log = log.With("forkedProjectID", project.ID)
 	defer func() {
 		if recover() != nil || err != nil {
 			if err := repo.DeleteProject(project.ID); err != nil {
-				log.Println(err.Error())
+				log.Error("error while deleting project", "error", err)
 			}
 		}
 	}()
@@ -137,7 +143,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 	// TODO?: do not wait the whole 5 Minutes for this
 	err = waitForDefaultBranch(ctx, repo, project.ID, templateProject.DefaultBranch)
 	if err != nil {
-		log.Println("Error while waiting for defaultBranch", err)
+		log.Error("error while waiting for defaultBranch", "defaultBranch", templateProject.DefaultBranch, "error", err)
 		return
 	}
 
@@ -151,14 +157,14 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 
 	project, err = repo.AddProjectMembers(project.ID, gitlabMember)
 	if err != nil {
-		log.Println("Error while adding members to the project", err)
+		log.Error("error while adding members to the project", "error", err)
 		return
 	}
 	// We don't need to clean up this step because the project will be deleted
 
 	_, err = repo.CreateBranch(project.ID, "feedback", project.DefaultBranch)
 	if err != nil {
-		log.Println("Error while creating feedback branch", err)
+		log.Error("error while creating feedback branch", "error", err)
 		return
 	}
 	// We don't need to clean up this step because the project will be deleted
@@ -169,7 +175,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 		Where(queryUsers.ID.In(memberIds...)).
 		Find()
 	if err != nil {
-		log.Println("Error while fetching members", err)
+		log.Error("error while fetching members", "error", err)
 		return
 	}
 
@@ -179,7 +185,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 	description := fmt.Sprintf(mergeRequestDescription, strings.Join(mentions, "\n"))
 	err = repo.CreateMergeRequest(project.ID, project.DefaultBranch, "feedback", "Feedback", description, userID, classroomOwnerID)
 	if err != nil {
-		log.Println("Error while creating merge request", err)
+		log.Error("rrror while creating merge request", "error", err)
 		return
 	}
 	// We don't need to clean up this step because the project will be deleted
@@ -188,27 +194,27 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 	// TODO?: do not wait the whole 5 Minutes for this
 	err = waitForProtectedBranch(ctx, repo, project.ID, project.DefaultBranch)
 	if err != nil {
-		log.Println("Error while waiting for protected main branch", err)
+		log.Error("error while waiting for protected main branch", "error", err)
 		return
 	}
 
 	err = repo.UnprotectBranch(project.ID, project.DefaultBranch)
 	if err != nil {
-		log.Println("Error while unprotecting default branch", err)
+		log.Error("Error while unprotecting default branch", "error", err)
 		return
 	}
 	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.ProtectBranch(project.ID, project.DefaultBranch, gitlabModel.DeveloperPermissions)
 	if err != nil {
-		log.Println("Error while protecting default branch", err)
+		log.Error("error while protecting default branch", "error", err)
 		return
 	}
 	// We don't need to clean up this step because the project will be deleted
 
 	err = repo.ProtectBranch(project.ID, "feedback", gitlabModel.MaintainerPermissions)
 	if err != nil {
-		log.Println("Error while protecting feedback branch", err)
+		log.Error("error while protecting feedback branch", "error", err)
 		return
 	}
 	// We don't need to clean up this step because the project will be deleted
@@ -219,7 +225,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 	assignmentProject.HTTPURLToRepo = project.HTTPURLToRepo
 
 	if err = queryAssignmentProjects.WithContext(ctx).Save(assignmentProject); err != nil {
-		log.Println("Error while setting Project to Accepted", err)
+		log.Error("error while setting Project to Accepted", "error", err)
 		return
 	}
 }

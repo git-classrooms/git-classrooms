@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
@@ -20,6 +19,9 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 		return c.Next()
 	}
 
+	log := ctx.GetLoggerForHandler("PotentiallyDeletedClassroomMiddleware")
+	log = log.With("classroom", classroom)
+
 	repo := ctx.GetGitlabRepository()
 	_, err = repo.GetGroupById(classroom.GroupID)
 	if err == nil {
@@ -32,7 +34,7 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 			return c.Next()
 		}
 
-		log.Default().Printf("Classroom %s (ID=%d) archived due to revoked group access token", classroom.Name, classroom.GroupID)
+		log.Info("classroom archived due to revoked group access token", "groupID", classroom.GroupID)
 		return c.Next()
 	}
 
@@ -46,7 +48,7 @@ func (ctrl *DefaultController) PotentiallyDeletedClassroomMiddleware(c *fiber.Ct
 		if err != nil {
 			return c.Next()
 		}
-		log.Default().Printf("Classroom %s (ID=%d) deleted due to group deletion via GitLab.", classroom.Name, classroom.GroupID)
+		log.Info("classroom deleted due to group deletion via GitLab.", "groupID", classroom.GroupID)
 		return fiber.NewError(fiber.StatusNotFound, "Classroom got deleted via GitLab.")
 	}
 

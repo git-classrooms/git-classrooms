@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -38,6 +37,7 @@ func (r updateMemberRoleRequest) isValid() bool {
 // @Router			/api/v1/classrooms/{classroomId}/members/{memberId}/role [patch]
 func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("UpdateMemberRole")
 	classroom := ctx.GetUserClassroom()
 	member := ctx.GetClassroomMember()
 	repo := ctx.GetGitlabRepository()
@@ -51,7 +51,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		return fiber.ErrBadRequest
 	}
 
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -85,7 +85,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -97,7 +97,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -109,7 +109,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -125,7 +125,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -137,7 +137,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -152,7 +152,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()
@@ -164,7 +164,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-					log.Println(err)
+					log.Error("error while changing accesslevel in group", "groupID", classroom.Classroom.GroupID, "memberID", member.UserID, "error", err)
 				}
 			}
 		}()

@@ -48,10 +48,9 @@ func Routes(
 		}
 		return c.Next()
 	})
-	app.Use(csrf.New(session.CsrfConfig))
 	app.Use(func(c *fiber.Ctx) error {
 		ctx := fiberContext.Get(c)
-		log = log.With(slog.String("requestId", uuid.NewString()))
+		log := log.With(slog.String("requestId", uuid.NewString()))
 		log.DebugContext(c.Context(), "request started")
 		ctx.SetLogger(log)
 		return c.Next()
@@ -62,6 +61,7 @@ func Routes(
 		log := ctx.GetLogger()
 		log.InfoContext(c.Context(), string(logString[:len(logString)-1]))
 	}}))
+	app.Use(csrf.New(session.CsrfConfig))
 
 	api.Mount("/v1", setupApiRoutes(config, authController, apiController))
 	api.Get("/swagger/*", swagger.HandlerDefault) // default
