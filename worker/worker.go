@@ -32,14 +32,18 @@ func NewWorker(work Work, name string) *Worker {
 // Start begins the periodic execution of the work at the specified interval.
 // It runs until the provided context is canceled.
 func (w *Worker) Start(ctx context.Context, workInterval time.Duration) {
-	ctx = logging.SetLogger(ctx, logging.GetLogger(ctx).With("work", w.name))
+	log := logging.GetLogger(ctx).With("work", w.name)
+	ctx = logging.SetLogger(ctx, log)
 	ticker := time.NewTicker(1 * time.Millisecond)
 	first := true
+
+	log.Info("worker started", "workInterval", workInterval)
 
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
+				log.Info("worker closed", "reason", ctx.Err())
 				return
 			case <-ticker.C:
 				if first {

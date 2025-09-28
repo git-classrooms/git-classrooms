@@ -9,6 +9,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	stdLog "log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -33,6 +34,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 //go:embed all:frontend/dist
@@ -74,7 +76,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{Logger: logger.New(stdLog.Default(), logger.Config{})})
 	if err != nil {
 		log.Error("failed to connect database", "error", err)
 		os.Exit(1)
