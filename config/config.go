@@ -10,6 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
+	"gitlab.hs-flensburg.de/gitlab-classroom/config/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/config/mail"
 )
 
@@ -22,6 +23,7 @@ type ApplicationConfig struct {
 	Database       *database.PsqlConfig `envPrefix:"POSTGRES_"`
 	Auth           *auth.OAuthConfig    `envPrefix:"AUTH_"`
 	Mail           *mail.MailConfig     `envPrefix:"SMTP_"`
+	Log            *logging.LogConfig   `envPrefix:"LOG_"`
 }
 
 func LoadApplicationConfig() (*ApplicationConfig, error) {
@@ -34,6 +36,7 @@ func LoadApplicationConfig() (*ApplicationConfig, error) {
 		Database: &database.PsqlConfig{},
 		Auth:     &auth.OAuthConfig{},
 		Mail:     &mail.MailConfig{},
+		Log:      &logging.LogConfig{},
 	}
 	if err := env.Parse(config); err != nil {
 		return nil, err
