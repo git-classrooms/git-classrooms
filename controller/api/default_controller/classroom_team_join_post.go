@@ -44,6 +44,8 @@ func (ctrl *DefaultController) JoinTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusForbidden, "The team is full.")
 	}
 
+	log.Debug("authenticate the repo with group access token")
+
 	// reauthenticate the repo with the group access token
 	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
