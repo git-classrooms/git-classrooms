@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gitlab.hs-flensburg.de/gitlab-classroom/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -42,14 +43,13 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	log := ctx.GetLoggerForHandler("CreateTeam")
 	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
-	team := classroom.Team
 	repo := ctx.GetGitlabRepository()
 
 	if classroom.Classroom.MaxTeamSize == 1 {
 		return fiber.NewError(fiber.StatusForbidden, "Teams are disabled for this classroom.")
 	}
 
-	if team != nil && classroom.Role == database.Student {
+	if classroom.Team != nil && classroom.Role == database.Student {
 		return fiber.NewError(fiber.StatusForbidden, "You are already a member of a team.")
 	}
 
@@ -63,8 +63,10 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	if !requestBody.isValid() {
-		return fiber.ErrBadRequest
+		return fiber.NewError(fiber.StatusBadRequest, "Body is not valid")
 	}
+
+	log.Debug("retrieving all teams from db")
 
 	queryTeam := query.Team
 	teams, err := queryTeam.
@@ -73,12 +75,15 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		Where(queryTeam.ClassroomID.Eq(classroom.ClassroomID)).
 		Find()
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		log.Error("error while retrieving teams from db", "error", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "database error")
 	}
 
 	if classroom.Classroom.MaxTeams > 0 && len(teams) >= classroom.Classroom.MaxTeams {
 		return fiber.NewError(fiber.StatusForbidden, "The maximum number of teams has been reached.")
 	}
+
+	log.Debug("authenticate the repo with group access token")
 
 	// reauthenticate the repo with the group access token
 	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
@@ -93,6 +98,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		fmt.Sprintf("Team %s of classroom %s", requestBody.Name, classroom.Classroom.Name),
 	)
 	if err != nil {
+		log.Error("error creating gitlab subgroup", "groupID", classroom.Classroom.GroupID, "error", err)
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer func() {
@@ -103,23 +109,17 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		}
 	}()
 
-	queryUserClassrooms := query.UserClassrooms
-	user, err := queryUserClassrooms.
-		WithContext(c.Context()).
-		Where(queryUserClassrooms.UserID.Eq(userID)).
-		Where(queryUserClassrooms.ClassroomID.Eq(classroom.ClassroomID)).
-		First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
+	log.Info("created subgroup in gitlab for team", "parentGroup", classroom.Classroom.GroupID, "subGroupID", group.ID, "name", requestBody.Name)
 
 	member := make([]*database.UserClassrooms, 0)
 
 	if classroom.Role == database.Student {
-		if err := repo.AddUserToGroup(group.ID, userID, model.ReporterPermissions); err != nil {
+		log.Info("adding user to gitlab group because you are a student", "groupID", group.ID)
+		if err = repo.AddUserToGroup(group.ID, userID, model.ReporterPermissions); err != nil {
+			log.Error("error adding user to group", "groupID", group.ID, "error", err)
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
-		member = append(member, user)
+		member = append(member, classroom)
 	}
 
 	newTeam := &database.Team{
@@ -130,12 +130,19 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	if err = queryTeam.WithContext(c.Context()).Create(newTeam); err != nil {
+		log.Error("error creating team in db", "name", requestBody.Name, "error", err)
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	log = log.With("team", newTeam)
+	ctx.SetLogger(log)
+
 	ctrl.createAssignmentProjectsIfNeeded(c.Context(), query.Q, &classroom.Classroom, newTeam.ID)
 
+	log.Debug("changing description of gitlab group", "groupID", group.ID)
+
 	if _, err = repo.ChangeGroupDescription(group.ID, ctrl.createTeamGitlabDescription(&classroom.Classroom, newTeam.ID)); err != nil {
+		log.Error("error changing group description", "groupID", group.ID, "error", err)
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
@@ -148,13 +155,16 @@ func (ctrl *DefaultController) createTeamGitlabDescription(classroom *database.C
 }
 
 func (ctrl *DefaultController) createAssignmentProjectsIfNeeded(ctx context.Context, tx *query.Query, classroom *database.Classroom, teamID uuid.UUID) error {
-	fmt.Println("Team was created trying to invite them to acceptable assignments")
+	log := logging.GetLogger(ctx)
+	log.Debug("team was created trying to invite them to acceptable assignments")
+
 	queryAssignment := tx.Assignment
 	assignments, err := queryAssignment.WithContext(ctx).
 		Preload(queryAssignment.Projects).
 		Where(queryAssignment.ClassroomID.Eq(classroom.ID)).
 		Find()
 	if err != nil {
+		log.Error("error getting assignments from db", "error", err)
 		return err
 	}
 	for _, a := range assignments {
@@ -164,16 +174,18 @@ func (ctrl *DefaultController) createAssignmentProjectsIfNeeded(ctx context.Cont
 			continue
 		}
 
-		fmt.Printf("assignment %s is acceptable inviting team %s\n", a.ID, teamID)
+		log.Info("assignment is acceptable inviting team", "assignment", a)
 
 		assignmentProject := &database.AssignmentProjects{
 			AssignmentID:  a.ID,
 			TeamID:        teamID,
 			ProjectStatus: database.Pending,
 		}
-		if err = tx.AssignmentProjects.WithContext(ctx).Create(assignmentProject); err != nil {
-			return err
+		if innerErr := tx.AssignmentProjects.WithContext(ctx).Create(assignmentProject); innerErr != nil {
+			log.Error("error creating assignmentProject", "error", innerErr)
+			err = innerErr
+			continue
 		}
 	}
-	return nil
+	return err
 }
