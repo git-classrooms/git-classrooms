@@ -56,12 +56,16 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 	}
 
 	if !requestBody.isValid() {
-		return fiber.ErrBadRequest
+		return fiber.NewError(fiber.StatusBadRequest, "Body is not valid")
 	}
+
+	log.Debug("authenticate the repo with group access token")
 
 	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+
+	log.Debug("getting team from db", "teamID", *&requestBody.TeamID)
 
 	queryTeam := query.Team
 	newTeam, err := queryTeam.
@@ -69,20 +73,26 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 		Where(queryTeam.ID.Eq(*requestBody.TeamID)).
 		First()
 	if err != nil {
+		log.Error("error getting team from db", "error", err)
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
 	if member.TeamID != nil {
 		if *member.TeamID == newTeam.ID {
+			log.Info("member is already in this team")
 			return c.SendStatus(fiber.StatusNoContent)
 		}
+
+		log.Info("removing member from current team", "oldTeam", member.Team)
+
 		if err = repo.RemoveUserFromGroup(member.Team.GroupID, member.UserID); err != nil {
+			log.Error("error removing user from group", "groupID", member.Team.GroupID, "error", err)
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
 			if recover() != nil || err != nil {
 				if err := repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.ReporterPermissions); err != nil {
-					log.Error("error while adding user to group", "groupID", member.Team.GroupID, "memberID", member.UserID, "error", err)
+					log.Error("error adding user to group", "groupID", member.Team.GroupID, "error", err)
 				}
 			}
 		}()
@@ -94,13 +104,15 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 			Where(queryAssignmentProjects.TeamID.Eq(*member.TeamID)).
 			Where(queryAssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
 			Find()
-
 		if err != nil {
+			log.Error("error getting projects from db", "teamID", newTeam.ID, "error", err)
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
 		for _, project := range projects {
+			log.Info("removing member from gitlab project", "projectID", project.ProjectID)
 			if err = repo.RemoveUserFromProject(project.ProjectID, member.UserID); err != nil {
+				log.Error("error removing user from project", "projectID", project.ProjectID, "error", err)
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 		}
@@ -112,7 +124,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 						accessLevel = model.ReporterPermissions
 					}
 					if err := repo.AddProjectMember(project.ProjectID, member.UserID, accessLevel); err != nil {
-						log.Error("error while adding user to project", "projectID", project.ProjectID, "memberID", member.UserID, "error", err)
+						log.Error("error while adding user to project", "projectID", project.ProjectID, "error", err)
 					}
 				}
 			}
