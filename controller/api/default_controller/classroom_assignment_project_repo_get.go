@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
+	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -33,15 +34,23 @@ func (ctrl *DefaultController) GetProjectCloneUrls(c *fiber.Ctx) (err error) {
 		return fiber.ErrNotFound
 	}
 
-	gitlabProject, err := repo.GetProjectById(project.ProjectID)
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	// TODO: remove in next version
+	if project.HTTPURLToRepo == "" && project.SSHURLToRepo == "" {
+		gitlabProject, err := repo.GetProjectById(project.ProjectID)
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+		project.SSHURLToRepo = gitlabProject.SSHURLToRepo
+		project.HTTPURLToRepo = gitlabProject.HTTPURLToRepo
+		if err := query.AssignmentProjects.WithContext(c.Context()).Save(project); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
 	}
 
 	response := ProjectCloneUrlResponse{
 		ProjectId:     project.ID,
-		SshUrlToRepo:  gitlabProject.SSHURLToRepo,
-		HttpUrlToRepo: gitlabProject.HTTPURLToRepo,
+		SshUrlToRepo:  project.SSHURLToRepo,
+		HttpUrlToRepo: project.HTTPURLToRepo,
 	}
 	return c.JSON(response)
 }
