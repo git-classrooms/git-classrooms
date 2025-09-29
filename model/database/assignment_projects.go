@@ -34,6 +34,9 @@ type AssignmentProjects struct {
 	ProjectStatus status `gorm:"not null;default:pending" json:"projectStatus"`
 	ProjectID     int    `json:"projectId"`
 
+	SSHURLToRepo  string `json:"sshUrlToRepo"`
+	HTTPURLToRepo string `json:"httpUrlToRepo"`
+
 	GradingJUnitTestResult *JUnitTestResult       `gorm:"type:jsonb;" json:"gradingJUnitTestResult" validate:"optional"`
 	GradingManualResults   []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID;constraint:OnDelete:CASCADE;" json:"gradingManualResults"`
 } //@Name AssignmentProjects

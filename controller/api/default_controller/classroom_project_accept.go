@@ -215,6 +215,8 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 
 	assignmentProject.ProjectID = project.ID
 	assignmentProject.ProjectStatus = database.Accepted
+	assignmentProject.SSHURLToRepo = project.SSHURLToRepo
+	assignmentProject.HTTPURLToRepo = project.HTTPURLToRepo
 
 	if err = queryAssignmentProjects.WithContext(ctx).Save(assignmentProject); err != nil {
 		log.Println("Error while setting Project to Accepted", err)

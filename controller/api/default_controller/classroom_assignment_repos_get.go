@@ -33,15 +33,23 @@ func (ctrl *DefaultController) GetMultipleProjectCloneUrls(c *fiber.Ctx) (err er
 
 	response := make([]*ProjectCloneUrlResponse, len(assignmentProjects))
 	for i, project := range assignmentProjects {
-		gitlabProject, err := repo.GetProjectById(project.ProjectID)
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		// TODO: remove in next version
+		if project.HTTPURLToRepo == "" && project.SSHURLToRepo == "" {
+			gitlabProject, err := repo.GetProjectById(project.ProjectID)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
+			project.SSHURLToRepo = gitlabProject.SSHURLToRepo
+			project.HTTPURLToRepo = gitlabProject.HTTPURLToRepo
+			if err := query.AssignmentProjects.WithContext(c.Context()).Save(project); err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			}
 		}
 
 		response[i] = &ProjectCloneUrlResponse{
 			ProjectId:     project.ID,
-			SshUrlToRepo:  gitlabProject.SSHURLToRepo,
-			HttpUrlToRepo: gitlabProject.HTTPURLToRepo,
+			SshUrlToRepo:  project.SSHURLToRepo,
+			HttpUrlToRepo: project.HTTPURLToRepo,
 		}
 	}
 
