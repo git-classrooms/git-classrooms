@@ -28,3 +28,15 @@ func ExecGitlabRunnerRegister(ctx context.Context, gitlabURL, token string) erro
   --docker-image "ubuntu:24"
  `, gitlabURL, token))
 }
+
+func ExecPgHealth(ctx context.Context) error {
+	return ExecCommand(ctx, "pg_isready -U postgres -h localhost -p 5432")
+}
+
+func ExecMigrateDB(ctx context.Context, dsn string) error {
+	return ExecCommand(ctx, fmt.Sprintf(`go tool goose -dir model/database/migrations postgres "%s" up`, dsn))
+}
+
+func ExecSeedDB(ctx context.Context, dsn string) error {
+	return ExecCommand(ctx, fmt.Sprintf(`go tool goose -dir model/database/seeds -no-versioning postgres "%s" up`, dsn))
+}

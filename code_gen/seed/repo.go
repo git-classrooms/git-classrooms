@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
+	"time"
 
 	"github.com/xanzy/go-gitlab"
 )
@@ -23,17 +25,17 @@ func NewGitlabRepo(gitlabURL string, accessToken string) (*GitlabRepo, error) {
 	return &GitlabRepo{client: cli, url: gitlabURL}, nil
 }
 
-func (r *GitlabRepo) Health(ctx context.Context) (bool, error) {
+func (r *GitlabRepo) Health(ctx context.Context) error {
 	res, err := http.Get(fmt.Sprintf("%s/-/health", r.url))
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return false, errors.New(res.Status)
+		return errors.New(res.Status)
 	}
 
-	return true, nil
+	return nil
 }
 
 func (r *GitlabRepo) CreateUser(ctx context.Context, username, email, name string) (*gitlab.User, error) {
@@ -54,9 +56,11 @@ func (r *GitlabRepo) CreateUser(ctx context.Context, username, email, name strin
 }
 
 func (r *GitlabRepo) GetAccessTokenOfUser(ctx context.Context, userID int) (*gitlab.PersonalAccessToken, error) {
+	expiresAt := time.Now().AddDate(0, 0, 364)
 	token, _, err := r.client.Users.CreatePersonalAccessToken(userID, &gitlab.CreatePersonalAccessTokenOptions{
-		Name:   Ptr("root"),
-		Scopes: Ptr([]string{"api", "write_repository"}),
+		Name:      Ptr("root"),
+		ExpiresAt: Ptr(gitlab.ISOTime(expiresAt)),
+		Scopes:    Ptr([]string{"api", "write_repository"}),
 	},
 		gitlab.WithContext(ctx))
 	if err != nil {
@@ -109,6 +113,7 @@ func (r *GitlabRepo) CreateTemplateProject(ctx context.Context, opts *gitlab.Cre
 func (r *GitlabRepo) CreateClassroom(ctx context.Context, name string) (*gitlab.Group, error) {
 	group, _, err := r.client.Groups.CreateGroup(&gitlab.CreateGroupOptions{
 		Name:       &name,
+		Path:       Ptr(convertToGitLabPath(name)),
 		Visibility: Ptr(gitlab.PrivateVisibility),
 	}, gitlab.WithContext(ctx))
 	if err != nil {
@@ -118,9 +123,11 @@ func (r *GitlabRepo) CreateClassroom(ctx context.Context, name string) (*gitlab.
 }
 
 func (r *GitlabRepo) CreateGroupAccessToken(ctx context.Context, groupID int) (*gitlab.GroupAccessToken, error) {
+	expiresAt := time.Now().AddDate(0, 0, 364)
 	token, _, err := r.client.GroupAccessTokens.CreateGroupAccessToken(groupID, &gitlab.CreateGroupAccessTokenOptions{
 		Name:        Ptr("GitClassrooms"),
 		Scopes:      Ptr([]string{"api"}),
+		ExpiresAt:   Ptr(gitlab.ISOTime(expiresAt)),
 		AccessLevel: Ptr(gitlab.OwnerPermissions),
 	}, gitlab.WithContext(ctx))
 	if err != nil {
@@ -133,6 +140,7 @@ func (r *GitlabRepo) CreateTeam(ctx context.Context, groupID int, name string) (
 	group, _, err := r.client.Groups.CreateGroup(&gitlab.CreateGroupOptions{
 		ParentID:   &groupID,
 		Name:       &name,
+		Path:       Ptr(convertToGitLabPath(name)),
 		Visibility: Ptr(gitlab.PrivateVisibility),
 	}, gitlab.WithContext(ctx))
 	if err != nil {
@@ -159,4 +167,29 @@ func (r *GitlabRepo) AddUserToGroup(ctx context.Context, groupId, userId int, ac
 
 func Ptr[T any](v T) *T {
 	return &v
+}
+
+func convertToGitLabPath(s string) string {
+	// Remove unwanted characters
+	reg, _ := regexp.Compile("[^a-zA-Z0-9_.-]+")
+	s = reg.ReplaceAllString(s, "")
+
+	// Remove leading and trailing special characters
+	s = strings.Trim(s, "_.-")
+
+	// Prevent consecutive special characters
+	reg, _ = regexp.Compile("[-_.]{2,}")
+	s = reg.ReplaceAllString(s, "-")
+
+	// Prevent specific endings
+	if strings.HasSuffix(s, ".git") || strings.HasSuffix(s, ".atom") {
+		s = s[:len(s)-4]
+	}
+
+	// Ensure the path name is at least one character long
+	if len(s) == 0 {
+		s = "gc_"
+	}
+
+	return s
 }
