@@ -17,6 +17,11 @@ endef
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitBranch=$(APP_GIT_BRANCH) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitRepository=$(APP_GIT_REPOSITORY) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.buildTime=$(APP_BUILD_TIME) \
+POSTGRES_USER ?= postgres
+POSTGRES_PASSWORD ?= postgres
+POSTGRES_DB ?= postgres
+POSTGRES_HOST ?= localhost
+POSTGRES_PORT ?= 5432
 
 .PHONY: help
 help:
@@ -143,22 +148,27 @@ migrate/new:
 		echo "usage: make migrate/new name=name_of_migration"; \
 		exit 1; \
 	fi
-	go tool goose normal create $(name) sql
+	go tool goose -dir model/database/migrations create $(name) sql
 
 .PHONY: migrate/status
 migrate/status:
 	@echo "Migrating status..."
-	go tool goose normal status
+	go tool goose -dir model/database/migrations postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)" status
+
+.PHONY: migrate/up
+migrate/up:
+	@echo "Migrating up..."
+	go tool goose -dir model/database/migrations postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)" up
+
+.PHONY: migrate/down
+migrate/down:
+	@echo "Migrating down..."
+	go tool goose -dir model/database/migrations postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)" down
 
 .PHONY: seed/up
 seed/up:
 	@echo "Seeding up..."
-	go tool goose seed -no-versioning up
-
-.PHONY: seed/reset
-seed/reset:
-	@echo "Seeding reset..."
-	go tool goose seed -no-versioning reset
+	go tool goose -dir model/database/seeds -no-versioning postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)" up
 
 .PHONY: migrate/check
 migrate/check:
