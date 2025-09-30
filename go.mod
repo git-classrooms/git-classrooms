@@ -11,6 +11,7 @@ tool (
 	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/goose
 	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/gorm
 	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/migrations
+	gitlab.hs-flensburg.de/gitlab-classroom/code_gen/seed
 )
 
 require (
