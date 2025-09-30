@@ -1,6 +1,10 @@
 package database
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Role uint8 //@Name Role
 
@@ -14,6 +18,9 @@ const (
 type UserClassrooms struct {
 	UserID int  `gorm:"primaryKey;autoIncrement:false;not null" json:"-"`
 	User   User `gorm:";" json:"user"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"-"`
 
 	ClassroomID uuid.UUID `gorm:"type:uuid;primaryKey;not null" json:"-"`
 	Classroom   Classroom `gorm:";" json:"classroom"`
