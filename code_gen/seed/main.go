@@ -25,9 +25,13 @@ func run() error {
 	config := ParseConfig()
 	dsn := config.Postgres.Dsn()
 
+	log.Println("Cleaning up old infra and starting fresh one")
+
 	if err := ExecComposeReset(ctx); err != nil {
 		return err
 	}
+
+	log.Println("Waiting for postgres to become available")
 
 	for {
 		if err := ExecPgHealth(ctx); err == nil {
@@ -36,9 +40,13 @@ func run() error {
 		time.Sleep(2 * time.Second)
 	}
 
+	log.Println("Migrating database")
+
 	if err := ExecMigrateDB(ctx, dsn); err != nil {
 		return err
 	}
+
+	log.Println("Seeding database")
 
 	if err := ExecSeedDB(ctx, dsn); err != nil {
 		return err
@@ -125,6 +133,8 @@ func run() error {
 		return err
 	}
 
+	log.Printf("Creating %d users\n", len(users))
+
 	for _, user := range users {
 		log.Println("Creating user", user.GitlabEmail)
 
@@ -140,12 +150,9 @@ func run() error {
 
 	log.Println("All users created")
 
-	classrooms, err := GetAllClassrooms(ctx)
-	if err != nil {
-		return err
-	}
-
 	owner := users[0]
+
+	log.Println("Getting accessToken of owner")
 
 	ownerToken, err := gitlabRepo.GetAccessTokenOfUser(ctx, owner.ID)
 	if err != nil {
@@ -156,6 +163,8 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Setting up %d templateProjects\n", len(templateProjects))
 
 	for _, project := range templateProjects {
 		log.Println("Creating template project", project.opts.Name)
@@ -168,6 +177,13 @@ func run() error {
 
 		log.Println("project created with id", gitlabProject.ID)
 	}
+
+	classrooms, err := GetAllClassrooms(ctx)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Creating %d classrooms", len(classrooms))
 
 	for _, classroom := range classrooms {
 		log.Println("Creating classroom", classroom.Name)
@@ -210,6 +226,8 @@ func run() error {
 			return err
 		}
 
+		log.Printf("Adding %d members to classroom", len(classroom.Member))
+
 		for _, member := range classroom.Member {
 			log.Println("Adding member to classroom", member.User.GitlabEmail)
 
@@ -228,6 +246,8 @@ func run() error {
 			}
 		}
 
+		log.Printf("Creating %d teams of classroom", len(classroom.Teams))
+
 		for _, team := range classroom.Teams {
 			log.Println("creating team of classroom", team.Name)
 			gitlabTeam, err := groupRepo.CreateTeam(ctx, gitlabClassroom.ID, team.Name)
@@ -239,6 +259,8 @@ func run() error {
 			if _, err := sqlDB.ExecContext(ctx, "UPDATE teams SET group_id = $1 WHERE id = $2", gitlabTeam.ID, team.ID); err != nil {
 				return nil
 			}
+
+			log.Printf("Adding %d members to team", len(team.Member))
 
 			for _, member := range team.Member {
 				log.Println("Adding member to team", member.User.GitlabEmail)
