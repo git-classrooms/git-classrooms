@@ -53,6 +53,12 @@ export interface ProjectResponse {
      * @type {string}
      * @memberof ProjectResponse
      */
+    httpUrlToRepo: string;
+
+    /**
+     * @type {string}
+     * @memberof ProjectResponse
+     */
     id: string;
 
     /**
@@ -72,6 +78,12 @@ export interface ProjectResponse {
      * @memberof ProjectResponse
      */
     reportWebUrl: string;
+
+    /**
+     * @type {string}
+     * @memberof ProjectResponse
+     */
+    sshUrlToRepo: string;
 
     /**
      * @type {Team}
