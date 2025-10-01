@@ -10,6 +10,7 @@ import (
 	"github.com/xanzy/go-gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
+	"golang.org/x/exp/constraints"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -63,10 +64,10 @@ func run() error {
 	}
 
 	log.Println("Open the following link in your browser, login and create an accessToken with the following permissions:")
-	log.Println("write_repository, api, create_runner, admin_mode, sudo")
+	log.Println("api, admin_mode")
 	url := fmt.Sprintf("%s/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc", *gitlabURL)
 	log.Println(url)
-	ExecCommand(ctx, fmt.Sprintf("open %s", url))
+	ExecCommand(ctx, fmt.Sprintf("xdg-open %s", url))
 
 	var adminToken string
 	fmt.Print("Admin Token: ")
@@ -93,6 +94,17 @@ func run() error {
 		"AUTH_CLIENT_SECRET": application.Secret,
 		"GITLAB_URL":         *gitlabURL,
 	}); err != nil {
+		return err
+	}
+
+	log.Println("Registering instance runner")
+
+	gitlabRunner, err := gitlabRepo.CreateInstanceRunner(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := ExecGitlabRunnerRegister(ctx, *gitlabURL, gitlabRunner.Token); err != nil {
 		return err
 	}
 
@@ -133,18 +145,32 @@ func run() error {
 		return err
 	}
 
+	owner := users[0]
+
+	ownerToken, err := gitlabRepo.GetAccessTokenOfUser(ctx, owner.ID)
+	if err != nil {
+		return err
+	}
+
+	ownerRepo, err := NewGitlabRepo(*gitlabURL, ownerToken.Token)
+	if err != nil {
+		return err
+	}
+
+	for _, project := range templateProjects {
+		log.Println("Creating template project", project.opts.Name)
+		gitlabProject, err := ownerRepo.CreateTemplateProject(ctx, project.opts)
+		if err != nil {
+			return err
+		}
+
+		project.projectID = gitlabProject.ID
+
+		log.Println("project created with id", gitlabProject.ID)
+	}
+
 	for _, classroom := range classrooms {
 		log.Println("Creating classroom", classroom.Name)
-
-		ownerToken, err := gitlabRepo.GetAccessTokenOfUser(ctx, classroom.OwnerID)
-		if err != nil {
-			return err
-		}
-
-		ownerRepo, err := NewGitlabRepo(*gitlabURL, ownerToken.Token)
-		if err != nil {
-			return err
-		}
 
 		gitlabClassroom, err := ownerRepo.CreateClassroom(ctx, classroom.Name)
 		if err != nil {
@@ -169,6 +195,14 @@ func run() error {
 
 		if _, err := sqlDB.ExecContext(ctx, "UPDATE classrooms SET group_id = $1 WHERE id = $2", gitlabClassroom.ID, classroom.ID); err != nil {
 			return err
+		}
+
+		log.Println("Fix classroom assignment templateProject ids")
+		for _, assignment := range classroom.Assignments {
+			gitlabProject := templateProjects[abs(assignment.TemplateProjectID)-1]
+			if _, err := sqlDB.ExecContext(ctx, "UPDATE assignments SET template_project_id = $1 WHERE id = $2", gitlabProject.projectID, assignment.ID); err != nil {
+				return nil
+			}
 		}
 
 		groupRepo, err := NewGitlabRepo(*gitlabURL, groupToken.Token)
@@ -217,6 +251,32 @@ func run() error {
 	}
 
 	return nil
+}
+
+func abs[T constraints.Integer | constraints.Float](v T) T {
+	if v < 0 {
+		return -v
+	}
+	return v
+}
+
+type templateProject struct {
+	opts      *gitlab.CreateProjectOptions
+	projectID int
+}
+
+var templateProjects = []*templateProject{
+	{opts: &gitlab.CreateProjectOptions{
+		Name:                 Ptr("Simple Assignment"),
+		DefaultBranch:        Ptr("main"),
+		InitializeWithReadme: Ptr(true),
+		Visibility:           Ptr(gitlab.PublicVisibility),
+	}},
+	{opts: &gitlab.CreateProjectOptions{
+		Name:                 Ptr("Go Assignment"),
+		InitializeWithReadme: Ptr(false),
+		Visibility:           Ptr(gitlab.PublicVisibility),
+	}},
 }
 
 func main() {

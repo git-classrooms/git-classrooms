@@ -19,18 +19,12 @@ func ExecComposeReset(ctx context.Context) error {
 }
 
 func ExecGitlabRunnerRegister(ctx context.Context, gitlabURL, token string) error {
-	return ExecCommand(ctx, fmt.Sprintf(`docker compose exec gitlab-runner \
-  gitlab-runner register --non-interactive \
-  --url "%s" \
-  --token "%s" \
-  --name GitClassrooms \
-  --executor docker \
-  --docker-image "ubuntu:24"
+	return ExecCommand(ctx, fmt.Sprintf(`docker compose exec --no-TTY gitlab-runner gitlab-runner register --non-interactive --url "%s" --token "%s" --name GitClassrooms --executor docker --docker-image "ubuntu:24"
  `, gitlabURL, token))
 }
 
 func ExecPgHealth(ctx context.Context) error {
-	return ExecCommand(ctx, "pg_isready -U postgres -h localhost -p 5432")
+	return ExecCommand(ctx, "docker compose exec --no-TTY db pg_isready -U postgres -h localhost")
 }
 
 func ExecMigrateDB(ctx context.Context, dsn string) error {

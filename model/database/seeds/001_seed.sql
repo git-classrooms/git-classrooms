@@ -70,6 +70,7 @@ INSERT INTO "public"."teams" (
 ('164eb7ad-b631-4871-b2fc-15085285bcc4', 'Deploy Dackel', -1, 'a8566e13-f696-494a-87f9-98d40b178291', NOW(), NOW()),
 ('a741b295-fd74-4622-b763-19cc0eddc847', 'Hotfix Hamster', -1, 'a8566e13-f696-494a-87f9-98d40b178291', NOW(), NOW()),
 ('45a910fa-478c-4187-8012-cc3567682592', 'Feature Füchse', -1, 'a8566e13-f696-494a-87f9-98d40b178291', NOW(), NOW()),
+
 ('9e50f780-d74b-4de9-b516-2fae56c37794', 'Rebase Randy', -1, '827469b8-0dd1-431c-8b00-031b00547dc7', NOW(), NOW()),
 ('2a6506f0-e43a-4d42-a195-309f7adc7f82', 'Sir Stash Alot', -1, '827469b8-0dd1-431c-8b00-031b00547dc7', NOW(), NOW()),
 ('f7abf4fb-9937-48ed-85be-18dc19f8c2e7', 'Inge Issue', -1, '827469b8-0dd1-431c-8b00-031b00547dc7', NOW(), NOW());
@@ -114,13 +115,6 @@ INSERT INTO "public"."classroom_invitations" (
     "created_at",
     "updated_at"
 ) VALUES
-( 'd55bb0a7-6309-477b-b433-862fd1b9ac17', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'toni@tester.de', NOW() + '14 days', NOW(), NOW() ),
-( 'ff5fff6e-5a15-45cc-b6e0-b8dccee4107d', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'laura@tester.de', NOW() + '14 days', NOW(), NOW() ),
-( '3d81f8bc-1949-46e1-8d6e-a766f192fbd3', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'rebase@randy.de', NOW() + '14 days', NOW(), NOW() ),
-( '889a6fff-adb0-40e9-8b7b-9f1d67abc591', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'sirstash@alot.de', NOW() + '14 days', NOW(), NOW() ),
-( '109574a5-f7d1-46ad-a9ad-4953d518639b', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'inge@issue.de', NOW() + '14 days', NOW(), NOW() ),
-( '9054d699-ef36-44b5-8677-152f20b47b5f', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'inge@issue.de', NOW() + '14 days', NOW(), NOW() ),
-
 ( 'bb87e0cc-b958-4ada-90b7-0748a82588e9', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'toni@tester.de', NOW() + '14 days', NOW(), NOW() ),
 ( 'f97c36b7-6e42-45a3-9b0e-96bdd3c2c9fa', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'laura@tester.de', NOW() + '14 days', NOW(), NOW() ),
 ( 'd97b471d-f343-44a3-8838-b5de33d3896b', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'harald@hueftschmerz.de', NOW() + '14 days', NOW(), NOW() ),
@@ -130,25 +124,52 @@ INSERT INTO "public"."classroom_invitations" (
 ( 'dbcf9ae8-eb0b-4786-82c9-93b48fcf3702', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'rebase@randy.de', NOW() + '14 days', NOW(), NOW() ),
 ( 'e0a41fc6-f197-4437-b6b0-0c09aedd37f1', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'sirstash@alot.de', NOW() + '14 days', NOW(), NOW() ),
 ( '8d711f63-301e-47b7-b300-f0e0439a2427', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'inge@issue.de', NOW() + '14 days', NOW(), NOW() ),
-( 'd0d5f9cd-ec19-40cc-9ee0-43f812735f7b', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'franzi@feature.de', NOW() + '14 days', NOW(), NOW() );
+( 'd0d5f9cd-ec19-40cc-9ee0-43f812735f7b', 1 , 'a8566e13-f696-494a-87f9-98d40b178291', 'franzi@feature.de', NOW() + '14 days', NOW(), NOW() ),
 
--- INSERT INTO "public"."assignments" (
---     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
---     "created_at" TIMESTAMP WITH TIME ZONE,
---     "updated_at" TIMESTAMP WITH TIME ZONE,
---     "classroom_id" UUID NOT NULL,
---     "template_project_id" BIGINT NOT NULL,
---     "name" TEXT NOT NULL,
---     "description" TEXT,
---     "due_date" TIMESTAMP WITH TIME ZONE,
---     "closed" BOOLEAN DEFAULT FALSE,
---     "grading_j_unit_auto_grading_active" BOOLEAN,
---     "acceptable_since" TIMESTAMP WITH TIME ZONE
---     CONSTRAINT "fk_classrooms_assignments" FOREIGN KEY ("classroom_id") REFERENCES "public"."classrooms"("id") ON DELETE CASCADE
--- );
--- CREATE UNIQUE INDEX "idx_unique_classroom_assignmentName" ON "public"."assignments" USING btree ("classroom_id", "name");
+( 'd55bb0a7-6309-477b-b433-862fd1b9ac17', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'toni@tester.de', NOW() + '14 days', NOW(), NOW() ),
+( 'ff5fff6e-5a15-45cc-b6e0-b8dccee4107d', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'laura@tester.de', NOW() + '14 days', NOW(), NOW() ),
+( '3d81f8bc-1949-46e1-8d6e-a766f192fbd3', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'rebase@randy.de', NOW() + '14 days', NOW(), NOW() ),
+( '889a6fff-adb0-40e9-8b7b-9f1d67abc591', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'sirstash@alot.de', NOW() + '14 days', NOW(), NOW() ),
+( '109574a5-f7d1-46ad-a9ad-4953d518639b', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'inge@issue.de', NOW() + '14 days', NOW(), NOW() ),
+( '9054d699-ef36-44b5-8677-152f20b47b5f', 1, '827469b8-0dd1-431c-8b00-031b00547dc7', 'inge@issue.de', NOW() + '14 days', NOW(), NOW() );
+
+INSERT INTO "public"."assignments" (
+  "id",
+  "classroom_id",
+  "template_project_id",
+  "name",
+  "description",
+  "due_date",
+  "closed",
+  "grading_j_unit_auto_grading_active",
+  "acceptable_since",
+  "created_at",
+  "updated_at"
+) VALUES
+( '1ea03cc3-645f-4591-8c6c-a4742a1d91fb', 'a8566e13-f696-494a-87f9-98d40b178291', -1, 'First Go Assignment', 'Test description', NOW() + '14 days', false, false, NOW(), NOW(), NOW() ),
+( 'b78ac40a-ba52-49c9-b596-a363bf0e14ea', 'a8566e13-f696-494a-87f9-98d40b178291', -2, 'First Simple Assignment', 'Test description', NOW() + '14 days', false, false, null, NOW(), NOW() ),
+
+( '979efba7-fe05-42d1-997e-f00250b11a44', '827469b8-0dd1-431c-8b00-031b00547dc7', -1, 'First Simple Assignment', 'Test description', NOW() + '14 days', false, false, NOW(), NOW(), NOW() ),
+( '22715641-c93f-492d-8101-77bb3ee1d94a', '827469b8-0dd1-431c-8b00-031b00547dc7', -2, 'Second Go Assignment', 'Test description', NOW() + '14 days', false, false, null, NOW(), NOW() );
+
+INSERT INTO "public"."assignment_projects"(
+  "id",
+  "team_id",
+  "assignment_id",
+  "created_at",
+  "updated_at"
+) VALUES
+('1cac3ab2-b11e-4230-85bd-4b32aec9888b', 'ddb55138-4dc8-4c6e-9fcf-76f162920841', '1ea03cc3-645f-4591-8c6c-a4742a1d91fb', NOW(), NOW()),
+('e5421a39-da2c-4fe4-b4da-2577345dc0d5', '164eb7ad-b631-4871-b2fc-15085285bcc4', '1ea03cc3-645f-4591-8c6c-a4742a1d91fb', NOW(), NOW()),
+('351d4d4f-ba83-4671-ae85-65755aaa1f5e', 'a741b295-fd74-4622-b763-19cc0eddc847', '1ea03cc3-645f-4591-8c6c-a4742a1d91fb', NOW(), NOW()),
+('97616c03-d11c-4e7e-9fd4-677aed0d02d4', '45a910fa-478c-4187-8012-cc3567682592', '1ea03cc3-645f-4591-8c6c-a4742a1d91fb', NOW(), NOW()),
+
+('1befbc6d-f210-4070-b8b3-cbce9e3365bf', '9e50f780-d74b-4de9-b516-2fae56c37794', '979efba7-fe05-42d1-997e-f00250b11a44', NOW(), NOW()),
+('1ac6a69b-080b-479c-a37a-5c9670967f38', '2a6506f0-e43a-4d42-a195-309f7adc7f82', '979efba7-fe05-42d1-997e-f00250b11a44', NOW(), NOW()),
+('6e493847-c7e6-4376-8bdf-53ec9501dc2f', 'f7abf4fb-9937-48ed-85be-18dc19f8c2e7', '979efba7-fe05-42d1-997e-f00250b11a44', NOW(), NOW());
 
 -- +goose Down
+DELETE FROM "public"."assignment_projects" WHERE true;
 DELETE FROM "public"."assignments" WHERE true;
 DELETE FROM "public"."classroom_invitations" WHERE true;
 DELETE FROM "public"."user_classrooms" WHERE true;
