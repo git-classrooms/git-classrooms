@@ -39,14 +39,13 @@ help:
 	@echo "  run/dev                           Run development environment"
 	@echo "  build/docker                      Build docker image"
 	@echo "  run/docker                        Run docker container"
-	@echo "  infra/up                          Run infrastructure in docker compose (postgres, (pgadmin) and mailpit)"
+	@echo "  infra/reset                       Reset infra with new seeding data. Manual actions required"
+	@echo "  infra/up                          Run infrastructure in docker compose"
 	@echo "  infra/stop                        Run infrastructure stop"
 	@echo "  infra/down                        Run infrastructure down (delete)"
 	@echo "  migrate/new name=<name>           Create new migration"
 	@echo "  migrate/check                     Check and print outstanding migrations"
 	@echo "  migrate/status                    Migrate status"
-	@echo "  seed/up                           Seed up"
-	@echo "  seed/reset                        Seed reset"
 	@echo "  tidy                              Fmt and Tidy"
 	@echo "  lint                              Lint"
 	@echo "  test                              Test"
@@ -136,10 +135,6 @@ run/docker:
 	@echo "Running docker..."
 	docker run -it --env-file .env --rm -p 3000:3000 $(BINARY_NAME)-docker
 
-.PHONY: infra/up
-infra/up:
-	@docker compose -f docker-compose.local.yaml up -d
-
 .PHONY: migrate/new
 migrate/new:
 	@echo "Migrating up..."
@@ -164,11 +159,6 @@ migrate/up:
 migrate/down:
 	@echo "Migrating down..."
 	go tool goose -dir model/database/migrations postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)" down
-
-.PHONY: seed/up
-seed/up:
-	@echo "Seeding up..."
-	go tool goose -dir model/database/seeds -no-versioning postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)" up
 
 .PHONY: migrate/check
 migrate/check:
@@ -208,21 +198,29 @@ test/verbose:
 	@echo "Testing..."
 	go test -v -cover ./...
 
+.PHONY: infra/reset
+infra/reset:
+	@go tool seed
+
+.PHONY: infra/up
+infra/up:
+	@docker compose up -d
+
 .PHONY: infra/logs
 infra/logs:
-	@docker compose -f docker-compose.local.yaml logs -n 10 -f || true
+	@docker compose logs db -n 10 -f || true
 
 .PHONY: infra/stop
 infra/stop:
-	@docker compose -f docker-compose.local.yaml stop
+	@docker compose stop
 
 .PHONY: infra/down
 infra/down:
-	@docker compose -f docker-compose.local.yaml down --volumes
+	@docker compose down --volumes
 
 .PHONY: infra/status
 infra/status:
-	@docker compose -f docker-compose.local.yaml ps -a --format="table {{.Service}}\t{{.State}}\t{{.Status}}"
+	@docker compose ps -a --format="table {{.Service}}\t{{.State}}\t{{.Status}}"
 
 .PHONY: debug
 debug:
