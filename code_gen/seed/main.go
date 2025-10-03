@@ -72,7 +72,7 @@ func run() error {
 		time.Sleep(5 * time.Second)
 	}
 
-	log.Println("Open the following link in your browser, login and create an accessToken with the following permissions:")
+	log.Println("Open the following link in your browser, login and create an accessToken with the following permissions and paste it below:")
 	log.Println("api, admin_mode")
 	url := fmt.Sprintf("%s/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc", *gitlabURL)
 	log.Println(url)
@@ -86,8 +86,10 @@ func run() error {
 	time.Sleep(1 * time.Second)
 
 	var adminToken string
-	fmt.Print("Admin Token: ")
-	if _, err := fmt.Scanln(&adminToken); err != nil {
+	fmt.Print("Admin Token: \033[8m")
+	_, err = fmt.Scanln(&adminToken)
+	fmt.Print("\033[28m")
+	if err != nil {
 		return err
 	}
 
