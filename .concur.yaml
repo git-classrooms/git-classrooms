@@ -45,6 +45,6 @@ status:
         {{ .URL }} -> {{ .StatusCode }} Status: {{ index $body "status" }}
         {{- end -}}
 
-runAfter:
-  commands:
-    - command: make infra/stop
+# runAfter:
+#   commands:
+#     - command: make infra/stop

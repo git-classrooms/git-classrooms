@@ -1,0 +1,164 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:18.4.1-ce.0
+    restart: unless-stopped
+    hostname: "gitlab.localhost"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url 'http://gitlab.localhost:6969'
+        nginx['listen_port'] = 6969
+        nginx['listen_https'] = false
+        letsencrypt['enable'] = false
+        gitlab_rails['gitlab_shell_ssh_port'] = 2424
+
+        gitlab_rails['display_initial_root_password'] = true
+        gitlab_rails['store_initial_root_password'] = true
+
+
+        # gitlab_rails['trusted_proxies'] = []
+
+        gitlab_rails['monitoring_whitelist'] = ['0.0.0.0/0', '::/0']
+
+        gitlab_rails['smtp_enable'] = true
+        gitlab_rails['smtp_address'] = "mail"
+        gitlab_rails['smtp_port'] = 1025
+        gitlab_rails['smtp_user_name'] = "mail"
+        gitlab_rails['smtp_password'] = "password"
+        gitlab_rails['smtp_domain'] = "git-classrooms.dev"
+        gitlab_rails['smtp_tls'] = false
+        gitlab_rails['smtp_openssl_verify_mode'] = 'none'
+        gitlab_rails['smtp_enable_starttls_auto'] = false
+        gitlab_rails['smtp_ssl'] = false
+        gitlab_rails['smtp_force_ssl'] = false
+
+        gitlab_rails['gitlab_email_from'] = 'gitlab@git-classrooms.dev'
+        gitlab_rails['gitlab_email_reply_to'] = 'noreply@git-classrooms.dev'
+
+        gitlab_rails['gitlab_default_color_mode'] = 3
+
+      GITLAB_ROOT_EMAIL: root@test.de
+      GITLAB_ROOT_PASSWORD: geheim1234
+    ports:
+      - "2424:22"
+    networks:
+      default:
+        aliases:
+          - gitlab.localhost
+    volumes:
+      - "gitlab-config:/etc/gitlab"
+      - "gitlab-logs:/var/log/gitlab"
+      - "gitlab-data:/var/opt/gitlab"
+    shm_size: "256m"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitlab.rule=Host(`gitlab.localhost`)"
+      - "traefik.http.routers.gitlab.entrypoints=web"
+      - "traefik.http.routers.gitlab.service=gitlab"
+      - "traefik.http.services.gitlab.loadbalancer.server.port=6969"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:v18.4.0
+    restart: unless-stopped
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "gitlab-runner-config:/etc/gitlab-runner"
+
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: pg_isready -U postgres -h localhost
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - db-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+  mail:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "1025:1025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+      MP_WEBROOT: mail
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailpit.rule=Host(`localhost`) && PathPrefix(`/mail`)"
+      - "traefik.http.routers.mailpit.entrypoints=web"
+      - "traefik.http.routers.mailpit.service=mailpit"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    entrypoint: /bin/sh
+    command: >
+      -c "echo \"$$SERVERS_JSON\" > /tmp/servers.json &&
+      exec /entrypoint.sh"
+    environment:
+      SERVERS_JSON: |
+        {
+          "Servers": {
+            "1": {
+              "Name": "GitClassrooms",
+              "Group": "Servers",
+              "Port": 5432,
+              "Username": "${POSTGRES_USER}",
+              "PasswordExecCommand": "echo '${POSTGRES_PASSWORD}'",
+              "Host": "db",
+              "SSLMode": "prefer",
+              "MaintenanceDB": "postgres"
+            }
+          }
+        }
+
+      PGADMIN_SERVER_JSON_FILE: /tmp/servers.json
+      PGADMIN_DEFAULT_EMAIL: 1@1.com
+      PGADMIN_DEFAULT_PASSWORD: "1"
+      PGADMIN_DISABLE_POSTFIX: "true"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      SCRIPT_NAME: /pgadmin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`localhost`) && PathPrefix(`/pgadmin`)"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+
+  traefik:
+    image: traefik:v3.5
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:6969"
+      # - "--entryPoints.web.forwardedheaders.insecure=true"
+    ports:
+      - "6969:6969"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.routers.traefik.service=traefik"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
+      - "traefik.http.routers.app.rule=Host(`localhost`) && PathPrefix(`/`)"
+      - "traefik.http.routers.app.entrypoints=web"
+      - "traefik.http.routers.app.service=app"
+      - "traefik.http.services.app.loadbalancer.server.url=http://host.docker.internal:5173"
+
+volumes:
+  db-data:
+  gitlab-runner-config:
+  gitlab-config:
+  gitlab-logs:
+  gitlab-data:

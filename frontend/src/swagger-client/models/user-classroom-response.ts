@@ -40,6 +40,12 @@ export interface UserClassroomResponse {
      * @type {string}
      * @memberof UserClassroomResponse
      */
+    createdAt: string;
+
+    /**
+     * @type {string}
+     * @memberof UserClassroomResponse
+     */
     inviteCode: string;
 
     /**
