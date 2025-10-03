@@ -200,7 +200,7 @@ test/verbose:
 
 .PHONY: infra/reset
 infra/reset:
-	@go tool seed
+	@go tool seed -b=false
 
 .PHONY: infra/up
 infra/up:

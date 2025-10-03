@@ -21,6 +21,16 @@ func run() error {
 
 	gitlabURL := flag.String("gitlabURL", "http://gitlab.localhost:6969", "URL of the gitlab-instance")
 
+	var backupDotenv *bool
+	flag.BoolFunc("b", "backup dotenv without asking again", func(s string) error {
+		if s == "true" {
+			backupDotenv = Ptr(true)
+		} else {
+			backupDotenv = Ptr(false)
+		}
+		return nil
+	})
+
 	flag.Parse()
 
 	config := ParseConfig()
@@ -103,6 +113,22 @@ func run() error {
 	application, err := gitlabRepo.CreateApplication(ctx)
 	if err != nil {
 		return err
+	}
+
+	if backupDotenv == nil {
+		log.Print("Backup .env before it gets updated? (y/n)")
+		var char rune
+		if _, err := fmt.Scanf("%c", &char); err != nil {
+			return err
+		}
+
+		backupDotenv = Ptr(char == 'y')
+	}
+
+	if *backupDotenv {
+		if err := ExecCommand(ctx, "cp .env .env.bak"); err != nil {
+			return err
+		}
 	}
 
 	log.Println("Updating dotenv")
