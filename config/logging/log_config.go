@@ -1,8 +1,8 @@
 package logging
 
 import (
+	"io"
 	"log/slog"
-	"os"
 )
 
 type logLevel string
@@ -36,21 +36,22 @@ const (
 	typeJson logType = "json"
 )
 
-func (t logType) getHandler(opts *slog.HandlerOptions) slog.Handler {
+func (t logType) getHandler(output io.Writer, opts *slog.HandlerOptions) slog.Handler {
 	switch t {
 	case typeText:
-		return slog.NewTextHandler(os.Stdout, opts)
+		return slog.NewTextHandler(output, opts)
 	case typeJson:
-		return slog.NewJSONHandler(os.Stdout, opts)
+		return slog.NewJSONHandler(output, opts)
 	default:
-		return slog.NewTextHandler(os.Stdout, opts)
+		return slog.NewTextHandler(output, opts)
 	}
 }
 
 type LogConfig struct {
-	Level  logLevel `env:"LEVEL" envDefault:"info"`
-	Type   logType  `env:"TYPE" envDefault:"text"`
-	Source bool     `env:"SOURCE" envDefault:"false"`
+	Level    logLevel `env:"LEVEL" envDefault:"info"`
+	Type     logType  `env:"TYPE" envDefault:"text"`
+	Source   bool     `env:"SOURCE" envDefault:"false"`
+	FilePath string   `env:"FILE"`
 }
 
 var _ slog.LogValuer = (*LogConfig)(nil)
@@ -63,12 +64,12 @@ func (c *LogConfig) LogValue() slog.Value {
 	)
 }
 
-func (c LogConfig) GetLogger() *slog.Logger {
+func (c LogConfig) GetLogger(output io.Writer) *slog.Logger {
 	level := c.Level.toSlog()
 	opts := &slog.HandlerOptions{
 		AddSource: c.Source,
 		Level:     level,
 	}
-	handler := c.Type.getHandler(opts)
+	handler := c.Type.getHandler(output, opts)
 	return slog.New(handler)
 }

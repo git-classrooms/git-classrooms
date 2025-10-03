@@ -9,6 +9,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io"
 	stdLog "log"
 	"log/slog"
 	"os"
@@ -63,7 +64,21 @@ func main() {
 		log.Error("failed to get application configuration", "error", err)
 		os.Exit(1)
 	}
-	log = appConfig.Log.GetLogger()
+
+	var output io.Writer
+	if appConfig.Log.FilePath != "" {
+		f, err := os.OpenFile(appConfig.Log.FilePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+		if err != nil {
+			log.Error("could not open log file", "error", err)
+			os.Exit(1)
+		}
+		defer f.Close()
+		output = io.MultiWriter(os.Stdout, f)
+	} else {
+		output = os.Stdout
+	}
+
+	log = appConfig.Log.GetLogger(output)
 	slog.SetDefault(log)
 
 	setSwaggerInfo(appConfig.PublicURL.String())
