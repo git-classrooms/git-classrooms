@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"runtime"
 	"time"
 
 	"github.com/xanzy/go-gitlab"
@@ -75,7 +76,14 @@ func run() error {
 	log.Println("api, admin_mode")
 	url := fmt.Sprintf("%s/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc", *gitlabURL)
 	log.Println(url)
-	ExecCommand(ctx, fmt.Sprintf("xdg-open %s", url))
+
+	command := "xdg-open"
+	if runtime.GOOS == "darwin" {
+		command = "open"
+	}
+
+	ExecCommand(ctx, fmt.Sprintf("%s %s", command, url))
+	time.Sleep(1 * time.Second)
 
 	var adminToken string
 	fmt.Print("Admin Token: ")
