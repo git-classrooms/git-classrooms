@@ -10,7 +10,7 @@ components:
 images:
 - name: app-image
   newName: ghcr.io/git-classrooms/git-classrooms
-  newTag: 4a3ae4c
+  newTag: "8792215"
 
 generators:
 - ./secret-generator.yaml
