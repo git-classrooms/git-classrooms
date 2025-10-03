@@ -19,10 +19,10 @@ import (
 func run() error {
 	ctx := context.Background()
 
-	gitlabURL := flag.String("gitlabURL", "http://gitlab.localhost:6969", "URL of the gitlab-instance")
+	gitlabURL := flag.String("gitlabURL", "http://gitlab.localhost:6969", "Base URL of the GitLab instance (default: http://gitlab.localhost:6969)")
 
 	var backupDotenv *bool
-	flag.BoolFunc("b", "backup dotenv without asking again", func(s string) error {
+	flag.BoolFunc("b", "Backup .env automatically without prompting", func(s string) error {
 		if s == "true" {
 			backupDotenv = Ptr(true)
 		} else {
@@ -36,13 +36,13 @@ func run() error {
 	config := ParseConfig()
 	dsn := config.Postgres.Dsn()
 
-	log.Println("Cleaning up old infra and starting fresh one")
+	log.Println("Starting clean infrastructure reset...")
 
 	if err := ExecComposeReset(ctx); err != nil {
 		return err
 	}
 
-	log.Println("Waiting for postgres to become available")
+	log.Println("Waiting for PostgreSQL to become available...")
 
 	for {
 		if err := ExecPgHealth(ctx); err == nil {
@@ -51,13 +51,13 @@ func run() error {
 		time.Sleep(2 * time.Second)
 	}
 
-	log.Println("Migrating database")
+	log.Println("Start database migration")
 
 	if err := ExecMigrateDB(ctx, dsn); err != nil {
 		return err
 	}
 
-	log.Println("Seeding database")
+	log.Println("Start database seeding")
 
 	if err := ExecSeedDB(ctx, dsn); err != nil {
 		return err
@@ -68,13 +68,13 @@ func run() error {
 		return err
 	}
 
-	log.Println("Checking if gitlab is online. This can take a few minutes.")
+	log.Println("Checking if GitLab is online... This can take a few minutes.")
 	current := time.Now()
 	for {
 		if err := gitlabRepo.Health(ctx); err != nil {
 			if time.Since(current) > 30*time.Second {
 				current = time.Now()
-				log.Println("Still not online waiting", err)
+				log.Printf("GitLab not online yet; retrying… (last error: %v)\n", err)
 			}
 		} else {
 			break
@@ -82,8 +82,8 @@ func run() error {
 		time.Sleep(5 * time.Second)
 	}
 
-	log.Println("Open the following link in your browser, login and create an accessToken with the following permissions and paste it below:")
-	log.Println("api, admin_mode")
+	log.Println("Open the following URL in your browser, sign in, and create a Personal Access Token with the scopes: api, admin_mode")
+	log.Println("After creating the token, copy it and paste it below")
 	url := fmt.Sprintf("%s/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc", *gitlabURL)
 	log.Println(url)
 
@@ -116,7 +116,7 @@ func run() error {
 	}
 
 	if backupDotenv == nil {
-		log.Print("Backup .env before it gets updated? (y/n)")
+		log.Print("Backup .env before updating? (y/n)")
 		var char rune
 		if _, err := fmt.Scanf("%c", &char); err != nil {
 			return err
@@ -126,12 +126,15 @@ func run() error {
 	}
 
 	if *backupDotenv {
+		log.Println("Creating .env backup")
 		if err := ExecCommand(ctx, "cp .env .env.bak"); err != nil {
 			return err
 		}
+	} else {
+		log.Println("Skipping .env backup")
 	}
 
-	log.Println("Updating dotenv")
+	log.Println("Updating .env with GitLab credentials...")
 
 	if err := UpdateDotenv(map[string]string{
 		"AUTH_CLIENT_ID":     application.ApplicationID,
@@ -141,7 +144,7 @@ func run() error {
 		return err
 	}
 
-	log.Println("Registering instance runner")
+	log.Println("Registering GitLab instance runner...")
 
 	gitlabRunner, err := gitlabRepo.CreateInstanceRunner(ctx)
 	if err != nil {
@@ -152,14 +155,16 @@ func run() error {
 		return err
 	}
 
+	log.Println("Instance runner registered")
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("failed to connect database", err)
+		log.Fatal("Failed to connect to database", err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatal("failed to get database connection", err)
+		log.Fatal("Failed to get database connection", err)
 	}
 
 	query.SetDefault(db)
@@ -180,7 +185,7 @@ func run() error {
 		}
 
 		if user.ID != gitlabUser.ID {
-			return fmt.Errorf("ERROR: IDs are different then expected! DB-ID: %d, GitlabID: %d\n", user.ID, gitlabUser.ID)
+			return fmt.Errorf("ERROR: IDs are different than expected! DB ID=%d, GitLab ID=%d\n", user.ID, gitlabUser.ID)
 		}
 	}
 
@@ -188,7 +193,7 @@ func run() error {
 
 	owner := users[0]
 
-	log.Println("Getting accessToken of owner")
+	log.Println("Retrieving owner access token")
 
 	ownerToken, err := gitlabRepo.GetAccessTokenOfUser(ctx, owner.ID)
 	if err != nil {
@@ -200,10 +205,10 @@ func run() error {
 		return err
 	}
 
-	log.Printf("Setting up %d templateProjects\n", len(templateProjects))
+	log.Printf("Setting up %d template projects\n", len(templateProjects))
 
 	for _, project := range templateProjects {
-		log.Println("Creating template project", project.opts.Name)
+		log.Println("Creating template project", *project.opts.Name)
 		gitlabProject, err := ownerRepo.CreateTemplateProject(ctx, project.opts)
 		if err != nil {
 			return err
@@ -211,7 +216,7 @@ func run() error {
 
 		project.projectID = gitlabProject.ID
 
-		log.Println("project created with id", gitlabProject.ID)
+		log.Println("Project created with id", gitlabProject.ID)
 	}
 
 	classrooms, err := GetAllClassrooms(ctx)
@@ -219,7 +224,7 @@ func run() error {
 		return err
 	}
 
-	log.Printf("Creating %d classrooms", len(classrooms))
+	log.Printf("Creating %d classrooms\n", len(classrooms))
 
 	for _, classroom := range classrooms {
 		log.Println("Creating classroom", classroom.Name)
@@ -229,9 +234,9 @@ func run() error {
 			return err
 		}
 
-		log.Println("classroom created with id", gitlabClassroom.ID)
+		log.Println("Classroom created with id", gitlabClassroom.ID)
 
-		log.Println("Getting accessToken for classroom")
+		log.Println("Creating group access token for classroom...")
 		groupToken, err := ownerRepo.CreateGroupAccessToken(ctx, gitlabClassroom.ID)
 		if err != nil {
 			return err
@@ -249,7 +254,7 @@ func run() error {
 			return err
 		}
 
-		log.Println("Fix classroom assignment templateProject ids")
+		log.Println("Fixing classroom assignment template project IDs...")
 		for _, assignment := range classroom.Assignments {
 			gitlabProject := templateProjects[abs(assignment.TemplateProjectID)-1]
 			if _, err := sqlDB.ExecContext(ctx, "UPDATE assignments SET template_project_id = $1 WHERE id = $2", gitlabProject.projectID, assignment.ID); err != nil {
@@ -262,7 +267,7 @@ func run() error {
 			return err
 		}
 
-		log.Printf("Adding %d members to classroom", len(classroom.Member))
+		log.Printf("Adding %d members to classroom\n", len(classroom.Member))
 
 		for _, member := range classroom.Member {
 			log.Println("Adding member to classroom", member.User.GitlabEmail)
@@ -282,10 +287,10 @@ func run() error {
 			}
 		}
 
-		log.Printf("Creating %d teams of classroom", len(classroom.Teams))
+		log.Printf("Creating %d teams of classroom\n", len(classroom.Teams))
 
 		for _, team := range classroom.Teams {
-			log.Println("creating team of classroom", team.Name)
+			log.Println("Creating team of classroom", team.Name)
 			gitlabTeam, err := groupRepo.CreateTeam(ctx, gitlabClassroom.ID, team.Name)
 			if err != nil {
 				return err
