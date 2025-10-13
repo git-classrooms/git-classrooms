@@ -383,7 +383,10 @@ const DrawerForm = ({
                     className="w-full grid grid-cols-1 md:grid-cols-[1fr_4fr] gap-2 rounded-md border p-4 mb-4"
                   >
                     <div className="gap-1 md:col-span-2">
-                      <h4 className="text-sm font-bold">{rubric.name}</h4>
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-sm font-bold">{rubric.name}</h4>
+                        <span className="text-sm text-foreground">Max Score: {rubric.maxScore}</span>
+                      </div>
                       <span className="text-sm font-light text-muted-foreground">{rubric.description}</span>
                     </div>
 
