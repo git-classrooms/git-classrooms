@@ -26,9 +26,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useMemo } from "react";
-import { isCreator, isStudent } from "@/lib/utils";
+import { useMemo, useState } from "react";
+import { isCreator, isOwner, isStudent } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  ColumnFiltersState,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
@@ -103,12 +114,59 @@ function Members() {
   );
 }
 
+const createMemberColumns = (user: UserClassroomResponse, teams: TeamResponse[]) => {
+  const memberColumnHelper = createColumnHelper<UserClassroomResponse>();
+  const teamsEnabled = user.classroom.maxTeamSize > 1;
+
+  return [
+    memberColumnHelper.accessor((row) => row.user.name, {
+      id: "user",
+      header: "User",
+      cell: ({ row: { original: member } }) => <MemberListElement member={member} showTeams={teamsEnabled} />,
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
+
+    teamsEnabled
+      ? memberColumnHelper.accessor((row) => row.team?.name, {
+          id: "team",
+          header: "Team",
+          cell: ({ row: { original: member } }) =>
+            isStudent(member) && (
+              <TeamDropdown
+                team={member.team}
+                memberID={member.user.id}
+                classroomID={member.classroom.id}
+                teams={teams}
+              />
+            ),
+          enableSorting: true,
+          enableColumnFilter: true,
+        })
+      : undefined!,
+
+    isOwner(user)
+      ? memberColumnHelper.display({
+          id: "role",
+          header: () => <div className="text-right">Role</div>,
+          cell: ({ row: { original: member } }) =>
+            member.user.id !== user.user.id &&
+            (user.classroom.ownerId === user.user.id || (user.role === Role.Owner && member.role !== Role.Owner)) && (
+              <RoleDropdown
+                role={member.role}
+                memberID={member.user.id}
+                classroomID={user.classroom.id}
+                userClassroom={user}
+              />
+            ),
+        })
+      : undefined!,
+  ].filter(Boolean);
+};
+
 function MemberTable({
   userClassroom,
   members,
-  classroomId,
-  userRole,
-  showTeams,
   teams,
 }: {
   userClassroom: UserClassroomResponse;
@@ -118,48 +176,66 @@ function MemberTable({
   showTeams: boolean;
   teams: TeamResponse[];
 }) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const memberColumns = useMemo(() => createMemberColumns(userClassroom, teams), [userClassroom, teams]);
+
+  const table = useReactTable({
+    data: members,
+    columns: memberColumns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-full">Member</TableHead>
-          {userClassroom.classroom.maxTeamSize > 1 && <TableHead>Team</TableHead>}
-          <TableHead className="text-right">Role</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((m) => (
-          <TableRow key={m.user.id}>
-            <TableCell className="w-full">
-              <MemberListElement member={m} showTeams={showTeams} />
-            </TableCell>
-            {userClassroom.classroom.maxTeamSize > 1 && (
-              <TableCell>
-                <div className="flex justify-end">
-                  {isStudent(m) && (
-                    <TeamDropdown team={m.team} memberID={m.user.id} classroomID={classroomId} teams={teams} />
-                  )}
-                </div>
+    <>
+      <Input
+        placeholder="Filter users..."
+        value={(table.getColumn("user")?.getFilterValue() as string) ?? ""}
+        onChange={(event) => table.getColumn("user")?.setFilterValue(event.target.value)}
+        className="max-w-sm"
+      />
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header, i) => {
+                return (
+                  <TableHead className={i === 0 ? "w-full" : undefined} key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={memberColumns.length} className="h-24 text-center">
+                No results.
               </TableCell>
-            )}
-            <TableCell className="grid place-content-end">
-              <div className="flex justify-end">
-                {m.user.id !== userClassroom.user.id &&
-                  (userClassroom.classroom.ownerId === userClassroom.user.id ||
-                    (userRole === Role.Owner && m.role !== Role.Owner)) && (
-                    <RoleDropdown
-                      role={m.role}
-                      memberID={m.user.id}
-                      classroomID={classroomId}
-                      userClassroom={userClassroom}
-                    />
-                  )}
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </>
   );
 }
 

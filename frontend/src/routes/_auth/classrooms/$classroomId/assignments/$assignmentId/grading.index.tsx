@@ -17,7 +17,7 @@ import { cn, isModerator } from "@/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { AlertCircle, Bot, Download, Loader2, SearchCheck, SearchCode } from "lucide-react";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -45,6 +45,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import {
+  ColumnFiltersState,
+  SortingState,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/grading/")({
   beforeLoad: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -180,96 +190,154 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
   );
 }
 
+const createGradingColumns = (assignment: Assignment, rubrics: ManualGradingRubric[]) => {
+  const gradingColumnHelper = createColumnHelper<ZippedProject>();
+
+  return [
+    gradingColumnHelper.accessor((row) => row.team.name, {
+      id: "name",
+      header: "Name",
+      cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
+    gradingColumnHelper.display({
+      id: "status",
+      header: "Status",
+      cell: ({ row: { original: a } }) => {
+        const alreadyGraded =
+          Object.keys(a.gradingResult?.rubricResults ?? {}).length === rubrics.length &&
+          (a.gradingResult?.autogradingMaxScore === 0 || a.gradingResult?.autogradingScore !== 0);
+        return (
+          <div className="flex pl-1 gap-3 items-center">
+            <span className="relative flex h-3 w-3">
+              <span
+                className={cn(
+                  "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                  alreadyGraded ? "bg-emerald-400" : "bg-gray-400",
+                )}
+              ></span>
+              <span
+                className={cn(
+                  "relative inline-flex rounded-full h-3 w-3",
+                  alreadyGraded ? "bg-emerald-500" : "bg-gray-500",
+                )}
+              ></span>
+            </span>
+            {alreadyGraded ? "Graded" : "Not graded"}
+          </div>
+        );
+      },
+    }),
+    gradingColumnHelper.accessor((row) => row.gradingManualResults, {
+      id: "manual-result",
+      header: "Manual Grading",
+      cell: (info) =>
+        `${info.getValue().reduce((acc, e) => acc + (e.score || 0), 0)}/${rubrics.reduce((acc, e) => acc + e.maxScore, 0)}`,
+    }),
+
+    assignment.gradingJUnitAutoGradingActive
+      ? gradingColumnHelper.display({
+          id: "role",
+          header: () => <div className="text-right">Role</div>,
+          cell: ({ row: { original: a } }) => (
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger>
+                <a className="flex items-center" href={a.reportWebUrl} target="_blank" referrerPolicy="no-referrer">
+                  {a.gradingResult?.autogradingScore ?? 0}/{a.gradingResult?.autogradingMaxScore ?? 0}{" "}
+                  <SearchCheck className="ml-1 h-3.5 w-3.5" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Open details for test-driven grading</p>
+              </TooltipContent>
+            </Tooltip>
+          ),
+        })
+      : undefined!,
+
+    gradingColumnHelper.accessor((row) => row.gradingResult, {
+      id: "score",
+      header: "Score",
+      cell: (info) => `${info.getValue()?.score}/${info.getValue()?.maxScore}`,
+    }),
+
+    gradingColumnHelper.display({
+      id: "Actions",
+      header: "",
+      cell: ({ row: { original: a } }) => <DrawerForm zippedProject={a} rubrics={rubrics} />,
+    }),
+  ].filter(Boolean);
+};
+
+type ZippedProject = ProjectResponse & { gradingResult?: UtilsReportDataItem };
+
 function AssignmentProjectTable({
   assignment,
   zippedProjects,
   rubrics,
 }: {
   assignment: Assignment;
-  zippedProjects: (ProjectResponse & { gradingResult?: UtilsReportDataItem })[];
+  zippedProjects: ZippedProject[];
   rubrics: ManualGradingRubric[];
 }) {
-  // TODO: benötigt?
-  // const { classroomId, assignmentId } = Route.useParams();
-  // const { data: tests } = useSuspenseQuery(assignmentTestsQueryOptions(classroomId, assignmentId));
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const gradingColumns = useMemo(() => createGradingColumns(assignment, rubrics), [assignment, rubrics]);
+
+  const table = useReactTable({
+    data: zippedProjects,
+    columns: gradingColumns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
 
   return (
     <>
+      <Input
+        placeholder="Filter teams..."
+        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+        onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
+        className="max-w-sm"
+      />
       <Table>
-        <TableCaption>Projects</TableCaption>
         <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Manual grading</TableHead>
-            {assignment.gradingJUnitAutoGradingActive ? <TableHead>Test-driven grading</TableHead> : ""}
-            <TableHead>Score</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
         </TableHeader>
         <TableBody>
-          {zippedProjects.map((a) => {
-            const alreadyGraded =
-              Object.keys(a.gradingResult?.rubricResults ?? {}).length === rubrics.length &&
-              (a.gradingResult?.autogradingMaxScore === 0 || a.gradingResult?.autogradingScore !== 0);
-            return (
-              <TableRow key={`${a.assignment.id}-${a.team.id}`}>
-                <TableCell className="font-medium">{a.team.name}</TableCell>
-                <TableCell>
-                  <div className="flex pl-1 gap-3 items-center">
-                    <span className="relative flex h-3 w-3">
-                      <span
-                        className={cn(
-                          "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-                          alreadyGraded ? "bg-emerald-400" : "bg-gray-400",
-                        )}
-                      ></span>
-                      <span
-                        className={cn(
-                          "relative inline-flex rounded-full h-3 w-3",
-                          alreadyGraded ? "bg-emerald-500" : "bg-gray-500",
-                        )}
-                      ></span>
-                    </span>
-                    {alreadyGraded ? "Graded" : "Not graded"}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {a.gradingManualResults?.reduce((acc, e) => acc + (e.score || 0), 0)}/
-                  {rubrics.reduce((acc, e) => acc + e.maxScore, 0)}
-                </TableCell>
-                {assignment.gradingJUnitAutoGradingActive ? (
-                  <TableCell>
-                    <Tooltip delayDuration={0}>
-                      <TooltipTrigger>
-                        <a
-                          className="flex items-center"
-                          href={a.reportWebUrl}
-                          target="_blank"
-                          referrerPolicy="no-referrer"
-                        >
-                          {a.gradingResult?.autogradingScore ?? 0}/{a.gradingResult?.autogradingMaxScore ?? 0}{" "}
-                          <SearchCheck className="ml-1 h-3.5 w-3.5" />
-                        </a>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Open details for test-driven grading</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TableCell>
-                ) : (
-                  ""
-                )}
-                <TableCell>
-                  {a.gradingResult?.score ?? 0}/{a.gradingResult?.maxScore}
-                </TableCell>
-
-                <TableCell className="text-right float-right">
-                  <DrawerForm zippedProject={a} rubrics={rubrics} />
-                </TableCell>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
               </TableRow>
-            );
-          })}
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={gradingColumns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </>
