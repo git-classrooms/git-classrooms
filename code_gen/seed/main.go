@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"runtime"
 	"time"
 
 	"github.com/xanzy/go-gitlab"
@@ -82,23 +81,8 @@ func run() error {
 		time.Sleep(5 * time.Second)
 	}
 
-	log.Println("Open the following URL in your browser, sign in, and create a Personal Access Token with the scopes: api, admin_mode")
-	log.Println("After creating the token, copy it and paste it below")
-	url := fmt.Sprintf("%s/-/user_settings/personal_access_tokens?page=1&state=active&sort=expires_asc", *gitlabURL)
-	log.Println(url)
-
-	command := "xdg-open"
-	if runtime.GOOS == "darwin" {
-		command = "open"
-	}
-
-	ExecCommand(ctx, fmt.Sprintf("%s %s", command, url))
-	time.Sleep(1 * time.Second)
-
-	var adminToken string
-	fmt.Print("Admin Token: \033[8m")
-	_, err = fmt.Scanln(&adminToken)
-	fmt.Print("\033[28m")
+	log.Println("Gitlab is online. Creating PAT for root user")
+	adminToken, err := gitlabRepo.CreatePersonalAccessTokenForRoot(ctx)
 	if err != nil {
 		return err
 	}

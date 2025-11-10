@@ -1,43 +1,43 @@
 -- +goose Up
 INSERT INTO "public"."users" ("id", "gitlab_username", "gitlab_email", "name", "created_at", "updated_at", "avatar_url", "fallback_avatar_url")
 VALUES (
-  3, 'tonitester', 'toni@tester.de', 'Toni Tester', NOW(), NOW(),
+  2, 'tonitester', 'toni@tester.de', 'Toni Tester', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/e79b309c6c0ab9f6620ffa06b2ffcef89cbcc36f174a80a3dc62f2c195308ae3?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/e79b309c6c0ab9f6620ffa06b2ffcef89cbcc36f174a80a3dc62f2c195308ae3?s=80&d=identicon'
 ), (
-  4, 'lauratester', 'laura@tester.de', 'Laura Tester', NOW(), NOW(),
+  3, 'lauratester', 'laura@tester.de', 'Laura Tester', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/f882fbeb99363bd61790edd1845040152a8198ebcda9192e06a4ed9ed2496f48?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/f882fbeb99363bd61790edd1845040152a8198ebcda9192e06a4ed9ed2496f48?s=80&d=identicon'
 ), (
-  5, 'harri', 'harald@hueftschmerz.de', 'Harald Hüftschmerz', NOW(), NOW(),
+  4, 'harri', 'harald@hueftschmerz.de', 'Harald Hüftschmerz', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/b8565777dac214ba1a4e9623c16f3baf60ff1cdb22229e1d35c068841be294ef?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/b8565777dac214ba1a4e9623c16f3baf60ff1cdb22229e1d35c068841be294ef?s=80&d=identicon'
 ), (
-  6, 'mustermanfred', 'manfred@muster.de', 'Manfred Muster', NOW(), NOW(),
+  5, 'mustermanfred', 'manfred@muster.de', 'Manfred Muster', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/9b9613b9a2632819b9f5e5a85420fc80f6ad8dd235f312e64069610c503a62d6?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/9b9613b9a2632819b9f5e5a85420fc80f6ad8dd235f312e64069610c503a62d6?s=80&d=identicon'
 ), (
-  7, 'hanshotfix', 'hans@hotfix.de', 'Hans Hotfix', NOW(), NOW(),
+  6, 'hanshotfix', 'hans@hotfix.de', 'Hans Hotfix', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/c3d427b59dc3e5c60b14b53742e75fe39e6373981b628ed8e619ca94cfe687e3?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/c3d427b59dc3e5c60b14b53742e75fe39e6373981b628ed8e619ca94cfe687e3?s=80&d=identicon'
 ), (
-  8, 'peterpush', 'peter@push.de', 'Peter Push', NOW(), NOW(),
+  7, 'peterpush', 'peter@push.de', 'Peter Push', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/a13361b3397245a4fcd3792baf9b8080d15ec044d134046305a3f900c98ac229?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/a13361b3397245a4fcd3792baf9b8080d15ec044d134046305a3f900c98ac229?s=80&d=identicon'
 ), (
-  9, 'rebaserandy', 'rebase@randy.de', 'Rebase Randy', NOW(), NOW(),
+  8, 'rebaserandy', 'rebase@randy.de', 'Rebase Randy', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/300c3be6ed362cac33850d5dd5e1c815419144f2c4798e32fa40fd0141c229bc?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/300c3be6ed362cac33850d5dd5e1c815419144f2c4798e32fa40fd0141c229bc?s=80&d=identicon'
 ), (
-  10, 'stashalot', 'sirstash@alot.de', 'Sir Stash Alot', NOW(), NOW(),
+  9, 'stashalot', 'sirstash@alot.de', 'Sir Stash Alot', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/30f8e8c1a908ec86cabbfe34409b3a844e95e991eb2b0865c3af7be7d780c9fb?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/30f8e8c1a908ec86cabbfe34409b3a844e95e991eb2b0865c3af7be7d780c9fb?s=80&d=identicon'
 ), (
-  11, 'ingeissue', 'inge@issue.de', 'Inge Issue', NOW(), NOW(),
+  10, 'ingeissue', 'inge@issue.de', 'Inge Issue', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/5702878b262d980c133639bede83866fed57dfd84e27af0265ec031807802c1e?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/5702878b262d980c133639bede83866fed57dfd84e27af0265ec031807802c1e?s=80&d=identicon'
 ), (
-  12, 'franzifeature', 'franzi@feature.de', 'Franzi Feature', NOW(), NOW(),
+  11, 'franzifeature', 'franzi@feature.de', 'Franzi Feature', NOW(), NOW(),
   'https://secure.gravatar.com/avatar/9457a2bb061c4677314535ccba8a39a0343da4d851cb21aae335d9911a20fb58?s=80&d=identicon',
   'https://secure.gravatar.com/avatar/9457a2bb061c4677314535ccba8a39a0343da4d851cb21aae335d9911a20fb58?s=80&d=identicon'
 );
@@ -59,8 +59,8 @@ INSERT INTO "public"."classrooms" (
   "created_at",
   "updated_at"
 ) VALUES
-( 'a8566e13-f696-494a-87f9-98d40b178291', 'Classroom with Teams', 'Classroom with Teams!', 3, true, 2, 0, -1, -1, '', '1970-01-01 00:00:00.000000+00', false, '253cdd84-9414-42a6-ada2-2acb74f75cdd', NOW(), NOW() ),
-( '827469b8-0dd1-431c-8b00-031b00547dc7', 'Classroom without Teams', 'Classroom without Teams!', 3, false, 1, 0, -1, -1, '', '1970-01-01 00:00:00.000000+00', false, '90913851-cd98-4c63-a767-bba7eb63d47e', NOW(), NOW() );
+( 'a8566e13-f696-494a-87f9-98d40b178291', 'Classroom with Teams', 'Classroom with Teams!', 2, true, 2, 0, -1, -1, '', '1970-01-01 00:00:00.000000+00', false, '253cdd84-9414-42a6-ada2-2acb74f75cdd', NOW(), NOW() ),
+( '827469b8-0dd1-431c-8b00-031b00547dc7', 'Classroom without Teams', 'Classroom without Teams!', 2, false, 1, 0, -1, -1, '', '1970-01-01 00:00:00.000000+00', false, '90913851-cd98-4c63-a767-bba7eb63d47e', NOW(), NOW() );
 
 
 INSERT INTO "public"."teams" (
@@ -78,22 +78,22 @@ INSERT INTO "public"."teams" (
 INSERT INTO "public"."user_classrooms" (
   "user_id", "classroom_id", "team_id", "role", "created_at", "updated_at"
 ) VALUES
-( 3, 'a8566e13-f696-494a-87f9-98d40b178291', null, 0, NOW(), NOW() ),
-( 4, 'a8566e13-f696-494a-87f9-98d40b178291', null, 1, NOW(), NOW() ),
-( 5, 'a8566e13-f696-494a-87f9-98d40b178291', null, 2, NOW(), NOW() ),
+( 2, 'a8566e13-f696-494a-87f9-98d40b178291', null, 0, NOW(), NOW() ),
+( 3, 'a8566e13-f696-494a-87f9-98d40b178291', null, 1, NOW(), NOW() ),
+( 4, 'a8566e13-f696-494a-87f9-98d40b178291', null, 2, NOW(), NOW() ),
+( 5, 'a8566e13-f696-494a-87f9-98d40b178291', 'a741b295-fd74-4622-b763-19cc0eddc847', 2, NOW(), NOW() ),
 ( 6, 'a8566e13-f696-494a-87f9-98d40b178291', 'a741b295-fd74-4622-b763-19cc0eddc847', 2, NOW(), NOW() ),
-( 7, 'a8566e13-f696-494a-87f9-98d40b178291', 'a741b295-fd74-4622-b763-19cc0eddc847', 2, NOW(), NOW() ),
-( 8, 'a8566e13-f696-494a-87f9-98d40b178291', 'ddb55138-4dc8-4c6e-9fcf-76f162920841', 2, NOW(), NOW() ),
-( 9, 'a8566e13-f696-494a-87f9-98d40b178291', null, 2, NOW(), NOW() ),
-( 10, 'a8566e13-f696-494a-87f9-98d40b178291', 'ddb55138-4dc8-4c6e-9fcf-76f162920841', 2, NOW(), NOW() ),
-( 11, 'a8566e13-f696-494a-87f9-98d40b178291', null, 2, NOW(), NOW() ),
-( 12, 'a8566e13-f696-494a-87f9-98d40b178291', '45a910fa-478c-4187-8012-cc3567682592', 2, NOW(), NOW() ),
+( 7, 'a8566e13-f696-494a-87f9-98d40b178291', 'ddb55138-4dc8-4c6e-9fcf-76f162920841', 2, NOW(), NOW() ),
+( 8, 'a8566e13-f696-494a-87f9-98d40b178291', null, 2, NOW(), NOW() ),
+( 9, 'a8566e13-f696-494a-87f9-98d40b178291', 'ddb55138-4dc8-4c6e-9fcf-76f162920841', 2, NOW(), NOW() ),
+( 10, 'a8566e13-f696-494a-87f9-98d40b178291', null, 2, NOW(), NOW() ),
+( 11, 'a8566e13-f696-494a-87f9-98d40b178291', '45a910fa-478c-4187-8012-cc3567682592', 2, NOW(), NOW() ),
 
-( 3, '827469b8-0dd1-431c-8b00-031b00547dc7', null, 0, NOW(), NOW() ),
-( 4, '827469b8-0dd1-431c-8b00-031b00547dc7', null, 1, NOW(), NOW() ),
-( 9, '827469b8-0dd1-431c-8b00-031b00547dc7', '9e50f780-d74b-4de9-b516-2fae56c37794', 2, NOW(), NOW() ),
-( 10, '827469b8-0dd1-431c-8b00-031b00547dc7', '2a6506f0-e43a-4d42-a195-309f7adc7f82', 2, NOW(), NOW() ),
-( 11, '827469b8-0dd1-431c-8b00-031b00547dc7', 'f7abf4fb-9937-48ed-85be-18dc19f8c2e7', 2, NOW(), NOW() );
+( 2, '827469b8-0dd1-431c-8b00-031b00547dc7', null, 0, NOW(), NOW() ),
+( 3, '827469b8-0dd1-431c-8b00-031b00547dc7', null, 1, NOW(), NOW() ),
+( 8, '827469b8-0dd1-431c-8b00-031b00547dc7', '9e50f780-d74b-4de9-b516-2fae56c37794', 2, NOW(), NOW() ),
+( 9, '827469b8-0dd1-431c-8b00-031b00547dc7', '2a6506f0-e43a-4d42-a195-309f7adc7f82', 2, NOW(), NOW() ),
+( 10, '827469b8-0dd1-431c-8b00-031b00547dc7', 'f7abf4fb-9937-48ed-85be-18dc19f8c2e7', 2, NOW(), NOW() );
 
   -- 2, "tonitester", "toni@tester.de", "Toni Tester",
   -- 3, "lauratester", "laura@tester.de", "Laura Tester",

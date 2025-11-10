@@ -1,11 +1,19 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
+	"net/http/cookiejar"
+	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -192,4 +200,161 @@ func convertToGitLabPath(s string) string {
 	}
 
 	return s
+}
+
+func (r *GitlabRepo) CreatePersonalAccessTokenForRoot(ctx context.Context) (string, error) {
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return "", err
+	}
+
+	client := &http.Client{
+		Jar: jar,
+	}
+
+	log.Println("Loging in to Gitlab with Root User")
+	err = r.loginGitlab(ctx, client)
+	if err != nil {
+		return "", err
+	}
+	log.Println("Creating PAT with Gitlab Session")
+	return r.createPersonalAccessToken(ctx, client)
+}
+
+var csrfParamRegex = regexp.MustCompile(`<meta name="csrf-param" content="(.*)" />`)
+var csrfTokenRegex = regexp.MustCompile(`<meta name="csrf-token" content="(.*)" />`)
+
+type CSRF struct {
+	param string
+	token string
+}
+
+func (r *GitlabRepo) parseCsrfFromBody(rc io.ReadCloser) (CSRF, error) {
+	log.Println("Getting CSRF Token from Gitlab")
+	defer rc.Close()
+	scanner := bufio.NewScanner(rc)
+	var paramFound, tokenFound bool
+	var csrf CSRF
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if paramFound && tokenFound {
+			break
+		}
+
+		if !paramFound {
+			paramMatch := csrfParamRegex.FindStringSubmatch(line)
+			if len(paramMatch) > 0 {
+				csrf.param = paramMatch[1]
+				paramFound = true
+				continue
+			}
+		}
+		if !tokenFound {
+			tokenMatch := csrfTokenRegex.FindStringSubmatch(line)
+			if len(tokenMatch) > 0 {
+				csrf.token = tokenMatch[1]
+				tokenFound = true
+				continue
+			}
+		}
+	}
+
+	if !paramFound || !tokenFound {
+		return csrf, errors.New("param or token not found")
+	}
+	return csrf, nil
+}
+
+func (r *GitlabRepo) loginGitlab(ctx context.Context, client *http.Client) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/users/sigin_in", r.url), nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return errors.New("user sign_in not ok")
+	}
+
+	csrf, err := r.parseCsrfFromBody(res.Body)
+	if err != nil {
+		return err
+	}
+
+	params := make(url.Values)
+	params.Add(csrf.param, csrf.token)
+	params.Add("user[login]", "root")
+	params.Add("user[password]", "geheim1234")
+	params.Add("user[remember_me]", "1")
+
+	req, err = http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/users/sign_in", r.url), strings.NewReader(params.Encode()))
+	if err != nil {
+		return err
+	}
+
+	res, err = client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	return nil
+}
+
+func (r *GitlabRepo) createPersonalAccessToken(ctx context.Context, client *http.Client) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/-/user_settings/personal_access_tokens", r.url), nil)
+	if err != nil {
+		return "", err
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return "", errors.New("user_settings personal_access_tokens not ok")
+	}
+
+	csrf, err := r.parseCsrfFromBody(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var body bytes.Buffer
+	if err = json.NewEncoder(&body).Encode(map[string]any{
+		"name":        "root",
+		"description": "",
+		"expires_at":  time.Now().AddDate(0, 1, 0).Format(time.DateOnly),
+		"scopes":      []string{"api", "admin_mode"},
+	}); err != nil {
+		return "", err
+	}
+
+	req, err = http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/-/user_settings/personal_access_tokens", r.url), &body)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Length", strconv.Itoa(body.Len()))
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("X-CSRF-Token", csrf.token)
+
+	res, err = client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	var resBody struct {
+		Token string `json:"token"`
+	}
+	if err = json.NewDecoder(res.Body).Decode(&resBody); err != nil {
+		return "", err
+	}
+
+	return resBody.Token, nil
 }

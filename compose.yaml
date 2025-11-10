@@ -1,7 +1,6 @@
 services:
   gitlab:
     image: gitlab/gitlab-ce:18.4.1-ce.0
-    restart: unless-stopped
     hostname: "gitlab.localhost"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
@@ -59,7 +58,6 @@ services:
 
   gitlab-runner:
     image: gitlab/gitlab-runner:v18.4.0
-    restart: unless-stopped
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "gitlab-runner-config:/etc/gitlab-runner"
