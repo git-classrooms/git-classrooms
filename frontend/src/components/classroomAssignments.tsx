@@ -6,9 +6,20 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { formatDate, formatDateWithTime } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { assignmentsQueryOptions } from "@/api/assignment";
+import {
+  ColumnFiltersState,
+  SortingState,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { Input } from "./ui/input";
 
 /**
  * AssignmentListSection is a React component that displays a list of assignments in a classroom.
@@ -63,6 +74,59 @@ export function AssignmentListSection({
   );
 }
 
+const createAssignmentColumns = (classroomId: string, deactivateInteraction: boolean) => {
+  const assignmentColumnHelper = createColumnHelper<Assignment>();
+
+  return [
+    assignmentColumnHelper.accessor((row) => row.name, {
+      id: "name",
+      header: "Name",
+      cell: ({ row: { original: assignment } }) => (
+        <div className="cursor-default flex justify-between">
+          <Link
+            to="/classrooms/$classroomId/assignments/$assignmentId"
+            params={{ classroomId, assignmentId: assignment.id }}
+          >
+            <div className="font-medium">{assignment.name}</div>
+            <div className="text-sm text-muted-foreground md:inline">{assignment.description}</div>
+          </Link>
+        </div>
+      ),
+    }),
+
+    assignmentColumnHelper.accessor((row) => row.createdAt, {
+      id: "createdAt",
+      header: "Creation Date",
+      cell: ({ getValue }) => formatDate(getValue()),
+    }),
+
+    assignmentColumnHelper.accessor((row) => row.dueDate, {
+      id: "dueDate",
+      header: "Due Date",
+      cell: ({ getValue }) => (getValue() ? formatDateWithTime(getValue()!) : "-"),
+    }),
+
+    assignmentColumnHelper.display({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row: { original: assignment } }) => (
+        <div className="flex flex-wrap flex-row-reverse gap-2">
+          {!deactivateInteraction && (
+            <Button variant="ghost" size="icon" asChild>
+              <Link
+                to="/classrooms/$classroomId/assignments/$assignmentId"
+                params={{ classroomId, assignmentId: assignment.id }}
+              >
+                <ArrowRight className="text-gray-600 dark:text-white h-6 w-6" />
+              </Link>
+            </Button>
+          )}
+        </div>
+      ),
+    }),
+  ];
+};
+
 function AssignmentTable({
   assignments,
   classroomId,
@@ -72,47 +136,67 @@ function AssignmentTable({
   classroomId: string;
   deactivateInteraction: boolean;
 }) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const assignmentColumns = useMemo(
+    () => createAssignmentColumns(classroomId, deactivateInteraction),
+    [classroomId, deactivateInteraction],
+  );
+
+  const table = useReactTable({
+    data: assignments,
+    columns: assignmentColumns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead className="hidden md:table-cell">Creation date</TableHead>
-          <TableHead className="hidden md:table-cell">Due date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {assignments.map((a) => (
-          <TableRow key={a.id}>
-            <TableCell>
-              <div className="cursor-default flex justify-between">
-                <Link
-                  to="/classrooms/$classroomId/assignments/$assignmentId"
-                  params={{ classroomId, assignmentId: a.id }}
-                >
-                  <div className="font-medium">{a.name}</div>
-                  <div className="text-sm text-muted-foreground md:inline">{a.description}</div>
-                </Link>
-              </div>
-            </TableCell>
-            <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(a.createdAt)}</TableCell>
-            <TableCell className="hidden md:table-cell">{a.dueDate ? formatDateWithTime(a.dueDate) : "-"}</TableCell>
-            <TableCell className="flex flex-wrap flex-row-reverse gap-2">
-              {!deactivateInteraction && (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/assignments/$assignmentId"
-                    params={{ classroomId, assignmentId: a.id }}
-                  >
-                    <ArrowRight className="text-gray-600 dark:text-white h-6 w-6" />
-                  </Link>
-                </Button>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      <Input
+        placeholder="Filter assignments..."
+        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+        onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
+        className="max-w-sm"
+      />
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={assignmentColumns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </>
   );
 }
