@@ -7,10 +7,21 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { Avatar } from "@/components/avatar.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
 import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/list.tsx";
-import ListItem from "@/components/listItem.tsx";
 import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isStudent } from "@/lib/utils";
+import {
+  ColumnFiltersState,
+  SortingState,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useMemo, useState } from "react";
+import { Input } from "./ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
 /**
  * MemberListCard is a React component that displays a list of members in a classroom.
@@ -76,6 +87,55 @@ export function MemberListCard({
   );
 }
 
+const createMemberColumns = (
+  user: UserClassroomResponse,
+  classroomId: string,
+  showTeams: boolean,
+  teamsReportUrls: Map<string, string>,
+) => {
+  const memberColumnHelper = createColumnHelper<UserClassroomResponse>();
+
+  return [
+    memberColumnHelper.accessor((row) => row.user.name, {
+      id: "user",
+      header: "User",
+      cell: ({ row: { original: member } }) => <MemberListElement member={member} showTeams={showTeams} />,
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
+    memberColumnHelper.display({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row: { original: member } }) => {
+        const reportUrl = teamsReportUrls.get(member.team?.id ?? "");
+        return (
+          <div className="p-2 flex justify-end align-middle">
+            <Button variant="ghost" size="icon" asChild>
+              <a href={member.webUrl} target="_blank" rel="noreferrer">
+                <User className="h-6 w-6 text-gray-600" />
+              </a>
+            </Button>
+            {(!isStudent(user) || user.classroom.studentsViewAllProjects) && member.team ? (
+              <ClassroomTeamModal
+                userClassroom={user}
+                classroomId={classroomId}
+                teamId={member.team.id}
+                reportUrl={reportUrl!}
+              />
+            ) : (
+              <Button variant="ghost" size="icon" asChild>
+                <div>
+                  <Clipboard className="h-6 w-6 text-gray-400" />
+                </div>
+              </Button>
+            )}
+          </div>
+        );
+      },
+    }),
+  ];
+};
+
 function MemberTable({
   members,
   teamsReportUrls,
@@ -89,42 +149,69 @@ function MemberTable({
   userClassroom: UserClassroomResponse;
   showTeams: boolean;
 }) {
-  return (
-    <List
-      items={members}
-      renderItem={(m) => {
-        const reportUrl = teamsReportUrls.get(m.team?.id ?? "");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-        return (
-          <ListItem
-            leftContent={<MemberListElement member={m} showTeams={showTeams} />}
-            rightContent={
-              <>
-                <Button variant="ghost" size="icon" asChild>
-                  <a href={m.webUrl} target="_blank" rel="noreferrer">
-                    <User className="h-6 w-6 text-gray-600" />
-                  </a>
-                </Button>
-                {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
-                  <ClassroomTeamModal
-                    userClassroom={userClassroom}
-                    classroomId={classroomId}
-                    teamId={m.team.id}
-                    reportUrl={reportUrl!}
-                  />
-                ) : (
-                  <Button variant="ghost" size="icon" asChild>
-                    <div>
-                      <Clipboard className="h-6 w-6 text-gray-400" />
-                    </div>
-                  </Button>
-                )}
-              </>
-            }
-          />
-        );
-      }}
-    />
+  const memberColumns = useMemo(
+    () => createMemberColumns(userClassroom, classroomId, showTeams, teamsReportUrls),
+    [userClassroom, classroomId, showTeams, teamsReportUrls],
+  );
+
+  const table = useReactTable({
+    data: members,
+    columns: memberColumns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
+
+  return (
+    <>
+      <Input
+        placeholder="Filter members..."
+        value={(table.getColumn("user")?.getFilterValue() as string) ?? ""}
+        onChange={(event) => table.getColumn("user")?.setFilterValue(event.target.value)}
+        className="max-w-sm"
+      />
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header, i) => {
+                return (
+                  <TableHead className={i === 0 ? "w-full" : undefined} key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={memberColumns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </>
   );
 }
 
