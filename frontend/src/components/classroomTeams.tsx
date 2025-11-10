@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { AlertCircle, Edit, Loader2, SearchCode, UserPlus } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
 import { Separator } from "@/components/ui/separator.tsx";
@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { CreateTeamForm } from "./createTeamForm";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isStudent } from "@/lib/utils";
 import { useUpdateTeam } from "@/api/team";
@@ -27,6 +27,16 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
+import {
+  ColumnFiltersState,
+  SortingState,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 /**
  * TeamListCard is a React component that displays a list of members in a classroom.
  * It includes a table of members and a button to invite more members, if the user has the appropriate role.
@@ -107,6 +117,68 @@ export function TeamListCard({
   );
 }
 
+const createTeamColumns = (
+  user: UserClassroomResponse,
+  classroomId: string,
+  maxTeamSize: number,
+  teamsReportUrls: Map<string, string>,
+  deactivateInteraction: boolean,
+  isPending?: boolean,
+  onTeamSelect?: (id: string) => void,
+) => {
+  const teamColumnHelper = createColumnHelper<TeamResponse>();
+
+  return [
+    teamColumnHelper.accessor((row) => row.name, {
+      id: "team",
+      header: "Team",
+      cell: ({ row: { original: team } }) => <TeamListElement team={team} maxTeamSize={maxTeamSize} />,
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
+    teamColumnHelper.display({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row: { original: team } }) => {
+        const reportUrl = teamsReportUrls.get(team.id)!;
+        return (
+          <div className="p-2 flex justify-end align-middle">
+            {isModerator(user) && <ChangeTeamDialog classroomId={classroomId} team={team} />}
+            <Button variant="ghost" size="icon" asChild title="Go to team">
+              <a href={team.webUrl} target="_blank" rel="noreferrer">
+                <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
+              </a>
+            </Button>
+            <>
+              {!deactivateInteraction && (
+                <>
+                  {(!isStudent(user) || user.classroom.studentsViewAllProjects) && (
+                    <ClassroomTeamModal
+                      userClassroom={user}
+                      classroomId={classroomId}
+                      teamId={team.id}
+                      reportUrl={reportUrl}
+                    />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onTeamSelect?.(team.id)}
+                    disabled={isPending || team.members.length >= maxTeamSize}
+                    title="Get details"
+                  >
+                    <UserPlus className="text-gray-600 dark:text-white" />
+                  </Button>
+                </>
+              )}
+            </>
+          </div>
+        );
+      },
+    }),
+  ];
+};
+
 export function TeamTable({
   teams,
   teamsReportUrls,
@@ -126,53 +198,78 @@ export function TeamTable({
   onTeamSelect?: (teamId: string) => void;
   deactivateInteraction: boolean;
 }) {
-  return (
-    <Table>
-      <TableBody>
-        {teams.map((t) => {
-          const reportUrl = teamsReportUrls.get(t.id)!;
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-          return (
-            <TableRow key={t.id}>
-              <TableCell className="p-2">
-                <TeamListElement team={t} maxTeamSize={maxTeamSize} />
-              </TableCell>
-              <TableCell className="p-2 flex justify-end align-middle">
-                {isModerator(userClassroom) && <ChangeTeamDialog classroomId={classroomId} team={t} />}
-                <Button variant="ghost" size="icon" asChild title="Go to team">
-                  <a href={t.webUrl} target="_blank" rel="noreferrer">
-                    <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
-                  </a>
-                </Button>
-                {!deactivateInteraction && (
-                  <>
-                    {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
-                      <ClassroomTeamModal
-                        userClassroom={userClassroom}
-                        classroomId={classroomId}
-                        teamId={t.id}
-                        reportUrl={reportUrl}
-                      />
-                    )}
-                    {onTeamSelect && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onTeamSelect?.(t.id)}
-                        disabled={isPending || t.members.length >= maxTeamSize}
-                        title="Get details"
-                      >
-                        <UserPlus className="text-gray-600 dark:text-white" />
-                      </Button>
-                    )}
-                  </>
-                )}
+  const teamColumns = useMemo(
+    () =>
+      createTeamColumns(
+        userClassroom,
+        classroomId,
+        maxTeamSize,
+        teamsReportUrls,
+        deactivateInteraction,
+        isPending,
+        onTeamSelect,
+      ),
+    [userClassroom, teams, classroomId, maxTeamSize, teamsReportUrls, deactivateInteraction, isPending, onTeamSelect],
+  );
+
+  const table = useReactTable({
+    data: teams,
+    columns: teamColumns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      sorting,
+      columnFilters,
+    },
+  });
+
+  return (
+    <>
+      <Input
+        placeholder="Filter teams..."
+        value={(table.getColumn("team")?.getFilterValue() as string) ?? ""}
+        onChange={(event) => table.getColumn("team")?.setFilterValue(event.target.value)}
+        className="max-w-sm"
+      />
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header, i) => {
+                return (
+                  <TableHead className={i === 0 ? "w-full" : undefined} key={header.id}>
+                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={teamColumns.length} className="h-24 text-center">
+                No results.
               </TableCell>
             </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+          )}
+        </TableBody>
+      </Table>
+    </>
   );
 }
 
