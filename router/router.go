@@ -103,12 +103,12 @@ func setupApiRoutes(config authConfig.Config, authController authController.Cont
 	app.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
 	app.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignment)
 
-	app.Get("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomAssignmentTests)
+	app.Get("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomAssignmentTests)
 	app.Put("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentTests)
-	app.Get("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetAssignmentGradingRubrics)
+	app.Get("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetAssignmentGradingRubrics)
 	app.Put("/classrooms/:classroomId/assignments/:assignmentId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentGradingRubrics)
 	app.Post("/classrooms/:classroomId/assignments/:assignmentId/grading/auto", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.StartAutoGrading)
-	app.Get("/classrooms/:classroomId/assignments/:assignmentId/grading/report", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomAssignmentReport)
+	app.Get("/classrooms/:classroomId/assignments/:assignmentId/grading/report", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomAssignmentReport)
 
 	app.Get("/classrooms/:classroomId/assignments/:assignmentId/repos", apiController.GetMultipleProjectCloneUrls)
 	app.Get("/classrooms/:classroomId/assignments/:assignmentId/projects", apiController.GetClassroomAssignmentProjects)

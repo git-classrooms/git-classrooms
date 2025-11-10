@@ -59,13 +59,14 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
   },
   loader: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
     const assignment = await queryClient.ensureQueryData(assignmentQueryOptions(classroomId, assignmentId));
+    const rubrics = await queryClient.ensureQueryData(assignmentGradingRubricsQueryOptions(classroomId, assignmentId));
     const report = await queryClient.ensureQueryData(assignmentReportQueryOptions(classroomId, assignmentId));
     const projects = await queryClient.ensureQueryData(assignmentProjectsQueryOptions(classroomId, assignmentId));
     const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomAssignmentReport(
       classroomId,
       assignmentId,
     );
-    return { reportDownloadUrl, assignment, report, projects };
+    return { reportDownloadUrl, assignment, report, projects, rubrics };
   },
   component: GradingIndex,
 });
