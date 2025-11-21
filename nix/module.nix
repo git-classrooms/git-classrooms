@@ -192,8 +192,9 @@ in {
                         description = "PostgreSQL username.";
                       };
                       password = lib.mkOption {
-                        type = nonEmptyStr;
-                        description = "PostgreSQL password.";
+                        type = lib.types.str;
+                        default = "";
+                        description = "PostgreSQL password. Can be empty for trust authentication.";
                       };
                       db = lib.mkOption {
                         type = nonEmptyStr;

@@ -43,6 +43,10 @@ in
       cp -r ${frontend} frontend/dist
     '';
 
+    postInstall = ''
+      mv $out/bin/gitlab-classroom $out/bin/git-classrooms
+    '';
+
     doCheck = false;
-    vendorHash = "sha256-d6TPVLJHf/fGOLZpJ0iYEbwDLWyd9adMFjSI9lzMvV4=";
+    vendorHash = "sha256-whn96Ywj45tL6GU7x5mGBFr4bOlXGdwRCYqJ+eo4mbQ=";
   })

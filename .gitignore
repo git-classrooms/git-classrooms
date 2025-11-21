@@ -29,4 +29,7 @@ public/*
 
 ## Deployment
 deploy/kustomize/**/*secrets.yaml
+
+# NixOS
 result
+*.qcow2
