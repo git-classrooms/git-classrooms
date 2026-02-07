@@ -1,9 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, Clock, FileCode2, GraduationCap } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Separator } from "@/components/ui/separator";
 import { ActiveAssignmentResponse } from "@/swagger-client";
 import { formatDate, formatRelativeTime, getDaysUntilDue } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +70,98 @@ function EmptyState() {
   );
 }
 
+function AssignmentHoverContent({
+  assignment,
+  urgency,
+}: {
+  assignment: ActiveAssignmentResponse;
+  urgency: UrgencyLevel;
+}) {
+  const daysUntil = getDaysUntilDue(assignment.dueDate);
+
+  return (
+    <div className="relative">
+      {/* Header with gradient */}
+      <div
+        className={cn(
+          "px-4 py-3 border-b",
+          urgency === "high"
+            ? "bg-gradient-to-r from-warning/10 to-transparent border-warning/20"
+            : "bg-gradient-to-r from-primary/10 to-transparent border-border/50"
+        )}
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className={cn(
+              "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
+              urgency === "high"
+                ? "bg-warning/20 text-warning"
+                : "bg-primary/20 text-primary"
+            )}
+          >
+            <FileCode2 className="w-4 h-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm leading-tight truncate">
+              {assignment.name}
+            </h4>
+            <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+              <GraduationCap className="w-3 h-3" />
+              <span className="truncate">{assignment.classroom.name}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-4 py-3 space-y-3">
+        {/* Description */}
+        {assignment.description && (
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
+            {assignment.description}
+          </p>
+        )}
+
+        {/* Meta info */}
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Created {formatDate(assignment.createdAt)}</span>
+          </div>
+
+          {assignment.dueDate && (
+            <div
+              className={cn(
+                "flex items-center gap-1.5 font-medium",
+                urgency === "high" ? "text-warning" : "text-muted-foreground"
+              )}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>
+                {daysUntil !== null && daysUntil <= 0
+                  ? "Due today"
+                  : daysUntil === 1
+                    ? "Due tomorrow"
+                    : `Due ${formatRelativeTime(assignment.dueDate)}`}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-4 py-2.5 bg-muted/30 border-t border-border/50 cursor-pointer">
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Click to view in classroom
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse }) {
   const urgency = getUrgencyLevel(assignment.dueDate);
   const config = urgencyConfig[urgency];
@@ -106,20 +197,8 @@ function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse })
               </div>
             </div>
           </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            <div className="space-y-2">
-              <h4 className="font-mono font-semibold">{assignment.name}</h4>
-              <p className="text-sm text-muted-foreground">
-                {assignment.classroom.name}
-              </p>
-              <Separator />
-              <p className="text-xs text-muted-foreground">
-                Created {formatDate(assignment.createdAt)}
-              </p>
-              {assignment.description && (
-                <p className="text-sm">{assignment.description}</p>
-              )}
-            </div>
+          <HoverCardContent className="w-80 p-0 overflow-hidden cursor-pointer">
+            <AssignmentHoverContent assignment={assignment} urgency={urgency} />
           </HoverCardContent>
         </HoverCard>
 
