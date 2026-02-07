@@ -104,9 +104,20 @@ function Dashboard() {
             {/* Managed Classrooms */}
             {ownedClassrooms.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
-                  Managed by you ({ownedClassrooms.length})
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Managed by you ({ownedClassrooms.length})
+                  </h3>
+                  {ownedClassrooms.length > 4 && (
+                    <Link
+                      to="/classrooms"
+                      search={{ view: "managed" }}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      View all
+                    </Link>
+                  )}
+                </div>
                 <ClassroomCardGrid
                   classrooms={ownedClassrooms.slice(0, 4)}
                   role="owner"
@@ -117,9 +128,20 @@ function Dashboard() {
             {/* Moderator Classrooms */}
             {moderatorClassrooms.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
-                  Moderating ({moderatorClassrooms.length})
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Moderating ({moderatorClassrooms.length})
+                  </h3>
+                  {moderatorClassrooms.length > 4 && (
+                    <Link
+                      to="/classrooms"
+                      search={{ view: "joined" }}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      View all
+                    </Link>
+                  )}
+                </div>
                 <ClassroomCardGrid
                   classrooms={moderatorClassrooms.slice(0, 4)}
                   role="moderator"
@@ -130,9 +152,20 @@ function Dashboard() {
             {/* Joined Classrooms */}
             {studentClassrooms.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
-                  Joined ({studentClassrooms.length})
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                    Joined ({studentClassrooms.length})
+                  </h3>
+                  {studentClassrooms.length > 4 && (
+                    <Link
+                      to="/classrooms"
+                      search={{ view: "joined" }}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      View all
+                    </Link>
+                  )}
+                </div>
                 <ClassroomCardGrid
                   classrooms={studentClassrooms.slice(0, 4)}
                   role="student"

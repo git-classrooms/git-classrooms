@@ -8,9 +8,17 @@ import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClassroomCardGrid } from "@/components/classroom-card";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
+  validateSearch: (search: Record<string, unknown>): { view?: "managed" | "joined" } => {
+    const view = search.view;
+    if (view === "managed" || view === "joined") {
+      return { view };
+    }
+    return {};
+  },
   loader: async ({ context: { queryClient } }) => {
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
@@ -26,6 +34,8 @@ export const Route = createFileRoute("/_auth/classrooms/")({
 });
 
 function Classrooms() {
+  const { view } = Route.useSearch();
+  const navigate = useNavigate();
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
@@ -37,6 +47,25 @@ function Classrooms() {
 
   const totalManaged = ownedClassrooms.length;
   const totalJoined = joinedClassrooms.length;
+
+  // Smart default: if view is specified use it, otherwise pick tab with content
+  const defaultTab = useMemo(() => {
+    if (view) return view;
+    // If managed has content, show managed (default for teachers)
+    if (totalManaged > 0) return "managed";
+    // If only joined has content, show joined
+    if (totalJoined > 0) return "joined";
+    // Fallback to managed
+    return "managed";
+  }, [view, totalManaged, totalJoined]);
+
+  const handleTabChange = (value: string) => {
+    navigate({
+      to: "/classrooms",
+      search: { view: value as "managed" | "joined" },
+      replace: true,
+    });
+  };
 
   return (
     <div className="space-y-6 pb-8">
@@ -60,7 +89,7 @@ function Classrooms() {
 
       {/* Tabs */}
       <section className="animate-stagger-2">
-        <Tabs defaultValue="managed" className="w-full">
+        <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
           <TabsList>
             <TabsTrigger value="managed">
               Managed
