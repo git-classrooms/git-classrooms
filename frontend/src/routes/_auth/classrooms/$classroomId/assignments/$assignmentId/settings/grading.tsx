@@ -417,25 +417,27 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
                           render={({ field }) => (
                             <FormItem
                               className={cn(
-                                "flex items-start gap-3 p-3 rounded-lg border transition-all duration-200 cursor-pointer",
+                                "flex items-start gap-3 p-3 rounded-lg border transition-all duration-200",
                                 isSelected
                                   ? "border-primary/30 bg-primary/5"
                                   : "border-border/50 hover:border-border"
                               )}
-                              onClick={() => field.onChange(!field.value)}
                             >
                               <FormControl>
                                 <Checkbox
+                                  id={`rubric-${rubric.id}`}
                                   disabled={isPending}
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                   className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                  onClick={(e) => e.stopPropagation()}
                                 />
                               </FormControl>
-                              <div className="flex-1 min-w-0">
+                              <label
+                                htmlFor={`rubric-${rubric.id}`}
+                                className="flex-1 min-w-0 cursor-pointer"
+                              >
                                 <div className="flex items-center justify-between gap-2">
-                                  <FormLabel className="font-medium cursor-pointer">{rubric.name}</FormLabel>
+                                  <span className="font-medium">{rubric.name}</span>
                                   <span className="text-xs font-mono text-muted-foreground">
                                     {rubric.maxScore} pts
                                   </span>
@@ -445,7 +447,7 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
                                     {rubric.description}
                                   </p>
                                 )}
-                              </div>
+                              </label>
                             </FormItem>
                           )}
                         />
