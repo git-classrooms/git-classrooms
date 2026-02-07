@@ -1,10 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table.tsx";
-import { AlertCircle, Edit, Loader2, SearchCode, UserPlus } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
-import { Team, TeamResponse, UserClassroomResponse } from "@/swagger-client";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Edit, ExternalLink, Loader2, Plus, Users2 } from "lucide-react";
+import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import {
   Dialog,
   DialogClose,
@@ -23,20 +20,13 @@ import { useForm } from "react-hook-form";
 import { createFormSchema } from "@/types/team";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form } from "./ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage, Form } from "./ui/form";
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
-/**
- * TeamListCard is a React component that displays a list of members in a classroom.
- * It includes a table of members and a button to invite more members, if the user has the appropriate role.
- *
- * @param {Object} props - The properties passed to the component.
- * @param {Array} props.teams - An array of DefaultControllerGetOwnedClassroomTeamResponse[] objects representing the teams of the classroom.
- * @param {string} props.classroomId - The ID of the classroom.
- * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
- * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
- */
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Avatar } from "./avatar";
+import { cn } from "@/lib/utils";
 
 export function TeamListCard({
   teams,
@@ -56,160 +46,201 @@ export function TeamListCard({
   studentsCanCreateTeams: boolean;
   deactivateInteraction: boolean;
   teamsReportUrls: Map<string, string>;
-}): JSX.Element {
+}) {
   const teamSlots = teams.length * maxTeamSize;
-
   const [open, setOpen] = useState(false);
 
+  const hasWarning = teamSlots < numInvitedMembers && isModerator(userClassroom);
+
   return (
-    <Card className="p-2">
-      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
-        <div className="mb-4 md:mb-1">
-          <CardTitle className="mb-1">Teams</CardTitle>
-          <CardDescription>All teams of this classroom</CardDescription>
+    <div className="space-y-6">
+      {/* Header with Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Users2 className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold">Teams</h3>
+            <p className="text-sm text-muted-foreground">
+              {teams.length} team{teams.length !== 1 ? "s" : ""} · {maxTeamSize} max members each
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-2">
-          {isModerator(userClassroom) && !deactivateInteraction && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline">Create a team</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
-              </DialogContent>
-            </Dialog>
+
+        {isModerator(userClassroom) && !deactivateInteraction && (
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button variant="glow" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Team
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <CreateTeamForm onSuccess={() => setOpen(false)} classroomId={classroomId} />
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      {/* Warning */}
+      {hasWarning && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Not enough team spots</AlertTitle>
+          <AlertDescription>
+            {teamSlots} spots available but {numInvitedMembers} students need teams.
+            {!studentsCanCreateTeams && " Students cannot create teams themselves."}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Teams Grid */}
+      {teams.length === 0 ? (
+        <EmptyTeamsState canCreate={isModerator(userClassroom) && !deactivateInteraction} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {teams.map((team) => (
+            <TeamCard
+              key={team.id}
+              team={team}
+              classroomId={classroomId}
+              userClassroom={userClassroom}
+              maxTeamSize={maxTeamSize}
+              teamsReportUrls={teamsReportUrls}
+              deactivateInteraction={deactivateInteraction}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmptyTeamsState({ canCreate }: { canCreate: boolean }) {
+  return (
+    <div className="border border-dashed border-border rounded-lg p-8 text-center">
+      <Users2 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+      <h3 className="font-medium text-foreground mb-1">No teams yet</h3>
+      <p className="text-sm text-muted-foreground">
+        {canCreate ? "Create a team to get started" : "No teams have been created yet"}
+      </p>
+    </div>
+  );
+}
+
+function TeamCard({
+  team,
+  classroomId,
+  userClassroom,
+  maxTeamSize,
+  teamsReportUrls,
+  deactivateInteraction,
+}: {
+  team: TeamResponse;
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+  maxTeamSize: number;
+  teamsReportUrls: Map<string, string>;
+  deactivateInteraction: boolean;
+}) {
+  const reportUrl = teamsReportUrls.get(team.id)!;
+  const memberCount = team.members.length;
+  const isFull = memberCount >= maxTeamSize;
+
+  return (
+    <Card className="group transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-background/50">
+      <CardContent className="p-4">
+        {/* Team Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <TeamAvatar name={team.name} />
+            <div>
+              <h4 className="font-semibold">{team.name}</h4>
+              <div className="flex items-center gap-2 mt-1">
+                <StatusBadge variant={isFull ? "warning" : "success"} size="sm" showDot>
+                  {memberCount}/{maxTeamSize}
+                </StatusBadge>
+              </div>
+            </div>
+          </div>
+          {isModerator(userClassroom) && (
+            <ChangeTeamDialog classroomId={classroomId} team={team} />
           )}
         </div>
-      </CardHeader>
-      <CardContent>
-        {teamSlots < numInvitedMembers && isModerator(userClassroom) && (
-          <div>
-            <p className="text-sm text-muted-foreground text-red-600">
-              Not enough team spots to accommodate all classroom members.
+
+        {/* Members */}
+        <div className="space-y-2">
+          {team.members.length > 0 ? (
+            team.members.slice(0, 3).map((m) => (
+              <div key={m.user.id} className="flex items-center gap-2">
+                <Avatar
+                  avatarUrl={m.user.avatarURL}
+                  fallbackUrl={m.user.fallbackAvatarURL}
+                  name={m.user.name}
+                  className="w-6 h-6"
+                />
+                <span className="text-sm truncate">{m.user.name}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground italic">No members yet</p>
+          )}
+          {team.members.length > 3 && (
+            <p className="text-xs text-muted-foreground">
+              +{team.members.length - 3} more
             </p>
-            {!studentsCanCreateTeams && (
-              <p className="text-sm text-muted-foreground text-red-600">
-                You have to add more teams, because students can't create teams by their own.
-              </p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
+          <Button variant="ghost" size="sm" className="h-8" asChild>
+            <a href={team.webUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="w-3 h-3 mr-1" />
+              GitLab
+            </a>
+          </Button>
+          {!deactivateInteraction &&
+            (!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
+              <ClassroomTeamModal
+                userClassroom={userClassroom}
+                classroomId={classroomId}
+                teamId={team.id}
+                reportUrl={reportUrl}
+              />
             )}
-          </div>
-        )}
-        <TeamTable
-          teams={teams}
-          classroomId={classroomId}
-          userClassroom={userClassroom}
-          maxTeamSize={maxTeamSize}
-          teamsReportUrls={teamsReportUrls}
-          deactivateInteraction={deactivateInteraction}
-        />
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-export function TeamTable({
-  teams,
-  teamsReportUrls,
-  classroomId,
-  userClassroom,
-  maxTeamSize,
-  isPending,
-  onTeamSelect,
-  deactivateInteraction,
-}: {
-  teams: TeamResponse[];
-  teamsReportUrls: Map<string, string>;
-  classroomId: string;
-  userClassroom: UserClassroomResponse;
-  maxTeamSize: number;
-  isPending?: boolean;
-  onTeamSelect?: (teamId: string) => void;
-  deactivateInteraction: boolean;
-}) {
-  return (
-    <Table>
-      <TableBody>
-        {teams.map((t) => {
-          const reportUrl = teamsReportUrls.get(t.id)!;
+function TeamAvatar({ name }: { name: string }) {
+  const gradients = [
+    "from-primary to-[hsl(280,100%,60%)]",
+    "from-[hsl(142,71%,45%)] to-[hsl(185,100%,50%)]",
+    "from-[hsl(38,92%,55%)] to-[hsl(0,72%,55%)]",
+    "from-[hsl(280,65%,60%)] to-[hsl(210,100%,60%)]",
+  ];
+  const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const gradient = gradients[hash % gradients.length];
 
-          return (
-            <TableRow key={t.id}>
-              <TableCell className="p-2">
-                <TeamListElement team={t} maxTeamSize={maxTeamSize} />
-              </TableCell>
-              <TableCell className="p-2 flex justify-end align-middle">
-                {isModerator(userClassroom) && <ChangeTeamDialog classroomId={classroomId} team={t} />}
-                <Button variant="ghost" size="icon" asChild title="Go to team">
-                  <a href={t.webUrl} target="_blank" rel="noreferrer">
-                    <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
-                  </a>
-                </Button>
-                {!deactivateInteraction && (
-                  <>
-                    {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && (
-                      <ClassroomTeamModal
-                        userClassroom={userClassroom}
-                        classroomId={classroomId}
-                        teamId={t.id}
-                        reportUrl={reportUrl}
-                      />
-                    )}
-                    {onTeamSelect && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onTeamSelect?.(t.id)}
-                        disabled={isPending || t.members.length >= maxTeamSize}
-                        title="Get details"
-                      >
-                        <UserPlus className="text-gray-600 dark:text-white" />
-                      </Button>
-                    )}
-                  </>
-                )}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+  return (
+    <div
+      className={cn(
+        "w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br",
+        gradient
+      )}
+    >
+      <span className="font-mono font-semibold text-primary-foreground">
+        {name.charAt(0).toUpperCase()}
+      </span>
+    </div>
   );
 }
 
-function TeamListElement({ team, maxTeamSize }: { team: TeamResponse; maxTeamSize: number }) {
-  return (
-    <HoverCard>
-      <HoverCardTrigger className="cursor-default flex">
-        <div className="cursor-default">
-          <div className="font-medium">{team.name}</div>
-          <div className="text-sm text-muted-foreground md:inline">
-            {team.members.length}/{maxTeamSize} member
-          </div>
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-100">
-        <p className="text-lg font-semibold">{team.name}</p>
-        <p className="text-sm text-muted-foreground mt-[-0.3rem]">
-          {team.members.length}/{maxTeamSize} member
-        </p>
-        {team.members.length >= 1 && (
-          <>
-            <Separator className="my-1" />
-            <div className="text-muted-foreground">
-              {team.members.map((m) => (
-                <div key={m.user.id}>
-                  {m.user.gitlabUsername} - {m.user.name}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </HoverCardContent>
-    </HoverCard>
-  );
-}
-
-const ChangeTeamDialog = ({ classroomId, team }: { classroomId: string; team: Team }) => {
+function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: TeamResponse }) {
   const { mutateAsync, isError, isPending } = useUpdateTeam(classroomId, team.id);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -229,8 +260,8 @@ const ChangeTeamDialog = ({ classroomId, team }: { classroomId: string; team: Te
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" title="Edit team">
-          <Edit className="h-6 w-6 text-gray-600 dark:text-white" />
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -239,26 +270,31 @@ const ChangeTeamDialog = ({ classroomId, team }: { classroomId: string; team: Te
           <DialogDescription>Change the name of the team</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Team Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="team name" {...field} />
+                    <Input placeholder="Enter team name" {...field} />
                   </FormControl>
-                  <FormDescription>This is your team name.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogClose asChild>
+            <div className="flex gap-2 justify-end">
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
               <Button type="submit" disabled={isPending}>
-                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save Changes
               </Button>
-            </DialogClose>
+            </div>
 
             {isError && (
               <Alert variant="destructive">
@@ -272,4 +308,89 @@ const ChangeTeamDialog = ({ classroomId, team }: { classroomId: string; team: Te
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+// Re-export TeamTable for backwards compatibility
+export function TeamTable({
+  teams,
+  teamsReportUrls,
+  classroomId,
+  userClassroom,
+  maxTeamSize,
+  isPending,
+  onTeamSelect,
+  deactivateInteraction,
+}: {
+  teams: TeamResponse[];
+  teamsReportUrls: Map<string, string>;
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+  maxTeamSize: number;
+  isPending?: boolean;
+  onTeamSelect?: (teamId: string) => void;
+  deactivateInteraction: boolean;
+}) {
+  // These props are kept for backwards compatibility but not used in current implementation
+  void teamsReportUrls;
+  void classroomId;
+  void userClassroom;
+  void deactivateInteraction;
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {teams.map((team) => (
+        <TeamSelectCard
+          key={team.id}
+          team={team}
+          maxTeamSize={maxTeamSize}
+          isPending={isPending}
+          onSelect={onTeamSelect}
+        />
+      ))}
+    </div>
+  );
+}
+
+function TeamSelectCard({
+  team,
+  maxTeamSize,
+  isPending,
+  onSelect,
+}: {
+  team: TeamResponse;
+  maxTeamSize: number;
+  isPending?: boolean;
+  onSelect?: (teamId: string) => void;
+}) {
+  const isFull = team.members.length >= maxTeamSize;
+
+  return (
+    <Card
+      className={cn(
+        "transition-all duration-200 cursor-pointer",
+        isFull
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:border-primary/30 hover:shadow-lg"
+      )}
+      onClick={() => !isFull && !isPending && onSelect?.(team.id)}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <TeamAvatar name={team.name} />
+            <div>
+              <h4 className="font-semibold">{team.name}</h4>
+              <StatusBadge variant={isFull ? "warning" : "success"} size="sm">
+                {team.members.length}/{maxTeamSize} members
+              </StatusBadge>
+            </div>
+          </div>
+          {!isFull && (
+            <Button variant="ghost" size="sm" disabled={isPending}>
+              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Join"}
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

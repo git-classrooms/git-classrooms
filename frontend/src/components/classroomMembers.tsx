@@ -1,29 +1,20 @@
-import { getRole } from "@/types/classroom.ts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { Button } from "@/components/ui/button.tsx";
+import { Role } from "@/types/classroom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { Clipboard, User } from "lucide-react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
-import { Avatar } from "@/components/avatar.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
+import { ExternalLink, Mail, Settings, UserPlus, Users } from "lucide-react";
+import { Avatar } from "@/components/avatar";
 import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/list.tsx";
-import ListItem from "@/components/listItem.tsx";
 import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isStudent } from "@/lib/utils";
+import { StatusBadge } from "@/components/ui/status-badge";
 
-/**
- * MemberListCard is a React component that displays a list of members in a classroom.
- * It includes a table of members and a button to invite more members, if the user has the appropriate role.
- *
- * @param {Object} props - The properties passed to the component.
- * @param {Array} props.classroomMembers - An array of UserClassroom objects representing the members of the classroom.
- * @param {string} props.classroomId - The ID of the classroom.
- * @param {Role} props.userRole - The role of the current user in the classroom. This determines whether the invite button and view assignments-button is displayed.
- * @param {boolean} props.showTeams - A boolean indicating whether to show the teams of the members.
- * @param {boolean} props.deactivateInteraction - A boolean indicating whether the user can interact with the members.
- * @returns {JSX.Element} A React component that displays a card with the list of members in a classroom.
- */
+const roleConfig: Record<Role, { variant: "success" | "info" | "neutral"; label: string }> = {
+  [Role.Owner]: { variant: "success", label: "Owner" },
+  [Role.Moderator]: { variant: "info", label: "Moderator" },
+  [Role.Student]: { variant: "neutral", label: "Student" },
+};
+
 export function MemberListCard({
   classroomMembers,
   teamsReportUrls,
@@ -38,51 +29,93 @@ export function MemberListCard({
   userClassroom: UserClassroomResponse;
   showTeams: boolean;
   deactivateInteraction: boolean;
-}): JSX.Element {
+}) {
+  const owners = classroomMembers.filter((m) => m.role === Role.Owner);
+  const moderators = classroomMembers.filter((m) => m.role === Role.Moderator);
+  const students = classroomMembers.filter((m) => m.role === Role.Student);
+
   return (
-    <Card className="p-2">
-      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
-        <div className="mb-4 md:mb-0">
-          <CardTitle className="mb-1">Members</CardTitle>
-          <CardDescription>All members of this classroom</CardDescription>
+    <div className="space-y-6">
+      {/* Header with Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold">Members</h3>
+            <p className="text-sm text-muted-foreground">
+              {classroomMembers.length} member{classroomMembers.length !== 1 ? "s" : ""} in this classroom
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {!deactivateInteraction && isModerator(userClassroom) && (
-            <>
-              <Button variant="outline" asChild>
-                <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
-                  Manage members
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
-                  Invite members
-                </Link>
-              </Button>
-            </>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <MemberTable
-          teamsReportUrls={teamsReportUrls}
-          members={classroomMembers}
-          classroomId={classroomId}
-          userClassroom={userClassroom}
-          showTeams={showTeams}
-        />
-      </CardContent>
-    </Card>
+
+        {!deactivateInteraction && isModerator(userClassroom) && (
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
+                <Settings className="w-4 h-4 mr-2" />
+                Manage
+              </Link>
+            </Button>
+            <Button variant="glow" size="sm" asChild>
+              <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Invite
+              </Link>
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Member Sections */}
+      <div className="space-y-6">
+        {owners.length > 0 && (
+          <MemberSection
+            title="Owners"
+            members={owners}
+            teamsReportUrls={teamsReportUrls}
+            classroomId={classroomId}
+            userClassroom={userClassroom}
+            showTeams={showTeams}
+          />
+        )}
+
+        {moderators.length > 0 && (
+          <MemberSection
+            title="Moderators"
+            members={moderators}
+            teamsReportUrls={teamsReportUrls}
+            classroomId={classroomId}
+            userClassroom={userClassroom}
+            showTeams={showTeams}
+          />
+        )}
+
+        {students.length > 0 && (
+          <MemberSection
+            title="Students"
+            members={students}
+            teamsReportUrls={teamsReportUrls}
+            classroomId={classroomId}
+            userClassroom={userClassroom}
+            showTeams={showTeams}
+          />
+        )}
+      </div>
+    </div>
   );
 }
 
-function MemberTable({
+function MemberSection({
+  title,
   members,
   teamsReportUrls,
   classroomId,
   userClassroom,
   showTeams,
 }: {
+  title: string;
   members: UserClassroomResponse[];
   teamsReportUrls: Map<string, string>;
   classroomId: string;
@@ -90,80 +123,96 @@ function MemberTable({
   showTeams: boolean;
 }) {
   return (
-    <List
-      items={members}
-      renderItem={(m) => {
-        const reportUrl = teamsReportUrls.get(m.team?.id ?? "");
-
-        return (
-          <ListItem
-            leftContent={<MemberListElement member={m} showTeams={showTeams} />}
-            rightContent={
-              <>
-                <Button variant="ghost" size="icon" asChild>
-                  <a href={m.webUrl} target="_blank" rel="noreferrer">
-                    <User className="h-6 w-6 text-gray-600" />
-                  </a>
-                </Button>
-                {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && m.team ? (
-                  <ClassroomTeamModal
-                    userClassroom={userClassroom}
-                    classroomId={classroomId}
-                    teamId={m.team.id}
-                    reportUrl={reportUrl!}
-                  />
-                ) : (
-                  <Button variant="ghost" size="icon" asChild>
-                    <div>
-                      <Clipboard className="h-6 w-6 text-gray-400" />
-                    </div>
-                  </Button>
-                )}
-              </>
-            }
+    <div>
+      <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
+        {title} ({members.length})
+      </h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        {members.map((member) => (
+          <MemberCard
+            key={member.user.id}
+            member={member}
+            teamsReportUrls={teamsReportUrls}
+            classroomId={classroomId}
+            userClassroom={userClassroom}
+            showTeams={showTeams}
           />
-        );
-      }}
-    />
+        ))}
+      </div>
+    </div>
   );
 }
 
-function MemberListElement({ member, showTeams }: { member: UserClassroomResponse; showTeams: boolean }) {
+function MemberCard({
+  member,
+  teamsReportUrls,
+  classroomId,
+  userClassroom,
+  showTeams,
+}: {
+  member: UserClassroomResponse;
+  teamsReportUrls: Map<string, string>;
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+  showTeams: boolean;
+}) {
+  const reportUrl = teamsReportUrls.get(member.team?.id ?? "");
+  const config = roleConfig[member.role as Role];
+
   return (
-    <HoverCard>
-      <HoverCardTrigger className="cursor-default flex">
-        <div className="pr-2">
+    <Card className="group transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-background/50">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
           <Avatar
             avatarUrl={member.user.avatarURL}
             fallbackUrl={member.user.fallbackAvatarURL}
             name={member.user.name!}
+            className="w-10 h-10"
           />
-        </div>
-        <div>
-          <div className="font-medium">{member.user.name}</div>
-          <div className="text-sm text-muted-foreground md:inline">
-            {getRole(member.role)} {showTeams && member.team ? `- ${member.team.name}` : ""}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-medium truncate">{member.user.name}</span>
+              <StatusBadge variant={config.variant} size="sm">
+                {config.label}
+              </StatusBadge>
+            </div>
+            <p className="text-sm text-muted-foreground truncate">
+              @{member.user.gitlabUsername}
+            </p>
+            {showTeams && member.team && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Team: <span className="text-foreground">{member.team.name}</span>
+              </p>
+            )}
           </div>
         </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-100">
-        <p className="text-lg font-semibold">{member.user.name}</p>
-        <p className="text-sm text-muted-foreground mt-[-0.3rem]">@{member.user.gitlabUsername}</p>
-        <Separator className="my-1" />
-        <p className="text-muted-foreground">{member.user.gitlabEmail}</p>
-        <Separator className="my-1" />
-        <div className="text-muted-foreground">
-          <span className="font-bold">{getRole(member.role)}</span> of this classroom{" "}
-          {showTeams && member.team ? (
-            <>
-              {" "}
-              in team <span className="font-bold">{member.team?.name ?? ""}</span>
-            </>
-          ) : (
-            ""
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button variant="ghost" size="sm" className="h-7 px-2" asChild>
+            <a href={member.webUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="w-3 h-3 mr-1" />
+              GitLab
+            </a>
+          </Button>
+          {member.user.gitlabEmail && (
+            <Button variant="ghost" size="sm" className="h-7 px-2" asChild>
+              <a href={`mailto:${member.user.gitlabEmail}`}>
+                <Mail className="w-3 h-3 mr-1" />
+                Email
+              </a>
+            </Button>
+          )}
+          {(!isStudent(userClassroom) || userClassroom.classroom.studentsViewAllProjects) && member.team && reportUrl && (
+            <ClassroomTeamModal
+              userClassroom={userClassroom}
+              classroomId={classroomId}
+              teamId={member.team.id}
+              reportUrl={reportUrl}
+            />
           )}
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </CardContent>
+    </Card>
   );
 }
