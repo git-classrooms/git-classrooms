@@ -20,6 +20,8 @@ export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onS
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       name: "",
     },

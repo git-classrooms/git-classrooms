@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useCreateClassroom, useUpdateClassroom } from "@/api/classroom";
 import { UserClassroomResponse } from "@/swagger-client";
 import { Header } from "./header";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 export const ClassroomCreateForm = () => {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ export const ClassroomCreateForm = () => {
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       name: "",
       description: "",
@@ -35,6 +38,8 @@ export const ClassroomCreateForm = () => {
       teamsEnabled: true,
     },
   });
+
+  useUnsavedChanges({ isDirty: form.formState.isDirty });
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     const location = await mutateAsync(values);
@@ -168,11 +173,15 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
 
   const form = useForm<z.infer<typeof updateFormSchema>>({
     resolver: zodResolver(updateFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       name: userClassroom.classroom.name,
       description: userClassroom.classroom.description,
     },
   });
+
+  useUnsavedChanges({ isDirty: form.formState.isDirty });
 
   async function onSubmit(values: z.infer<typeof updateFormSchema>) {
     await mutateAsync(values);

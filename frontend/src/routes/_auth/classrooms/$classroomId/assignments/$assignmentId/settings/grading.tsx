@@ -85,6 +85,8 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
 
   const form = useForm<z.infer<typeof testsFormSchema>>({
     resolver: zodResolver(testsFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: { junitAutoGradingActive: assignment.gradingJUnitAutoGradingActive, assignmentTests },
   });
 

@@ -214,13 +214,14 @@ const ChangeTeamDialog = ({ classroomId, team }: { classroomId: string; team: Te
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       name: team.name,
     },
   });
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
-    console.log(values);
     await mutateAsync(values);
     toast.success("Team updated successfully!");
   }

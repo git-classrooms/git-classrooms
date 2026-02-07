@@ -51,6 +51,8 @@ function ClassroomInviteForm() {
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
     resolver: zodResolver(inviteFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       memberEmails: "",
     },

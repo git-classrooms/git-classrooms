@@ -218,6 +218,8 @@ function RoleDropdown({
 
   const form = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       role: getRole(role),
     },
@@ -302,6 +304,8 @@ function TeamDropdown({
 
   const form = useForm<z.infer<typeof updateTeamSchema>>({
     resolver: zodResolver(updateTeamSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       teamId: team?.id ?? "",
     },

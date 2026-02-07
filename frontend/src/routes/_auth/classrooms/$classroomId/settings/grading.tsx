@@ -53,6 +53,8 @@ function Grading() {
 
   const form = useForm<z.infer<typeof formSchmema>>({
     resolver: zodResolver(formSchmema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
     defaultValues: {
       gradingManualRubrics: data,
     },
