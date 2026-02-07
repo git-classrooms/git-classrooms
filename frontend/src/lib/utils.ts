@@ -1,7 +1,7 @@
 import axios, { isAxiosError } from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, differenceInDays } from "date-fns";
 import {
   AssignmentApi,
   AuthApi,
@@ -30,6 +30,14 @@ export const getUUIDFromLocation = (location: string) => location.split("/").pop
 export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
 
 export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm:ss");
+
+export const formatRelativeTime = (date: Parameters<typeof formatDistanceToNow>[0]) =>
+  formatDistanceToNow(date, { addSuffix: true });
+
+export const getDaysUntilDue = (dueDate: string | null | undefined): number | null => {
+  if (!dueDate) return null;
+  return differenceInDays(new Date(dueDate), new Date());
+};
 
 const apiClient = axios.create({ withCredentials: true });
 

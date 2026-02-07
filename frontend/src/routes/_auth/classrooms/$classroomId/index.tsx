@@ -1,31 +1,28 @@
 import { Loader } from "@/components/loader";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
-import { MemberListCard } from "@/components/classroomMembers.tsx";
-import { TeamListCard } from "@/components/classroomTeams.tsx";
-import { AssignmentListSection } from "@/components/classroomAssignments.tsx";
-import { Header } from "@/components/header";
+import { MemberListCard } from "@/components/classroomMembers";
+import { TeamListCard } from "@/components/classroomTeams";
+import { AssignmentListSection } from "@/components/classroomAssignments";
 import { classroomQueryOptions } from "@/api/classroom";
 import { assignmentsQueryOptions } from "@/api/assignment";
 import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
-import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
-import { Button } from "@/components/ui/button.tsx";
+import { ReportApiAxiosParamCreator } from "@/swagger-client";
+import { Button } from "@/components/ui/button";
 import {
   Archive,
-  CalendarCheck2,
   CalendarClock,
+  ChevronRight,
   Clipboard,
+  ClipboardList,
   Download,
   ExternalLink,
-  Eye,
-  EyeOff,
-  Info,
+  FileText,
   Settings,
   Users,
 } from "lucide-react";
 import { useArchiveClassroom } from "@/api/classroom";
-import { Text } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -37,16 +34,14 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
-import { formatDate, isModerator, isStudent } from "@/lib/utils";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { formatDistanceToNow } from "date-fns";
+import { formatRelativeTime, isModerator, isStudent } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { projectsQueryOptions } from "@/api/project";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { ProjectListSection } from "@/components/classroomProjects";
 import { toast } from "sonner";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { cn } from "@/lib/utils";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
@@ -90,8 +85,6 @@ function ClassroomDetail() {
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { mutate } = useArchiveClassroom(classroomId);
 
-  const [showHeaderCards, setShowHeaderCards] = useLocalStorage("classroom-header", true);
-  const toggleHeaderCards = () => setShowHeaderCards((old) => !old);
   const { teamsReportUrls } = Route.useLoaderData();
   const router = useRouter();
 
@@ -99,134 +92,175 @@ function ClassroomDetail() {
     mutate();
   };
 
+  const handleCopyInviteLink = () => {
+    const path = router.buildLocation({
+      to: "/classrooms/$classroomId/invitations/$invitationId",
+      params: { classroomId: userClassroom.classroom.id, invitationId: userClassroom.inviteCode },
+      search: { groupLink: true }
+    });
+    navigator.clipboard.writeText(`${location.origin}${path.href}`);
+    toast.success("Invite link copied to clipboard");
+  };
+
   return (
-    <>
-      <Breadcrumb className="mb-5">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbPage>{userClassroom.classroom.name}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="space-y-6 pb-8">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground animate-stagger-1">
+        <Link to="/classrooms" className="hover:text-foreground transition-colors">
+          Classrooms
+        </Link>
+        <ChevronRight className="w-4 h-4" />
+        <span className="text-foreground font-medium">{userClassroom.classroom.name}</span>
+      </nav>
 
-      <div className="lg:flex justify-between gap-1 mb-4">
-        <Header
-          title={
-            <a
-              className="flex items-center"
-              href={userClassroom.webUrl}
-              target="_blank"
-              referrerPolicy="no-referrer"
-              title="Go to classroom"
-            >
-              {userClassroom.classroom.archived && "Archived "}
-              {userClassroom.classroom.name}
-              <ExternalLink className="h-4 w-4 ml-2" />
-            </a>
-          }
-          subtitle="Classroom overview"
-        />
-        <div className="flex flex-col lg:flex-row gap-3">
-          <Button
-            variant="secondary"
-            className="min-w-[137px]"
-            onClick={toggleHeaderCards}
-            size="sm"
-            title="Toggle details"
-          >
-            {showHeaderCards ? (
-              <>
-                <EyeOff className="mr-2 w-4 h-4" /> Hide
-              </>
-            ) : (
-              <>
-                <Eye className="mr-2 w-4 h-4" /> Show
-              </>
-            )}{" "}
-            details
-          </Button>
+      {/* Header Section */}
+      <header className="animate-stagger-1">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <ClassroomAvatar name={userClassroom.classroom.name} />
+              <div>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    {userClassroom.classroom.name}
+                  </h1>
+                  <StatusBadge
+                    variant={userClassroom.classroom.archived ? "neutral" : "success"}
+                    showDot
+                  >
+                    {userClassroom.classroom.archived ? "Archived" : "Active"}
+                  </StatusBadge>
+                </div>
+                <a
+                  href={userClassroom.webUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  View on GitLab
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {userClassroom.classroom.description && (
+              <p className="text-muted-foreground max-w-2xl">
+                {userClassroom.classroom.description}
+              </p>
+            )}
+          </div>
+
+          {/* Action Buttons */}
           {!userClassroom.classroom.archived && isModerator(userClassroom) && (
-            <>
-              <Button variant="secondary" size="sm" title="Copy InviteLink"
-                onClick={() => {
-                  const path = router.buildLocation({
-                    to: "/classrooms/$classroomId/invitations/$invitationId",
-                    params: { classroomId: userClassroom.classroom.id, invitationId: userClassroom.inviteCode },
-                    search: { groupLink: true }
-                  });
-
-                  navigator.clipboard.writeText(`${location.origin}${path.href}`);
-                  toast.success("Link copied to clipboard");
-                }}
-              >
-                <Clipboard className="mr-2 h-4 w-4" />
-                Copy Invite Link
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={handleCopyInviteLink}>
+                <Clipboard className="w-4 h-4 mr-2" />
+                Copy Invite
               </Button>
-              <Button variant="secondary" asChild size="sm" title="Download report">
-                <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download report
+              <Button variant="outline" size="sm" asChild>
+                <a href={reportDownloadUrl} target="_blank" rel="noopener noreferrer">
+                  <Download className="w-4 h-4 mr-2" />
+                  Report
                 </a>
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="secondary" size="sm" title="Archive classroom">
-                    <Archive className="mr-2 h-4 w-4" /> Archive
+                  <Button variant="outline" size="sm">
+                    <Archive className="w-4 h-4 mr-2" />
+                    Archive
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Archive this classroom?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Are you sure that you wanna archive this classroom? This action can not be undone!
+                      This action cannot be undone. The classroom will be marked as archived
+                      and no new assignments can be created.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={handleConfirmArchive} variant="destructive">
-                      Confirm
+                      Archive Classroom
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-
-              <Button variant="secondary" asChild size="sm" title="Settings">
+              <Button variant="outline" size="sm" asChild>
                 <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
-      </div>
+      </header>
 
-      {showHeaderCards && (
-        <ClassroomHeaderCards userClassroom={userClassroom} classroomMemberLength={classroomMembers.length} />
-      )}
+      {/* Stats Cards */}
+      <section className="animate-stagger-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard
+            icon={<Users className="w-4 h-4" />}
+            label="Members"
+            value={classroomMembers.length}
+          />
+          <StatCard
+            icon={<ClipboardList className="w-4 h-4" />}
+            label="Assignments"
+            value={userClassroom.assignmentsCount}
+          />
+          <StatCard
+            icon={<Users className="w-4 h-4" />}
+            label="Teams"
+            value={teams.length}
+          />
+          <StatCard
+            icon={<CalendarClock className="w-4 h-4" />}
+            label="Created"
+            value={formatRelativeTime(userClassroom.classroom.createdAt)}
+            isText
+          />
+        </div>
+      </section>
 
-      <Tabs value={tab} className="w-full">
-        <TabsList className="w-full">
-          <TabsTrigger asChild value="assignments" className="w-full">
-            <Link search={{ tab: "assignments" }}>Assignments</Link>
-          </TabsTrigger>
-          <TabsTrigger asChild value="members" className="w-full">
-            <Link search={{ tab: "members" }}>Members</Link>
-          </TabsTrigger>
-          {userClassroom.classroom.maxTeamSize > 1 && (
-            <TabsTrigger asChild value="teams" className="w-full">
-              <Link search={{ tab: "teams" }}>Teams</Link>
+      {/* Tabs Section */}
+      <section className="animate-stagger-3">
+        <Tabs value={tab} className="w-full">
+          <TabsList>
+            <TabsTrigger asChild value="assignments">
+              <Link search={{ tab: "assignments" }}>
+                <FileText className="w-4 h-4 mr-2" />
+                Assignments
+              </Link>
             </TabsTrigger>
-          )}
-        </TabsList>
-        <TabsContent value="assignments" className="pt-2">
-          {isModerator(userClassroom) && (
-            <AssignmentListSection classroomId={classroomId} deactivateInteraction={userClassroom.classroom.archived} />
-          )}
-          {isStudent(userClassroom) && <ProjectListSection classroomId={classroomId} />}
-        </TabsContent>
-        <TabsContent value="members" className="pt-2">
-          <div className="grid grid-cols-1 justify-between gap-4">
+            <TabsTrigger asChild value="members">
+              <Link search={{ tab: "members" }}>
+                <Users className="w-4 h-4 mr-2" />
+                Members
+              </Link>
+            </TabsTrigger>
+            {userClassroom.classroom.maxTeamSize > 1 && (
+              <TabsTrigger asChild value="teams">
+                <Link search={{ tab: "teams" }}>
+                  <Users className="w-4 h-4 mr-2" />
+                  Teams
+                </Link>
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          <TabsContent value="assignments">
+            {isModerator(userClassroom) && (
+              <AssignmentListSection
+                classroomId={classroomId}
+                deactivateInteraction={userClassroom.classroom.archived}
+              />
+            )}
+            {isStudent(userClassroom) && <ProjectListSection classroomId={classroomId} />}
+          </TabsContent>
+
+          <TabsContent value="members">
             <MemberListCard
               teamsReportUrls={teamsReportUrls}
               classroomMembers={classroomMembers}
@@ -235,91 +269,75 @@ function ClassroomDetail() {
               showTeams={userClassroom.classroom.maxTeamSize > 1}
               deactivateInteraction={userClassroom.classroom.archived}
             />
-            {/* uses Role.Owner, as you can only be the owner, making a check if GetMe.id == OwnedClassroom.ownerId unnecessary*/}
-          </div>
-        </TabsContent>
-        {userClassroom.classroom.maxTeamSize > 1 && (
-          <TabsContent value="teams" className="pt-2">
-            <TeamListCard
-              teams={teams}
-              studentsCanCreateTeams={userClassroom.classroom.createTeams}
-              classroomId={classroomId}
-              userClassroom={userClassroom}
-              maxTeamSize={userClassroom.classroom.maxTeamSize}
-              numInvitedMembers={classroomMembers.filter(isStudent).length}
-              deactivateInteraction={userClassroom.classroom.archived}
-              teamsReportUrls={teamsReportUrls}
-            />
           </TabsContent>
-        )}
-      </Tabs>
+
+          {userClassroom.classroom.maxTeamSize > 1 && (
+            <TabsContent value="teams">
+              <TeamListCard
+                teams={teams}
+                studentsCanCreateTeams={userClassroom.classroom.createTeams}
+                classroomId={classroomId}
+                userClassroom={userClassroom}
+                maxTeamSize={userClassroom.classroom.maxTeamSize}
+                numInvitedMembers={classroomMembers.filter(isStudent).length}
+                deactivateInteraction={userClassroom.classroom.archived}
+                teamsReportUrls={teamsReportUrls}
+              />
+            </TabsContent>
+          )}
+        </Tabs>
+      </section>
+
       <Outlet />
-    </>
+    </div>
   );
 }
 
-const ClassroomHeaderCards = ({
-  userClassroom,
-  classroomMemberLength,
-}: {
-  userClassroom: UserClassroomResponse;
-  classroomMemberLength: number;
-}) => {
-  return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Creation date</CardTitle>
-          <CalendarClock className="mr-2 h-4 w-4" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatDate(userClassroom.classroom.createdAt)}</div>
-          <p className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(userClassroom.classroom.createdAt)) + " ago"}
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Members</CardTitle>
-          <Users className="mr-2 h-4 w-4" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{classroomMemberLength}</div>
-          <p className="text-xs text-muted-foreground">{classroomMemberLength == 1 ? "member" : "members"}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Assignments</CardTitle>
-          <CalendarCheck2 className="mr-2 h-4 w-4" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{userClassroom.assignmentsCount}</div>
-          <p className="text-xs text-muted-foreground">
-            {userClassroom.assignmentsCount == 1 ? "assignment" : "assignments"}
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Status</CardTitle>
-          <Info className="mr-2 h-4 w-4" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{userClassroom.classroom.archived === true ? "Archived" : "Active"}</div>
-        </CardContent>
-      </Card>
+function ClassroomAvatar({ name }: { name: string }) {
+  const gradients = [
+    "from-primary to-[hsl(280,100%,60%)]",
+    "from-[hsl(142,71%,45%)] to-[hsl(185,100%,50%)]",
+    "from-[hsl(38,92%,55%)] to-[hsl(0,72%,55%)]",
+    "from-[hsl(280,65%,60%)] to-[hsl(210,100%,60%)]",
+  ];
+  const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const gradient = gradients[hash % gradients.length];
 
-      <Card className="col-span-1 md:col-span-2 lg:col-span-4">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Description</CardTitle>
-          <Text className="mr-2 h-4 w-4" />
-        </CardHeader>
-        <CardContent>
-          <p>{userClassroom.classroom.description ?? <i>No description available</i>}</p>
-        </CardContent>
-      </Card>
+  return (
+    <div
+      className={cn(
+        "w-12 h-12 rounded-xl flex items-center justify-center",
+        "bg-gradient-to-br",
+        gradient
+      )}
+    >
+      <span className="font-mono font-bold text-xl text-primary-foreground">
+        {name.charAt(0).toUpperCase()}
+      </span>
     </div>
   );
-};
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  isText = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  isText?: boolean;
+}) {
+  return (
+    <div className="bg-card border border-border rounded-lg p-4 transition-all duration-200 hover:border-primary/30">
+      <div className="flex items-center gap-2 text-muted-foreground mb-2">
+        {icon}
+        <span className="text-xs font-medium uppercase tracking-wide">{label}</span>
+      </div>
+      <div className={cn("font-bold", isText ? "text-lg" : "text-2xl font-mono")}>
+        {value}
+      </div>
+    </div>
+  );
+}

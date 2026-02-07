@@ -1,103 +1,163 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { Button } from "@/components/ui/button.tsx";
-import { ArrowRight as ArrowRight } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
-import List from "@/components/list.tsx";
-import ListItem from "@/components/listItem.tsx";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Separator } from "@/components/ui/separator";
 import { ActiveAssignmentResponse } from "@/swagger-client";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
-import { formatDate, formatDateWithTime } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip.tsx";
+import { formatDate, formatRelativeTime, getDaysUntilDue } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-/**
- * ActiveAssignmentListCard is a React component that displays a list of active assignments in a classroom.
- *
- * @param {Object} props - The properties passed to the component.
- * @param {Array} props.activeAssignments - An array of active Assignment objects representing the active assignments in the classroom.
- * @returns {JSX.Element} A React component that displays a card with the list of active assignments in a classroom.
- */
+type UrgencyLevel = "high" | "medium" | "none";
+
+function getUrgencyLevel(dueDate: string | null | undefined): UrgencyLevel {
+  const days = getDaysUntilDue(dueDate);
+  if (days === null) return "none";
+  if (days <= 3) return "high";
+  return "medium";
+}
+
+const urgencyConfig = {
+  high: {
+    indicator: "bg-warning shadow-[0_0_8px_hsl(var(--glow-warning))]",
+    row: "hover:border-l-warning",
+  },
+  medium: {
+    indicator: "bg-success",
+    row: "hover:border-l-success",
+  },
+  none: {
+    indicator: "bg-muted-foreground",
+    row: "hover:border-l-muted-foreground",
+  },
+};
+
 export function ActiveAssignmentListCard({
   activeAssignments,
 }: {
   activeAssignments: ActiveAssignmentResponse[];
-}): JSX.Element {
+}) {
   return (
-    <Card className="p-2">
-      <CardHeader>
+    <Card>
+      <CardHeader className="pb-3">
         <CardTitle>Active Assignments</CardTitle>
-        <CardDescription>Your assignments that are not yet overdue.</CardDescription>
+        <CardDescription>Assignments that need your attention</CardDescription>
       </CardHeader>
       <CardContent>
-        <AssignmentTable assignments={activeAssignments} />
+        {activeAssignments.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="space-y-1">
+            {activeAssignments.map((assignment) => (
+              <AssignmentRow key={assignment.id} assignment={assignment} />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function AssignmentTable({ assignments }: { assignments: ActiveAssignmentResponse[] }) {
-  return assignments.length === 0 ? (
-    <p className="text-muted-foreground text-center">No active assignments.</p>
-  ) : (
-    <List
-      items={assignments}
-      renderItem={(assignment) => (
-        <ListItem
-          leftContent={<AssignmentListElement assignment={assignment} />}
-          rightContent={
-            <div className="flex text-end gap-2">
-              <div>
-                <div className="font-medium">Due Date</div>
-                <div className="text-sm text-muted-foreground">
-                  {assignment.dueDate ? formatDateWithTime(assignment.dueDate) : "No due date"}
-                </div>
-              </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" title="Go to classroom" asChild>
-                    <Link
-                      to="/classrooms/$classroomId"
-                      search={{ tab: "assignments" }}
-                      params={{ classroomId: assignment.classroomId }}
-                    >
-                      <ArrowRight className="text-slate-500 dark:text-white" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Go to classroom</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          }
-        />
-      )}
-    />
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <div className="w-12 h-12 rounded-full bg-success/15 flex items-center justify-center mb-3">
+        <CheckCircle2 className="w-6 h-6 text-success" />
+      </div>
+      <p className="font-medium text-foreground">All caught up!</p>
+      <p className="text-sm text-muted-foreground">No active assignments</p>
+    </div>
   );
 }
 
-function AssignmentListElement({ assignment }: { assignment: ActiveAssignmentResponse }) {
+function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse }) {
+  const urgency = getUrgencyLevel(assignment.dueDate);
+  const config = urgencyConfig[urgency];
+  const daysUntil = getDaysUntilDue(assignment.dueDate);
+
   return (
-    <HoverCard>
-      <HoverCardTrigger className="cursor-default flex">
-        <div className="pr-2">
-          <Avatar>
-            <AvatarFallback className="bg-gray-200 text-black text-lg">{assignment.name.charAt(0)}</AvatarFallback>
-          </Avatar>
+    <Link
+      to="/classrooms/$classroomId"
+      search={{ tab: "assignments" }}
+      params={{ classroomId: assignment.classroomId }}
+      className="group block"
+    >
+      <div
+        className={cn(
+          "relative flex items-center gap-4 px-4 py-3 rounded-lg",
+          "border-l-2 border-l-transparent",
+          "hover:bg-muted/50 transition-all duration-200",
+          config.row
+        )}
+      >
+        <div className={cn("w-2 h-2 rounded-full shrink-0", config.indicator)} />
+
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <div className="flex-1 min-w-0 cursor-default">
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-medium truncate">
+                  {assignment.name}
+                </span>
+                <Badge variant="outline" className="shrink-0 text-xs">
+                  {assignment.classroom.name}
+                </Badge>
+              </div>
+            </div>
+          </HoverCardTrigger>
+          <HoverCardContent className="w-80">
+            <div className="space-y-2">
+              <h4 className="font-mono font-semibold">{assignment.name}</h4>
+              <p className="text-sm text-muted-foreground">
+                {assignment.classroom.name}
+              </p>
+              <Separator />
+              <p className="text-xs text-muted-foreground">
+                Created {formatDate(assignment.createdAt)}
+              </p>
+              {assignment.description && (
+                <p className="text-sm">{assignment.description}</p>
+              )}
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="text-right hidden sm:block">
+            {assignment.dueDate ? (
+              <>
+                <div className="text-xs text-muted-foreground">Due</div>
+                <div
+                  className={cn(
+                    "text-sm font-medium",
+                    urgency === "high" && "text-warning"
+                  )}
+                >
+                  {daysUntil !== null && daysUntil <= 0
+                    ? "Today"
+                    : daysUntil === 1
+                      ? "Tomorrow"
+                      : formatRelativeTime(assignment.dueDate)}
+                </div>
+              </>
+            ) : (
+              <span className="text-sm text-muted-foreground">No due date</span>
+            )}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            asChild
+          >
+            <span>
+              <ArrowRight className="w-4 h-4" />
+            </span>
+          </Button>
         </div>
-        <div>
-          <div className="font-medium">{assignment.name}</div>
-          <div className="text-sm text-muted-foreground md:inline">{assignment.classroom.name}</div>
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-100">
-        <p className="text-lg font-semibold">{assignment.name}</p>
-        <div className="text-sm text-muted-foreground md:inline">{assignment.classroom.name}</div>
-        <p className="text-sm text-muted-foreground my-1">Created at: {formatDate(assignment.createdAt)}</p>
-        <Separator className="my-1" />
-        <p className="text-muted-foreground">{assignment.description}</p>
-      </HoverCardContent>
-    </HoverCard>
+      </div>
+    </Link>
   );
 }

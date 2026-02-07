@@ -1,22 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { Loader } from "@/components/loader.tsx";
-import { ArrowRight as ArrowRight, Plus, SearchCode } from "lucide-react";
-import { Header } from "@/components/header";
+import { Loader } from "@/components/loader";
+import { Plus } from "lucide-react";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
-import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/list.tsx";
-import ListItem from "@/components/listItem.tsx";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { activeAssignmentQueryOptions } from "@/api/assignment";
 import { ActiveAssignmentListCard } from "@/components/activeAssignments";
+import { ClassroomCardGrid } from "@/components/classroom-card";
 
 export const Route = createFileRoute("/_auth/dashboard")({
-  component: Classrooms,
+  component: Dashboard,
   loader: async ({ context: { queryClient } }) => {
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
@@ -33,16 +28,12 @@ export const Route = createFileRoute("/_auth/dashboard")({
   pendingComponent: Loader,
 });
 
-function Classrooms() {
+function Dashboard() {
+  const { auth } = Route.useRouteContext();
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
   const { data: activeAssignments } = useSuspenseQuery(activeAssignmentQueryOptions());
-
-  const joinedClassrooms = useMemo(
-    () => [...moderatorClassrooms, ...studentClassrooms],
-    [moderatorClassrooms, studentClassrooms],
-  );
 
   const sortedAssignments = useMemo(() => {
     return [...activeAssignments].sort((a, b) => {
@@ -52,118 +43,113 @@ function Classrooms() {
     });
   }, [activeAssignments]);
 
-  return (
-    <div>
-      <div className="flex-1 space-y-4">
-        <Header title="Dashboard" />
-        <ActiveAssignmentListCard activeAssignments={sortedAssignments} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 justify-between gap-4">
-          <OwnedClassroomTable classrooms={ownedClassrooms} />
-          <JoinedClassroomTable classrooms={joinedClassrooms} />
-          <Outlet />
-        </div>
-      </div>
-    </div>
-  );
-}
+  const totalClassrooms = ownedClassrooms.length + moderatorClassrooms.length + studentClassrooms.length;
+  const firstName = auth?.name?.split(" ")[0] ?? "there";
 
-function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
-    <Card>
-      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
-        <div className="mb-4 md:mb-0">
-          <CardTitle className="mb-1">Managed Classrooms</CardTitle>
-          <CardDescription>Classrooms which are managed by you</CardDescription>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to="/classrooms">View all</Link>
-          </Button>
-          <Button asChild variant="outline" size="icon">
+    <div className="space-y-8 pb-8">
+      {/* Welcome Header */}
+      <section className="animate-stagger-1">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Welcome back, {firstName}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {activeAssignments.length === 0
+                ? "You're all caught up!"
+                : `You have ${activeAssignments.length} active assignment${activeAssignments.length !== 1 ? "s" : ""}`}
+            </p>
+          </div>
+          <Button variant="glow" asChild>
             <Link to="/classrooms/create">
-              <Plus />
+              <Plus className="w-4 h-4 mr-2" />
+              Create Classroom
             </Link>
           </Button>
         </div>
-      </CardHeader>
+      </section>
 
-      <CardContent>
-        {classrooms.length === 0 ? (
-          <div className="text-center text-muted-foreground">No managed classrooms</div>
+      {/* Active Assignments */}
+      <section className="animate-stagger-2">
+        <ActiveAssignmentListCard activeAssignments={sortedAssignments} />
+      </section>
+
+      {/* Classrooms Grid */}
+      <section className="space-y-6 animate-stagger-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Your Classrooms</h2>
+          {totalClassrooms > 0 && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/classrooms">View all</Link>
+            </Button>
+          )}
+        </div>
+
+        {totalClassrooms === 0 ? (
+          <EmptyClassroomsState />
         ) : (
-          <List
-            items={classrooms}
-            renderItem={(item) => (
-              <ListItem
-                leftContent={
-                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
-                }
-                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
-              />
+          <div className="space-y-8">
+            {/* Managed Classrooms */}
+            {ownedClassrooms.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                  Managed by you ({ownedClassrooms.length})
+                </h3>
+                <ClassroomCardGrid
+                  classrooms={ownedClassrooms.slice(0, 4)}
+                  role="owner"
+                />
+              </div>
             )}
-          />)}
-      </CardContent>
-    </Card>
-  );
-}
 
-function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Joined Classrooms</CardTitle>
-        <CardDescription>Classroom of which you are a member</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {classrooms.length === 0 ? (
-          <div className="text-center text-muted-foreground">No joined classrooms</div>
-        ) : (
-          <List
-            items={classrooms}
-            renderItem={(item) => (
-              <ListItem
-                leftContent={
-                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
-                }
-                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
-              />
+            {/* Moderator Classrooms */}
+            {moderatorClassrooms.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                  Moderating ({moderatorClassrooms.length})
+                </h3>
+                <ClassroomCardGrid
+                  classrooms={moderatorClassrooms.slice(0, 4)}
+                  role="moderator"
+                />
+              </div>
             )}
-          />)}
-      </CardContent>
-    </Card>
-  );
-}
 
-function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: string; assignmentsCount: number }) {
-  const assignmentsText = assignmentsCount === 1 ? `${assignmentsCount} Assignment` : `${assignmentsCount} Assignments`;
-  return (
-    <div className="cursor-default flex">
-      <div className="pr-2">
-        <Avatar>
-          <AvatarFallback className="bg-gray-200 text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
-        </Avatar>
-      </div>
-      <div>
-        <div className="font-medium">{classroomName}</div>
-        <div className="text-sm text-muted-foreground md:inline">{assignmentsText}</div>
-      </div>
+            {/* Joined Classrooms */}
+            {studentClassrooms.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                  Joined ({studentClassrooms.length})
+                </h3>
+                <ClassroomCardGrid
+                  classrooms={studentClassrooms.slice(0, 4)}
+                  role="student"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <Outlet />
     </div>
   );
 }
 
-function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; classroomId: string }) {
+function EmptyClassroomsState() {
   return (
-    <>
-      <Button variant="ghost" size="icon" asChild>
-        <a href={gitlabUrl} target="_blank" rel="noreferrer">
-          <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
-        </a>
-      </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId: classroomId }}>
-          <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
+    <div className="border border-dashed border-border rounded-lg p-12 text-center">
+      <h3 className="font-medium text-foreground mb-2">No classrooms yet</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        Create your first classroom to get started
+      </p>
+      <Button variant="outline" asChild>
+        <Link to="/classrooms/create">
+          <Plus className="w-4 h-4 mr-2" />
+          Create Classroom
         </Link>
       </Button>
-    </>
+    </div>
   );
 }
