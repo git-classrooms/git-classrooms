@@ -5,16 +5,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GraduationCap, LogOut, Menu, User as UserIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ExternalLink,
+  GraduationCap,
+  LogOut,
+  Menu,
+} from "lucide-react";
 import { Avatar } from "./avatar";
 import { GetMeResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
+import GitlabLogo from "@/assets/gitlab_logo.svg";
 
 export function Navbar(props: { auth: GetMeResponse | null }) {
   return (
@@ -36,8 +42,7 @@ function DesktopNavbar(props: NavbarProps) {
         <Logo />
         {props.auth && <NavLinks />}
       </div>
-      <div className="flex items-center gap-3">
-        {props.auth && <CommandPaletteHint />}
+      <div className="flex items-center gap-2">
         <ModeToggle />
         {props.auth ? (
           <UserDropdown auth={props.auth} />
@@ -100,67 +105,91 @@ function NavLinks() {
   );
 }
 
-function CommandPaletteHint() {
-  return (
-    <button
-      onClick={() => {
-        const event = new KeyboardEvent("keydown", {
-          key: "k",
-          metaKey: true,
-          bubbles: true,
-        });
-        document.dispatchEvent(event);
-      }}
-      className="hidden sm:flex items-center gap-1.5 px-2 py-1 text-xs text-muted-foreground bg-muted/50 border border-border rounded-md hover:bg-muted hover:text-foreground transition-colors"
-    >
-      <span className="font-mono">⌘K</span>
-    </button>
-  );
-}
-
 function UserDropdown({ auth }: { auth: GetMeResponse }) {
   const { csrfToken } = useCsrf();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+        <button
+          className={cn(
+            "flex items-center gap-2 pl-1 pr-2 py-1 rounded-full",
+            "bg-muted/50 hover:bg-muted border border-border/50 hover:border-border",
+            "transition-all duration-200",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          )}
+        >
           <Avatar
             avatarUrl={auth.avatarURL}
             fallbackUrl={auth.fallbackAvatarURL}
             name={auth.name!}
+            className="w-7 h-7"
           />
+          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>
-          <div className="flex flex-col space-y-1">
-            <p className="font-medium leading-none">{auth.name}</p>
-            <p className="text-xs text-muted-foreground">@{auth.gitlabUsername}</p>
+      <DropdownMenuContent align="end" className="w-64 p-0 overflow-hidden">
+        {/* User Info Header */}
+        <div className="p-4 bg-muted/30 border-b border-border/50">
+          <div className="flex items-center gap-3">
+            <Avatar
+              avatarUrl={auth.avatarURL}
+              fallbackUrl={auth.fallbackAvatarURL}
+              name={auth.name!}
+              className="w-10 h-10"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate">{auth.name}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                @{auth.gitlabUsername}
+              </p>
+            </div>
           </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <a
-            href={auth.gitlabUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center cursor-pointer"
-          >
-            <UserIcon className="mr-2 h-4 w-4" />
-            <span>GitLab Profile</span>
-          </a>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <form method="POST" action="/api/v1/auth/sign-out">
-          <input type="hidden" name="csrf_token" value={csrfToken} />
-          <DropdownMenuItem asChild>
-            <button type="submit" className="w-full flex items-center cursor-pointer text-destructive focus:text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </button>
+        </div>
+
+        {/* Menu Items */}
+        <div className="p-1.5">
+          <DropdownMenuItem asChild className="cursor-pointer rounded-md">
+            <a
+              href={auth.gitlabUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3 py-2.5"
+            >
+              <div className="w-8 h-8 rounded-md bg-[#FC6D26]/10 flex items-center justify-center">
+                <img src={GitlabLogo} className="w-4 h-4" alt="" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">GitLab Profile</p>
+                <p className="text-xs text-muted-foreground">View your profile</p>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
+            </a>
           </DropdownMenuItem>
-        </form>
+        </div>
+
+        <DropdownMenuSeparator className="my-0" />
+
+        {/* Logout */}
+        <div className="p-1.5">
+          <form method="POST" action="/api/v1/auth/sign-out">
+            <input type="hidden" name="csrf_token" value={csrfToken} />
+            <DropdownMenuItem asChild className="cursor-pointer rounded-md">
+              <button
+                type="submit"
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-destructive focus:text-destructive"
+              >
+                <div className="w-8 h-8 rounded-md bg-destructive/10 flex items-center justify-center">
+                  <LogOut className="w-4 h-4" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium">Log out</p>
+                  <p className="text-xs opacity-70">End your session</p>
+                </div>
+              </button>
+            </DropdownMenuItem>
+          </form>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
