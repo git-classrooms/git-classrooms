@@ -2,12 +2,9 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { getRole, Role } from "@/types/classroom.ts";
 import { createFormSchema } from "@/types/member.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Header } from "@/components/header.tsx";
 import { membersQueryOptions, useRemoveTeamMember, useUpdateMemberRole, useUpdateMemberTeam } from "@/api/member.ts";
-import { ReportApiAxiosParamCreator, Team, TeamResponse, UserClassroomResponse } from "@/swagger-client";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card.tsx";
+import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import { Avatar } from "@/components/avatar.tsx";
-import { Separator } from "@/components/ui/separator.tsx";
 import { teamsQueryOptions } from "@/api/team.ts";
 import { classroomQueryOptions } from "@/api/classroom.ts";
 import { Loader } from "@/components/loader.tsx";
@@ -16,7 +13,19 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { AlertCircle } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Crown,
+  ExternalLink,
+  Loader2,
+  Mail,
+  Search,
+  Shield,
+  UserPlus,
+  Users,
+  GraduationCap,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
 import {
   Breadcrumb,
@@ -26,9 +35,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useMemo } from "react";
-import { isCreator, isStudent } from "@/lib/utils";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useMemo, useState } from "react";
+import { isCreator, isStudent, cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
@@ -41,39 +53,70 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")(
   loader: async ({ context: { queryClient }, params }) => {
     const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
-
-    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
     const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
-
-    return { userClassroom, members, teams, reportDownloadUrl };
+    return { userClassroom, members, teams };
   },
   pendingComponent: Loader,
 });
+
+const roleConfig: Record<Role, { icon: typeof Crown; color: string; bgColor: string }> = {
+  [Role.Owner]: {
+    icon: Crown,
+    color: "text-warning",
+    bgColor: "bg-warning/15",
+  },
+  [Role.Moderator]: {
+    icon: Shield,
+    color: "text-info",
+    bgColor: "bg-info/15",
+  },
+  [Role.Student]: {
+    icon: GraduationCap,
+    color: "text-muted-foreground",
+    bgColor: "bg-muted",
+  },
+};
 
 function Members() {
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const classroomMembersSorted = useMemo(
-    () =>
-      [...classroomMembers].sort((a, b) => {
-        if (a.role !== b.role) {
-          return a.role - b.role;
-        }
+  const stats = useMemo(() => {
+    const owners = classroomMembers.filter((m) => m.role === Role.Owner).length;
+    const moderators = classroomMembers.filter((m) => m.role === Role.Moderator).length;
+    const students = classroomMembers.filter((m) => m.role === Role.Student).length;
+    const withTeam = classroomMembers.filter((m) => m.team).length;
+    return { owners, moderators, students, withTeam, total: classroomMembers.length };
+  }, [classroomMembers]);
 
+  const filteredMembers = useMemo(() => {
+    const query = searchQuery.toLowerCase();
+    return [...classroomMembers]
+      .filter((m) => {
+        if (!query) return true;
+        return (
+          m.user.name.toLowerCase().includes(query) ||
+          m.user.gitlabUsername?.toLowerCase().includes(query) ||
+          m.team?.name.toLowerCase().includes(query)
+        );
+      })
+      .sort((a, b) => {
+        if (a.role !== b.role) return a.role - b.role;
         if (isCreator(a)) return -1;
         if (isCreator(b)) return 1;
-
         return a.user.name.localeCompare(b.user.name);
-      }),
-    [classroomMembers],
-  );
+      });
+  }, [classroomMembers, searchQuery]);
+
+  const showTeams = userClassroom.classroom.maxTeamSize > 1;
 
   return (
-    <>
-      <Breadcrumb className="mb-5">
+    <div className="space-y-8 animate-stagger-1">
+      {/* Breadcrumb */}
+      <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
@@ -83,129 +126,279 @@ function Members() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+              <Link to="/classrooms/$classroomId" search={{ tab: "members" }} params={{ classroomId }}>
                 {userClassroom.classroom.name}
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Manage members</BreadcrumbPage>
+            <BreadcrumbPage>Manage Members</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Header title="Manage members" subtitle="Change the roles and teams of members" />
-      <div className="justify-between gap-10">
-        <MemberTable
-          userClassroom={userClassroom}
-          members={classroomMembersSorted}
-          teams={teams}
-          classroomId={classroomId}
-          userRole={userClassroom.role}
-          showTeams={userClassroom.classroom.maxTeamSize > 1}
-        />
-      </div>
-    </>
-  );
-}
 
-function MemberTable({
-  userClassroom,
-  members,
-  classroomId,
-  userRole,
-  showTeams,
-  teams,
-}: {
-  userClassroom: UserClassroomResponse;
-  members: UserClassroomResponse[];
-  classroomId: string;
-  userRole: Role;
-  showTeams: boolean;
-  teams: TeamResponse[];
-}) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-full">Member</TableHead>
-          {userClassroom.classroom.maxTeamSize > 1 && <TableHead>Team</TableHead>}
-          <TableHead className="text-right">Role</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((m) => (
-          <TableRow key={m.user.id}>
-            <TableCell className="w-full">
-              <MemberListElement member={m} showTeams={showTeams} />
-            </TableCell>
-            {userClassroom.classroom.maxTeamSize > 1 && (
-              <TableCell>
-                <div className="flex justify-end">
-                  {isStudent(m) && (
-                    <TeamDropdown team={m.team} memberID={m.user.id} classroomID={classroomId} teams={teams} />
-                  )}
-                </div>
-              </TableCell>
-            )}
-            <TableCell className="grid place-content-end">
-              <div className="flex justify-end">
-                {m.user.id !== userClassroom.user.id &&
-                  (userClassroom.classroom.ownerId === userClassroom.user.id ||
-                    (userRole === Role.Owner && m.role !== Role.Owner)) && (
-                    <RoleDropdown
-                      role={m.role}
-                      memberID={m.user.id}
-                      classroomID={classroomId}
-                      userClassroom={userClassroom}
-                    />
-                  )}
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
+      {/* Header */}
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "members" }} params={{ classroomId }}>
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Manage Members</h1>
+              <p className="text-muted-foreground mt-1">
+                Update roles and team assignments
+              </p>
+            </div>
+          </div>
+          <Button variant="glow" asChild>
+            <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Invite Members
+            </Link>
+          </Button>
+        </div>
 
-function MemberListElement({ member, showTeams }: { member: UserClassroomResponse; showTeams: boolean }) {
-  return (
-    <HoverCard>
-      <HoverCardTrigger className="cursor-default flex">
-        <div className="pr-2">
-          <Avatar
-            avatarUrl={member.user.avatarURL}
-            fallbackUrl={member.user.fallbackAvatarURL}
-            name={member.user.name!}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard
+            label="Total"
+            value={stats.total}
+            icon={Users}
+            color="text-primary"
+            bgColor="bg-primary/15"
+          />
+          <StatCard
+            label="Owners"
+            value={stats.owners}
+            icon={Crown}
+            color="text-warning"
+            bgColor="bg-warning/15"
+          />
+          <StatCard
+            label="Moderators"
+            value={stats.moderators}
+            icon={Shield}
+            color="text-info"
+            bgColor="bg-info/15"
+          />
+          <StatCard
+            label="Students"
+            value={stats.students}
+            icon={GraduationCap}
+            color="text-muted-foreground"
+            bgColor="bg-muted"
           />
         </div>
-        <div>
-          <div className="font-medium">{member.user.name}</div>
-          <div className="text-sm text-muted-foreground md:inline">
-            {getRole(member.role)} {showTeams && member.team ? `- ${member.team.name}` : ""}
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, username, or team..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="text-sm text-muted-foreground flex items-center">
+          {filteredMembers.length} of {classroomMembers.length} members
+        </div>
+      </div>
+
+      {/* Members List */}
+      <div className="space-y-3">
+        {filteredMembers.length === 0 ? (
+          <EmptySearchState query={searchQuery} />
+        ) : (
+          filteredMembers.map((member) => (
+            <MemberRow
+              key={member.user.id}
+              member={member}
+              userClassroom={userClassroom}
+              classroomId={classroomId}
+              teams={teams}
+              showTeams={showTeams}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  color,
+  bgColor,
+}: {
+  label: string;
+  value: number;
+  icon: typeof Users;
+  color: string;
+  bgColor: string;
+}) {
+  return (
+    <Card className="border-border/50">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", bgColor)}>
+            <Icon className={cn("w-5 h-5", color)} />
+          </div>
+          <div>
+            <p className="text-2xl font-bold font-mono">{value}</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
           </div>
         </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-100">
-        <p className="text-lg font-semibold">{member.user.name}</p>
-        <p className="text-sm text-muted-foreground mt-[-0.3rem]">@{member.user.gitlabUsername}</p>
-        <Separator className="my-1" />
-        <p className="text-muted-foreground">{member.user.gitlabEmail}</p>
-        <Separator className="my-1" />
-        <div className="text-muted-foreground">
-          <span className="font-bold">{getRole(member.role)}</span> of this classroom{" "}
-          {showTeams && member.team ? (
-            <>
-              {" "}
-              in team <span className="font-bold">{member.team?.name ?? ""}</span>
-            </>
-          ) : (
-            ""
+      </CardContent>
+    </Card>
+  );
+}
+
+function EmptySearchState({ query }: { query: string }) {
+  return (
+    <div className="border border-dashed border-border rounded-lg p-12 text-center">
+      <Search className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+      <h3 className="font-medium text-foreground mb-1">No members found</h3>
+      <p className="text-sm text-muted-foreground">
+        No members match "{query}"
+      </p>
+    </div>
+  );
+}
+
+function MemberRow({
+  member,
+  userClassroom,
+  classroomId,
+  teams,
+  showTeams,
+}: {
+  member: UserClassroomResponse;
+  userClassroom: UserClassroomResponse;
+  classroomId: string;
+  teams: TeamResponse[];
+  showTeams: boolean;
+}) {
+  const config = roleConfig[member.role as Role];
+  const Icon = config.icon;
+  const isCurrentUser = member.user.id === userClassroom.user.id;
+  const isClassroomCreator = isCreator(member);
+
+  const canEditRole =
+    !isCurrentUser &&
+    (userClassroom.classroom.ownerId === userClassroom.user.id ||
+      (userClassroom.role === Role.Owner && member.role !== Role.Owner));
+
+  const canEditTeam = isStudent(member);
+
+  return (
+    <Card className="group transition-all duration-200 hover:border-primary/30">
+      <CardContent className="p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* Member Info */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="relative">
+              <Avatar
+                avatarUrl={member.user.avatarURL}
+                fallbackUrl={member.user.fallbackAvatarURL}
+                name={member.user.name!}
+                className="w-12 h-12"
+              />
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-card border-2 border-card">
+                <div
+                  className={cn(
+                    "w-full h-full rounded-full flex items-center justify-center",
+                    config.bgColor
+                  )}
+                >
+                  <Icon className={cn("w-2.5 h-2.5", config.color)} />
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold truncate">{member.user.name}</span>
+                {isCurrentUser && (
+                  <StatusBadge variant="info" size="sm">You</StatusBadge>
+                )}
+                {isClassroomCreator && (
+                  <StatusBadge variant="warning" size="sm">Creator</StatusBadge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground truncate">
+                @{member.user.gitlabUsername}
+              </p>
+            </div>
+          </div>
+
+          {/* Team Assignment */}
+          {showTeams && (
+            <div className="sm:w-48">
+              {canEditTeam ? (
+                <TeamDropdown
+                  team={member.team}
+                  memberID={member.user.id}
+                  classroomID={classroomId}
+                  teams={teams}
+                />
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  {member.team?.name || "—"}
+                </div>
+              )}
+            </div>
           )}
+
+          {/* Role Assignment */}
+          <div className="sm:w-44">
+            {canEditRole ? (
+              <RoleDropdown
+                role={member.role}
+                memberID={member.user.id}
+                classroomID={classroomId}
+                userClassroom={userClassroom}
+              />
+            ) : (
+              <StatusBadge
+                variant={
+                  member.role === Role.Owner
+                    ? "warning"
+                    : member.role === Role.Moderator
+                      ? "info"
+                      : "neutral"
+                }
+              >
+                {getRole(member.role)}
+              </StatusBadge>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+              <a href={member.webUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            </Button>
+            {member.user.gitlabEmail && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <a href={`mailto:${member.user.gitlabEmail}`}>
+                  <Mail className="w-4 h-4" />
+                </a>
+              </Button>
+            )}
+          </div>
         </div>
-      </HoverCardContent>
-    </HoverCard>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -237,7 +430,7 @@ function RoleDropdown({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="role"
@@ -249,29 +442,46 @@ function RoleDropdown({
                 defaultValue={field.value}
               >
                 <FormControl>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Change the role from the person" />
+                  <SelectTrigger className="w-full h-9">
+                    <div className="flex items-center gap-2">
+                      {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
+                      <SelectValue placeholder="Select role" />
+                    </div>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value={getRole(Role.Student)}>{getRole(Role.Student)}</SelectItem>
-                  <SelectItem value={getRole(Role.Moderator)}>{getRole(Role.Moderator)}</SelectItem>
+                  <SelectItem value={getRole(Role.Student)}>
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" />
+                      Student
+                    </div>
+                  </SelectItem>
+                  <SelectItem value={getRole(Role.Moderator)}>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4" />
+                      Moderator
+                    </div>
+                  </SelectItem>
                   {userClassroom.classroom.ownerId === userClassroom.user.id && (
-                    <SelectItem value={getRole(Role.Owner)}>{getRole(Role.Owner)}</SelectItem>
+                    <SelectItem value={getRole(Role.Owner)}>
+                      <div className="flex items-center gap-2">
+                        <Crown className="w-4 h-4" />
+                        Owner
+                      </div>
+                    </SelectItem>
                   )}
                 </SelectContent>
               </Select>
+              {isError && (
+                <Alert variant="destructive" className="mt-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>Failed to update role</AlertDescription>
+                </Alert>
+              )}
             </FormItem>
           )}
         />
-
-        {isError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>The role could not be switched!</AlertDescription>
-          </Alert>
-        )}
       </form>
     </Form>
   );
@@ -289,7 +499,7 @@ function TeamDropdown({
   classroomID,
   teams,
 }: {
-  team?: Team;
+  team?: { id: string; name: string };
   memberID: number;
   classroomID: string;
   teams: TeamResponse[];
@@ -323,7 +533,7 @@ function TeamDropdown({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="teamId"
@@ -337,8 +547,11 @@ function TeamDropdown({
                 defaultValue={field.value}
               >
                 <FormControl>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select a team..." />
+                  <SelectTrigger className="w-full h-9">
+                    <div className="flex items-center gap-2">
+                      {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
+                      <SelectValue placeholder="Select team..." />
+                    </div>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -347,20 +560,23 @@ function TeamDropdown({
                       {t.name}
                     </SelectItem>
                   ))}
-                  {team && <SelectItem value={REMOVE_TEAM}>No team</SelectItem>}
+                  {team && (
+                    <SelectItem value={REMOVE_TEAM} className="text-destructive">
+                      Remove from team
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
+              {error && (
+                <Alert variant="destructive" className="mt-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{error.message}</AlertDescription>
+                </Alert>
+              )}
             </FormItem>
           )}
         />
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error.message}</AlertDescription>
-          </Alert>
-        )}
       </form>
     </Form>
   );
