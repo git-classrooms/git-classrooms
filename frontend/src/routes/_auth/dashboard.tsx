@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { activeAssignmentQueryOptions } from "@/api/assignment";
 import { ActiveAssignmentListCard } from "@/components/activeAssignments";
 import { ClassroomCardGrid } from "@/components/classroom-card";
+import { useAuth } from "@/api/auth";
 
 export const Route = createFileRoute("/_auth/dashboard")({
   component: Dashboard,
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/_auth/dashboard")({
 });
 
 function Dashboard() {
-  const { auth } = Route.useRouteContext();
+  const { data: auth } = useAuth();
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
