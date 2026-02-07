@@ -4,7 +4,6 @@ import { AlertCircle, Edit, ExternalLink, Loader2, Plus, Users2 } from "lucide-r
 import { TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -241,6 +240,7 @@ function TeamAvatar({ name }: { name: string }) {
 }
 
 function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: TeamResponse }) {
+  const [open, setOpen] = useState(false);
   const { mutateAsync, isError, isPending } = useUpdateTeam(classroomId, team.id);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -253,12 +253,26 @@ function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: Te
   });
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
-    await mutateAsync(values);
-    toast.success("Team updated successfully!");
+    try {
+      await mutateAsync(values);
+      toast.success("Team updated successfully!");
+      setOpen(false);
+      form.reset({ name: values.name });
+    } catch {
+      // Error is handled by isError state
+    }
   }
 
+  // Reset form when dialog opens
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      form.reset({ name: team.name });
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8">
           <Edit className="h-4 w-4" />
@@ -285,11 +299,9 @@ function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: Te
               )}
             />
             <div className="flex gap-2 justify-end">
-              <DialogClose asChild>
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </DialogClose>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Save Changes
