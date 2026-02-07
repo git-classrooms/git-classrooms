@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema, updateFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Pencil } from "lucide-react";
 import { getUUIDFromLocation, unwrapApiError } from "@/lib/utils.ts";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import { useCreateClassroom, useUpdateClassroom } from "@/api/classroom";
 import { UserClassroomResponse } from "@/swagger-client";
 import { Header } from "./header";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const ClassroomCreateForm = () => {
   const navigate = useNavigate();
@@ -189,55 +190,95 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
   }
 
   return (
-    <div className="p-2 w-full">
-      <div>
-        <h2 className="text-xl font-bold">Edit the classroom</h2>
-        <p className="text-sm text-muted-foreground">Change the details of this classroom.</p>
+    <div className="w-full">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(142,71%,45%)]/20 to-[hsl(142,71%,45%)]/5 border border-[hsl(142,71%,45%)]/20 flex items-center justify-center">
+          <Pencil className="w-5 h-5 text-[hsl(142,71%,45%)]" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold font-mono">Edit Classroom</h2>
+          <p className="text-sm text-muted-foreground">Update name and description</p>
+        </div>
       </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="space-y-1 my-2">
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Programming classroom" {...field} />
-                </FormControl>
-                <FormDescription>The name of the classroom</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="space-y-1  my-2">
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
-                </FormControl>
-                <FormDescription>The description of your classroom</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <Button type="submit" disabled={isPending}>
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save"}
-          </Button>
+      <Card className="border-border/50">
+        <CardContent className="p-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Programming classroom"
+                        {...field}
+                        className="bg-background"
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      The display name of this classroom
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          {isError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>The classroom could not be updated!</AlertDescription>
-            </Alert>
-          )}
-        </form>
-      </Form>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Description
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="This is my awesome classroom for..."
+                        className="resize-none bg-background min-h-[100px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      A brief description of the classroom's purpose
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                <p className="text-xs text-muted-foreground">
+                  Changes are saved immediately
+                </p>
+                <Button
+                  type="submit"
+                  variant="glow"
+                  size="sm"
+                  disabled={isPending || !form.formState.isDirty}
+                >
+                  {isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  Save Changes
+                </Button>
+              </div>
+
+              {isError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>The classroom could not be updated!</AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
