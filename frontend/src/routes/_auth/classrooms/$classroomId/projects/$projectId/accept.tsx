@@ -1,14 +1,31 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button.tsx";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { Link } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  GitBranch,
+  Loader2,
+  Play,
+  Sparkles,
+} from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Separator } from "@/components/ui/separator";
 import { projectQueryOptions, useAcceptAssignment } from "@/api/project";
 import { classroomQueryOptions } from "@/api/classroom";
-import GitlabLogo from "@/assets/gitlab_logo.svg";
-import { isStudent } from "@/lib/utils";
+import { cn, formatDate, formatDateWithTime, getDaysUntilDue, isStudent } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$projectId/accept")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -36,53 +53,171 @@ function AcceptAssignment() {
   const { data: project } = useSuspenseQuery(projectQueryOptions(classroomId, projectId, 10000));
   const { mutateAsync, isError, isPending } = useAcceptAssignment(classroomId, projectId);
 
+  const dueDate = project.assignment.dueDate;
+  const daysUntil = getDaysUntilDue(dueDate);
+  const isUrgent = daysUntil !== null && daysUntil <= 3;
+  const isVeryUrgent = daysUntil !== null && daysUntil <= 1;
+
   const onClick = async () => {
     await mutateAsync();
     await navigate({ to: "/classrooms/$classroomId", params: { classroomId }, search: { tab: "assignments" } });
   };
 
   return (
-    <div className="m-auto max-w-lg ">
-      <div className="flex justify-center">
-        <img src={GitlabLogo} className="max-w-xs" alt={"Logo"} />
-      </div>
+    <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Breadcrumb */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/classrooms">Classrooms</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                  {classroom.classroom.name}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Accept Assignment</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="p-6 rounded-lg border flex flex-col gap-5">
-        <h1 className="text-5xl font-bold text-center mb-5">Accept Assignment</h1>
-        <p className="text-slate-500 text-lg">
-          You need to accept the assignment{" "}
-          <span className="text-slate-900  dark:text-slate-300 font-bold">{project.assignment.name}</span> <br />
-          in classroom <span className="text-slate-900  dark:text-slate-300 font-bold">{classroom.classroom.name}</span>
-          .
+        {/* Main Card */}
+        <Card className="relative overflow-hidden border-2 border-primary/20">
+          {/* Decorative gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 opacity-[0.03] pointer-events-none">
+            <Sparkles className="w-full h-full" />
+          </div>
+
+          <CardContent className="relative p-8">
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25">
+                  <Play className="w-10 h-10 text-primary-foreground" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-success flex items-center justify-center border-4 border-background">
+                  <CheckCircle2 className="w-4 h-4 text-success-foreground" />
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold tracking-tight mb-2">Accept Assignment</h1>
+              <p className="text-muted-foreground">
+                Ready to start working on this assignment?
+              </p>
+            </div>
+
+            {/* Assignment Details Card */}
+            <div className="bg-muted/30 rounded-xl p-5 mb-6 border border-border/50">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-background border border-border flex items-center justify-center shrink-0">
+                  <GitBranch className="w-6 h-6 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-semibold text-lg truncate">{project.assignment.name}</h2>
+                  <p className="text-sm text-muted-foreground">{classroom.classroom.name}</p>
+
+                  {project.assignment.description && (
+                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      {project.assignment.description}
+                    </p>
+                  )}
+
+                  {/* Meta info */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      Created {formatDate(project.assignment.createdAt)}
+                    </span>
+                    {dueDate && (
+                      <span
+                        className={cn(
+                          "flex items-center gap-1.5",
+                          isVeryUrgent && "text-destructive font-medium",
+                          isUrgent && !isVeryUrgent && "text-warning font-medium"
+                        )}
+                      >
+                        <Clock className="w-3.5 h-3.5" />
+                        {isVeryUrgent
+                          ? "Due today!"
+                          : daysUntil === 1
+                            ? "Due tomorrow"
+                            : `Due ${formatDateWithTime(dueDate)}`}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Info text */}
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10 mb-6">
+              <ExternalLink className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-foreground">What happens next?</p>
+                <p className="text-muted-foreground mt-1">
+                  A repository will be created for you on GitLab. You'll get full access to clone, push, and work on your code.
+                </p>
+              </div>
+            </div>
+
+            {/* Error Alert */}
+            {isError && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  Failed to accept the assignment. Please try again.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-col-reverse sm:flex-row items-center gap-3">
+              <Button variant="outline" className="w-full sm:w-auto" asChild>
+                <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Go Back
+                </Link>
+              </Button>
+              <Button
+                variant="glow"
+                size="lg"
+                className="w-full sm:flex-1 gap-2 font-semibold"
+                onClick={onClick}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Setting up repository...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    Accept & Start Working
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer hint */}
+        <p className="text-center text-xs text-muted-foreground mt-4">
+          You can always access your assignments from the classroom page
         </p>
-        <Separator />
-        <p className="text-slate-500">Once you have accepted the assignment, you will get access to the repository.</p>
-        <Separator />
-        <div className="flex justify-between">
-          <Button variant="destructive" asChild>
-            <Link
-              to="/classrooms/$classroomId"
-              search={{ tab: "assignments" }}
-              params={{ classroomId }}
-              property="stylesheet"
-            >
-              Reject
-            </Link>
-          </Button>
-          <Button onClick={onClick} disabled={isPending}>
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Accept"}
-          </Button>
-        </div>
-        {isError && (
-          <>
-            <Separator />
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>Can't accept assignment!</AlertDescription>
-            </Alert>
-          </>
-        )}
       </div>
     </div>
   );
