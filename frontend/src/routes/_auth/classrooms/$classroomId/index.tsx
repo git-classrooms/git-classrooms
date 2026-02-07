@@ -112,9 +112,7 @@ function ClassroomDetail() {
     return tab;
   }, [canViewMembersAndTeams, tab]);
 
-  const { teamsReportUrls, members: loaderMembers, teams: loaderTeams } = Route.useLoaderData();
-  const classroomMembers = loaderMembers ?? [];
-  const teams = loaderTeams ?? [];
+  const { teamsReportUrls } = Route.useLoaderData();
 
   const handleConfirmArchive = () => {
     mutate();
@@ -228,29 +226,7 @@ function ClassroomDetail() {
       {/* Stats Cards - Different for Moderators and Students */}
       <section className="animate-stagger-2">
         {isModerator(userClassroom) ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard
-              icon={<Users className="w-4 h-4" />}
-              label="Members"
-              value={classroomMembers.length}
-            />
-            <StatCard
-              icon={<ClipboardList className="w-4 h-4" />}
-              label="Assignments"
-              value={userClassroom.assignmentsCount}
-            />
-            <StatCard
-              icon={<Users className="w-4 h-4" />}
-              label="Teams"
-              value={teams.length}
-            />
-            <StatCard
-              icon={<CalendarClock className="w-4 h-4" />}
-              label="Created"
-              value={formatRelativeTime(userClassroom.classroom.createdAt)}
-              isText
-            />
-          </div>
+          <ModeratorStatsCards classroomId={classroomId} userClassroom={userClassroom} />
         ) : (
           <StudentStatsCards
             classroomId={classroomId}
@@ -299,27 +275,19 @@ function ClassroomDetail() {
 
           {canViewMembersAndTeams && (
             <TabsContent value="members">
-              <MemberListCard
+              <MembersTabContent
                 teamsReportUrls={teamsReportUrls}
-                classroomMembers={classroomMembers}
                 classroomId={classroomId}
                 userClassroom={userClassroom}
-                showTeams={userClassroom.classroom.maxTeamSize > 1}
-                deactivateInteraction={userClassroom.classroom.archived}
               />
             </TabsContent>
           )}
 
           {canViewMembersAndTeams && userClassroom.classroom.maxTeamSize > 1 && (
             <TabsContent value="teams">
-              <TeamListCard
-                teams={teams}
-                studentsCanCreateTeams={userClassroom.classroom.createTeams}
+              <TeamsTabContent
                 classroomId={classroomId}
                 userClassroom={userClassroom}
-                maxTeamSize={userClassroom.classroom.maxTeamSize}
-                numInvitedMembers={classroomMembers.filter(isStudent).length}
-                deactivateInteraction={userClassroom.classroom.archived}
                 teamsReportUrls={teamsReportUrls}
               />
             </TabsContent>
@@ -378,6 +346,95 @@ function StatCard({
         {value}
       </div>
     </div>
+  );
+}
+
+// Stats cards for moderators - fetches members/teams for reactive counts
+function ModeratorStatsCards({
+  classroomId,
+  userClassroom,
+}: {
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+}) {
+  const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
+  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <StatCard
+        icon={<Users className="w-4 h-4" />}
+        label="Members"
+        value={classroomMembers.length}
+      />
+      <StatCard
+        icon={<ClipboardList className="w-4 h-4" />}
+        label="Assignments"
+        value={userClassroom.assignmentsCount}
+      />
+      <StatCard
+        icon={<Users className="w-4 h-4" />}
+        label="Teams"
+        value={teams.length}
+      />
+      <StatCard
+        icon={<CalendarClock className="w-4 h-4" />}
+        label="Created"
+        value={formatRelativeTime(userClassroom.classroom.createdAt)}
+        isText
+      />
+    </div>
+  );
+}
+
+// Wrapper component for Members tab - fetches its own data for reactivity
+function MembersTabContent({
+  teamsReportUrls,
+  classroomId,
+  userClassroom,
+}: {
+  teamsReportUrls: Map<string, string>;
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+}) {
+  const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
+
+  return (
+    <MemberListCard
+      teamsReportUrls={teamsReportUrls}
+      classroomMembers={classroomMembers}
+      classroomId={classroomId}
+      userClassroom={userClassroom}
+      showTeams={userClassroom.classroom.maxTeamSize > 1}
+      deactivateInteraction={userClassroom.classroom.archived}
+    />
+  );
+}
+
+// Wrapper component for Teams tab - fetches its own data for reactivity
+function TeamsTabContent({
+  classroomId,
+  userClassroom,
+  teamsReportUrls,
+}: {
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+  teamsReportUrls: Map<string, string>;
+}) {
+  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
+  const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
+
+  return (
+    <TeamListCard
+      teams={teams}
+      studentsCanCreateTeams={userClassroom.classroom.createTeams}
+      classroomId={classroomId}
+      userClassroom={userClassroom}
+      maxTeamSize={userClassroom.classroom.maxTeamSize}
+      numInvitedMembers={classroomMembers.filter(isStudent).length}
+      deactivateInteraction={userClassroom.classroom.archived}
+      teamsReportUrls={teamsReportUrls}
+    />
   );
 }
 
