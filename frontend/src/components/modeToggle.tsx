@@ -14,7 +14,7 @@ export function ModeToggle() {
     <button
       onClick={toggleTheme}
       className={cn(
-        "relative w-9 h-9 rounded-lg flex items-center justify-center",
+        "relative w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer",
         "bg-muted/50 hover:bg-muted border border-border/50 hover:border-border",
         "transition-all duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"

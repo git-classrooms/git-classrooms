@@ -95,7 +95,7 @@ function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse })
 
         <HoverCard>
           <HoverCardTrigger asChild>
-            <div className="flex-1 min-w-0 cursor-default">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-mono font-medium truncate">
                   {assignment.name}

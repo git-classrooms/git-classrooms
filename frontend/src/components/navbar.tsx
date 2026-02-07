@@ -113,7 +113,7 @@ function UserDropdown({ auth }: { auth: GetMeResponse }) {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "flex items-center gap-2 pl-1 pr-2 py-1 rounded-full",
+            "flex items-center gap-2 pl-1 pr-2 py-1 rounded-full cursor-pointer",
             "bg-muted/50 hover:bg-muted border border-border/50 hover:border-border",
             "transition-all duration-200",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
