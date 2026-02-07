@@ -8,17 +8,20 @@ import { classroomQueryOptions } from "@/api/classroom";
 import { assignmentsQueryOptions } from "@/api/assignment";
 import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
-import { ReportApiAxiosParamCreator } from "@/swagger-client";
+import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button";
 import {
   Archive,
   CalendarClock,
+  CheckCircle2,
   ChevronRight,
   Clipboard,
   ClipboardList,
+  Clock,
   Download,
   ExternalLink,
   FileText,
+  Play,
   Settings,
   Users,
 } from "lucide-react";
@@ -197,31 +200,38 @@ function ClassroomDetail() {
         </div>
       </header>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Different for Moderators and Students */}
       <section className="animate-stagger-2">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard
-            icon={<Users className="w-4 h-4" />}
-            label="Members"
-            value={classroomMembers.length}
+        {isModerator(userClassroom) ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard
+              icon={<Users className="w-4 h-4" />}
+              label="Members"
+              value={classroomMembers.length}
+            />
+            <StatCard
+              icon={<ClipboardList className="w-4 h-4" />}
+              label="Assignments"
+              value={userClassroom.assignmentsCount}
+            />
+            <StatCard
+              icon={<Users className="w-4 h-4" />}
+              label="Teams"
+              value={teams.length}
+            />
+            <StatCard
+              icon={<CalendarClock className="w-4 h-4" />}
+              label="Created"
+              value={formatRelativeTime(userClassroom.classroom.createdAt)}
+              isText
+            />
+          </div>
+        ) : (
+          <StudentStatsCards
+            classroomId={classroomId}
+            userClassroom={userClassroom}
           />
-          <StatCard
-            icon={<ClipboardList className="w-4 h-4" />}
-            label="Assignments"
-            value={userClassroom.assignmentsCount}
-          />
-          <StatCard
-            icon={<Users className="w-4 h-4" />}
-            label="Teams"
-            value={teams.length}
-          />
-          <StatCard
-            icon={<CalendarClock className="w-4 h-4" />}
-            label="Created"
-            value={formatRelativeTime(userClassroom.classroom.createdAt)}
-            isText
-          />
-        </div>
+        )}
       </section>
 
       {/* Tabs Section */}
@@ -338,6 +348,56 @@ function StatCard({
       <div className={cn("font-bold", isText ? "text-lg" : "text-2xl font-mono")}>
         {value}
       </div>
+    </div>
+  );
+}
+
+function StudentStatsCards({
+  classroomId,
+  userClassroom,
+}: {
+  classroomId: string;
+  userClassroom: UserClassroomResponse;
+}) {
+  const { data: projects } = useSuspenseQuery(projectsQueryOptions(classroomId));
+
+  const acceptedCount = projects.filter((p) => p.projectStatus === "accepted").length;
+  const pendingCount = projects.filter((p) => p.projectStatus === "pending").length;
+
+  const nextDueProject = projects
+    .filter((p) => p.assignment.dueDate && new Date(p.assignment.dueDate) > new Date())
+    .sort((a, b) => new Date(a.assignment.dueDate!).getTime() - new Date(b.assignment.dueDate!).getTime())[0];
+
+  const daysUntilDue = nextDueProject?.assignment.dueDate
+    ? Math.ceil((new Date(nextDueProject.assignment.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <StatCard
+        icon={<CheckCircle2 className="w-4 h-4" />}
+        label="Completed"
+        value={acceptedCount}
+      />
+      <StatCard
+        icon={<Play className="w-4 h-4" />}
+        label="Pending"
+        value={pendingCount}
+      />
+      {userClassroom.classroom.maxTeamSize > 1 && userClassroom.team && (
+        <StatCard
+          icon={<Users className="w-4 h-4" />}
+          label="My Team"
+          value={userClassroom.team.name}
+          isText
+        />
+      )}
+      <StatCard
+        icon={<Clock className="w-4 h-4" />}
+        label="Next Due"
+        value={daysUntilDue !== null ? (daysUntilDue <= 0 ? "Today!" : `${daysUntilDue}d`) : "-"}
+        isText
+      />
     </div>
   );
 }
