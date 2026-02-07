@@ -143,8 +143,36 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Improved focus-visible for accessibility */
+  :focus-visible {
+    @apply outline-ring outline-2 outline-offset-2;
+  }
+
+  /* Skip to main content link for screen readers */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
+    @apply bg-primary text-primary-foreground px-4 py-2 rounded-md;
+  }
 }
 
 @utility ring-offset-background {
   --tw-ring-offset-color: hsl(var(--background));
+}
+
+/* Consistent spacing utilities for page layout */
+@utility page-header {
+  @apply mb-6;
+}
+
+@utility section-header {
+  @apply mb-4;
+}
+
+@utility card-padding {
+  @apply p-6;
+}
+
+@utility form-spacing {
+  @apply space-y-4;
 }
