@@ -54,11 +54,16 @@ function Settings() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
+              <Link to="/classrooms">Classrooms</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
               <Link
                 to="/classrooms/$classroomId"
                 search={{ tab: "assignments" }}
                 params={{ classroomId }}
-                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {classroom.classroom.name}
               </Link>

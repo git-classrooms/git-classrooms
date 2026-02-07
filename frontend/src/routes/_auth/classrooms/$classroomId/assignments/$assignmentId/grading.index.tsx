@@ -107,6 +107,12 @@ function GradingIndex() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
+              <Link to="/classrooms">Classrooms</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
               <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
                 {classroom.classroom.name}
               </Link>

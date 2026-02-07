@@ -77,6 +77,12 @@ function Members() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
+              <Link to="/classrooms">Classrooms</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
               <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
                 {userClassroom.classroom.name}
               </Link>
