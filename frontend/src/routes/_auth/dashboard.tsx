@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueries, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Loader } from "@/components/loader";
 import { Plus } from "lucide-react";
@@ -11,6 +11,8 @@ import { ActiveAssignmentListCard } from "@/components/activeAssignments";
 import { ClassroomCardGrid } from "@/components/classroom-card";
 import { useAuth } from "@/api/auth";
 import { PendingAssignmentsBanner } from "@/components/pendingAssignmentsBanner";
+import { projectsQueryOptions } from "@/api/project";
+import { ProjectResponse } from "@/swagger-client";
 
 export const Route = createFileRoute("/_auth/dashboard")({
   component: Dashboard,
@@ -37,13 +39,54 @@ function Dashboard() {
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
   const { data: activeAssignments } = useSuspenseQuery(activeAssignmentQueryOptions());
 
+  // Fetch projects for all student classrooms to filter assignments
+  const projectQueries = useQueries({
+    queries: studentClassrooms.map((userClassroom) => ({
+      ...projectsQueryOptions(userClassroom.classroom.id),
+    })),
+    combine: (results) => {
+      const allProjects: ProjectResponse[] = [];
+      results.forEach((result) => {
+        if (result.data) {
+          allProjects.push(...result.data);
+        }
+      });
+      return {
+        data: allProjects,
+        isPending: results.some((r) => r.isPending),
+      };
+    },
+  });
+
+  // Get set of classroom IDs where user is owner/moderator (can see all assignments)
+  const managedClassroomIds = useMemo(() => {
+    const ids = new Set<string>();
+    ownedClassrooms.forEach((c) => ids.add(c.classroom.id));
+    moderatorClassrooms.forEach((c) => ids.add(c.classroom.id));
+    return ids;
+  }, [ownedClassrooms, moderatorClassrooms]);
+
+  // Get set of assignment IDs the user has projects for
+  const projectAssignmentIds = useMemo(() => {
+    return new Set(projectQueries.data.map((p) => p.assignment.id));
+  }, [projectQueries.data]);
+
+  // Filter and sort assignments
   const sortedAssignments = useMemo(() => {
-    return [...activeAssignments].sort((a, b) => {
+    // Filter: show if user manages the classroom OR has a project for the assignment
+    const filtered = activeAssignments.filter((assignment) => {
+      if (managedClassroomIds.has(assignment.classroomId)) {
+        return true; // Show all assignments in managed classrooms
+      }
+      return projectAssignmentIds.has(assignment.id); // Only show if has project
+    });
+
+    return filtered.sort((a, b) => {
       if (a.dueDate === null) return 1;
       if (b.dueDate === null) return -1;
       return new Date(a.dueDate ?? 0).getTime() - new Date(b.dueDate ?? 0).getTime();
     });
-  }, [activeAssignments]);
+  }, [activeAssignments, managedClassroomIds, projectAssignmentIds]);
 
   const totalClassrooms = ownedClassrooms.length + moderatorClassrooms.length + studentClassrooms.length;
   const firstName = auth?.name?.split(" ")[0] ?? "there";
@@ -58,9 +101,9 @@ function Dashboard() {
               Welcome back, {firstName}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {activeAssignments.length === 0
+              {sortedAssignments.length === 0
                 ? "You're all caught up!"
-                : `You have ${activeAssignments.length} active assignment${activeAssignments.length !== 1 ? "s" : ""}`}
+                : `You have ${sortedAssignments.length} active assignment${sortedAssignments.length !== 1 ? "s" : ""}`}
             </p>
           </div>
           <Button variant="glow" asChild>
