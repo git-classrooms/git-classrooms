@@ -8,7 +8,7 @@ import { classroomQueryOptions } from "@/api/classroom";
 import { assignmentsQueryOptions } from "@/api/assignment";
 import { membersQueryOptions } from "@/api/member";
 import { teamsQueryOptions } from "@/api/team";
-import { ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
+import { ReportApiAxiosParamCreator, TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button";
 import {
   Archive,
@@ -53,20 +53,33 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
   validateSearch: z.object({ tab: tabSchema.catch("assignments") }),
   component: ClassroomDetail,
   loader: async ({ context: { queryClient }, params }) => {
-    const teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(params.classroomId));
 
-    const { url: reportDownloadUrl } = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
-    const teamsReportUrls = (
-      await Promise.all(
-        teams.map(async (team) => ({
-          teamId: team.id,
-          url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(params.classroomId, team.id)).url,
-        })),
-      )
-    ).reduce((acc, { url, teamId }) => acc.set(teamId, url), new Map<string, string>());
+    // Students can only see members/teams if "Mutual Code View" is enabled
+    const canViewMembersAndTeams = isModerator(userClassroom) || userClassroom.classroom.studentsViewAllProjects;
 
-    const members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
+    let teams: TeamResponse[] = [];
+    let members: UserClassroomResponse[] = [];
+    let teamsReportUrls = new Map<string, string>();
+    let reportDownloadUrl = "";
+
+    if (canViewMembersAndTeams) {
+      teams = await queryClient.ensureQueryData(teamsQueryOptions(params.classroomId));
+      members = await queryClient.ensureQueryData(membersQueryOptions(params.classroomId));
+
+      if (isModerator(userClassroom)) {
+        const reportResult = await ReportApiAxiosParamCreator().getClassroomReport(params.classroomId);
+        reportDownloadUrl = reportResult.url;
+        teamsReportUrls = (
+          await Promise.all(
+            teams.map(async (team) => ({
+              teamId: team.id,
+              url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(params.classroomId, team.id)).url,
+            })),
+          )
+        ).reduce((acc, { url, teamId }) => acc.set(teamId, url), new Map<string, string>());
+      }
+    }
 
     if (isModerator(userClassroom)) {
       const assignments = await queryClient.ensureQueryData(assignmentsQueryOptions(params.classroomId));
@@ -84,11 +97,14 @@ function ClassroomDetail() {
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { tab } = Route.useSearch();
   const { reportDownloadUrl } = Route.useLoaderData();
-  const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
-  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { mutate } = useArchiveClassroom(classroomId);
 
-  const { teamsReportUrls } = Route.useLoaderData();
+  // Students can only see members/teams if "Mutual Code View" is enabled
+  const canViewMembersAndTeams = isModerator(userClassroom) || userClassroom.classroom.studentsViewAllProjects;
+
+  const { teamsReportUrls, members: loaderMembers, teams: loaderTeams } = Route.useLoaderData();
+  const classroomMembers = loaderMembers ?? [];
+  const teams = loaderTeams ?? [];
   const router = useRouter();
 
   const handleConfirmArchive = () => {
@@ -244,13 +260,15 @@ function ClassroomDetail() {
                 Assignments
               </Link>
             </TabsTrigger>
-            <TabsTrigger asChild value="members">
-              <Link search={{ tab: "members" }}>
-                <Users className="w-4 h-4 mr-2" />
-                Members
-              </Link>
-            </TabsTrigger>
-            {userClassroom.classroom.maxTeamSize > 1 && (
+            {canViewMembersAndTeams && (
+              <TabsTrigger asChild value="members">
+                <Link search={{ tab: "members" }}>
+                  <Users className="w-4 h-4 mr-2" />
+                  Members
+                </Link>
+              </TabsTrigger>
+            )}
+            {canViewMembersAndTeams && userClassroom.classroom.maxTeamSize > 1 && (
               <TabsTrigger asChild value="teams">
                 <Link search={{ tab: "teams" }}>
                   <Users className="w-4 h-4 mr-2" />
@@ -270,18 +288,20 @@ function ClassroomDetail() {
             {isStudent(userClassroom) && <ProjectListSection classroomId={classroomId} />}
           </TabsContent>
 
-          <TabsContent value="members">
-            <MemberListCard
-              teamsReportUrls={teamsReportUrls}
-              classroomMembers={classroomMembers}
-              classroomId={classroomId}
-              userClassroom={userClassroom}
-              showTeams={userClassroom.classroom.maxTeamSize > 1}
-              deactivateInteraction={userClassroom.classroom.archived}
-            />
-          </TabsContent>
+          {canViewMembersAndTeams && (
+            <TabsContent value="members">
+              <MemberListCard
+                teamsReportUrls={teamsReportUrls}
+                classroomMembers={classroomMembers}
+                classroomId={classroomId}
+                userClassroom={userClassroom}
+                showTeams={userClassroom.classroom.maxTeamSize > 1}
+                deactivateInteraction={userClassroom.classroom.archived}
+              />
+            </TabsContent>
+          )}
 
-          {userClassroom.classroom.maxTeamSize > 1 && (
+          {canViewMembersAndTeams && userClassroom.classroom.maxTeamSize > 1 && (
             <TabsContent value="teams">
               <TeamListCard
                 teams={teams}
