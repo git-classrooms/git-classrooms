@@ -39,11 +39,15 @@ function Dashboard() {
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
   const { data: activeAssignments } = useSuspenseQuery(activeAssignmentQueryOptions());
 
+  // Memoize queries array to prevent unnecessary re-renders
+  const projectQueriesConfig = useMemo(
+    () => studentClassrooms.map((userClassroom) => projectsQueryOptions(userClassroom.classroom.id)),
+    [studentClassrooms]
+  );
+
   // Fetch projects for all student classrooms to filter assignments
   const projectQueries = useQueries({
-    queries: studentClassrooms.map((userClassroom) => ({
-      ...projectsQueryOptions(userClassroom.classroom.id),
-    })),
+    queries: projectQueriesConfig,
     combine: (results) => {
       const allProjects: ProjectResponse[] = [];
       results.forEach((result) => {

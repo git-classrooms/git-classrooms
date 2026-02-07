@@ -41,6 +41,7 @@ import { formatRelativeTime, isModerator, isStudent } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 import { projectsQueryOptions } from "@/api/project";
+import { useMemo } from "react";
 import { ProjectListSection } from "@/components/classroomProjects";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -98,14 +99,22 @@ function ClassroomDetail() {
   const { tab } = Route.useSearch();
   const { reportDownloadUrl } = Route.useLoaderData();
   const { mutate } = useArchiveClassroom(classroomId);
+  const router = useRouter();
 
   // Students can only see members/teams if "Mutual Code View" is enabled
   const canViewMembersAndTeams = isModerator(userClassroom) || userClassroom.classroom.studentsViewAllProjects;
 
+  // Redirect to assignments tab if user doesn't have access to current tab
+  const effectiveTab = useMemo(() => {
+    if (!canViewMembersAndTeams && (tab === "members" || tab === "teams")) {
+      return "assignments";
+    }
+    return tab;
+  }, [canViewMembersAndTeams, tab]);
+
   const { teamsReportUrls, members: loaderMembers, teams: loaderTeams } = Route.useLoaderData();
   const classroomMembers = loaderMembers ?? [];
   const teams = loaderTeams ?? [];
-  const router = useRouter();
 
   const handleConfirmArchive = () => {
     mutate();
@@ -252,7 +261,7 @@ function ClassroomDetail() {
 
       {/* Tabs Section */}
       <section className="animate-stagger-3">
-        <Tabs value={tab} className="w-full">
+        <Tabs value={effectiveTab} className="w-full">
           <TabsList>
             <TabsTrigger asChild value="assignments">
               <Link search={{ tab: "assignments" }}>
