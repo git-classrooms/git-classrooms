@@ -1,14 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { Button } from "@/components/ui/button.tsx";
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { formatDate, formatDateWithTime } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { assignmentsQueryOptions } from "@/api/assignment";
+import { DataTable, DataTableColumnHeader, ColumnDef } from "@/components/ui/data-table";
 
 /**
  * AssignmentListSection is a React component that displays a list of assignments in a classroom.
@@ -72,47 +71,68 @@ function AssignmentTable({
   classroomId: string;
   deactivateInteraction: boolean;
 }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead className="hidden md:table-cell">Creation date</TableHead>
-          <TableHead className="hidden md:table-cell">Due date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {assignments.map((a) => (
-          <TableRow key={a.id}>
-            <TableCell>
-              <div className="cursor-default flex justify-between">
+  const columns = useMemo<ColumnDef<Assignment, unknown>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+        cell: ({ row }) => (
+          <div className="cursor-default">
+            <Link
+              to="/classrooms/$classroomId/assignments/$assignmentId"
+              params={{ classroomId, assignmentId: row.original.id }}
+            >
+              <div className="font-medium">{row.original.name}</div>
+              <div className="text-sm text-muted-foreground">{row.original.description}</div>
+            </Link>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Creation date" />,
+        cell: ({ row }) => <span className="hidden md:inline">{formatDate(row.original.createdAt)}</span>,
+        meta: { className: "hidden md:table-cell" },
+      },
+      {
+        accessorKey: "dueDate",
+        header: ({ column }) => <DataTableColumnHeader column={column} title="Due date" />,
+        cell: ({ row }) => (
+          <span className="hidden md:inline">
+            {row.original.dueDate ? formatDateWithTime(row.original.dueDate) : "-"}
+          </span>
+        ),
+        meta: { className: "hidden md:table-cell" },
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) =>
+          !deactivateInteraction && (
+            <div className="text-right">
+              <Button variant="ghost" size="icon" asChild>
                 <Link
                   to="/classrooms/$classroomId/assignments/$assignmentId"
-                  params={{ classroomId, assignmentId: a.id }}
+                  params={{ classroomId, assignmentId: row.original.id }}
                 >
-                  <div className="font-medium">{a.name}</div>
-                  <div className="text-sm text-muted-foreground md:inline">{a.description}</div>
+                  <ArrowRight className="text-gray-600 dark:text-white h-6 w-6" />
                 </Link>
-              </div>
-            </TableCell>
-            <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(a.createdAt)}</TableCell>
-            <TableCell className="hidden md:table-cell">{a.dueDate ? formatDateWithTime(a.dueDate) : "-"}</TableCell>
-            <TableCell className="flex flex-wrap flex-row-reverse gap-2">
-              {!deactivateInteraction && (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/assignments/$assignmentId"
-                    params={{ classroomId, assignmentId: a.id }}
-                  >
-                    <ArrowRight className="text-gray-600 dark:text-white h-6 w-6" />
-                  </Link>
-                </Button>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+              </Button>
+            </div>
+          ),
+      },
+    ],
+    [classroomId, deactivateInteraction],
+  );
+
+  return (
+    <DataTable
+      columns={columns}
+      data={assignments}
+      searchKey="name"
+      searchPlaceholder="Search assignments..."
+      showPagination={assignments.length > 10}
+      emptyMessage="No assignments found."
+    />
   );
 }
