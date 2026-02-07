@@ -5,11 +5,12 @@ import { Loader } from "@/components/loader";
 import { Plus } from "lucide-react";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
-import { useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import { activeAssignmentQueryOptions } from "@/api/assignment";
 import { ActiveAssignmentListCard } from "@/components/activeAssignments";
 import { ClassroomCardGrid } from "@/components/classroom-card";
 import { useAuth } from "@/api/auth";
+import { PendingAssignmentsBanner } from "@/components/pendingAssignmentsBanner";
 
 export const Route = createFileRoute("/_auth/dashboard")({
   component: Dashboard,
@@ -71,13 +72,22 @@ function Dashboard() {
         </div>
       </section>
 
+      {/* Pending Assignments Banner - Main CTA */}
+      {studentClassrooms.length > 0 && (
+        <section className="animate-stagger-2">
+          <Suspense fallback={null}>
+            <PendingAssignmentsBanner studentClassrooms={studentClassrooms} />
+          </Suspense>
+        </section>
+      )}
+
       {/* Active Assignments */}
-      <section className="animate-stagger-2">
+      <section className="animate-stagger-3">
         <ActiveAssignmentListCard activeAssignments={sortedAssignments} />
       </section>
 
       {/* Classrooms Grid */}
-      <section className="space-y-6 animate-stagger-3">
+      <section className="space-y-6 animate-stagger-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Your Classrooms</h2>
           {totalClassrooms > 0 && (
