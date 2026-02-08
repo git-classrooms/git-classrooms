@@ -335,7 +335,7 @@ function AssignmentDetail() {
             </div>
           </div>
 
-          {isModerator(classroom) && (
+          {isOwner(classroom) && (
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Button

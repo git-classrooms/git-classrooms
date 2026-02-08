@@ -24,7 +24,7 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { formatRelativeTime, isModerator, isStudent } from "@/lib/utils";
+import { formatRelativeTime, isModerator, isOwner, isStudent } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 import { projectsQueryOptions } from "@/api/project";
@@ -165,18 +165,22 @@ function ClassroomDetail() {
                 <Clipboard className="w-4 h-4 mr-2" />
                 Copy Invite
               </Button>
-              <Button variant="outline" size="sm" asChild>
-                <a href={reportDownloadUrl} target="_blank" rel="noopener noreferrer">
-                  <Download className="w-4 h-4 mr-2" />
-                  Report
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </Link>
-              </Button>
+              {isOwner(userClassroom) && (
+                <Button variant="outline" size="sm" asChild>
+                  <a href={reportDownloadUrl} target="_blank" rel="noopener noreferrer">
+                    <Download className="w-4 h-4 mr-2" />
+                    Report
+                  </a>
+                </Button>
+              )}
+              {isOwner(userClassroom) && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Link>
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -226,7 +230,7 @@ function ClassroomDetail() {
             {isModerator(userClassroom) && (
               <AssignmentListSection
                 classroomId={classroomId}
-                deactivateInteraction={userClassroom.classroom.archived}
+                deactivateInteraction={userClassroom.classroom.archived || !isOwner(userClassroom)}
               />
             )}
             {isStudent(userClassroom) && <ProjectListSection classroomId={classroomId} />}

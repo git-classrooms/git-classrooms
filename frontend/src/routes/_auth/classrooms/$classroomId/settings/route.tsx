@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
-import { cn, isModerator } from "@/lib/utils";
+import { cn, isOwner } from "@/lib/utils";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -15,7 +15,7 @@ import { GraduationCap, Settings2, Sliders } from "lucide-react";
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings")({
   beforeLoad: async ({ context: { queryClient }, params: { classroomId } }) => {
     const userClassroom = await queryClient.ensureQueryData(classroomQueryOptions(classroomId));
-    if (!isModerator(userClassroom)) {
+    if (!isOwner(userClassroom)) {
       throw redirect({
         to: "/classrooms/$classroomId",
         params: { classroomId },
