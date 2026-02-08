@@ -11,6 +11,7 @@ import { GradingByRubricProps, getScoreColor, getScoreTextColor } from "./types"
 import { GradingFeedbackPopover } from "./GradingFeedbackPopover";
 import { useGradeProject } from "@/api/grading";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const QUICK_SCORES = [0, 25, 50, 75, 100];
 
@@ -22,6 +23,7 @@ export function GradingByRubric({
   classroomId,
   assignmentId,
 }: GradingByRubricProps) {
+  const { t } = useTranslation("assignment");
   const selectedRubric = rubrics.find((r) => r.id === selectedRubricId) ?? rubrics[0];
 
   const sortedProjects = useMemo(() => {
@@ -44,7 +46,7 @@ export function GradingByRubric({
       <Card className="border-border/50">
         <CardContent className="p-12 text-center">
           <Target className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-          <p className="text-muted-foreground">No rubrics configured for this assignment.</p>
+          <p className="text-muted-foreground">{t("grading.dashboard.noRubricsForAssignment")}</p>
         </CardContent>
       </Card>
     );
@@ -85,7 +87,7 @@ export function GradingByRubric({
           <Select value={selectedRubric.id} onValueChange={onRubricChange}>
             <SelectTrigger className="w-[250px]">
               <Target className="w-4 h-4 mr-2 text-primary" />
-              <SelectValue placeholder="Select rubric" />
+              <SelectValue placeholder={t("grading.dashboard.selectRubric")} />
             </SelectTrigger>
             <SelectContent>
               {rubrics.map((rubric) => (
@@ -103,12 +105,12 @@ export function GradingByRubric({
             <span className="font-mono font-medium text-foreground">{gradedCount}</span>
             <span className="mx-1">/</span>
             <span className="font-mono">{projects.length}</span>
-            <span className="ml-1">graded</span>
+            <span className="ml-1">{t("grading.dashboard.graded").toLowerCase()}</span>
           </div>
         </div>
 
         <Button variant="outline" size="sm" onClick={goToNextUngraded}>
-          Next Ungraded
+          {t("grading.dashboard.nextUngraded")}
           <ChevronRight className="ml-1 h-4 w-4" />
         </Button>
       </div>
@@ -180,6 +182,7 @@ function RubricProjectCard({
   isActive,
   onClick,
 }: RubricProjectCardProps) {
+  const { t } = useTranslation("assignment");
   const rubricResult = project.gradingResult?.rubricResults?.[rubric.name];
   const initialScore = rubricResult?.score ?? 0;
   const initialFeedback = rubricResult?.feedback ?? "";
@@ -235,9 +238,9 @@ function RubricProjectCard({
       await mutateAsync({ gradingManualRubrics: allGrades });
       setScore(newScore);
       if (newFeedback !== undefined) setFeedback(newFeedback);
-      toast.success("Grade saved");
+      toast.success(t("grading.dashboard.gradeSavedShort"));
     } catch {
-      toast.error("Failed to save grade");
+      toast.error(t("grading.dashboard.gradeSaveFailed"));
       setScore(initialScore);
       setFeedback(initialFeedback);
     }
@@ -284,7 +287,7 @@ function RubricProjectCard({
             <div className="min-w-0">
               <p className="font-medium truncate">{project.team.name}</p>
               <StatusBadge variant={isGraded ? "success" : "warning"} size="sm" showDot>
-                {isGraded ? "Graded" : "Pending"}
+                {isGraded ? t("grading.dashboard.graded") : t("grading.dashboard.pending")}
               </StatusBadge>
             </div>
           </div>
@@ -359,7 +362,7 @@ function RubricProjectCard({
                 </a>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>View on GitLab</TooltipContent>
+            <TooltipContent>{t("grading.dashboard.viewOnGitLab")}</TooltipContent>
           </Tooltip>
         </div>
       </CardContent>

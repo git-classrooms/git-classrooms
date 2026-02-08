@@ -1,0 +1,84 @@
+{
+  "title": "Teams",
+  "team": "Team",
+  "create": {
+    "title": "Team erstellen",
+    "subtitle": "Starte ein neues Team für diesen Kurs",
+    "button": "Team erstellen",
+    "success": "Team erfolgreich erstellt!",
+    "nameDescription": "Wähle einen eindeutigen Namen für dein Team",
+    "error": "Das Team konnte nicht erstellt werden. Bitte versuche es erneut."
+  },
+  "form": {
+    "name": "Teamname",
+    "namePlaceholder": "z.B. Team Alpha"
+  },
+  "list": {
+    "title": "Teams",
+    "count": "{{count}} Teams",
+    "count_one": "{{count}} Team",
+    "countInClassroom": "{{count}} Teams in diesem Kurs",
+    "countInClassroom_one": "{{count}} Team in diesem Kurs",
+    "maxMembersEach": "max. {{count}} Mitglieder pro Team",
+    "empty": {
+      "title": "Noch keine Teams",
+      "canCreate": "Erstelle dein erstes Team oder lass Studenten eigene Teams erstellen",
+      "cannotCreate": "Es wurden noch keine Teams erstellt"
+    },
+    "warning": {
+      "title": "Nicht genügend Teamplätze",
+      "description": "{{spots}} Plätze verfügbar, aber {{students}} Studenten benötigen Teams.",
+      "cannotCreate": "Studenten können keine eigenen Teams erstellen."
+    },
+    "more": "+{{count}} weitere"
+  },
+  "members": {
+    "title": "Team-Mitglieder",
+    "count": "{{count}} Mitglieder",
+    "count_one": "{{count}} Mitglied",
+    "add": "Mitglied hinzufügen",
+    "remove": "Aus Team entfernen",
+    "removeConfirm": "{{name}} aus diesem Team entfernen?",
+    "removed": "Mitglied aus Team entfernt",
+    "empty": "Keine Mitglieder in diesem Team"
+  },
+  "join": {
+    "title": "Team beitreten",
+    "pageTitle": "Einem Team beitreten",
+    "subtitle": "Wähle ein Team zum Beitreten",
+    "button": "Team beitreten",
+    "success": "Du bist dem Team beigetreten!",
+    "alreadyMember": "Du bist bereits Mitglied eines Teams",
+    "full": "Dieses Team ist voll",
+    "noTeamsAvailable": "Keine Teams verfügbar",
+    "noTeamsAvailableDescription": "Es sind derzeit keine Teams verfügbar, denen du beitreten kannst. Bitte kontaktiere den Kursbesitzer, um mehr Teams hinzuzufügen oder die Teamgröße zu erhöhen.",
+    "availableTeams": "Verfügbare Teams",
+    "availableTeamsSubtitle": "Wähle ein bestehendes Team oder erstelle dein eigenes",
+    "availableTeamsSubtitleNoCreate": "Wähle ein Team zum Beitreten",
+    "beFirst": "Sei der Erste, der ein Team erstellt!",
+    "noneCreated": "Es wurden noch keine Teams erstellt"
+  },
+  "leave": {
+    "button": "Team verlassen",
+    "confirm": "Bist du sicher, dass du dieses Team verlassen möchtest?",
+    "success": "Du hast das Team verlassen"
+  },
+  "delete": {
+    "button": "Team löschen",
+    "confirm": "Bist du sicher, dass du dieses Team löschen möchtest?",
+    "success": "Team gelöscht"
+  },
+  "errors": {
+    "notFound": "Team nicht gefunden",
+    "createFailed": "Team konnte nicht erstellt werden",
+    "joinFailed": "Team konnte nicht beigetreten werden"
+  },
+  "modal": {
+    "details": "Details",
+    "assignments": "Aufgaben ({{count}})",
+    "noAssignments": "Noch keine Aufgaben",
+    "downloadReport": "Bewertungsbericht herunterladen",
+    "noDueDate": "Kein Fälligkeitsdatum",
+    "due": "Fällig"
+  }
+}

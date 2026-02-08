@@ -32,6 +32,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/grading")({
   loader: async ({ params: { classroomId, assignmentId }, context: { queryClient } }) => {
@@ -89,6 +90,8 @@ const testsFormSchema = z.object({
 });
 
 const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId, assignmentId } = props;
 
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
@@ -126,7 +129,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
       junitAutoGradingActive: data.junitAutoGradingActive,
       assignmentTests: data.assignmentTests.filter((test) => test.active),
     });
-    toast.success("Tests updated");
+    toast.success(t("settings.tests.success"));
   };
 
   const [showTests, setShowTests] = useState(assignment.gradingJUnitAutoGradingActive);
@@ -149,13 +152,13 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold font-mono">Test-Driven Grading</h2>
+              <h2 className="text-lg font-semibold font-mono">{t("settings.tests.title")}</h2>
               <StatusBadge variant={showTests ? "success" : "neutral"} size="sm">
-                {showTests ? "Enabled" : "Disabled"}
+                {showTests ? t("settings.tests.enabled") : t("settings.tests.disabled")}
               </StatusBadge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Configure automated grading based on test results
+              {t("settings.tests.subtitle")}
             </p>
           </div>
         </div>
@@ -184,12 +187,12 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
                         />
                       </FormControl>
                       <FormLabel className="font-medium cursor-pointer">
-                        Enable automatic test-driven grading
+                        {t("settings.tests.enableAutoGrading")}
                       </FormLabel>
                     </div>
                     {showTests && tests.report.length > 0 && (
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{activeTestsCount} tests selected</span>
+                        <span>{t("settings.tests.testsSelected", { count: activeTestsCount })}</span>
                         <span className="font-mono font-semibold text-foreground">{totalScore} pts</span>
                       </div>
                     )}
@@ -203,11 +206,10 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
                   <div className="p-4 rounded-lg border border-dashed border-border/50 bg-muted/20 text-center">
                     <Code2 className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground mb-2">
-                      No tests found in your template project.
+                      {t("settings.tests.noTestsFound")}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Define tests in <code className="font-mono bg-muted px-1 rounded">.gitlab-ci.yml</code> and
-                      ensure the pipeline runs successfully.
+                      {t("settings.tests.noTestsHelp")} <code className="font-mono bg-muted px-1 rounded">.gitlab-ci.yml</code> {t("settings.tests.noTestsHelp2")}
                     </p>
                   </div>
 
@@ -215,7 +217,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-3">
                         <BookOpenCheck className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Example .gitlab-ci.yml</span>
+                        <span className="text-sm font-medium">{t("settings.tests.exampleTitle")}</span>
                       </div>
                       <pre className="text-xs font-mono p-3 rounded-lg bg-background border border-border/50 overflow-x-auto">
                         {tests.example.example}
@@ -272,7 +274,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
                                 {test.testSuite}
                               </p>
                             </TooltipTrigger>
-                            <TooltipContent>Test suite: {test.testSuite}</TooltipContent>
+                            <TooltipContent>{t("settings.tests.testSuite")}: {test.testSuite}</TooltipContent>
                           </Tooltip>
                         </div>
 
@@ -287,7 +289,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
                           name={`assignmentTests.${index}.score`}
                           render={({ field }) => (
                             <FormItem className="flex items-center gap-2 space-y-0">
-                              <FormLabel className="text-xs text-muted-foreground shrink-0">Points</FormLabel>
+                              <FormLabel className="text-xs text-muted-foreground shrink-0">{t("settings.tests.points")}</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -316,7 +318,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
                 <div className="flex justify-end mt-4 pt-4 border-t border-border/50">
                   <Button type="submit" variant="glow" size="sm" disabled={isPending}>
                     {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save Test Configuration
+                    {t("settings.tests.saveButton")}
                   </Button>
                 </div>
               )}
@@ -326,7 +328,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
           {error && (
             <Alert variant="destructive" className="mt-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{tc("status.error")}</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           )}
@@ -337,6 +339,8 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
 };
 
 const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId, assignmentId } = props;
 
   const { data: rubrics } = useSuspenseQuery(classroomGradingRubricsQueryOptions(classroomId));
@@ -360,7 +364,7 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
         .filter((arg) => arg[1])
         .map(([key]) => key),
     });
-    toast.success("Rubrics updated");
+    toast.success(t("settings.rubrics.success"));
   };
 
   const selectedCount = rubricList.filter((r) => form.watch(r.id)).length;
@@ -378,15 +382,15 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold font-mono">Manual Grading</h2>
+              <h2 className="text-lg font-semibold font-mono">{t("settings.rubrics.title")}</h2>
               {selectedCount > 0 && (
                 <StatusBadge variant="neutral" size="sm">
-                  {selectedCount} rubric{selectedCount !== 1 ? "s" : ""} selected
+                  {t("settings.rubrics.selected", { count: selectedCount })}
                 </StatusBadge>
               )}
             </div>
             <p className="text-sm text-muted-foreground">
-              Select which classroom rubrics apply to this assignment
+              {t("settings.rubrics.subtitle")}
             </p>
           </div>
         </div>
@@ -399,9 +403,9 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
               {rubricList.length === 0 ? (
                 <div className="p-6 text-center">
                   <BookOpen className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground mb-1">No rubrics defined</p>
+                  <p className="text-sm text-muted-foreground mb-1">{t("settings.rubrics.noRubrics")}</p>
                   <p className="text-xs text-muted-foreground">
-                    Create rubrics in the classroom settings first
+                    {t("settings.rubrics.noRubricsHelp")}
                   </p>
                 </div>
               ) : (
@@ -458,11 +462,11 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
                   {/* Summary & Submit */}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
                     <div className="text-sm text-muted-foreground">
-                      Total max score: <span className="font-mono font-semibold text-foreground">{totalMaxScore}</span>
+                      {t("settings.rubrics.totalMaxScore")}: <span className="font-mono font-semibold text-foreground">{totalMaxScore}</span>
                     </div>
                     <Button type="submit" variant="glow" size="sm" disabled={isPending}>
                       {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Save Rubrics
+                      {t("settings.rubrics.saveButton")}
                     </Button>
                   </div>
                 </>
@@ -473,7 +477,7 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
           {error && (
             <Alert variant="destructive" className="mt-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{tc("status.error")}</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           )}

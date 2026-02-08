@@ -9,6 +9,7 @@ import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classro
 import { AxiosError } from "axios";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const seachSchema = z.object({
   groupLink: z.boolean().catch(false),
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations
 });
 
 function JoinClassroom() {
+  const { t } = useTranslation("classroom");
   const navigate = useNavigate();
   const { classroomId, invitationId } = Route.useParams();
   const { groupLink } = Route.useSearch();
@@ -66,8 +68,8 @@ function JoinClassroom() {
 
             {/* Title */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold tracking-tight mb-2">Join Classroom</h1>
-              <p className="text-muted-foreground">Ready to join this classroom?</p>
+              <h1 className="text-2xl font-bold tracking-tight mb-2">{t("join.title")}</h1>
+              <p className="text-muted-foreground">{t("join.subtitle")}</p>
             </div>
 
             {/* Classroom Info Card */}
@@ -96,9 +98,9 @@ function JoinClassroom() {
               <div className="flex gap-3">
                 <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-medium text-sm mb-1">What happens next?</h3>
+                  <h3 className="font-medium text-sm mb-1">{t("join.whatHappensNext")}</h3>
                   <p className="text-sm text-muted-foreground">
-                    You'll become a member of this classroom and gain access to all assignments and resources.
+                    {t("join.whatHappensNextDescription")}
                   </p>
                 </div>
               </div>
@@ -117,7 +119,7 @@ function JoinClassroom() {
                 ) : (
                   <>
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Decline
+                    {t("join.decline")}
                   </>
                 )}
               </Button>
@@ -132,7 +134,7 @@ function JoinClassroom() {
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Accept & Join
+                    {t("join.acceptAndJoin")}
                   </>
                 )}
               </Button>
@@ -142,11 +144,11 @@ function JoinClassroom() {
             {isError && (
               <Alert variant="destructive" className="mt-6">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Unable to join</AlertTitle>
+                <AlertTitle>{t("join.unableToJoin")}</AlertTitle>
                 <AlertDescription>
                   {error instanceof AxiosError
-                    ? error.response?.data.error || "Can't join classroom!"
-                    : "Can't join classroom!"}
+                    ? error.response?.data.error || t("join.cantJoin")
+                    : t("join.cantJoin")}
                 </AlertDescription>
               </Alert>
             )}
@@ -156,7 +158,7 @@ function JoinClassroom() {
 
       {/* Helper text */}
       <p className="text-center text-sm text-muted-foreground">
-        You can always access your classrooms from the dashboard
+        {t("join.dashboardNote")}
       </p>
     </div>
   );

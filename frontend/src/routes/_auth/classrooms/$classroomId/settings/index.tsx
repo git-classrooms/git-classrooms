@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings/")({
   loader: async ({ params: { classroomId }, context: { queryClient } }) => {
@@ -29,6 +30,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings/")
 });
 
 function Index() {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const classroom = userClassroom.classroom;
@@ -42,13 +45,13 @@ function Index() {
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Lock className="w-4 h-4 text-muted-foreground" />
-          <h2 className="text-lg font-semibold font-mono">Fixed Configuration</h2>
+          <h2 className="text-lg font-semibold font-mono">{t("settings.fixedConfig")}</h2>
           <Tooltip>
             <TooltipTrigger>
               <Info className="w-3.5 h-3.5 text-muted-foreground" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>These settings were set during classroom creation and cannot be modified.</p>
+              <p>{t("settings.fixedConfigTooltip")}</p>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -57,48 +60,48 @@ function Index() {
           {/* Creator Card */}
           <ConfigCard
             icon={<Users className="w-4 h-4" />}
-            label="Creator"
+            label={t("settings.creator")}
             value={classroom.owner.name}
-            description="Classroom owner"
+            description={t("settings.creatorDescription")}
           />
 
           {/* Teams Configuration Card */}
           <ConfigCard
             icon={<Users2 className="w-4 h-4" />}
-            label="Teams"
+            label={t("settings.teams")}
             value={
               teamsEnabled ? (
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <StatusBadge variant="success" size="sm">Enabled</StatusBadge>
+                    <StatusBadge variant="success" size="sm">{t("settings.teamsEnabled")}</StatusBadge>
                     <span className="text-sm text-muted-foreground">
-                      max {classroom.maxTeamSize} members
+                      {t("settings.teamsMax", { count: classroom.maxTeamSize })}
                     </span>
                   </div>
                   {classroom.maxTeams > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      Limited to {classroom.maxTeams} teams
+                      {t("settings.teamsLimited", { count: classroom.maxTeams })}
                     </p>
                   )}
                 </div>
               ) : (
-                <StatusBadge variant="neutral" size="sm">Disabled</StatusBadge>
+                <StatusBadge variant="neutral" size="sm">{t("settings.teamsDisabled")}</StatusBadge>
               )
             }
-            description="Team structure"
+            description={t("settings.teamsDescription")}
           />
 
           {/* Student Team Creation - only show if teams enabled */}
           {teamsEnabled && (
             <ConfigCard
               icon={<Users2 className="w-4 h-4" />}
-              label="Student Team Creation"
+              label={t("settings.studentTeamCreation")}
               value={
                 <StatusBadge variant={classroom.createTeams ? "success" : "neutral"} size="sm">
-                  {classroom.createTeams ? "Allowed" : "Not Allowed"}
+                  {classroom.createTeams ? t("settings.allowed") : t("settings.notAllowed")}
                 </StatusBadge>
               }
-              description="Can students create their own teams"
+              description={t("settings.studentTeamCreationDescription")}
             />
           )}
 
@@ -108,16 +111,16 @@ function Index() {
               <div>
                 <ConfigCard
                   icon={classroom.studentsViewAllProjects ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  label="Mutual Code View"
+                  label={t("settings.mutualCodeView")}
                   value={
                     <StatusBadge
                       variant={classroom.studentsViewAllProjects ? "info" : "neutral"}
                       size="sm"
                     >
-                      {classroom.studentsViewAllProjects ? "Enabled" : "Disabled"}
+                      {classroom.studentsViewAllProjects ? t("settings.teamsEnabled") : t("settings.teamsDisabled")}
                     </StatusBadge>
                   }
-                  description="Cross-team code visibility"
+                  description={t("settings.mutualCodeViewDescription")}
                   interactive
                 />
               </div>
@@ -125,8 +128,8 @@ function Index() {
             <TooltipContent side="bottom">
               <p>
                 {classroom.studentsViewAllProjects
-                  ? "Students can view code from other teams"
-                  : "Students can only view their own team's code"}
+                  ? t("settings.mutualCodeViewEnabled")
+                  : t("settings.mutualCodeViewDisabled")}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -140,7 +143,7 @@ function Index() {
         </div>
         <div className="relative flex justify-center">
           <span className="bg-card/30 px-3 text-xs text-muted-foreground uppercase tracking-wider">
-            Editable Settings
+            {t("settings.editableSettings")}
           </span>
         </div>
       </div>
@@ -159,7 +162,7 @@ function Index() {
             </div>
             <div className="relative flex justify-center">
               <span className="bg-card/30 px-3 text-xs text-destructive uppercase tracking-wider">
-                Danger Zone
+                {t("settings.danger")}
               </span>
             </div>
           </div>
@@ -173,10 +176,9 @@ function Index() {
                       <AlertTriangle className="w-5 h-5 text-destructive" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">Archive Classroom</h3>
+                      <h3 className="font-semibold">{t("settings.archive.title")}</h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Once archived, no new assignments can be created and students cannot join.
-                        This action cannot be undone.
+                        {t("settings.archive.description")}
                       </p>
                     </div>
                   </div>
@@ -184,21 +186,20 @@ function Index() {
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm">
                         <Archive className="w-4 h-4 mr-2" />
-                        Archive
+                        {t("settings.archive.button")}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Archive this classroom?</AlertDialogTitle>
+                        <AlertDialogTitle>{t("settings.archive.confirm")}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. The classroom will be marked as archived
-                          and no new assignments can be created.
+                          {t("settings.archive.confirmDescription")}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{tc("actions.cancel")}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => archiveClassroom()} variant="destructive">
-                          Archive Classroom
+                          {t("settings.archive.title")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

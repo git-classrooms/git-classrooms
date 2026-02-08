@@ -1,0 +1,228 @@
+{
+  "title": "Classrooms",
+  "classroom": "Classroom",
+  "create": {
+    "title": "Create Classroom",
+    "subtitle": "Set up a new classroom for your students",
+    "button": "Create Classroom",
+    "success": "Classroom created successfully!"
+  },
+  "edit": {
+    "title": "Edit Classroom",
+    "subtitle": "Update name and description",
+    "success": "Classroom updated!",
+    "changesSaved": "Changes are saved immediately"
+  },
+  "form": {
+    "basicInfo": "Basic Information",
+    "name": "Classroom Name",
+    "namePlaceholder": "e.g., Introduction to Programming WS24",
+    "nameDescription": "Choose a descriptive name for your classroom",
+    "nameLabel": "Name",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief description of the classroom's purpose and content...",
+    "descriptionHelp": "Help students understand what this classroom is about",
+    "descriptionLabel": "The display name of this classroom",
+    "descriptionPurpose": "A brief description of the classroom's purpose"
+  },
+  "teams": {
+    "title": "Team Configuration",
+    "enabled": "Enable Teams",
+    "enabledDescription": "Allow students to work together in teams",
+    "maxTeams": "Max Teams",
+    "maxTeamsDescription": "0 = unlimited teams",
+    "maxTeamSize": "Max Team Size",
+    "maxTeamSizeDescription": "Members per team (min. 2)",
+    "studentCreation": "Student Team Creation",
+    "studentCreationDescription": "Allow students to create their own teams"
+  },
+  "privacy": {
+    "title": "Privacy Settings",
+    "mutualVisibility": "Mutual Code Visibility",
+    "mutualVisibilityDescription": "Students can view other students' repositories"
+  },
+  "list": {
+    "subtitle": "Manage and access all your classrooms",
+    "managed": "Managed",
+    "joined": "Joined",
+    "moderating": "Moderating",
+    "asStudent": "As Student",
+    "empty": {
+      "title": "No classrooms yet",
+      "description": "Create your first classroom to get started",
+      "ownedTitle": "No managed classrooms",
+      "ownedDescription": "Create your first classroom to get started teaching",
+      "joinedTitle": "No joined classrooms",
+      "joinedDescription": "Join a classroom using an invite link from your instructor"
+    },
+    "tabs": {
+      "owned": "My Classrooms",
+      "joined": "Joined"
+    }
+  },
+  "card": {
+    "owner": "Owner",
+    "moderator": "Moderator",
+    "member": "Member",
+    "members": "{{count}} members",
+    "members_one": "{{count}} member",
+    "assignments": "{{count}} assignments",
+    "assignments_one": "{{count}} assignment"
+  },
+  "tabs": {
+    "assignments": "Assignments",
+    "teams": "Teams",
+    "members": "Members",
+    "projects": "Projects",
+    "settings": "Settings"
+  },
+  "members": {
+    "title": "Members",
+    "subtitle": "{{count}} members in this classroom",
+    "subtitle_one": "{{count}} member in this classroom",
+    "invite": "Invite Members",
+    "remove": "Remove",
+    "removeConfirm": "Are you sure you want to remove this member?",
+    "removed": "Member removed",
+    "role": {
+      "owner": "Owner",
+      "owners": "Owners",
+      "moderator": "Moderator",
+      "moderators": "Moderators",
+      "student": "Student",
+      "students": "Students"
+    },
+    "promote": "Promote to Moderator",
+    "demote": "Demote to Student",
+    "promoted": "Member promoted to moderator",
+    "demoted": "Member demoted to student",
+    "manage": {
+      "title": "Manage Members",
+      "subtitle": "Update roles and team assignments",
+      "searchPlaceholder": "Search by name, username, or team...",
+      "ofMembers": "{{filtered}} of {{total}} members",
+      "noMembersFound": "No members found",
+      "noMembersMatch": "No members match \"{{query}}\"",
+      "you": "You",
+      "creator": "Creator",
+      "selectRole": "Select role",
+      "selectTeam": "Select team...",
+      "removeFromTeam": "Remove from team",
+      "failedToUpdateRole": "Failed to update role",
+      "failedToUpdateTeam": "Failed to update team"
+    }
+  },
+  "invite": {
+    "title": "Invitations",
+    "subtitle": "Invite new members to your classroom",
+    "description": "Share this link with your students",
+    "copyLink": "Copy Link",
+    "linkCopied": "Invitation link copied to clipboard",
+    "expires": "This link never expires",
+    "expiresAt": "Expires {{date}}",
+    "sendTitle": "Send Invitations",
+    "sendSubtitle": "Invite members via email",
+    "sentTitle": "Sent Invitations",
+    "sentSubtitle": "{{count}} total invitations",
+    "emailLabel": "Email Addresses",
+    "emailPlaceholder": "student1@example.com",
+    "emailDescription": "One email address per line",
+    "emailCount": "{{count}} emails",
+    "emailCount_one": "{{count}} email",
+    "sendButton": "Send Invitations",
+    "sending": "Sending...",
+    "success": "Invitations sent successfully!",
+    "error": "Failed to send invitations. Please check the email addresses and try again.",
+    "stats": {
+      "totalSent": "Total Sent",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "declined": "Declined"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "revoked": "Revoked",
+      "failed": "Failed"
+    },
+    "sent": "Sent",
+    "empty": {
+      "title": "No invitations yet",
+      "description": "Use the form to invite members to your classroom"
+    },
+    "copyLinkTooltip": "Copy invitation link"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure your classroom environment",
+    "general": "General",
+    "generalDescription": "Basic configuration",
+    "grading": "Grading",
+    "gradingDescription": "Assessment settings",
+    "fixedConfig": "Fixed Configuration",
+    "fixedConfigTooltip": "These settings were set during classroom creation and cannot be modified.",
+    "editableSettings": "Editable Settings",
+    "infoNote": "Some settings are fixed after classroom creation and cannot be changed.",
+    "creator": "Creator",
+    "creatorDescription": "Classroom owner",
+    "teams": "Teams",
+    "teamsDescription": "Team structure",
+    "teamsEnabled": "Enabled",
+    "teamsDisabled": "Disabled",
+    "teamsMax": "max {{count}} members",
+    "teamsLimited": "Limited to {{count}} teams",
+    "studentTeamCreation": "Student Team Creation",
+    "studentTeamCreationDescription": "Can students create their own teams",
+    "allowed": "Allowed",
+    "notAllowed": "Not Allowed",
+    "mutualCodeView": "Mutual Code View",
+    "mutualCodeViewDescription": "Cross-team code visibility",
+    "mutualCodeViewEnabled": "Students can view code from other teams",
+    "mutualCodeViewDisabled": "Students can only view their own team's code",
+    "danger": "Danger Zone",
+    "archive": {
+      "title": "Archive Classroom",
+      "description": "Once archived, no new assignments can be created and students cannot join. This action cannot be undone.",
+      "button": "Archive",
+      "confirm": "Archive this classroom?",
+      "confirmDescription": "This action cannot be undone. The classroom will be marked as archived and no new assignments can be created.",
+      "success": "Classroom archived"
+    }
+  },
+  "detail": {
+    "viewOnGitlab": "View on GitLab",
+    "copyInvite": "Copy Invite",
+    "inviteCopied": "Invite link copied to clipboard",
+    "report": "Report"
+  },
+  "stats": {
+    "members": "Members",
+    "assignments": "Assignments",
+    "teams": "Teams",
+    "created": "Created",
+    "completed": "Completed",
+    "pending": "Pending",
+    "myTeam": "My Team",
+    "nextDue": "Next Due"
+  },
+  "status": {
+    "active": "Active",
+    "archived": "Archived"
+  },
+  "errors": {
+    "notFound": "Classroom not found",
+    "updateFailed": "The classroom could not be updated!"
+  },
+  "join": {
+    "title": "Join Classroom",
+    "subtitle": "Ready to join this classroom?",
+    "whatHappensNext": "What happens next?",
+    "whatHappensNextDescription": "You'll become a member of this classroom and gain access to all assignments and resources.",
+    "decline": "Decline",
+    "acceptAndJoin": "Accept & Join",
+    "unableToJoin": "Unable to join",
+    "cantJoin": "Can't join classroom!",
+    "dashboardNote": "You can always access your classrooms from the dashboard"
+  }
+}

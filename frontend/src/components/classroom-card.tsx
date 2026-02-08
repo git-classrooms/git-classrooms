@@ -4,16 +4,17 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { UserClassroomResponse } from "@/swagger-client";
 import { formatRelativeTime } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ClassroomCardProps {
   classroom: UserClassroomResponse;
   role: "owner" | "moderator" | "student";
 }
 
-const roleConfig = {
-  owner: { label: "Owner", variant: "success" as const },
-  moderator: { label: "Moderator", variant: "info" as const },
-  student: { label: "Member", variant: "neutral" as const },
+const roleVariant = {
+  owner: "success" as const,
+  moderator: "info" as const,
+  student: "neutral" as const,
 };
 
 const avatarGradients = [
@@ -30,8 +31,15 @@ function getGradientForName(name: string): string {
 }
 
 export function ClassroomCard({ classroom, role }: ClassroomCardProps) {
-  const { label, variant } = roleConfig[role];
+  const { t } = useTranslation("classroom");
+  const variant = roleVariant[role];
   const gradient = getGradientForName(classroom.classroom.name);
+
+  const roleLabel = {
+    owner: t("card.owner"),
+    moderator: t("card.moderator"),
+    student: t("card.member"),
+  }[role];
 
   return (
     <Link
@@ -55,7 +63,7 @@ export function ClassroomCard({ classroom, role }: ClassroomCardProps) {
                 {classroom.classroom.name}
               </h3>
               <StatusBadge variant={variant} size="sm">
-                {label}
+                {roleLabel}
               </StatusBadge>
             </div>
             {classroom.classroom.description && (
@@ -70,7 +78,7 @@ export function ClassroomCard({ classroom, role }: ClassroomCardProps) {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <ClipboardList className="w-4 h-4" />
-              {classroom.assignmentsCount} assignment{classroom.assignmentsCount !== 1 ? "s" : ""}
+              {t("card.assignments", { count: classroom.assignmentsCount })}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -103,12 +111,14 @@ interface ClassroomCardGridProps {
 export function ClassroomCardGrid({
   classrooms,
   role,
-  emptyMessage = "No classrooms found",
+  emptyMessage,
 }: ClassroomCardGridProps) {
+  const { t } = useTranslation("common");
+
   if (classrooms.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        {emptyMessage}
+        {emptyMessage ?? t("empty.noResults")}
       </div>
     );
   }

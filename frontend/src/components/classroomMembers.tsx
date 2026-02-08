@@ -8,12 +8,16 @@ import { UserClassroomResponse } from "@/swagger-client";
 import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isStudent } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { useTranslation } from "react-i18next";
 
-const roleConfig: Record<Role, { variant: "success" | "info" | "neutral"; label: string }> = {
-  [Role.Owner]: { variant: "success", label: "Owner" },
-  [Role.Moderator]: { variant: "info", label: "Moderator" },
-  [Role.Student]: { variant: "neutral", label: "Student" },
-};
+function useRoleConfig(): Record<Role, { variant: "success" | "info" | "neutral"; label: string }> {
+  const { t } = useTranslation("classroom");
+  return {
+    [Role.Owner]: { variant: "success", label: t("members.role.owner") },
+    [Role.Moderator]: { variant: "info", label: t("members.role.moderator") },
+    [Role.Student]: { variant: "neutral", label: t("members.role.student") },
+  };
+}
 
 export function MemberListCard({
   classroomMembers,
@@ -30,6 +34,8 @@ export function MemberListCard({
   showTeams: boolean;
   deactivateInteraction: boolean;
 }) {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
   const owners = classroomMembers.filter((m) => m.role === Role.Owner);
   const moderators = classroomMembers.filter((m) => m.role === Role.Moderator);
   const students = classroomMembers.filter((m) => m.role === Role.Student);
@@ -43,9 +49,9 @@ export function MemberListCard({
             <Users className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold">Members</h3>
+            <h3 className="font-semibold">{t("members.title")}</h3>
             <p className="text-sm text-muted-foreground">
-              {classroomMembers.length} member{classroomMembers.length !== 1 ? "s" : ""} in this classroom
+              {t("members.subtitle", { count: classroomMembers.length })}
             </p>
           </div>
         </div>
@@ -55,13 +61,13 @@ export function MemberListCard({
             <Button variant="outline" size="sm" asChild>
               <Link to="/classrooms/$classroomId/members" params={{ classroomId }}>
                 <Settings className="w-4 h-4 mr-2" />
-                Manage
+                {tc("actions.edit")}
               </Link>
             </Button>
             <Button variant="glow" size="sm" asChild>
               <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
                 <UserPlus className="w-4 h-4 mr-2" />
-                Invite
+                {t("members.invite")}
               </Link>
             </Button>
           </div>
@@ -72,7 +78,7 @@ export function MemberListCard({
       <div className="space-y-6">
         {owners.length > 0 && (
           <MemberSection
-            title="Owners"
+            title={t("members.role.owners")}
             members={owners}
             teamsReportUrls={teamsReportUrls}
             classroomId={classroomId}
@@ -83,7 +89,7 @@ export function MemberListCard({
 
         {moderators.length > 0 && (
           <MemberSection
-            title="Moderators"
+            title={t("members.role.moderators")}
             members={moderators}
             teamsReportUrls={teamsReportUrls}
             classroomId={classroomId}
@@ -94,7 +100,7 @@ export function MemberListCard({
 
         {students.length > 0 && (
           <MemberSection
-            title="Students"
+            title={t("members.role.students")}
             members={students}
             teamsReportUrls={teamsReportUrls}
             classroomId={classroomId}
@@ -156,6 +162,8 @@ function MemberCard({
   userClassroom: UserClassroomResponse;
   showTeams: boolean;
 }) {
+  const { t } = useTranslation("team");
+  const roleConfig = useRoleConfig();
   const reportUrl = teamsReportUrls.get(member.team?.id ?? "");
   const config = roleConfig[member.role as Role];
 
@@ -181,7 +189,7 @@ function MemberCard({
             </p>
             {showTeams && member.team && (
               <p className="text-xs text-muted-foreground mt-1">
-                Team: <span className="text-foreground">{member.team.name}</span>
+                {t("team")}: <span className="text-foreground">{member.team.name}</span>
               </p>
             )}
           </div>

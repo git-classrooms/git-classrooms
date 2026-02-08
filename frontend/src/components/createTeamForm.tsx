@@ -9,6 +9,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { useCreateTeam } from "@/api/team";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface CreateTeamFormProps {
   classroomId: string;
@@ -17,6 +18,8 @@ interface CreateTeamFormProps {
 }
 
 export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onSuccess, onCancel }) => {
+  const { t } = useTranslation("team");
+  const { t: tc } = useTranslation("common");
   const { mutateAsync, isError, isPending } = useCreateTeam(classroomId);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -41,8 +44,8 @@ export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onS
           <Users className="w-5 h-5 text-primary" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold">Create Team</h2>
-          <p className="text-sm text-muted-foreground">Start a new team for this classroom</p>
+          <h2 className="text-lg font-semibold">{t("create.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("create.subtitle")}</p>
         </div>
       </div>
 
@@ -53,16 +56,16 @@ export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onS
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Team Name</FormLabel>
+                <FormLabel>{t("form.name")}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g., Team Alpha"
+                    placeholder={t("form.namePlaceholder")}
                     className="bg-background"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Choose a unique name for your team
+                  {t("create.nameDescription")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -72,15 +75,15 @@ export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onS
           {isError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>The team could not be created. Please try again.</AlertDescription>
+              <AlertTitle>{tc("status.error")}</AlertTitle>
+              <AlertDescription>{t("create.error")}</AlertDescription>
             </Alert>
           )}
 
           <div className="flex items-center justify-end gap-3 pt-2">
             {onCancel && (
               <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
+                {tc("actions.cancel")}
               </Button>
             )}
             <Button type="submit" variant="glow" disabled={isPending} className="min-w-[120px]">
@@ -88,7 +91,7 @@ export const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ classroomId, onS
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  Create Team
+                  {t("create.button")}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </>
               )}

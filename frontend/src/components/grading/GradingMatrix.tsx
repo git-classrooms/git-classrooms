@@ -4,6 +4,7 @@ import { Bot, Target, GraduationCap } from "lucide-react";
 import { GradingMatrixRow } from "./GradingMatrixRow";
 import { GradingMatrixProps } from "./types";
 import { DEFAULT_GRADE_SCHEMA } from "./gradeSchema";
+import { useTranslation } from "react-i18next";
 
 export function GradingMatrix({
   projects,
@@ -13,12 +14,15 @@ export function GradingMatrix({
   assignmentId,
   gradeSchema = DEFAULT_GRADE_SCHEMA,
 }: GradingMatrixProps) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
+
   if (projects.length === 0) {
     return (
       <Card className="border-border/50">
         <CardContent className="p-12 text-center">
           <Target className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-          <p className="text-muted-foreground">No projects match your filter criteria.</p>
+          <p className="text-muted-foreground">{t("grading.dashboard.noProjectsMatch")}</p>
         </CardContent>
       </Card>
     );
@@ -32,7 +36,7 @@ export function GradingMatrix({
           {/* Fixed header for team column */}
           <div className="sticky left-0 z-20 px-4 py-3 min-w-[220px] max-w-[220px] bg-muted/50 backdrop-blur-sm border-r border-border/40">
             <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Team
+              {t("grading.matrix.team")}
             </span>
           </div>
 
@@ -67,7 +71,7 @@ export function GradingMatrix({
             {/* Total header */}
             <div className="px-4 py-3 min-w-[100px] bg-muted/40 border-r border-border/40">
               <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                Total
+                {tc("total")}
               </span>
             </div>
 
@@ -76,7 +80,7 @@ export function GradingMatrix({
               <div className="flex items-center gap-1.5">
                 <GraduationCap className="h-3.5 w-3.5 text-primary" />
                 <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Note
+                  {t("grading.grade")}
                 </span>
               </div>
             </div>

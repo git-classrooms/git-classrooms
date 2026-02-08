@@ -40,6 +40,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -57,18 +58,19 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   component: ClassroomInviteForm,
 });
 
-const statusConfig: Record<
+const statusConfigBase: Record<
   Status,
-  { variant: "success" | "warning" | "destructive" | "neutral" | "info"; icon: typeof Check; label: string }
+  { variant: "success" | "warning" | "destructive" | "neutral" | "info"; icon: typeof Check; labelKey: string }
 > = {
-  [Status.Pending]: { variant: "warning", icon: Clock, label: "Pending" },
-  [Status.Accepted]: { variant: "success", icon: Check, label: "Accepted" },
-  [Status.Rejected]: { variant: "destructive", icon: X, label: "Rejected" },
-  [Status.Revoked]: { variant: "neutral", icon: XCircle, label: "Revoked" },
-  [Status.Failed]: { variant: "destructive", icon: AlertCircle, label: "Failed" },
+  [Status.Pending]: { variant: "warning", icon: Clock, labelKey: "pending" },
+  [Status.Accepted]: { variant: "success", icon: Check, labelKey: "accepted" },
+  [Status.Rejected]: { variant: "destructive", icon: X, labelKey: "rejected" },
+  [Status.Revoked]: { variant: "neutral", icon: XCircle, labelKey: "revoked" },
+  [Status.Failed]: { variant: "destructive", icon: AlertCircle, labelKey: "failed" },
 };
 
 function ClassroomInviteForm() {
+  const { t } = useTranslation("classroom");
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: invitations } = useSuspenseQuery(classroomInvitationsQueryOptions(classroomId));
@@ -98,7 +100,7 @@ function ClassroomInviteForm() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{t("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -111,7 +113,7 @@ function ClassroomInviteForm() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Invitations</BreadcrumbPage>
+            <BreadcrumbPage>{t("invite.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -125,19 +127,19 @@ function ClassroomInviteForm() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Invitations</h1>
-            <p className="text-muted-foreground mt-1">Invite new members to your classroom</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t("invite.title")}</h1>
+            <p className="text-muted-foreground mt-1">{t("invite.subtitle")}</p>
           </div>
         </div>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label="Total Sent" value={stats.total} icon={Mail} color="text-primary" bgColor="bg-primary/15" />
-        <StatCard label="Pending" value={stats.pending} icon={Clock} color="text-warning" bgColor="bg-warning/15" />
-        <StatCard label="Accepted" value={stats.accepted} icon={Check} color="text-success" bgColor="bg-success/15" />
+        <StatCard label={t("invite.stats.totalSent")} value={stats.total} icon={Mail} color="text-primary" bgColor="bg-primary/15" />
+        <StatCard label={t("invite.stats.pending")} value={stats.pending} icon={Clock} color="text-warning" bgColor="bg-warning/15" />
+        <StatCard label={t("invite.stats.accepted")} value={stats.accepted} icon={Check} color="text-success" bgColor="bg-success/15" />
         <StatCard
-          label="Declined"
+          label={t("invite.stats.declined")}
           value={stats.rejected}
           icon={XCircle}
           color="text-muted-foreground"
@@ -155,8 +157,8 @@ function ClassroomInviteForm() {
                 <MailPlus className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg">Send Invitations</CardTitle>
-                <CardDescription>Invite members via email</CardDescription>
+                <CardTitle className="text-lg">{t("invite.sendTitle")}</CardTitle>
+                <CardDescription>{t("invite.sendSubtitle")}</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -174,8 +176,8 @@ function ClassroomInviteForm() {
                   <UserPlus className="w-5 h-5 text-info" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Sent Invitations</CardTitle>
-                  <CardDescription>{invitations.length} total invitations</CardDescription>
+                  <CardTitle className="text-lg">{t("invite.sentTitle")}</CardTitle>
+                  <CardDescription>{t("invite.sentSubtitle", { count: invitations.length })}</CardDescription>
                 </div>
               </div>
             </div>
@@ -232,6 +234,8 @@ function StatCard({
 }
 
 function InviteFormSection({ classroomId }: { classroomId: string }) {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
   const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
@@ -247,7 +251,7 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
     try {
       await mutateAsync(values);
       form.reset();
-      toast.success("Invitations sent successfully!");
+      toast.success(t("invite.success"));
     } catch {
       // Error handled by isError state
     }
@@ -263,19 +267,19 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
           name="memberEmails"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Addresses</FormLabel>
+              <FormLabel>{t("invite.emailLabel")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="student1@example.com&#10;student2@example.com&#10;student3@example.com"
+                  placeholder={`${t("invite.emailPlaceholder")}\nstudent2@example.com\nstudent3@example.com`}
                   className="resize-none min-h-[160px] font-mono text-sm"
                   {...field}
                 />
               </FormControl>
               <FormDescription className="flex items-center justify-between">
-                <span>One email address per line</span>
+                <span>{t("invite.emailDescription")}</span>
                 {emailCount > 0 && (
                   <span className="text-xs text-muted-foreground">
-                    {emailCount} email{emailCount !== 1 ? "s" : ""}
+                    {t("invite.emailCount", { count: emailCount })}
                   </span>
                 )}
               </FormDescription>
@@ -288,12 +292,12 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending...
+              {t("invite.sending")}
             </>
           ) : (
             <>
               <Send className="mr-2 h-4 w-4" />
-              Send Invitations
+              {t("invite.sendButton")}
             </>
           )}
         </Button>
@@ -301,8 +305,8 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
         {isError && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>Failed to send invitations. Please check the email addresses and try again.</AlertDescription>
+            <AlertTitle>{tc("status.error")}</AlertTitle>
+            <AlertDescription>{t("invite.error")}</AlertDescription>
           </Alert>
         )}
       </form>
@@ -311,14 +315,16 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
 }
 
 function EmptyInvitationsState() {
+  const { t } = useTranslation("classroom");
+
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
       <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
         <Mail className="w-6 h-6 text-muted-foreground" />
       </div>
-      <h3 className="font-medium text-foreground mb-1">No invitations yet</h3>
+      <h3 className="font-medium text-foreground mb-1">{t("invite.empty.title")}</h3>
       <p className="text-sm text-muted-foreground max-w-[240px]">
-        Use the form to invite members to your classroom
+        {t("invite.empty.description")}
       </p>
     </div>
   );
@@ -331,9 +337,12 @@ function InvitationRow({
   invitation: ClassroomInvitation;
   userClassroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("classroom");
   const router = useRouter();
-  const config = statusConfig[invitation.status as Status];
+  const config = statusConfigBase[invitation.status as Status];
   const StatusIcon = config.icon;
+  // @ts-expect-error - dynamic key lookup
+  const statusLabel = t(`invite.status.${config.labelKey}`) as string;
   const isPending = invitation.status === Status.Pending;
   const canCopyLink = invitation.status !== Status.Accepted && invitation.status !== Status.Revoked;
 
@@ -344,7 +353,7 @@ function InvitationRow({
       search: { groupLink: false },
     });
     navigator.clipboard.writeText(`${location.origin}${path.href}`);
-    toast.success("Invitation link copied to clipboard");
+    toast.success(t("invite.linkCopied"));
   };
 
   return (
@@ -374,11 +383,11 @@ function InvitationRow({
         <div className="flex items-center gap-2">
           <span className="font-medium truncate">{invitation.email}</span>
           <StatusBadge variant={config.variant} size="sm">
-            {config.label}
+            {statusLabel}
           </StatusBadge>
         </div>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Sent {formatRelativeTime(invitation.createdAt)} · {formatDate(invitation.createdAt)}
+          {t("invite.sent")} {formatRelativeTime(invitation.createdAt)} · {formatDate(invitation.createdAt)}
         </p>
       </div>
 
@@ -391,7 +400,7 @@ function InvitationRow({
                 <LinkIcon className="w-4 h-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Copy invitation link</TooltipContent>
+            <TooltipContent>{t("invite.copyLinkTooltip")}</TooltipContent>
           </Tooltip>
         </div>
       )}

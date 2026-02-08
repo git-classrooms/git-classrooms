@@ -41,6 +41,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
@@ -78,6 +79,8 @@ const roleConfig: Record<Role, { icon: typeof Crown; color: string; bgColor: str
 };
 
 function Members() {
+  const { t } = useTranslation("classroom");
+  const { t: tCommon } = useTranslation("common");
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
@@ -120,7 +123,7 @@ function Members() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{t("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -133,7 +136,7 @@ function Members() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Manage Members</BreadcrumbPage>
+            <BreadcrumbPage>{t("members.manage.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -148,16 +151,16 @@ function Members() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Manage Members</h1>
+              <h1 className="text-3xl font-bold tracking-tight">{t("members.manage.title")}</h1>
               <p className="text-muted-foreground mt-1">
-                Update roles and team assignments
+                {t("members.manage.subtitle")}
               </p>
             </div>
           </div>
           <Button variant="glow" asChild>
             <Link to="/classrooms/$classroomId/invite" params={{ classroomId }}>
               <UserPlus className="w-4 h-4 mr-2" />
-              Invite Members
+              {t("members.invite")}
             </Link>
           </Button>
         </div>
@@ -165,28 +168,28 @@ function Members() {
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard
-            label="Total"
+            label={tCommon("total")}
             value={stats.total}
             icon={Users}
             color="text-primary"
             bgColor="bg-primary/15"
           />
           <StatCard
-            label="Owners"
+            label={t("members.role.owners")}
             value={stats.owners}
             icon={Crown}
             color="text-warning"
             bgColor="bg-warning/15"
           />
           <StatCard
-            label="Moderators"
+            label={t("members.role.moderators")}
             value={stats.moderators}
             icon={Shield}
             color="text-info"
             bgColor="bg-info/15"
           />
           <StatCard
-            label="Students"
+            label={t("members.role.students")}
             value={stats.students}
             icon={GraduationCap}
             color="text-muted-foreground"
@@ -200,14 +203,14 @@ function Members() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, username, or team..."
+            placeholder={t("members.manage.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
           />
         </div>
         <div className="text-sm text-muted-foreground flex items-center">
-          {filteredMembers.length} of {classroomMembers.length} members
+          {t("members.manage.ofMembers", { filtered: filteredMembers.length, total: classroomMembers.length })}
         </div>
       </div>
 
@@ -263,12 +266,13 @@ function StatCard({
 }
 
 function EmptySearchState({ query }: { query: string }) {
+  const { t } = useTranslation("classroom");
   return (
     <div className="border border-dashed border-border rounded-lg p-12 text-center">
       <Search className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-      <h3 className="font-medium text-foreground mb-1">No members found</h3>
+      <h3 className="font-medium text-foreground mb-1">{t("members.manage.noMembersFound")}</h3>
       <p className="text-sm text-muted-foreground">
-        No members match "{query}"
+        {t("members.manage.noMembersMatch", { query })}
       </p>
     </div>
   );
@@ -287,6 +291,7 @@ function MemberRow({
   teams: TeamResponse[];
   showTeams: boolean;
 }) {
+  const { t } = useTranslation("classroom");
   const config = roleConfig[member.role as Role];
   const Icon = config.icon;
   const isCurrentUser = member.user.id === userClassroom.user.id;
@@ -327,10 +332,10 @@ function MemberRow({
               <div className="flex items-center gap-2">
                 <span className="font-semibold truncate">{member.user.name}</span>
                 {isCurrentUser && (
-                  <StatusBadge variant="info" size="sm">You</StatusBadge>
+                  <StatusBadge variant="info" size="sm">{t("members.manage.you")}</StatusBadge>
                 )}
                 {isClassroomCreator && (
-                  <StatusBadge variant="warning" size="sm">Creator</StatusBadge>
+                  <StatusBadge variant="warning" size="sm">{t("members.manage.creator")}</StatusBadge>
                 )}
               </div>
               <p className="text-sm text-muted-foreground truncate">
@@ -413,6 +418,8 @@ function RoleDropdown({
   classroomID: string;
   userClassroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("classroom");
+  const { t: tCommon } = useTranslation("common");
   const { mutateAsync, isError, isPending } = useUpdateMemberRole(classroomID, memberID);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -445,7 +452,7 @@ function RoleDropdown({
                   <SelectTrigger className="w-full h-9">
                     <div className="flex items-center gap-2">
                       {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                      <SelectValue placeholder="Select role" />
+                      <SelectValue placeholder={t("members.manage.selectRole")} />
                     </div>
                   </SelectTrigger>
                 </FormControl>
@@ -453,20 +460,20 @@ function RoleDropdown({
                   <SelectItem value={getRole(Role.Student)}>
                     <div className="flex items-center gap-2">
                       <GraduationCap className="w-4 h-4" />
-                      Student
+                      {t("members.role.student")}
                     </div>
                   </SelectItem>
                   <SelectItem value={getRole(Role.Moderator)}>
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      Moderator
+                      {t("members.role.moderator")}
                     </div>
                   </SelectItem>
                   {userClassroom.classroom.ownerId === userClassroom.user.id && (
                     <SelectItem value={getRole(Role.Owner)}>
                       <div className="flex items-center gap-2">
                         <Crown className="w-4 h-4" />
-                        Owner
+                        {t("members.role.owner")}
                       </div>
                     </SelectItem>
                   )}
@@ -475,8 +482,8 @@ function RoleDropdown({
               {isError && (
                 <Alert variant="destructive" className="mt-2">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>Failed to update role</AlertDescription>
+                  <AlertTitle>{tCommon("status.error")}</AlertTitle>
+                  <AlertDescription>{t("members.manage.failedToUpdateRole")}</AlertDescription>
                 </Alert>
               )}
             </FormItem>
@@ -504,6 +511,8 @@ function TeamDropdown({
   classroomID: string;
   teams: TeamResponse[];
 }) {
+  const { t } = useTranslation("classroom");
+  const { t: tCommon } = useTranslation("common");
   const {
     mutateAsync: updateTeam,
     error: updateTeamError,
@@ -550,19 +559,19 @@ function TeamDropdown({
                   <SelectTrigger className="w-full h-9">
                     <div className="flex items-center gap-2">
                       {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                      <SelectValue placeholder="Select team..." />
+                      <SelectValue placeholder={t("members.manage.selectTeam")} />
                     </div>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {teams.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
+                  {teams.map((teamItem) => (
+                    <SelectItem key={teamItem.id} value={teamItem.id}>
+                      {teamItem.name}
                     </SelectItem>
                   ))}
                   {team && (
                     <SelectItem value={REMOVE_TEAM} className="text-destructive">
-                      Remove from team
+                      {t("members.manage.removeFromTeam")}
                     </SelectItem>
                   )}
                 </SelectContent>
@@ -570,8 +579,8 @@ function TeamDropdown({
               {error && (
                 <Alert variant="destructive" className="mt-2">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{error.message}</AlertDescription>
+                  <AlertTitle>{tCommon("status.error")}</AlertTitle>
+                  <AlertDescription>{t("members.manage.failedToUpdateTeam")}</AlertDescription>
                 </Alert>
               )}
             </FormItem>

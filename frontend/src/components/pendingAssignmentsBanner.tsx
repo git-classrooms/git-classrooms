@@ -4,9 +4,10 @@ import { useQueries } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, ArrowRight, Clock, Play, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
-import { cn, formatRelativeTime, getDaysUntilDue } from "@/lib/utils";
+import { cn, getDaysUntilDue } from "@/lib/utils";
 import { Status } from "@/types/projects";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface PendingProject extends ProjectResponse {
   classroomId: string;
@@ -18,6 +19,7 @@ export function PendingAssignmentsBanner({
 }: {
   studentClassrooms: UserClassroomResponse[];
 }) {
+  const { t } = useTranslation("assignment");
   const projectQueries = useQueries({
     queries: studentClassrooms.map((userClassroom) => ({
       ...projectsQueryOptions(userClassroom.classroom.id),
@@ -134,24 +136,24 @@ export function PendingAssignmentsBanner({
               )}
             >
               {isFailed
-                ? "Assignment Setup Failed"
+                ? t("pending.setupFailed")
                 : sortedPending.length === 1
-                  ? "Action Required"
-                  : `${sortedPending.length} Assignments Waiting`}
+                  ? t("pending.actionRequired")
+                  : t("pending.assignmentsWaiting", { count: sortedPending.length })}
             </h2>
             {sortedPending.length > 1 && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
-                +{sortedPending.length - 1} more
+                {t("pending.more", { count: sortedPending.length - 1 })}
               </span>
             )}
           </div>
 
           <p className="text-foreground font-medium">
-            {isFailed ? "Retry accepting " : "Accept "}
+            {isFailed ? t("pending.retryAccepting") : t("pending.accept")}{" "}
             <span className="font-bold">{mostUrgent.assignment.name}</span>
             <span className="text-muted-foreground font-normal">
               {" "}
-              in {mostUrgent.classroomName}
+              {t("pending.in")} {mostUrgent.classroomName}
             </span>
           </p>
 
@@ -168,11 +170,11 @@ export function PendingAssignmentsBanner({
             >
               <Clock className="w-4 h-4" />
               {isVeryUrgent ? (
-                <span>Due today!</span>
+                <span>{t("pending.dueToday")}</span>
               ) : daysUntil === 1 ? (
-                <span>Due tomorrow</span>
+                <span>{t("pending.dueTomorrow")}</span>
               ) : (
-                <span>Due {formatRelativeTime(mostUrgent.assignment.dueDate)}</span>
+                <span>{t("dueDate.dueIn", { count: daysUntil! })}</span>
               )}
             </div>
           )}
@@ -198,7 +200,7 @@ export function PendingAssignmentsBanner({
               }}
             >
               <Play className="w-4 h-4" />
-              {isFailed ? "Retry Now" : "Accept Now"}
+              {isFailed ? t("pending.retryNow") : t("pending.acceptNow")}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
@@ -209,7 +211,7 @@ export function PendingAssignmentsBanner({
       {sortedPending.length > 1 && (
         <div className="relative mt-4 pt-4 border-t border-border/50">
           <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide font-medium">
-            Also waiting
+            {t("pending.alsoWaiting")}
           </p>
           <div className="flex flex-wrap gap-2">
             {sortedPending.slice(1, 4).map((project) => (
@@ -237,7 +239,7 @@ export function PendingAssignmentsBanner({
             ))}
             {sortedPending.length > 4 && (
               <span className="inline-flex items-center px-3 py-1.5 text-sm text-muted-foreground">
-                +{sortedPending.length - 4} more
+                {t("pending.more", { count: sortedPending.length - 4 })}
               </span>
             )}
           </div>

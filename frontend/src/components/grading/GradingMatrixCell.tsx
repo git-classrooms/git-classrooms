@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useGradeProject } from "@/api/grading";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const QUICK_SCORES = [0, 25, 50, 75, 100];
 
@@ -17,6 +18,7 @@ export function GradingMatrixCell({
   classroomId,
   assignmentId,
 }: GradingMatrixCellProps) {
+  const { t } = useTranslation("assignment");
   const rubricResult = project.gradingResult?.rubricResults?.[rubric.name];
   const initialScore = rubricResult?.score ?? 0;
   const initialFeedback = rubricResult?.feedback ?? "";
@@ -71,7 +73,7 @@ export function GradingMatrixCell({
       setScore(newScore);
       if (newFeedback !== undefined) setFeedback(newFeedback);
     } catch {
-      toast.error("Failed to save grade");
+      toast.error(t("grading.dashboard.gradeSaveFailed"));
       setScore(initialScore);
       setFeedback(initialFeedback);
     }

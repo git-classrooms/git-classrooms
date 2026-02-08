@@ -19,8 +19,10 @@ import { Status } from "@/types/projects";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { classroomQueryOptions } from "@/api/classroom";
 import { StatusBadge } from "./ui/status-badge";
+import { useTranslation } from "react-i18next";
 
 export function ProjectListSection({ classroomId }: { classroomId: string }): JSX.Element {
+  const { t } = useTranslation("assignment");
   const { data: projects } = useSuspenseQuery(projectsQueryOptions(classroomId));
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
 
@@ -32,8 +34,8 @@ export function ProjectListSection({ classroomId }: { classroomId: string }): JS
             <FileCode2 className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-lg font-mono">My Assignments</CardTitle>
-            <CardDescription>Your assignments for this classroom</CardDescription>
+            <CardTitle className="text-lg font-mono">{t("projects.myAssignments")}</CardTitle>
+            <CardDescription>{t("projects.yourAssignments")}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -57,14 +59,16 @@ export function ProjectListSection({ classroomId }: { classroomId: string }): JS
 }
 
 function EmptyState() {
+  const { t } = useTranslation("assignment");
+
   return (
     <div className="py-12 text-center">
       <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-muted/50 flex items-center justify-center">
         <FileCode2 className="w-8 h-8 text-muted-foreground/50" />
       </div>
-      <p className="text-muted-foreground">No assignments available yet.</p>
+      <p className="text-muted-foreground">{t("projects.empty.title")}</p>
       <p className="text-sm text-muted-foreground/70 mt-1">
-        Check back later for new assignments.
+        {t("projects.empty.description")}
       </p>
     </div>
   );
@@ -77,6 +81,7 @@ function ProjectCard({
   project: ProjectResponse;
   userClassroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("assignment");
   const isClosed = project.assignment.dueDate && new Date(project.assignment.dueDate) < new Date();
   const isPending = project.projectStatus === Status.Pending;
   const isFailed = project.projectStatus === Status.Failed;
@@ -99,12 +104,12 @@ function ProjectCard({
   };
 
   const getStatusLabel = () => {
-    if (isClosed) return "Closed";
-    if (isAccepted) return "Accepted";
-    if (isPending) return "Pending";
-    if (isFailed) return "Failed";
-    if (isCreating) return "Creating";
-    return "Unknown";
+    if (isClosed) return t("projects.status.closed");
+    if (isAccepted) return t("projects.status.accepted");
+    if (isPending) return t("projects.status.pending");
+    if (isFailed) return t("projects.status.failed");
+    if (isCreating) return t("projects.status.creating");
+    return t("projects.status.unknown");
   };
 
   return (
@@ -153,11 +158,11 @@ function ProjectCard({
                   >
                     <Clock className="w-3.5 h-3.5" />
                     {isClosed ? (
-                      "Closed"
+                      t("projects.status.closed")
                     ) : isVeryUrgent ? (
-                      "Due today!"
+                      t("dueDate.dueToday")
                     ) : isUrgent ? (
-                      `Due in ${daysUntilDue} days`
+                      t("dueDate.dueIn", { count: daysUntilDue })
                     ) : (
                       formatDateWithTime(project.assignment.dueDate!)
                     )}
@@ -190,6 +195,8 @@ function AcceptedActions({
   project: ProjectResponse;
   userClassroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("assignment");
+
   return (
     <div className="flex items-center gap-2">
       <Tooltip>
@@ -197,11 +204,11 @@ function AcceptedActions({
           <Button variant="outline" size="sm" asChild className="gap-2">
             <a href={project.webUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
-              <span className="hidden sm:inline">Code</span>
+              <span className="hidden sm:inline">{t("projects.viewCode")}</span>
             </a>
           </Button>
         </TooltipTrigger>
-        <TooltipContent>View code on GitLab</TooltipContent>
+        <TooltipContent>{t("projects.viewCodeTooltip")}</TooltipContent>
       </Tooltip>
 
       {userClassroom.classroom.studentsViewAllProjects && (
@@ -215,12 +222,12 @@ function AcceptedActions({
                   assignmentId: project.assignment.id,
                 }}
               >
-                <span className="hidden sm:inline">Details</span>
+                <span className="hidden sm:inline">{t("projects.details")}</span>
                 <ChevronRight className="h-4 w-4" />
               </Link>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>View assignment details</TooltipContent>
+          <TooltipContent>{t("projects.viewDetailsTooltip")}</TooltipContent>
         </Tooltip>
       )}
     </div>
@@ -236,6 +243,8 @@ function PendingActions({
   userClassroom: UserClassroomResponse;
   isFailed: boolean;
 }) {
+  const { t } = useTranslation("assignment");
+
   return (
     <div className="flex items-center gap-2">
       {isFailed && (
@@ -243,11 +252,11 @@ function PendingActions({
           <TooltipTrigger>
             <div className="flex items-center gap-1.5 text-destructive text-xs">
               <XCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Setup failed</span>
+              <span className="hidden sm:inline">{t("projects.setupFailed")}</span>
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            Project setup failed. Click to retry.
+            {t("projects.setupFailedTooltip")}
           </TooltipContent>
         </Tooltip>
       )}
@@ -261,7 +270,7 @@ function PendingActions({
           }}
         >
           <Play className="h-4 w-4" />
-          <span>{isFailed ? "Retry" : "Accept"}</span>
+          <span>{isFailed ? t("projects.retry") : t("projects.accept")}</span>
           <ChevronRight className="h-4 w-4 -ml-1" />
         </Link>
       </Button>
@@ -270,13 +279,15 @@ function PendingActions({
 }
 
 function CreatingState() {
+  const { t } = useTranslation("assignment");
+
   return (
     <div className="flex items-center gap-2 text-warning">
       <div className="relative w-4 h-4">
         <div className="absolute inset-0 rounded-full border-2 border-warning/30" />
         <div className="absolute inset-0 rounded-full border-2 border-warning border-t-transparent animate-spin" />
       </div>
-      <span className="text-sm font-medium">Setting up...</span>
+      <span className="text-sm font-medium">{t("projects.status.settingUp")}</span>
     </div>
   );
 }

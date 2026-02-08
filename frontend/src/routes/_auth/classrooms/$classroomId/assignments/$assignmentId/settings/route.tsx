@@ -12,6 +12,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { assignmentQueryOptions } from "@/api/assignment";
 import { classroomQueryOptions } from "@/api/classroom";
 import { ClipboardList, GraduationCap, Settings2, Sliders } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings")({
   beforeLoad: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -27,25 +28,27 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
   component: Settings,
 });
 
-const navItems = [
-  {
-    to: "/classrooms/$classroomId/assignments/$assignmentId/settings/" as const,
-    label: "General",
-    icon: Sliders,
-    description: "Basic configuration",
-  },
-  {
-    to: "/classrooms/$classroomId/assignments/$assignmentId/settings/grading" as const,
-    label: "Grading",
-    icon: GraduationCap,
-    description: "Assessment settings",
-  },
-];
-
 function Settings() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("classroom");
   const { classroomId, assignmentId } = Route.useParams();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
+
+  const navItems = [
+    {
+      to: "/classrooms/$classroomId/assignments/$assignmentId/settings/" as const,
+      label: t("settings.general"),
+      icon: Sliders,
+      description: t("settings.generalDescription"),
+    },
+    {
+      to: "/classrooms/$classroomId/assignments/$assignmentId/settings/grading" as const,
+      label: t("settings.grading"),
+      icon: GraduationCap,
+      description: t("settings.gradingDescription"),
+    },
+  ];
 
   return (
     <div>
@@ -54,7 +57,7 @@ function Settings() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{tc("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -83,7 +86,7 @@ function Settings() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="text-foreground">Settings</BreadcrumbPage>
+            <BreadcrumbPage className="text-foreground">{t("settings.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -94,7 +97,7 @@ function Settings() {
           <Settings2 className="w-6 h-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold font-mono tracking-tight">Assignment Settings</h1>
+          <h1 className="text-3xl font-bold font-mono tracking-tight">{t("settings.title")}</h1>
           <p className="text-muted-foreground flex items-center gap-2">
             <ClipboardList className="w-4 h-4" />
             {assignment.name}
@@ -160,7 +163,7 @@ function Settings() {
             {/* Info card */}
             <div className="mt-4 p-3 rounded-lg border border-dashed border-border/50 bg-muted/20">
               <p className="text-xs text-muted-foreground">
-                Some settings cannot be changed once students have accepted the assignment.
+                {t("settings.settingsNote")}
               </p>
             </div>
           </nav>

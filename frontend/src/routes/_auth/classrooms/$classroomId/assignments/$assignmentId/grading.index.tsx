@@ -37,6 +37,7 @@ import {
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 import {
   Assignment,
   ManualGradingRubric,
@@ -100,6 +101,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 });
 
 function GradingIndex() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("classroom");
   const { classroomId, assignmentId } = Route.useParams();
   const { reportDownloadUrl } = Route.useLoaderData();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
@@ -121,7 +124,7 @@ function GradingIndex() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{tc("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -142,18 +145,18 @@ function GradingIndex() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Grading</BreadcrumbPage>
+            <BreadcrumbPage>{t("grading.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-8">
-        <Header className="grow mb-0" title="Grading Dashboard" subtitle={assignment.name} />
+        <Header className="grow mb-0" title={t("grading.dashboard.title")} subtitle={assignment.name} />
         <div className="flex flex-wrap gap-3">
           <Button variant="outline" asChild size="sm">
             <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
               <Download className="mr-2 h-4 w-4" />
-              Export CSV
+              {t("grading.dashboard.exportCsv")}
             </a>
           </Button>
           {assignment.gradingJUnitAutoGradingActive && (
@@ -163,7 +166,7 @@ function GradingIndex() {
               ) : (
                 <Bot className="mr-2 h-4 w-4" />
               )}
-              Refresh Auto-Grading
+              {t("grading.dashboard.refreshAutoGrading")}
             </Button>
           )}
         </div>
@@ -232,6 +235,7 @@ function ScoreBar({ value, max, variant = "default" }: { value: number; max: num
 }
 
 function GradingOverview({ assignmentId, classroomId }: { classroomId: string; assignmentId: string }) {
+  const { t } = useTranslation("assignment");
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
   const { data: gradingResults } = useSuspenseQuery(assignmentReportQueryOptions(classroomId, assignmentId));
   const { data: projects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
@@ -295,7 +299,7 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Total Projects</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.totalProjects")}</p>
                 <p className="text-3xl font-mono font-bold">{stats.totalProjects}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -309,7 +313,7 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Grading Progress</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.gradingProgress")}</p>
                 <p className="text-3xl font-mono font-bold">
                   {stats.gradedProjects}<span className="text-lg text-muted-foreground">/{stats.totalProjects}</span>
                 </p>
@@ -323,7 +327,7 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Pending Review</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.pendingReview")}</p>
                 <p className="text-3xl font-mono font-bold">{stats.pendingProjects}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center">
@@ -337,7 +341,7 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Class Average</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.classAverage")}</p>
                 <p className="text-3xl font-mono font-bold">{stats.avgPercentage.toFixed(1)}%</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
@@ -355,15 +359,15 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
             <TabsList>
               <TabsTrigger value="list" className="gap-2">
                 <LayoutList className="h-4 w-4" />
-                <span className="hidden sm:inline">By Student</span>
+                <span className="hidden sm:inline">{t("grading.dashboard.byStudent")}</span>
               </TabsTrigger>
               <TabsTrigger value="rubric" className="gap-2">
                 <Target className="h-4 w-4" />
-                <span className="hidden sm:inline">By Rubric</span>
+                <span className="hidden sm:inline">{t("grading.dashboard.byRubric")}</span>
               </TabsTrigger>
               <TabsTrigger value="matrix" className="gap-2">
                 <Grid3X3 className="h-4 w-4" />
-                <span className="hidden sm:inline">Matrix</span>
+                <span className="hidden sm:inline">{t("grading.matrix.title")}</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -390,8 +394,8 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
                     <Award className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold font-mono">Project Grades</h2>
-                    <p className="text-sm text-muted-foreground">Review and grade individual submissions</p>
+                    <h2 className="text-lg font-semibold font-mono">{t("grading.dashboard.projectGrades")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("grading.dashboard.projectGradesSubtitle")}</p>
                   </div>
                 </div>
               </div>
@@ -402,8 +406,8 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
                 <Target className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                 <p className="text-muted-foreground">
                   {zippedProjects.length === 0
-                    ? "No accepted projects to grade yet."
-                    : "No projects match your filter criteria."}
+                    ? t("grading.dashboard.noProjectsToGrade")
+                    : t("grading.dashboard.noProjectsMatch")}
                 </p>
               </div>
             ) : (
@@ -456,6 +460,8 @@ function ProjectRow({
   rubrics: ManualGradingRubric[];
   assignment: Assignment;
 }) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const maxManualScore = rubrics.reduce((acc, e) => acc + e.maxScore, 0);
   const manualScore = project.gradingManualResults?.reduce((acc, e) => acc + (e.score || 0), 0) ?? 0;
   const autoScore = project.gradingResult?.autogradingScore ?? 0;
@@ -483,7 +489,7 @@ function ProjectRow({
             <p className="font-medium truncate">{project.team.name}</p>
             <div className="flex items-center gap-2">
               <StatusBadge variant={alreadyGraded ? "success" : "warning"} size="sm" showDot>
-                {alreadyGraded ? "Graded" : "Pending"}
+                {alreadyGraded ? t("grading.dashboard.graded") : t("grading.dashboard.pending")}
               </StatusBadge>
             </div>
           </div>
@@ -493,21 +499,21 @@ function ProjectRow({
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Manual Score */}
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Manual</p>
+            <p className="text-xs text-muted-foreground mb-1.5">{t("grading.dashboard.manual")}</p>
             <ScoreBar value={manualScore} max={maxManualScore} />
           </div>
 
           {/* Auto Score */}
           {assignment.gradingJUnitAutoGradingActive && (
             <div>
-              <p className="text-xs text-muted-foreground mb-1.5">Auto-Grading</p>
+              <p className="text-xs text-muted-foreground mb-1.5">{t("grading.dashboard.autoGrading")}</p>
               <ScoreBar value={autoScore} max={autoMaxScore} variant="success" />
             </div>
           )}
 
           {/* Total Score */}
           <div>
-            <p className="text-xs text-muted-foreground mb-1.5">Total</p>
+            <p className="text-xs text-muted-foreground mb-1.5">{tc("total")}</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-2 bg-muted/50 rounded-full overflow-hidden">
                 <div
@@ -555,7 +561,7 @@ function ProjectRow({
                 </a>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>View code on GitLab</TooltipContent>
+            <TooltipContent>{t("grading.dashboard.viewCodeTooltip")}</TooltipContent>
           </Tooltip>
 
           <GradingSheet project={project} rubrics={rubrics} assignment={assignment} />
@@ -589,6 +595,8 @@ function GradingSheet({
   rubrics: ManualGradingRubric[];
   assignment: Assignment;
 }) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId, assignmentId } = Route.useParams();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -613,7 +621,7 @@ function GradingSheet({
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     await mutateAsync(data);
-    toast.success("Grades saved successfully");
+    toast.success(t("grading.dashboard.gradesSaved"));
     closeModalButtonRef.current?.click();
   };
 
@@ -627,7 +635,7 @@ function GradingSheet({
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="default" size="sm" className="gap-2">
-          Grade
+          {t("grading.dashboard.gradeButton")}
           <ChevronRight className="h-4 w-4" />
         </Button>
       </SheetTrigger>
@@ -639,11 +647,11 @@ function GradingSheet({
             </div>
             <div>
               <span className="block">{project.team.name}</span>
-              <span className="text-sm font-normal text-muted-foreground">Grading Panel</span>
+              <span className="text-sm font-normal text-muted-foreground">{t("grading.dashboard.gradingPanel")}</span>
             </div>
           </SheetTitle>
           <SheetDescription>
-            Review the submission and assign scores for each rubric criterion.
+            {t("grading.dashboard.gradingPanelDescription")}
           </SheetDescription>
         </SheetHeader>
 
@@ -652,14 +660,14 @@ function GradingSheet({
           <Button variant="outline" size="sm" asChild className="flex-1">
             <a href={project.webUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" />
-              View Code
+              {t("grading.dashboard.viewCode")}
             </a>
           </Button>
           {assignment.gradingJUnitAutoGradingActive && project.reportWebUrl && (
             <Button variant="outline" size="sm" asChild className="flex-1">
               <a href={project.reportWebUrl} target="_blank" rel="noopener noreferrer">
                 <Bot className="mr-2 h-4 w-4" />
-                Test Results
+                {t("grading.dashboard.testResults")}
               </a>
             </Button>
           )}
@@ -671,7 +679,7 @@ function GradingSheet({
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Bot className="w-4 h-4 text-success" />
-                <span className="font-medium text-sm">Automated Test Results</span>
+                <span className="font-medium text-sm">{t("grading.dashboard.automatedTestResults")}</span>
               </div>
               <span className="font-mono text-sm font-bold">
                 {project.gradingResult?.autogradingScore ?? 0}/{project.gradingResult?.autogradingMaxScore ?? 0}
@@ -697,7 +705,7 @@ function GradingSheet({
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold flex items-center gap-2">
               <Target className="w-4 h-4 text-primary" />
-              Manual Grading
+              {t("grading.dashboard.manualGrading")}
             </h3>
             <span className="text-sm font-mono text-muted-foreground">
               {totalManualScore}/{maxManualScore} pts
@@ -708,7 +716,7 @@ function GradingSheet({
         {fields.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p>No manual grading rubrics configured.</p>
+            <p>{t("grading.dashboard.noRubricsConfigured")}</p>
           </div>
         ) : (
           <Form {...form}>
@@ -731,7 +739,7 @@ function GradingSheet({
                         )}
                       </div>
                       <span className="text-xs font-mono text-muted-foreground shrink-0">
-                        max {rubric.maxScore} pts
+                        {t("grading.dashboard.maxPts", { count: rubric.maxScore })}
                       </span>
                     </div>
 
@@ -764,7 +772,7 @@ function GradingSheet({
                         name={`gradingManualRubrics.${index}.score`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs">Score</FormLabel>
+                            <FormLabel className="text-xs">{t("grading.dashboard.score")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -790,13 +798,13 @@ function GradingSheet({
                         name={`gradingManualRubrics.${index}.feedback`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs">Feedback</FormLabel>
+                            <FormLabel className="text-xs">{t("grading.dashboard.feedbackLabel")}</FormLabel>
                             <FormControl>
                               <AutosizeTextarea
                                 minHeight={36}
                                 maxHeight={120}
                                 disabled={isPending}
-                                placeholder="Optional feedback..."
+                                placeholder={t("grading.dashboard.feedbackPlaceholder")}
                                 {...field}
                                 className="text-sm resize-none"
                               />
@@ -820,7 +828,7 @@ function GradingSheet({
               {/* Summary & Submit */}
               <div className="pt-4 border-t border-border/50 space-y-4">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-                  <span className="text-sm font-medium">Total Score</span>
+                  <span className="text-sm font-medium">{t("grading.dashboard.totalScore")}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl font-mono font-bold">
                       {totalManualScore + (project.gradingResult?.autogradingScore ?? 0)}
@@ -834,19 +842,19 @@ function GradingSheet({
                 <div className="flex gap-3">
                   <SheetClose ref={closeModalButtonRef} asChild>
                     <Button type="button" variant="outline" className="flex-1">
-                      Cancel
+                      {tc("actions.cancel")}
                     </Button>
                   </SheetClose>
                   <Button type="submit" variant="glow" className="flex-1" disabled={isPending}>
                     {isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        {t("grading.dashboard.saving")}
                       </>
                     ) : (
                       <>
                         <CheckCircle2 className="mr-2 h-4 w-4" />
-                        Save Grades
+                        {t("grading.dashboard.saveGrades")}
                       </>
                     )}
                   </Button>

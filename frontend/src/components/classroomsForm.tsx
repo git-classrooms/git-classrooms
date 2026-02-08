@@ -34,8 +34,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useTranslation } from "react-i18next";
 
 export const ClassroomCreateForm = () => {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
   const navigate = useNavigate();
   const { mutateAsync, error, isPending } = useCreateClassroom();
 
@@ -73,12 +76,12 @@ export const ClassroomCreateForm = () => {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{t("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create Classroom</BreadcrumbPage>
+            <BreadcrumbPage>{t("create.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -90,8 +93,8 @@ export const ClassroomCreateForm = () => {
             <FolderGit2 className="w-7 h-7 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create Classroom</h1>
-            <p className="text-muted-foreground">Set up a new classroom for your students</p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("create.title")}</h1>
+            <p className="text-muted-foreground">{t("create.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -103,7 +106,7 @@ export const ClassroomCreateForm = () => {
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Basic Information</h2>
+                <h2 className="font-semibold text-sm">{t("form.basicInfo")}</h2>
               </div>
             </div>
             <CardContent className="p-5 space-y-5">
@@ -112,16 +115,16 @@ export const ClassroomCreateForm = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Classroom Name</FormLabel>
+                    <FormLabel>{t("form.name")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g., Introduction to Programming WS24"
+                        placeholder={t("form.namePlaceholder")}
                         className="bg-background"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      Choose a descriptive name for your classroom
+                      {t("form.nameDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -133,16 +136,16 @@ export const ClassroomCreateForm = () => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("form.description")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Brief description of the classroom's purpose and content..."
+                        placeholder={t("form.descriptionPlaceholder")}
                         className="resize-none bg-background min-h-[100px]"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      Help students understand what this classroom is about
+                      {t("form.descriptionHelp")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +159,7 @@ export const ClassroomCreateForm = () => {
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Team Configuration</h2>
+                <h2 className="font-semibold text-sm">{t("teams.title")}</h2>
               </div>
             </div>
             <CardContent className="p-5 space-y-5">
@@ -166,9 +169,9 @@ export const ClassroomCreateForm = () => {
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-muted/20">
                     <div className="space-y-0.5">
-                      <FormLabel className="font-medium">Enable Teams</FormLabel>
+                      <FormLabel className="font-medium">{t("teams.enabled")}</FormLabel>
                       <FormDescription className="text-xs">
-                        Allow students to work together in teams
+                        {t("teams.enabledDescription")}
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -190,7 +193,7 @@ export const ClassroomCreateForm = () => {
                     name="maxTeams"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Max Teams</FormLabel>
+                        <FormLabel>{t("teams.maxTeams")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -201,7 +204,7 @@ export const ClassroomCreateForm = () => {
                           />
                         </FormControl>
                         <FormDescription className="text-xs">
-                          0 = unlimited teams
+                          {t("teams.maxTeamsDescription")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -213,7 +216,7 @@ export const ClassroomCreateForm = () => {
                     name="maxTeamSize"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Max Team Size</FormLabel>
+                        <FormLabel>{t("teams.maxTeamSize")}</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -224,7 +227,7 @@ export const ClassroomCreateForm = () => {
                           />
                         </FormControl>
                         <FormDescription className="text-xs">
-                          Members per team (min. 2)
+                          {t("teams.maxTeamSizeDescription")}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -238,9 +241,9 @@ export const ClassroomCreateForm = () => {
                   render={({ field }) => (
                     <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50">
                       <div className="space-y-0.5">
-                        <FormLabel className="font-medium">Student Team Creation</FormLabel>
+                        <FormLabel className="font-medium">{t("teams.studentCreation")}</FormLabel>
                         <FormDescription className="text-xs">
-                          Allow students to create their own teams
+                          {t("teams.studentCreationDescription")}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -258,7 +261,7 @@ export const ClassroomCreateForm = () => {
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
               <div className="flex items-center gap-2">
                 <Settings2 className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Privacy Settings</h2>
+                <h2 className="font-semibold text-sm">{t("privacy.title")}</h2>
               </div>
             </div>
             <CardContent className="p-5">
@@ -268,9 +271,9 @@ export const ClassroomCreateForm = () => {
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50">
                     <div className="space-y-0.5">
-                      <FormLabel className="font-medium">Mutual Code Visibility</FormLabel>
+                      <FormLabel className="font-medium">{t("privacy.mutualVisibility")}</FormLabel>
                       <FormDescription className="text-xs">
-                        Students can view other students' repositories
+                        {t("privacy.mutualVisibilityDescription")}
                       </FormDescription>
                     </div>
                     <FormControl>
@@ -286,7 +289,7 @@ export const ClassroomCreateForm = () => {
           {createClassroomError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{tc("status.error")}</AlertTitle>
               <AlertDescription>{createClassroomError.message}</AlertDescription>
             </Alert>
           )}
@@ -294,14 +297,14 @@ export const ClassroomCreateForm = () => {
           {/* Submit Button */}
           <div className="flex items-center justify-end gap-3 pt-4">
             <Button type="button" variant="outline" asChild>
-              <Link to="/classrooms">Cancel</Link>
+              <Link to="/classrooms">{tc("actions.cancel")}</Link>
             </Button>
             <Button type="submit" variant="glow" disabled={isPending} className="min-w-[140px]">
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  Create Classroom
+                  {t("create.button")}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </>
               )}
@@ -314,6 +317,8 @@ export const ClassroomCreateForm = () => {
 };
 
 export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassroomResponse }) => {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
   const { mutateAsync, isError, isPending } = useUpdateClassroom(userClassroom.classroom.id);
 
   const form = useForm<z.infer<typeof updateFormSchema>>({
@@ -330,7 +335,7 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
 
   async function onSubmit(values: z.infer<typeof updateFormSchema>) {
     await mutateAsync(values);
-    toast.success("Classroom updated!");
+    toast.success(t("edit.success"));
   }
 
   return (
@@ -340,8 +345,8 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
           <Pencil className="w-5 h-5 text-[hsl(142,71%,45%)]" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold font-mono">Edit Classroom</h2>
-          <p className="text-sm text-muted-foreground">Update name and description</p>
+          <h2 className="text-lg font-semibold font-mono">{t("edit.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("edit.subtitle")}</p>
         </div>
       </div>
 
@@ -355,17 +360,17 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide">
-                      Name
+                      {t("form.nameLabel")}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Programming classroom"
+                        placeholder={t("form.namePlaceholder")}
                         {...field}
                         className="bg-background"
                       />
                     </FormControl>
                     <FormDescription className="text-xs">
-                      The display name of this classroom
+                      {t("form.descriptionLabel")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -378,17 +383,17 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide">
-                      Description
+                      {t("form.description")}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="This is my awesome classroom for..."
+                        placeholder={t("form.descriptionPlaceholder")}
                         className="resize-none bg-background min-h-[100px]"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription className="text-xs">
-                      A brief description of the classroom's purpose
+                      {t("form.descriptionPurpose")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -397,7 +402,7 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
 
               <div className="flex items-center justify-between pt-4 border-t border-border/50">
                 <p className="text-xs text-muted-foreground">
-                  Changes are saved immediately
+                  {t("edit.changesSaved")}
                 </p>
                 <Button
                   type="submit"
@@ -408,15 +413,15 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                   {isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Save Changes
+                  {tc("actions.saveChanges")}
                 </Button>
               </div>
 
               {isError && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>The classroom could not be updated!</AlertDescription>
+                  <AlertTitle>{tc("status.error")}</AlertTitle>
+                  <AlertDescription>{t("errors.updateFailed")}</AlertDescription>
                 </Alert>
               )}
             </form>

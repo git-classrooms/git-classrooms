@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings/grading")({
   loader: async ({ params: { classroomId }, context: { queryClient } }) => {
@@ -50,6 +51,8 @@ const formSchema = z.object({
 });
 
 function Grading() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId } = Route.useParams();
 
   const {
@@ -85,7 +88,7 @@ function Grading() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await mutateAsync(values);
-    toast.success("Rubrics saved successfully.");
+    toast.success(t("grading.savedSuccess"));
     setEditing(false);
   };
 
@@ -110,7 +113,7 @@ function Grading() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold font-mono">Test-Driven Grading</h2>
+                <h2 className="text-lg font-semibold font-mono">{t("grading.testDriven.title")}</h2>
                 {isRunnerAvailableFetching ? (
                   <Skeleton className="h-5 w-16 rounded-full" />
                 ) : (
@@ -118,7 +121,7 @@ function Grading() {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Automated grading using CI/CD test reports
+                {t("grading.testDriven.subtitle")}
               </p>
             </div>
           </div>
@@ -131,7 +134,7 @@ function Grading() {
             className="shrink-0"
           >
             <RefreshCcw className={cn("w-4 h-4 mr-2", isRunnerAvailableFetching && "animate-spin")} />
-            Refresh
+            {tc("actions.refresh")}
           </Button>
         </div>
 
@@ -155,18 +158,16 @@ function Grading() {
                   </div>
                 ) : isRunnerAvailable ? (
                   <>
-                    <p className="font-medium text-success">Runner Available</p>
+                    <p className="font-medium text-success">{t("grading.testDriven.runnerAvailable")}</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      At least one GitLab runner is configured for this classroom. Automatic test-driven
-                      grading using JUnit XML reports is available.
+                      {t("grading.testDriven.runnerAvailableDescription")}
                     </p>
                   </>
                 ) : (
                   <>
-                    <p className="font-medium text-destructive">No Runner Available</p>
+                    <p className="font-medium text-destructive">{t("grading.testDriven.noRunner")}</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      The associated GitLab group does not have a runner configured. Contact your GitLab
-                      administrator to enable CI/CD runners for automated grading.
+                      {t("grading.testDriven.noRunnerDescription")}
                     </p>
                   </>
                 )}
@@ -176,9 +177,8 @@ function Grading() {
             {/* Info box */}
             <div className="mt-4 p-3 rounded-lg bg-muted/30 border border-border/50">
               <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">How it works:</span> Automated tests in
-                your CI/CD pipeline generate JUnit XML reports. These reports are parsed to calculate
-                grades based on test results.
+                <span className="font-medium text-foreground">{t("grading.testDriven.howItWorks")}</span>{" "}
+                {t("grading.testDriven.howItWorksDescription")}
               </p>
             </div>
           </CardContent>
@@ -194,15 +194,15 @@ function Grading() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-semibold font-mono">Manual Grading</h2>
+                <h2 className="text-lg font-semibold font-mono">{t("grading.manual")}</h2>
                 {fields.length > 0 && (
                   <StatusBadge variant="neutral" size="sm">
-                    {fields.length} rubric{fields.length !== 1 ? "s" : ""}
+                    {t("grading.rubricCount", { count: fields.length })}
                   </StatusBadge>
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Configure rubrics for manual assessment
+                {t("grading.manualSettings.subtitle")}
               </p>
             </div>
           </div>
@@ -210,7 +210,7 @@ function Grading() {
           {!editing && (
             <Button variant="outline" size="sm" onClick={() => setEditing(true)} className="shrink-0">
               <Edit2 className="w-4 h-4 mr-2" />
-              Edit Rubrics
+              {t("grading.editRubrics")}
             </Button>
           )}
         </div>
@@ -222,14 +222,14 @@ function Grading() {
               <Card className="border-dashed border-border/50">
                 <CardContent className="p-6 text-center">
                   <BookOpen className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="font-medium mb-1">No Rubrics Defined</h3>
+                  <h3 className="font-medium mb-1">{t("grading.manualSettings.noRubrics")}</h3>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Create rubrics to enable manual grading for assignments
+                    {t("grading.manualSettings.noRubricsDescription")}
                   </p>
                   {!editing && (
                     <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Your First Rubric
+                      {t("grading.addFirstRubric")}
                     </Button>
                   )}
                 </CardContent>
@@ -252,7 +252,7 @@ function Grading() {
             {/* Total Score Summary */}
             {fields.length > 0 && (
               <div className="mt-4 p-3 rounded-lg bg-muted/30 border border-border/50 flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total Maximum Score</span>
+                <span className="text-sm text-muted-foreground">{t("grading.manualSettings.totalMaxScore")}</span>
                 <span className="font-mono font-semibold text-lg">{totalMaxScore}</span>
               </div>
             )}
@@ -268,19 +268,19 @@ function Grading() {
                   disabled={disabled}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Rubric
+                  {t("grading.addRubric")}
                 </Button>
 
                 <div className="flex items-center gap-2">
                   <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={isPending}>
                     <X className="w-4 h-4 mr-2" />
-                    Cancel
+                    {tc("actions.cancel")}
                   </Button>
                   <Button type="submit" variant="glow" size="sm" disabled={isPending}>
                     {isPending ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     ) : null}
-                    Save Changes
+                    {tc("actions.save")}
                   </Button>
                 </div>
               </div>
@@ -290,7 +290,7 @@ function Grading() {
           {error && (
             <Alert variant="destructive" className="mt-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
+              <AlertTitle>{tc("status.error")}</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           )}
@@ -301,6 +301,8 @@ function Grading() {
 }
 
 function RunnerStatusIndicator({ available }: { available: boolean }) {
+  const { t } = useTranslation("assignment");
+
   return (
     <Tooltip delayDuration={0}>
       <TooltipTrigger asChild>
@@ -320,12 +322,12 @@ function RunnerStatusIndicator({ available }: { available: boolean }) {
             />
           </span>
           <StatusBadge variant={available ? "success" : "destructive"} size="sm">
-            {available ? "Online" : "Offline"}
+            {available ? t("grading.testDriven.online") : t("grading.testDriven.offline")}
           </StatusBadge>
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        {available ? "Test-driven grading is available" : "No CI/CD runner available"}
+        {available ? t("grading.testDriven.available") : t("grading.testDriven.unavailable")}
       </TooltipContent>
     </Tooltip>
   );
@@ -344,6 +346,7 @@ function RubricCard({
   onRemove: () => void;
   editing: boolean;
 }) {
+  const { t } = useTranslation("assignment");
   const rubricName = form.watch(`gradingManualRubrics.${index}.name`);
   const rubricScore = form.watch(`gradingManualRubrics.${index}.maxScore`);
 
@@ -379,10 +382,10 @@ function RubricCard({
                   name={`gradingManualRubrics.${index}.name`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-muted-foreground">Name</FormLabel>
+                      <FormLabel className="text-xs text-muted-foreground">{t("grading.manualSettings.rubricNameLabel")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Rubric name"
+                          placeholder={t("grading.manualSettings.rubricName")}
                           disabled={disabled}
                           {...field}
                           className="bg-background"
@@ -399,10 +402,10 @@ function RubricCard({
                   name={`gradingManualRubrics.${index}.description`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-muted-foreground">Description</FormLabel>
+                      <FormLabel className="text-xs text-muted-foreground">{t("grading.manualSettings.rubricDescriptionLabel")}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Brief description"
+                          placeholder={t("grading.manualSettings.rubricDescriptionPlaceholder")}
                           disabled={disabled}
                           {...field}
                           className="bg-background"
@@ -419,7 +422,7 @@ function RubricCard({
                   name={`gradingManualRubrics.${index}.maxScore`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-muted-foreground">Max Score</FormLabel>
+                      <FormLabel className="text-xs text-muted-foreground">{t("grading.manualSettings.maxScoreLabel")}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -444,14 +447,14 @@ function RubricCard({
             ) : (
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium">{rubricName || "Unnamed Rubric"}</h4>
+                  <h4 className="font-medium">{rubricName || t("grading.manualSettings.unnamedRubric")}</h4>
                   <p className="text-sm text-muted-foreground">
-                    {form.watch(`gradingManualRubrics.${index}.description`) || "No description"}
+                    {form.watch(`gradingManualRubrics.${index}.description`) || t("grading.manualSettings.noDescription")}
                   </p>
                 </div>
                 <div className="text-right">
                   <span className="font-mono text-lg font-semibold">{rubricScore}</span>
-                  <p className="text-xs text-muted-foreground">points</p>
+                  <p className="text-xs text-muted-foreground">{t("grading.points")}</p>
                 </div>
               </div>
             )}

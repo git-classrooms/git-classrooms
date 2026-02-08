@@ -20,6 +20,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -60,6 +61,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
 });
 
 function JoinTeam() {
+  const { t } = useTranslation("team");
+  const { t: tc } = useTranslation("classroom");
   const navigate = Route.useNavigate();
   const { classroomId } = Route.useParams();
   const { data: joinedClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
@@ -95,7 +98,7 @@ function JoinTeam() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{tc("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -108,7 +111,7 @@ function JoinTeam() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Join Team</BreadcrumbPage>
+            <BreadcrumbPage>{t("join.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -122,7 +125,7 @@ function JoinTeam() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Join a Team</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("join.pageTitle")}</h1>
             <p className="text-muted-foreground mt-1">{joinedClassroom.classroom.name}</p>
           </div>
         </div>
@@ -131,7 +134,7 @@ function JoinTeam() {
             <DialogTrigger asChild>
               <Button variant="glow">
                 <Plus className="w-4 h-4 mr-2" />
-                Create Team
+                {t("create.button")}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -155,10 +158,9 @@ function JoinTeam() {
       {noTeamsAvailable && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No teams available</AlertTitle>
+          <AlertTitle>{t("join.noTeamsAvailable")}</AlertTitle>
           <AlertDescription>
-            There are currently no teams you can join. Please contact the classroom owner to add more teams or increase
-            the team size.
+            {t("join.noTeamsAvailableDescription")}
           </AlertDescription>
         </Alert>
       )}
@@ -171,11 +173,11 @@ function JoinTeam() {
               <Users2 className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle>Available Teams</CardTitle>
+              <CardTitle>{t("join.availableTeams")}</CardTitle>
               <CardDescription>
                 {joinedClassroom.classroom.createTeams
-                  ? "Choose an existing team or create your own"
-                  : "Select a team to join"}
+                  ? t("join.availableTeamsSubtitle")
+                  : t("join.availableTeamsSubtitleNoCreate")}
               </CardDescription>
             </div>
           </div>
@@ -184,16 +186,16 @@ function JoinTeam() {
           {teams.length === 0 ? (
             <div className="border border-dashed border-border rounded-lg p-12 text-center">
               <Users2 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-              <h3 className="font-medium text-foreground mb-1">No teams yet</h3>
+              <h3 className="font-medium text-foreground mb-1">{t("list.empty.title")}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                {canCreateTeam ? "Be the first to create a team!" : "No teams have been created yet"}
+                {canCreateTeam ? t("join.beFirst") : t("join.noneCreated")}
               </p>
               {canCreateTeam && (
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <Plus className="w-4 h-4 mr-2" />
-                      Create Team
+                      {t("create.button")}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>

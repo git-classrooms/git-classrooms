@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "./i18n";
 
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";

@@ -14,11 +14,10 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ErrorConfig {
   icon: React.ElementType;
-  title: string;
-  description: string;
   iconColor: string;
   iconBg: string;
   accentColor: string;
@@ -27,64 +26,48 @@ interface ErrorConfig {
 const errorConfigs: Record<number, ErrorConfig> = {
   400: {
     icon: AlertTriangle,
-    title: "Bad Request",
-    description: "The server couldn't understand your request. Please check your input and try again.",
     iconColor: "text-warning",
     iconBg: "from-warning/20 to-warning/5",
     accentColor: "warning",
   },
   401: {
     icon: Lock,
-    title: "Unauthorized",
-    description: "You need to sign in to access this resource. Please authenticate and try again.",
     iconColor: "text-warning",
     iconBg: "from-warning/20 to-warning/5",
     accentColor: "warning",
   },
   403: {
     icon: ShieldX,
-    title: "Access Denied",
-    description: "You don't have permission to access this resource. Contact your administrator if you believe this is an error.",
     iconColor: "text-destructive",
     iconBg: "from-destructive/20 to-destructive/5",
     accentColor: "destructive",
   },
   404: {
     icon: Ban,
-    title: "Not Found",
-    description: "The page you're looking for doesn't exist or has been moved.",
     iconColor: "text-muted-foreground",
     iconBg: "from-muted/50 to-muted/20",
     accentColor: "muted",
   },
   408: {
     icon: WifiOff,
-    title: "Request Timeout",
-    description: "The server took too long to respond. Please check your connection and try again.",
     iconColor: "text-warning",
     iconBg: "from-warning/20 to-warning/5",
     accentColor: "warning",
   },
   500: {
     icon: ServerCrash,
-    title: "Server Error",
-    description: "Something went wrong on our end. Our team has been notified and is working on it.",
     iconColor: "text-destructive",
     iconBg: "from-destructive/20 to-destructive/5",
     accentColor: "destructive",
   },
   502: {
     icon: Wifi,
-    title: "Bad Gateway",
-    description: "We're having trouble connecting to our servers. Please try again in a moment.",
     iconColor: "text-destructive",
     iconBg: "from-destructive/20 to-destructive/5",
     accentColor: "destructive",
   },
   503: {
     icon: ServerCrash,
-    title: "Service Unavailable",
-    description: "The service is temporarily unavailable. We're working to restore it as quickly as possible.",
     iconColor: "text-warning",
     iconBg: "from-warning/20 to-warning/5",
     accentColor: "warning",
@@ -93,8 +76,6 @@ const errorConfigs: Record<number, ErrorConfig> = {
 
 const defaultConfig: ErrorConfig = {
   icon: AlertTriangle,
-  title: "Something Went Wrong",
-  description: "An unexpected error occurred. Please try again or contact support if the problem persists.",
   iconColor: "text-destructive",
   iconBg: "from-destructive/20 to-destructive/5",
   accentColor: "destructive",
@@ -146,13 +127,19 @@ export function ErrorPage({
   showRetry = true,
   onRetry,
 }: ErrorPageProps) {
+  const { t } = useTranslation("errors");
   const router = useRouter();
 
   const statusCode = extractStatusCode(error, status);
   const config = errorConfigs[statusCode] ?? defaultConfig;
 
-  const displayTitle = title ?? config.title;
-  const displayDescription = description ?? error?.message ?? config.description;
+  const errorKey = statusCode in errorConfigs ? statusCode.toString() : "default";
+  const titleKey = `http.${errorKey}.title` as const;
+  const descriptionKey = `http.${errorKey}.description` as const;
+  // @ts-expect-error - Dynamic key lookup for error codes
+  const displayTitle = title ?? t(titleKey);
+  // @ts-expect-error - Dynamic key lookup for error codes
+  const displayDescription = description ?? error?.message ?? t(descriptionKey);
 
   const Icon = config.icon;
 
@@ -236,7 +223,7 @@ export function ErrorPage({
                 className="gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Go Back
+                {t("actions.goBack")}
               </Button>
 
               {showRetry && onRetry && (
@@ -246,14 +233,14 @@ export function ErrorPage({
                   className="gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
-                  Try Again
+                  {t("actions.tryAgain")}
                 </Button>
               )}
 
               <Button variant="glow" asChild className="gap-2">
                 <Link to="/dashboard">
                   <Home className="w-4 h-4" />
-                  Dashboard
+                  {t("actions.dashboard")}
                 </Link>
               </Button>
             </div>
@@ -264,7 +251,7 @@ export function ErrorPage({
         {error && process.env.NODE_ENV === "development" && (
           <details className="mt-6 text-xs">
             <summary className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
-              Technical Details
+              {t("technical.details")}
             </summary>
             <pre className="mt-2 p-4 rounded-lg bg-muted/50 border border-border/50 overflow-auto text-muted-foreground font-mono">
               {error.stack ?? error.message}

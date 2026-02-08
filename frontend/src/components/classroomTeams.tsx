@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Avatar } from "./avatar";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function TeamListCard({
   teams,
@@ -46,6 +47,7 @@ export function TeamListCard({
   deactivateInteraction: boolean;
   teamsReportUrls: Map<string, string>;
 }) {
+  const { t } = useTranslation("team");
   const teamSlots = teams.length * maxTeamSize;
   const [open, setOpen] = useState(false);
 
@@ -60,9 +62,9 @@ export function TeamListCard({
             <Users2 className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold">Teams</h3>
+            <h3 className="font-semibold">{t("title")}</h3>
             <p className="text-sm text-muted-foreground">
-              {teams.length} team{teams.length !== 1 ? "s" : ""} · {maxTeamSize} max members each
+              {t("list.count", { count: teams.length })} · {t("list.maxMembersEach", { count: maxTeamSize })}
             </p>
           </div>
         </div>
@@ -72,7 +74,7 @@ export function TeamListCard({
             <DialogTrigger asChild>
               <Button variant="glow" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
-                Create Team
+                {t("create.button")}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -86,10 +88,10 @@ export function TeamListCard({
       {hasWarning && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Not enough team spots</AlertTitle>
+          <AlertTitle>{t("list.warning.title")}</AlertTitle>
           <AlertDescription>
-            {teamSlots} spots available but {numInvitedMembers} students need teams.
-            {!studentsCanCreateTeams && " Students cannot create teams themselves."}
+            {t("list.warning.description", { spots: teamSlots, students: numInvitedMembers })}
+            {!studentsCanCreateTeams && ` ${t("list.warning.cannotCreate")}`}
           </AlertDescription>
         </Alert>
       )}
@@ -117,12 +119,14 @@ export function TeamListCard({
 }
 
 function EmptyTeamsState({ canCreate }: { canCreate: boolean }) {
+  const { t } = useTranslation("team");
+
   return (
     <div className="border border-dashed border-border rounded-lg p-8 text-center">
       <Users2 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-      <h3 className="font-medium text-foreground mb-1">No teams yet</h3>
+      <h3 className="font-medium text-foreground mb-1">{t("list.empty.title")}</h3>
       <p className="text-sm text-muted-foreground">
-        {canCreate ? "Create a team to get started" : "No teams have been created yet"}
+        {canCreate ? t("list.empty.canCreate") : t("list.empty.cannotCreate")}
       </p>
     </div>
   );
@@ -143,6 +147,7 @@ function TeamCard({
   teamsReportUrls: Map<string, string>;
   deactivateInteraction: boolean;
 }) {
+  const { t } = useTranslation("team");
   const reportUrl = teamsReportUrls.get(team.id)!;
   const memberCount = team.members.length;
   const isFull = memberCount >= maxTeamSize;
@@ -183,11 +188,11 @@ function TeamCard({
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground italic">No members yet</p>
+            <p className="text-sm text-muted-foreground italic">{t("members.empty")}</p>
           )}
           {team.members.length > 3 && (
             <p className="text-xs text-muted-foreground">
-              +{team.members.length - 3} more
+              {t("list.more", { count: team.members.length - 3 })}
             </p>
           )}
         </div>
@@ -240,6 +245,8 @@ function TeamAvatar({ name }: { name: string }) {
 }
 
 function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: TeamResponse }) {
+  const { t } = useTranslation("team");
+  const { t: tc } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const { mutateAsync, isError, isPending } = useUpdateTeam(classroomId, team.id);
 
@@ -255,7 +262,7 @@ function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: Te
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     try {
       await mutateAsync(values);
-      toast.success("Team updated successfully!");
+      toast.success(t("create.success"));
       setOpen(false);
       form.reset({ name: values.name });
     } catch {
@@ -280,8 +287,8 @@ function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: Te
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Team</DialogTitle>
-          <DialogDescription>Change the name of the team</DialogDescription>
+          <DialogTitle>{tc("actions.edit")} {t("team")}</DialogTitle>
+          <DialogDescription>{t("form.name")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -290,9 +297,9 @@ function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: Te
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team Name</FormLabel>
+                  <FormLabel>{t("form.name")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter team name" {...field} />
+                    <Input placeholder={t("form.namePlaceholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -300,19 +307,19 @@ function ChangeTeamDialog({ classroomId, team }: { classroomId: string; team: Te
             />
             <div className="flex gap-2 justify-end">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {tc("actions.cancel")}
               </Button>
               <Button type="submit" disabled={isPending}>
                 {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Save Changes
+                {tc("actions.saveChanges")}
               </Button>
             </div>
 
             {isError && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>The team could not be updated!</AlertDescription>
+                <AlertTitle>{tc("status.error")}</AlertTitle>
+                <AlertDescription>{t("errors.createFailed")}</AlertDescription>
               </Alert>
             )}
           </form>
@@ -373,6 +380,7 @@ function TeamSelectCard({
   isPending?: boolean;
   onSelect?: (teamId: string) => void;
 }) {
+  const { t } = useTranslation("team");
   const isFull = team.members.length >= maxTeamSize;
 
   return (
@@ -392,13 +400,13 @@ function TeamSelectCard({
             <div>
               <h4 className="font-semibold">{team.name}</h4>
               <StatusBadge variant={isFull ? "warning" : "success"} size="sm">
-                {team.members.length}/{maxTeamSize} members
+                {team.members.length}/{maxTeamSize} {t("members.count", { count: team.members.length })}
               </StatusBadge>
             </div>
           </div>
           {!isFull && (
             <Button variant="ghost" size="sm" disabled={isPending}>
-              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Join"}
+              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t("join.button")}
             </Button>
           )}
         </div>

@@ -28,6 +28,7 @@ import { TimePicker } from "@/components/ui/timer-picker";
 import { addSeconds } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/")({
   component: Index,
@@ -53,6 +54,8 @@ function checkNewAssignmentNameValid(assignment: Assignment, assignments: Assign
 }
 
 function Index() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId, assignmentId } = Route.useParams();
 
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
@@ -78,7 +81,7 @@ function Index() {
       description: values.description ? values.description : "",
       dueDate: values.dueDate?.toISOString(),
     });
-    toast.success("Assignment updated successfully");
+    toast.success(t("settings.edit.success"));
   }
 
   return (
@@ -89,8 +92,8 @@ function Index() {
           <Pencil className="w-5 h-5 text-[hsl(142,71%,45%)]" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold font-mono">Edit Assignment</h2>
-          <p className="text-sm text-muted-foreground">Update assignment details</p>
+          <h2 className="text-lg font-semibold font-mono">{t("settings.edit.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("settings.edit.subtitle")}</p>
         </div>
       </div>
 
@@ -99,7 +102,7 @@ function Index() {
         <Alert className="border-warning/50 bg-warning/5">
           <AlertTriangle className="h-4 w-4 text-warning" />
           <AlertDescription className="text-warning">
-            Name and description are locked because at least one team has accepted this assignment.
+            {t("settings.lockedWarning")}
           </AlertDescription>
         </Alert>
       )}
@@ -117,12 +120,12 @@ function Index() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      Name
+                      {t("settings.edit.nameLabel")}
                       {isAccepted && <Lock className="w-3 h-3" />}
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Programming Assignment"
+                        placeholder={t("settings.edit.namePlaceholder")}
                         {...field}
                         onBlur={async (e) => {
                           field.onBlur();
@@ -131,7 +134,7 @@ function Index() {
                           } else {
                             form.setError("name", {
                               type: "manual",
-                              message: "This name is already taken.",
+                              message: t("settings.edit.nameTaken"),
                             });
                           }
                         }}
@@ -139,7 +142,7 @@ function Index() {
                       />
                     </FormControl>
                     <FormDescription className="text-xs">
-                      The display name of this assignment
+                      {t("settings.edit.nameDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -154,18 +157,18 @@ function Index() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                      Description
+                      {t("settings.edit.descriptionLabel")}
                       {isAccepted && <Lock className="w-3 h-3" />}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe what students need to accomplish..."
+                        placeholder={t("settings.edit.descriptionPlaceholder")}
                         className={cn("resize-none bg-background min-h-[100px]", isAccepted && "opacity-60")}
                         {...field}
                       />
                     </FormControl>
                     <FormDescription className="text-xs">
-                      A brief description of the assignment's objectives
+                      {t("settings.edit.descriptionDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -179,7 +182,7 @@ function Index() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide">
-                      Due Date
+                      {t("settings.edit.dueDateLabel")}
                     </FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
@@ -193,7 +196,7 @@ function Index() {
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? formatDateWithTime(field.value) : <span>Pick a date</span>}
+                              {field.value ? formatDateWithTime(field.value) : <span>{t("settings.edit.pickDate")}</span>}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -227,7 +230,7 @@ function Index() {
                       </div>
                     </FormControl>
                     <FormDescription className="text-xs">
-                      Optional deadline for this assignment
+                      {t("settings.edit.dueDateDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -237,7 +240,7 @@ function Index() {
               {/* Submit Button */}
               <div className="flex items-center justify-between pt-4 border-t border-border/50">
                 <p className="text-xs text-muted-foreground">
-                  Changes are saved immediately
+                  {t("settings.edit.saveNote")}
                 </p>
                 <Button
                   type="submit"
@@ -246,14 +249,14 @@ function Index() {
                   disabled={isPending || !form.formState.isDirty}
                 >
                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Changes
+                  {tc("actions.save")}
                 </Button>
               </div>
 
               {isError && (
                 <Alert variant="destructive">
                   <AlertDescription>
-                    An error occurred while saving. Please try again.
+                    {t("settings.edit.saveError")}
                   </AlertDescription>
                 </Alert>
               )}

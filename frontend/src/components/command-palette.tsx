@@ -16,12 +16,14 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { classroomsQueryOptions } from "@/api/classroom";
+import { useTranslation } from "react-i18next";
 
 interface CommandPaletteProps {
   isAuthenticated: boolean;
 }
 
 export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -52,19 +54,19 @@ export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput placeholder={t("commandPalette.placeholder")} />
       <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+        <CommandEmpty>{t("commandPalette.noResults")}</CommandEmpty>
 
-        <CommandGroup heading="Navigation">
+        <CommandGroup heading={t("commandPalette.navigation")}>
           <CommandItem onSelect={() => runCommand(() => navigate({ to: "/" }))}>
             <Home className="mr-2 h-4 w-4" />
-            <span>Home</span>
+            <span>{t("commandPalette.home")}</span>
           </CommandItem>
           {isAuthenticated && (
             <CommandItem onSelect={() => runCommand(() => navigate({ to: "/classrooms" }))}>
               <GraduationCap className="mr-2 h-4 w-4" />
-              <span>All Classrooms</span>
+              <span>{t("commandPalette.allClassrooms")}</span>
               <CommandShortcut>⌘C</CommandShortcut>
             </CommandItem>
           )}
@@ -73,7 +75,7 @@ export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
         {isAuthenticated && classrooms && classrooms.length > 0 && (
           <>
             <CommandSeparator />
-            <CommandGroup heading="Recent Classrooms">
+            <CommandGroup heading={t("commandPalette.recentClassrooms")}>
               {classrooms.slice(0, 5).map((classroom) => (
                 <CommandItem
                   key={classroom.classroom.id}
@@ -94,7 +96,7 @@ export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
             </CommandGroup>
 
             <CommandSeparator />
-            <CommandGroup heading="Quick Actions">
+            <CommandGroup heading={t("commandPalette.quickActions")}>
               <CommandItem
                 onSelect={() =>
                   runCommand(() =>
@@ -105,7 +107,7 @@ export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
                 }
               >
                 <GraduationCap className="mr-2 h-4 w-4" />
-                <span>Create New Classroom</span>
+                <span>{t("commandPalette.createClassroom")}</span>
               </CommandItem>
               {classrooms.slice(0, 3).map((classroom) => (
                 <React.Fragment key={`actions-${classroom.classroom.id}`}>
@@ -120,7 +122,7 @@ export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
                     }
                   >
                     <Users className="mr-2 h-4 w-4" />
-                    <span>Members of {classroom.classroom.name}</span>
+                    <span>{t("commandPalette.membersOf", { name: classroom.classroom.name })}</span>
                   </CommandItem>
                   <CommandItem
                     onSelect={() =>
@@ -133,7 +135,7 @@ export function CommandPalette({ isAuthenticated }: CommandPaletteProps) {
                     }
                   >
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings of {classroom.classroom.name}</span>
+                    <span>{t("commandPalette.settingsOf", { name: classroom.classroom.name })}</span>
                   </CommandItem>
                 </React.Fragment>
               ))}

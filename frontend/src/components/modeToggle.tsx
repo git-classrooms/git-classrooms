@@ -1,8 +1,10 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/provider/themeProvider";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function ModeToggle() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
 
@@ -19,7 +21,7 @@ export function ModeToggle() {
         "transition-all duration-200",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       )}
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={isDark ? t("theme.switchToLight") : t("theme.switchToDark")}
     >
       <Sun
         className={cn(

@@ -9,6 +9,7 @@ import { assignmentsQueryOptions } from "@/api/assignment";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function AssignmentListSection({
   classroomId,
@@ -17,6 +18,7 @@ export function AssignmentListSection({
   classroomId: string;
   deactivateInteraction: boolean;
 }) {
+  const { t } = useTranslation("assignment");
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,9 +38,9 @@ export function AssignmentListSection({
             <ClipboardList className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold">Assignments</h3>
+            <h3 className="font-semibold">{t("title")}</h3>
             <p className="text-sm text-muted-foreground">
-              {assignments.length} assignment{assignments.length !== 1 ? "s" : ""} in this classroom
+              {t("list.count", { count: assignments.length })}
             </p>
           </div>
         </div>
@@ -55,7 +57,7 @@ export function AssignmentListSection({
               ) : (
                 <Plus className="w-4 h-4 mr-2" />
               )}
-              Create Assignment
+              {t("create.button")}
             </Link>
           </Button>
         )}
@@ -86,18 +88,20 @@ function EmptyAssignmentsState({
   canCreate: boolean;
   classroomId: string;
 }) {
+  const { t } = useTranslation("assignment");
+
   return (
     <div className="border border-dashed border-border rounded-lg p-8 text-center">
       <ClipboardList className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-      <h3 className="font-medium text-foreground mb-1">No assignments yet</h3>
+      <h3 className="font-medium text-foreground mb-1">{t("list.empty.title")}</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        {canCreate ? "Create your first assignment to get started" : "No assignments have been created yet"}
+        {canCreate ? t("list.empty.canCreate") : t("list.empty.cannotCreate")}
       </p>
       {canCreate && (
         <Button variant="outline" asChild>
           <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
             <Plus className="w-4 h-4 mr-2" />
-            Create Assignment
+            {t("create.button")}
           </Link>
         </Button>
       )}
@@ -112,6 +116,8 @@ function AssignmentCard({
   assignment: Assignment;
   classroomId: string;
 }) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const daysUntil = getDaysUntilDue(assignment.dueDate);
   const isOverdue = daysUntil !== null && daysUntil < 0;
   const isUrgent = daysUntil !== null && daysUntil >= 0 && daysUntil <= 3;
@@ -124,10 +130,10 @@ function AssignmentCard({
   };
 
   const getStatusLabel = () => {
-    if (assignment.closed) return "Closed";
-    if (isOverdue) return "Overdue";
-    if (isUrgent) return "Due Soon";
-    return "Open";
+    if (assignment.closed) return t("status.closed");
+    if (isOverdue) return t("status.overdue");
+    if (isUrgent) return t("status.dueSoon");
+    return t("status.open");
   };
 
   return (
@@ -158,7 +164,7 @@ function AssignmentCard({
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
-                  Created {formatRelativeTime(assignment.createdAt)}
+                  {tc("time.createdAt")} {formatRelativeTime(assignment.createdAt)}
                 </span>
               </div>
             </div>
@@ -184,14 +190,14 @@ function AssignmentCard({
                 isUrgent && !isOverdue && "text-warning"
               )}
             >
-              <span className="text-xs uppercase tracking-wide font-medium">Due Date</span>
+              <span className="text-xs uppercase tracking-wide font-medium">{t("dueDate.label")}</span>
               <span className="text-sm font-mono">
                 {daysUntil === 0
-                  ? "Today"
+                  ? t("dueDate.today")
                   : daysUntil === 1
-                    ? "Tomorrow"
+                    ? t("dueDate.tomorrow")
                     : isOverdue
-                      ? `${Math.abs(daysUntil)} days ago`
+                      ? t("dueDate.daysAgo", { count: Math.abs(daysUntil) })
                       : formatDate(assignment.dueDate)}
               </span>
             </div>

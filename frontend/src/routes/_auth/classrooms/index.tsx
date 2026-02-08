@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClassroomCardGrid } from "@/components/classroom-card";
 import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/_auth/classrooms/")({
 });
 
 function Classrooms() {
+  const { t } = useTranslation("classroom");
   const { view } = Route.useSearch();
   const navigate = useNavigate();
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
@@ -73,15 +75,15 @@ function Classrooms() {
       <section>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Classrooms</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Manage and access all your classrooms
+              {t("list.subtitle")}
             </p>
           </div>
           <Button variant="glow" asChild>
             <Link to="/classrooms/create">
               <Plus className="w-4 h-4 mr-2" />
-              Create Classroom
+              {t("create.button")}
             </Link>
           </Button>
         </div>
@@ -92,7 +94,7 @@ function Classrooms() {
         <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
           <TabsList>
             <TabsTrigger value="managed">
-              Managed
+              {t("list.managed")}
               {totalManaged > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 text-xs bg-muted rounded-md font-mono">
                   {totalManaged}
@@ -100,7 +102,7 @@ function Classrooms() {
               )}
             </TabsTrigger>
             <TabsTrigger value="joined">
-              Joined
+              {t("list.joined")}
               {totalJoined > 0 && (
                 <span className="ml-2 px-1.5 py-0.5 text-xs bg-muted rounded-md font-mono">
                   {totalJoined}
@@ -111,11 +113,7 @@ function Classrooms() {
 
           <TabsContent value="managed">
             {ownedClassrooms.length === 0 ? (
-              <EmptyState
-                title="No managed classrooms"
-                description="Create your first classroom to get started teaching"
-                showCreate
-              />
+              <EmptyState showCreate />
             ) : (
               <ClassroomCardGrid classrooms={ownedClassrooms} role="owner" />
             )}
@@ -123,16 +121,13 @@ function Classrooms() {
 
           <TabsContent value="joined">
             {joinedClassrooms.length === 0 ? (
-              <EmptyState
-                title="No joined classrooms"
-                description="Join a classroom using an invite link from your instructor"
-              />
+              <EmptyState isJoined />
             ) : (
               <div className="space-y-8">
                 {moderatorClassrooms.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
-                      Moderating ({moderatorClassrooms.length})
+                      {t("list.moderating")} ({moderatorClassrooms.length})
                     </h3>
                     <ClassroomCardGrid classrooms={moderatorClassrooms} role="moderator" />
                   </div>
@@ -140,7 +135,7 @@ function Classrooms() {
                 {studentClassrooms.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
-                      As Student ({studentClassrooms.length})
+                      {t("list.asStudent")} ({studentClassrooms.length})
                     </h3>
                     <ClassroomCardGrid classrooms={studentClassrooms} role="student" />
                   </div>
@@ -157,14 +152,17 @@ function Classrooms() {
 }
 
 function EmptyState({
-  title,
-  description,
   showCreate = false,
+  isJoined = false,
 }: {
-  title: string;
-  description: string;
   showCreate?: boolean;
+  isJoined?: boolean;
 }) {
+  const { t } = useTranslation("classroom");
+
+  const title = isJoined ? t("list.empty.joinedTitle") : t("list.empty.ownedTitle");
+  const description = isJoined ? t("list.empty.joinedDescription") : t("list.empty.ownedDescription");
+
   return (
     <div className="border border-dashed border-border rounded-lg p-12 text-center">
       <h3 className="font-medium text-foreground mb-2">{title}</h3>
@@ -173,7 +171,7 @@ function EmptyState({
         <Button variant="outline" asChild>
           <Link to="/classrooms/create">
             <Plus className="w-4 h-4 mr-2" />
-            Create Classroom
+            {t("create.button")}
           </Link>
         </Button>
       )}

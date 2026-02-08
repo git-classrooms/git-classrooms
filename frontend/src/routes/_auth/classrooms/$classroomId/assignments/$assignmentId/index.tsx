@@ -22,7 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
-import { cn, createCloneScript, formatDate, formatDateWithTime, getDaysUntilDue, isModerator, isOwner } from "@/lib/utils.ts";
+import { cn, createCloneScript, formatDate, formatDateWithTime, formatRelativeTime, getDaysUntilDue, getDateLocale, isModerator, isOwner } from "@/lib/utils.ts";
 import { assignmentCloneUrlsQueryOptions, assignmentQueryOptions } from "@/api/assignment";
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
 import { Assignment, ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
@@ -50,6 +50,7 @@ import { toast } from "sonner";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ApiProjectCloneUrlResponse } from "@/swagger-client";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/")({
   loader: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -81,6 +82,9 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 });
 
 function AssignmentDetail() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("classroom");
+  const { t: tco } = useTranslation("common");
   const { classroomId, assignmentId } = Route.useParams();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
@@ -107,7 +111,7 @@ function AssignmentDetail() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link to="/classrooms">Classrooms</Link>
+              <Link to="/classrooms">{tc("title")}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -143,12 +147,12 @@ function AssignmentDetail() {
                 size="sm"
                 showDot
               >
-                {assignment.closed ? "Closed" : isOverdue ? "Overdue" : isUrgent ? "Due Soon" : "Open"}
+                {assignment.closed ? t("status.closed") : isOverdue ? t("status.overdue") : isUrgent ? t("status.dueSoon") : t("status.open")}
               </StatusBadge>
             </div>
             <p className="text-muted-foreground">
-              {classroom.classroom.maxTeamSize === 1 ? "Individual assignment" : "Team assignment"} ·{" "}
-              {totalCount} project{totalCount !== 1 ? "s" : ""}
+              {classroom.classroom.maxTeamSize === 1 ? t("detail.individual") : t("detail.team")} ·{" "}
+              {t("projects.count", { count: totalCount })}
             </p>
           </div>
         </div>
@@ -167,7 +171,7 @@ function AssignmentDetail() {
                 params={{ classroomId, assignmentId }}
               >
                 <Scale className="w-4 h-4 mr-2" />
-                Grading
+                {t("grading.title")}
               </Link>
             </Button>
           )}
@@ -178,7 +182,7 @@ function AssignmentDetail() {
                 params={{ classroomId, assignmentId }}
               >
                 <Settings className="w-4 h-4 mr-2" />
-                Settings
+                {t("settings.title")}
               </Link>
             </Button>
           )}
@@ -188,10 +192,10 @@ function AssignmentDetail() {
       {/* Collapsible Stats Section */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Overview</h2>
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">{t("detail.overview")}</h2>
           <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => setShowStats(!showStats)}>
             {showStats ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            <span className="ml-1 text-xs">{showStats ? "Hide" : "Show"}</span>
+            <span className="ml-1 text-xs">{showStats ? t("detail.hide") : t("detail.show")}</span>
           </Button>
         </div>
 
@@ -203,10 +207,10 @@ function AssignmentDetail() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Progress</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t("detail.progress")}</p>
                     <p className="text-2xl font-mono font-bold">{progressPercent}%</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {acceptedCount} of {totalCount} accepted
+                      {t("detail.ofTotal", { accepted: acceptedCount, total: totalCount })}
                     </p>
                   </div>
                   <ProgressRing percent={progressPercent} size={56} />
@@ -223,7 +227,7 @@ function AssignmentDetail() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Due Date</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t("dueDate.label")}</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <p className={cn(
@@ -231,7 +235,7 @@ function AssignmentDetail() {
                           isOverdue && "text-destructive",
                           isUrgent && !isOverdue && "text-warning"
                         )}>
-                          {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : "No deadline"}
+                          {assignment.dueDate ? formatDate(new Date(assignment.dueDate)) : t("detail.noDeadline")}
                         </p>
                       </TooltipTrigger>
                       {assignment.dueDate && (
@@ -243,9 +247,9 @@ function AssignmentDetail() {
                         "text-xs mt-1",
                         isOverdue ? "text-destructive" : isUrgent ? "text-warning" : "text-muted-foreground"
                       )}>
-                        {daysUntil === 0 ? "Due today" : daysUntil === 1 ? "Due tomorrow" :
-                         isOverdue ? `${Math.abs(daysUntil!)} days overdue` :
-                         `${daysUntil} days remaining`}
+                        {daysUntil === 0 ? t("detail.dueToday") : daysUntil === 1 ? t("detail.dueTomorrow") :
+                         isOverdue ? t("detail.daysOverdue", { count: Math.abs(daysUntil!) }) :
+                         t("detail.daysRemaining", { count: daysUntil! })}
                       </p>
                     )}
                   </div>
@@ -266,12 +270,12 @@ function AssignmentDetail() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Last Updated</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{t("detail.lastUpdated")}</p>
                     <p className="text-2xl font-mono font-bold">
-                      {assignment.updatedAt ? formatDistanceToNow(new Date(assignment.updatedAt), { addSuffix: false }) : "—"}
+                      {assignment.updatedAt ? formatDistanceToNow(new Date(assignment.updatedAt), { addSuffix: false, locale: getDateLocale() }) : "—"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {assignment.updatedAt ? "ago" : "No activity yet"}
+                      {assignment.updatedAt ? t("detail.ago") : t("detail.noActivity")}
                     </p>
                   </div>
                   <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
@@ -286,7 +290,7 @@ function AssignmentDetail() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Teams</p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">{classroom.classroom.maxTeamSize === 1 ? t("grading.matrix.student") : t("grading.matrix.team")}</p>
                     <div className="flex items-baseline gap-2">
                       <p className="text-2xl font-mono font-bold text-success">{acceptedCount}</p>
                       {pendingCount > 0 && (
@@ -294,7 +298,7 @@ function AssignmentDetail() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {pendingCount > 0 ? `${pendingCount} pending` : "All accepted"}
+                      {pendingCount > 0 ? t("detail.pending", { count: pendingCount }) : t("detail.allAccepted")}
                     </p>
                   </div>
                   <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground">
@@ -309,7 +313,7 @@ function AssignmentDetail() {
           {assignment.description && (
             <Card className="mt-4 border-border/50">
               <CardContent className="p-4">
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Description</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">{t("form.description")}</p>
                 <p className="text-sm leading-relaxed">{assignment.description}</p>
               </CardContent>
             </Card>
@@ -326,11 +330,11 @@ function AssignmentDetail() {
               <GitFork className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold">Projects</h2>
+              <h2 className="font-semibold">{t("projects.title")}</h2>
               <p className="text-sm text-muted-foreground">
                 {classroom.classroom.maxTeamSize === 1
-                  ? "Individual student repositories"
-                  : "Team repositories"}
+                  ? t("detail.individualRepos")
+                  : t("detail.teamRepos")}
               </p>
             </div>
           </div>
@@ -349,7 +353,7 @@ function AssignmentDetail() {
                   ) : (
                     <Send className="w-4 h-4 mr-2" />
                   )}
-                  Send Invites
+                  {t("detail.sendInvites")}
                   {pendingCount > 0 && (
                     <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning/20 text-warning rounded">
                       {pendingCount}
@@ -359,8 +363,8 @@ function AssignmentDetail() {
               </TooltipTrigger>
               <TooltipContent>
                 {pendingCount > 0
-                  ? `Send invitations to ${pendingCount} pending team${pendingCount !== 1 ? "s" : ""}`
-                  : "All teams have accepted"}
+                  ? t("detail.sendInvitesTooltip", { count: pendingCount })
+                  : t("detail.allTeamsAccepted")}
               </TooltipContent>
             </Tooltip>
           )}
@@ -370,9 +374,9 @@ function AssignmentDetail() {
           <Card className="border-dashed border-border/50">
             <CardContent className="p-8 text-center">
               <GitFork className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-medium mb-1">No projects yet</h3>
+              <h3 className="font-medium mb-1">{t("detail.noProjects")}</h3>
               <p className="text-sm text-muted-foreground">
-                Projects will appear here when teams are invited to this assignment
+                {t("detail.noProjectsDescription")}
               </p>
             </CardContent>
           </Card>
@@ -392,8 +396,8 @@ function AssignmentDetail() {
       {isError && (
         <Alert variant="destructive" className="mt-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>The invitation could not be sent. Please try again.</AlertDescription>
+          <AlertTitle>{tco("status.error")}</AlertTitle>
+          <AlertDescription>{t("detail.inviteError")}</AlertDescription>
         </Alert>
       )}
     </div>
@@ -447,20 +451,22 @@ function CloneProjectsPopover({
   cloneUrls: ApiProjectCloneUrlResponse[];
   assignmentProjects: ProjectResponse[];
 }) {
+  const { t } = useTranslation("assignment");
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <FolderGit2 className="w-4 h-4 mr-2" />
-          Clone All
+          {t("detail.cloneAll")}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-72" align="end">
         <div className="space-y-3">
           <div>
-            <h4 className="font-medium text-sm">Clone all projects</h4>
+            <h4 className="font-medium text-sm">{t("detail.cloneAllTitle")}</h4>
             <p className="text-xs text-muted-foreground mt-1">
-              Copy a shell script to clone all {assignmentProjects.length} project{assignmentProjects.length !== 1 ? "s" : ""}
+              {t("detail.cloneAllDescription", { count: assignmentProjects.length })}
             </p>
           </div>
           <div className="grid gap-2">
@@ -473,11 +479,11 @@ function CloneProjectsPopover({
                   navigator.clipboard.writeText(
                     createCloneScript("ssh", assignment, cloneUrls, assignmentProjects),
                   );
-                  toast.success("SSH clone script copied");
+                  toast.success(t("detail.sshCopied"));
                 }}
               >
                 <ClipboardCopy className="w-4 h-4 mr-2" />
-                Copy SSH script
+                {t("detail.copySSH")}
               </Button>
             </PopoverClose>
             <PopoverClose asChild>
@@ -489,11 +495,11 @@ function CloneProjectsPopover({
                   navigator.clipboard.writeText(
                     createCloneScript("https", assignment, cloneUrls, assignmentProjects),
                   );
-                  toast.success("HTTPS clone script copied");
+                  toast.success(t("detail.httpsCopied"));
                 }}
               >
                 <ClipboardCopy className="w-4 h-4 mr-2" />
-                Copy HTTPS script
+                {t("detail.copyHTTPS")}
               </Button>
             </PopoverClose>
           </div>
@@ -510,6 +516,7 @@ function ProjectCard({
   project: ProjectResponse;
   classroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("assignment");
   const { urls } = Route.useLoaderData();
   const reportUrl = urls.get(project.id)!;
 
@@ -517,10 +524,10 @@ function ProjectCard({
   const isPending = project.projectStatus === "pending";
 
   const statusConfig = {
-    accepted: { variant: "success" as const, label: "Accepted" },
-    pending: { variant: "warning" as const, label: "Pending" },
-    creating: { variant: "info" as const, label: "Creating" },
-    failed: { variant: "destructive" as const, label: "Failed" },
+    accepted: { variant: "success" as const, labelKey: "accepted" },
+    pending: { variant: "warning" as const, labelKey: "pending" },
+    creating: { variant: "info" as const, labelKey: "creating" },
+    failed: { variant: "destructive" as const, labelKey: "failed" },
   };
 
   const status = statusConfig[project.projectStatus as keyof typeof statusConfig] || statusConfig.pending;
@@ -540,12 +547,13 @@ function ProjectCard({
             <div className="min-w-0">
               <h3 className="font-semibold truncate">{project.team.name}</h3>
               <p className="text-xs text-muted-foreground">
-                Invited {formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}
+                {t("detail.invited")} {formatRelativeTime(new Date(project.createdAt))}
               </p>
             </div>
           </div>
           <StatusBadge variant={status.variant} size="sm" showDot>
-            {status.label}
+            {/* @ts-expect-error - dynamic key lookup */}
+            {t(`projects.status.${status.labelKey}`)}
           </StatusBadge>
         </div>
 
@@ -556,7 +564,7 @@ function ProjectCard({
               <Button variant="ghost" size="sm" className="h-8 px-2" asChild>
                 <a href={project.webUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-3.5 h-3.5 mr-1" />
-                  Open
+                  {t("detail.open")}
                 </a>
               </Button>
             )}
@@ -572,7 +580,7 @@ function ProjectCard({
               <DropdownMenuItem disabled={!isAccepted} asChild>
                 <a href={project.webUrl} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Open in GitLab
+                  {t("detail.openInGitlab")}
                 </a>
               </DropdownMenuItem>
               {isModerator(classroom) && (
@@ -581,7 +589,7 @@ function ProjectCard({
                   <DropdownMenuItem disabled={!isAccepted} asChild>
                     <a href={reportUrl} target="_blank" rel="noopener noreferrer">
                       <Download className="w-4 h-4 mr-2" />
-                      Download Report
+                      {t("detail.downloadReport")}
                     </a>
                   </DropdownMenuItem>
                 </>

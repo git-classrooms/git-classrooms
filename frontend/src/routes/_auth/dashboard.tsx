@@ -13,6 +13,7 @@ import { useAuth } from "@/api/auth";
 import { PendingAssignmentsBanner } from "@/components/pendingAssignmentsBanner";
 import { projectsQueryOptions } from "@/api/project";
 import { ProjectResponse } from "@/swagger-client";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/dashboard")({
   component: Dashboard,
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/_auth/dashboard")({
 });
 
 function Dashboard() {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
   const { data: auth } = useAuth();
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
@@ -102,18 +105,18 @@ function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              Welcome back, {firstName}
+              {tc("dashboard.welcomeBack", { name: firstName })}
             </h1>
             <p className="text-muted-foreground mt-1">
               {sortedAssignments.length === 0
-                ? "You're all caught up!"
-                : `You have ${sortedAssignments.length} active assignment${sortedAssignments.length !== 1 ? "s" : ""}`}
+                ? tc("dashboard.allCaughtUp")
+                : tc("dashboard.activeAssignments", { count: sortedAssignments.length })}
             </p>
           </div>
           <Button variant="glow" asChild>
             <Link to="/classrooms/create">
               <Plus className="w-4 h-4 mr-2" />
-              Create Classroom
+              {t("create.button")}
             </Link>
           </Button>
         </div>
@@ -136,10 +139,10 @@ function Dashboard() {
       {/* Classrooms Grid */}
       <section className="space-y-6 animate-stagger-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Your Classrooms</h2>
+          <h2 className="text-xl font-semibold">{tc("dashboard.yourClassrooms")}</h2>
           {totalClassrooms > 0 && (
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/classrooms">View all</Link>
+              <Link to="/classrooms">{tc("navigation.viewAll")}</Link>
             </Button>
           )}
         </div>
@@ -153,7 +156,7 @@ function Dashboard() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Managed by you ({ownedClassrooms.length})
+                    {tc("dashboard.managedByYou")} ({ownedClassrooms.length})
                   </h3>
                   {ownedClassrooms.length > 4 && (
                     <Link
@@ -161,7 +164,7 @@ function Dashboard() {
                       search={{ view: "managed" }}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      View all
+                      {tc("navigation.viewAll")}
                     </Link>
                   )}
                 </div>
@@ -177,7 +180,7 @@ function Dashboard() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Moderating ({moderatorClassrooms.length})
+                    {tc("dashboard.moderating")} ({moderatorClassrooms.length})
                   </h3>
                   {moderatorClassrooms.length > 4 && (
                     <Link
@@ -185,7 +188,7 @@ function Dashboard() {
                       search={{ view: "joined" }}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      View all
+                      {tc("navigation.viewAll")}
                     </Link>
                   )}
                 </div>
@@ -201,7 +204,7 @@ function Dashboard() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                    Joined ({studentClassrooms.length})
+                    {tc("dashboard.joined")} ({studentClassrooms.length})
                   </h3>
                   {studentClassrooms.length > 4 && (
                     <Link
@@ -209,7 +212,7 @@ function Dashboard() {
                       search={{ view: "joined" }}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      View all
+                      {tc("navigation.viewAll")}
                     </Link>
                   )}
                 </div>
@@ -229,16 +232,18 @@ function Dashboard() {
 }
 
 function EmptyClassroomsState() {
+  const { t } = useTranslation("classroom");
+
   return (
     <div className="border border-dashed border-border rounded-lg p-12 text-center">
-      <h3 className="font-medium text-foreground mb-2">No classrooms yet</h3>
+      <h3 className="font-medium text-foreground mb-2">{t("list.empty.title")}</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Create your first classroom to get started
+        {t("list.empty.description")}
       </p>
       <Button variant="outline" asChild>
         <Link to="/classrooms/create">
           <Plus className="w-4 h-4 mr-2" />
-          Create Classroom
+          {t("create.button")}
         </Link>
       </Button>
     </div>

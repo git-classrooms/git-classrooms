@@ -1,0 +1,53 @@
+{
+  "http": {
+    "400": {
+      "title": "Bad Request",
+      "description": "The server couldn't understand your request. Please check your input and try again."
+    },
+    "401": {
+      "title": "Unauthorized",
+      "description": "You need to sign in to access this resource. Please authenticate and try again."
+    },
+    "403": {
+      "title": "Access Denied",
+      "description": "You don't have permission to access this resource. Contact your administrator if you believe this is an error."
+    },
+    "404": {
+      "title": "Not Found",
+      "description": "The page you're looking for doesn't exist or has been moved."
+    },
+    "408": {
+      "title": "Request Timeout",
+      "description": "The server took too long to respond. Please check your connection and try again."
+    },
+    "500": {
+      "title": "Server Error",
+      "description": "Something went wrong on our end. Our team has been notified and is working on it."
+    },
+    "502": {
+      "title": "Bad Gateway",
+      "description": "We're having trouble connecting to our servers. Please try again in a moment."
+    },
+    "503": {
+      "title": "Service Unavailable",
+      "description": "The service is temporarily unavailable. We're working to restore it as quickly as possible."
+    },
+    "default": {
+      "title": "Something Went Wrong",
+      "description": "An unexpected error occurred. Please try again or contact support if the problem persists."
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved to a different location.",
+    "hint": "Lost? Try using the navigation menu or search for what you need."
+  },
+  "actions": {
+    "goBack": "Go Back",
+    "tryAgain": "Try Again",
+    "dashboard": "Dashboard"
+  },
+  "technical": {
+    "details": "Technical Details"
+  }
+}

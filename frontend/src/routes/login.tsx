@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -39,23 +40,24 @@ export const Route = createFileRoute("/login")({
   component: Login,
 });
 
-const permissions = [
-  {
-    icon: Mail,
-    label: "Email Address",
-    description: "To identify your account",
-  },
-  {
-    icon: GitBranch,
-    label: "Repository Access",
-    description: "To create and manage your assignments",
-  },
-];
-
 function Login() {
+  const { t } = useTranslation("auth");
   const { csrfToken } = useCsrf();
-  const { redirect } = Route.useSearch();
+  const { redirect: redirectUrl } = Route.useSearch();
   const { data } = useSuspenseQuery(gitlabInfoQueryOptions);
+
+  const permissions = [
+    {
+      icon: Mail,
+      label: t("permissions.email.title"),
+      description: t("permissions.email.description"),
+    },
+    {
+      icon: GitBranch,
+      label: t("permissions.writeRepository.title"),
+      description: t("permissions.writeRepository.description"),
+    },
+  ];
 
   return (
     <div className="min-h-[90vh] flex items-center justify-center px-4">
@@ -66,10 +68,10 @@ function Login() {
             <GraduationCap className="w-10 h-10 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">
-            Welcome to GitClassrooms
+            {t("login.title")}
           </h1>
           <p className="text-muted-foreground">
-            Sign in to manage your assignments and classrooms
+            {t("login.subtitle")}
           </p>
         </div>
 
@@ -88,7 +90,7 @@ function Login() {
                 <img src={GitlabLogo} className="w-7 h-7" alt="GitLab" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">Connect with GitLab</p>
+                <p className="text-sm font-medium">{t("login.button")}</p>
                 <a
                   href={data.gitlabUrl}
                   target="_blank"
@@ -106,7 +108,7 @@ function Login() {
               <div className="flex items-center gap-2 mb-3">
                 <Shield className="w-4 h-4 text-muted-foreground" />
                 <p className="text-sm font-medium text-muted-foreground">
-                  Required permissions
+                  {t("permissions.title")}
                 </p>
               </div>
               <div className="space-y-2">
@@ -136,7 +138,7 @@ function Login() {
 
             {/* Login Button */}
             <form method="POST" action="/api/v1/auth/sign-in" className="space-y-4">
-              <input type="hidden" name="redirect" value={redirect} />
+              <input type="hidden" name="redirect" value={redirectUrl} />
               <input type="hidden" name="csrf_token" value={csrfToken} />
               <Button
                 type="submit"
@@ -145,7 +147,7 @@ function Login() {
                 className="w-full gap-2 font-semibold group"
               >
                 <img src={GitlabLogo} className="w-5 h-5" alt="" />
-                Continue with GitLab
+                {t("login.button")}
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </form>
@@ -154,7 +156,7 @@ function Login() {
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
               <Lock className="w-3.5 h-3.5 mt-0.5 shrink-0" />
               <p>
-                Your credentials are handled securely by GitLab. We never store your password.
+                {t("login.securityNote")}
               </p>
             </div>
           </CardContent>
@@ -162,7 +164,7 @@ function Login() {
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-6">
-          By signing in, you agree to our terms of service and privacy policy
+          {t("login.termsNote")}
         </p>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { ActiveAssignmentResponse } from "@/swagger-client";
 import { formatDate, formatRelativeTime, getDaysUntilDue } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type UrgencyLevel = "high" | "medium" | "none";
 
@@ -37,11 +38,13 @@ export function ActiveAssignmentListCard({
 }: {
   activeAssignments: ActiveAssignmentResponse[];
 }) {
+  const { t: tc } = useTranslation("common");
+
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>Active Assignments</CardTitle>
-        <CardDescription>Assignments that need your attention</CardDescription>
+        <CardTitle>{tc("dashboard.activeAssignmentsTitle")}</CardTitle>
+        <CardDescription>{tc("dashboard.activeAssignmentsSubtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         {activeAssignments.length === 0 ? (
@@ -59,13 +62,15 @@ export function ActiveAssignmentListCard({
 }
 
 function EmptyState() {
+  const { t: tc } = useTranslation("common");
+
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
       <div className="w-12 h-12 rounded-full bg-success/15 flex items-center justify-center mb-3">
         <CheckCircle2 className="w-6 h-6 text-success" />
       </div>
-      <p className="font-medium text-foreground">All caught up!</p>
-      <p className="text-sm text-muted-foreground">No active assignments</p>
+      <p className="font-medium text-foreground">{tc("dashboard.allCaughtUp")}</p>
+      <p className="text-sm text-muted-foreground">{tc("dashboard.noActiveAssignments")}</p>
     </div>
   );
 }
@@ -77,6 +82,8 @@ function AssignmentHoverContent({
   assignment: ActiveAssignmentResponse;
   urgency: UrgencyLevel;
 }) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const daysUntil = getDaysUntilDue(assignment.dueDate);
 
   return (
@@ -126,7 +133,7 @@ function AssignmentHoverContent({
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <Calendar className="w-3.5 h-3.5" />
-            <span>Created {formatDate(assignment.createdAt)}</span>
+            <span>{tc("time.createdAt")} {formatDate(assignment.createdAt)}</span>
           </div>
 
           {assignment.dueDate && (
@@ -139,10 +146,10 @@ function AssignmentHoverContent({
               <Clock className="w-3.5 h-3.5" />
               <span>
                 {daysUntil !== null && daysUntil <= 0
-                  ? "Due today"
+                  ? t("dueDate.dueToday")
                   : daysUntil === 1
-                    ? "Due tomorrow"
-                    : `Due ${formatRelativeTime(assignment.dueDate)}`}
+                    ? t("dueDate.dueTomorrow")
+                    : `${t("dueDate.due")} ${formatRelativeTime(assignment.dueDate)}`}
               </span>
             </div>
           )}
@@ -153,7 +160,7 @@ function AssignmentHoverContent({
       <div className="px-4 py-2.5 bg-muted/30 border-t border-border/50 cursor-pointer">
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            Click to view in classroom
+            {t("dueDate.clickToView")}
           </span>
           <ArrowRight className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
@@ -163,6 +170,7 @@ function AssignmentHoverContent({
 }
 
 function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse }) {
+  const { t } = useTranslation("assignment");
   const urgency = getUrgencyLevel(assignment.dueDate);
   const config = urgencyConfig[urgency];
   const daysUntil = getDaysUntilDue(assignment.dueDate);
@@ -206,7 +214,7 @@ function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse })
           <div className="text-right hidden sm:block">
             {assignment.dueDate ? (
               <>
-                <div className="text-xs text-muted-foreground">Due</div>
+                <div className="text-xs text-muted-foreground">{t("dueDate.due")}</div>
                 <div
                   className={cn(
                     "text-sm font-medium",
@@ -214,14 +222,14 @@ function AssignmentRow({ assignment }: { assignment: ActiveAssignmentResponse })
                   )}
                 >
                   {daysUntil !== null && daysUntil <= 0
-                    ? "Today"
+                    ? t("dueDate.today")
                     : daysUntil === 1
-                      ? "Tomorrow"
+                      ? t("dueDate.tomorrow")
                       : formatRelativeTime(assignment.dueDate)}
                 </div>
               </>
             ) : (
-              <span className="text-sm text-muted-foreground">No due date</span>
+              <span className="text-sm text-muted-foreground">{t("dueDate.noDueDate")}</span>
             )}
           </div>
 

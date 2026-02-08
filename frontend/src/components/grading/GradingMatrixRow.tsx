@@ -6,6 +6,7 @@ import { ExternalLink, Bot } from "lucide-react";
 import { GradingMatrixCell } from "./GradingMatrixCell";
 import { GradingMatrixRowProps, isProjectGraded, getScoreIndicatorColor } from "./types";
 import { calculateGradeFromScore, getGradeColor, getGradeBgColor, DEFAULT_GRADE_SCHEMA } from "./gradeSchema";
+import { useTranslation } from "react-i18next";
 
 export function GradingMatrixRow({
   project,
@@ -16,6 +17,7 @@ export function GradingMatrixRow({
   rowIndex,
   gradeSchema = DEFAULT_GRADE_SCHEMA,
 }: GradingMatrixRowProps) {
+  const { t } = useTranslation("assignment");
   const isGraded = isProjectGraded(project, rubrics.length);
   const totalScore = project.gradingResult?.score ?? 0;
   const maxTotalScore = project.gradingResult?.maxScore ?? 0;
@@ -47,7 +49,7 @@ export function GradingMatrixRow({
             showDot
             className="mt-0.5"
           >
-            {isGraded ? "Graded" : "Pending"}
+            {isGraded ? t("grading.dashboard.graded") : t("grading.dashboard.pending")}
           </StatusBadge>
         </div>
         <Tooltip>
@@ -58,7 +60,7 @@ export function GradingMatrixRow({
               </a>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>View on GitLab</TooltipContent>
+          <TooltipContent>{t("grading.dashboard.viewOnGitLab")}</TooltipContent>
         </Tooltip>
       </div>
 

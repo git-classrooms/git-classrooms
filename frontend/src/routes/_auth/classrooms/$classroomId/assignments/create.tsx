@@ -50,6 +50,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/create")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -70,6 +71,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 });
 
 function CreateAssignment() {
+  const { t } = useTranslation("assignment");
+  const { t: tCommon } = useTranslation("common");
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const navigate = useNavigate();
@@ -109,7 +112,7 @@ function CreateAssignment() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create Assignment</BreadcrumbPage>
+            <BreadcrumbPage>{t("create.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -121,8 +124,8 @@ function CreateAssignment() {
             <FileCode2 className="w-7 h-7 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Create Assignment</h1>
-            <p className="text-muted-foreground">Set up a new assignment for your students</p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("create.title")}</h1>
+            <p className="text-muted-foreground">{t("create.subtitle")}</p>
           </div>
         </div>
       </div>
@@ -134,7 +137,7 @@ function CreateAssignment() {
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Basic Information</h2>
+                <h2 className="font-semibold text-sm">{t("form.basicInfo")}</h2>
               </div>
             </div>
             <CardContent className="p-5 space-y-5">
@@ -143,16 +146,16 @@ function CreateAssignment() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assignment Name</FormLabel>
+                    <FormLabel>{t("form.name")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g., Exercise 1: Hello World"
+                        placeholder={t("form.namePlaceholder")}
                         className="bg-background"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      A clear, descriptive name for the assignment
+                      {t("form.nameDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -164,16 +167,16 @@ function CreateAssignment() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("form.description")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe the assignment objectives and requirements..."
+                        placeholder={t("form.descriptionPlaceholder")}
                         className="resize-none bg-background min-h-[100px]"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      Help students understand what they need to do
+                      {t("form.descriptionDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -187,7 +190,7 @@ function CreateAssignment() {
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
               <div className="flex items-center gap-2">
                 <FolderGit2 className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Template Repository</h2>
+                <h2 className="font-semibold text-sm">{t("form.templateRepo")}</h2>
               </div>
             </div>
             <CardContent className="p-5">
@@ -196,20 +199,20 @@ function CreateAssignment() {
                 name="templateProjectId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Select Template</FormLabel>
+                    <FormLabel>{t("form.selectTemplate")}</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))}
                       value={field.value ? String(field.value) : undefined}
                     >
                       <FormControl>
                         <SelectTrigger className="bg-background">
-                          <SelectValue placeholder="Select a template project..." />
+                          <SelectValue placeholder={t("form.selectTemplatePlaceholder")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {templateProjects.length === 0 ? (
                           <div className="py-6 text-center text-sm text-muted-foreground">
-                            No templates found
+                            {t("form.noTemplatesFound")}
                           </div>
                         ) : (
                           templateProjects.map((template) => (
@@ -224,7 +227,7 @@ function CreateAssignment() {
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      The GitLab project that will be forked for each student/team
+                      {t("form.templateRepoDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -238,7 +241,7 @@ function CreateAssignment() {
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Deadline</h2>
+                <h2 className="font-semibold text-sm">{t("form.deadline")}</h2>
               </div>
             </div>
             <CardContent className="p-5">
@@ -247,7 +250,7 @@ function CreateAssignment() {
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Due Date</FormLabel>
+                    <FormLabel>{t("form.dueDate")}</FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <Popover>
@@ -260,7 +263,7 @@ function CreateAssignment() {
                               )}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? formatDateWithTime(field.value) : "No deadline set"}
+                              {field.value ? formatDateWithTime(field.value) : t("form.noDeadlineSet")}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
@@ -294,7 +297,7 @@ function CreateAssignment() {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      Optional: Set a submission deadline for the assignment
+                      {t("form.dueDateDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -307,8 +310,8 @@ function CreateAssignment() {
           {isError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>The assignment could not be created!</AlertDescription>
+              <AlertTitle>{tCommon("status.error")}</AlertTitle>
+              <AlertDescription>{t("errors.createFailed")}</AlertDescription>
             </Alert>
           )}
 
@@ -316,7 +319,7 @@ function CreateAssignment() {
           <div className="flex items-center justify-end gap-3 pt-4">
             <Button type="button" variant="outline" asChild>
               <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
-                Cancel
+                {tCommon("actions.cancel")}
               </Link>
             </Button>
             <Button type="submit" variant="glow" disabled={isPending} className="min-w-[160px]">
@@ -324,7 +327,7 @@ function CreateAssignment() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  Create Assignment
+                  {t("create.button")}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </>
               )}

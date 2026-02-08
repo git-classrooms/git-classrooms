@@ -1,4 +1,5 @@
 import { ModeToggle } from "@/components/modeToggle";
+import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useCsrf } from "@/provider/csrfProvider";
 import {
@@ -21,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { cn } from "@/lib/utils";
 import GitlabLogo from "@/assets/gitlab_logo.svg";
+import { useTranslation } from "react-i18next";
 
 export function Navbar(props: { auth: GetMeResponse | null }) {
   return (
@@ -36,6 +38,8 @@ interface NavbarProps {
 }
 
 function DesktopNavbar(props: NavbarProps) {
+  const { t } = useTranslation();
+
   return (
     <nav className="hidden md:flex h-14 items-center justify-between px-6">
       <div className="flex items-center gap-6">
@@ -43,13 +47,14 @@ function DesktopNavbar(props: NavbarProps) {
         {props.auth && <NavLinks />}
       </div>
       <div className="flex items-center gap-2">
+        <LanguageSwitcher />
         <ModeToggle />
         {props.auth ? (
           <UserDropdown auth={props.auth} />
         ) : (
           <Button variant="glow" size="sm" asChild>
             <Link to="/login" search={{ redirect: location.href }}>
-              Login
+              {t("navigation.login")}
             </Link>
           </Button>
         )}
@@ -72,12 +77,13 @@ function Logo() {
 }
 
 function NavLinks() {
+  const { t } = useTranslation();
   const router = useRouterState();
   const currentPath = router.location.pathname;
 
   const links = [
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/classrooms", label: "Classrooms" },
+    { to: "/dashboard", label: t("navigation.dashboard") },
+    { to: "/classrooms", label: t("navigation.classrooms") },
   ] as const;
 
   return (
@@ -106,6 +112,7 @@ function NavLinks() {
 }
 
 function UserDropdown({ auth }: { auth: GetMeResponse }) {
+  const { t } = useTranslation();
   const { csrfToken } = useCsrf();
 
   return (
@@ -160,8 +167,8 @@ function UserDropdown({ auth }: { auth: GetMeResponse }) {
                 <img src={GitlabLogo} className="w-4 h-4" alt="" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">GitLab Profile</p>
-                <p className="text-xs text-muted-foreground">View your profile</p>
+                <p className="text-sm font-medium">{t("user.gitlabProfile")}</p>
+                <p className="text-xs text-muted-foreground">{t("user.viewProfile")}</p>
               </div>
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
             </a>
@@ -183,8 +190,8 @@ function UserDropdown({ auth }: { auth: GetMeResponse }) {
                   <LogOut className="w-4 h-4" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-medium">Log out</p>
-                  <p className="text-xs opacity-70">End your session</p>
+                  <p className="text-sm font-medium">{t("user.logout")}</p>
+                  <p className="text-xs opacity-70">{t("user.endSession")}</p>
                 </div>
               </button>
             </DropdownMenuItem>
@@ -196,10 +203,13 @@ function UserDropdown({ auth }: { auth: GetMeResponse }) {
 }
 
 function MobileNavbar(props: NavbarProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="md:hidden flex h-14 items-center justify-between px-4">
       <Logo />
       <div className="flex items-center gap-2">
+        <LanguageSwitcher />
         <ModeToggle />
         {props.auth ? (
           <>
@@ -208,7 +218,7 @@ function MobileNavbar(props: NavbarProps) {
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">{t("navigation.openMenu")}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="right">
@@ -216,20 +226,20 @@ function MobileNavbar(props: NavbarProps) {
                   <SheetTitle className="flex items-center gap-2">
                     <Logo />
                   </SheetTitle>
-                  <SheetDescription className="sr-only">Navigation menu</SheetDescription>
+                  <SheetDescription className="sr-only">{t("navigation.navigationMenu")}</SheetDescription>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 mt-6">
                   <Link
                     to="/dashboard"
                     className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors"
                   >
-                    Dashboard
+                    {t("navigation.dashboard")}
                   </Link>
                   <Link
                     to="/classrooms"
                     className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors"
                   >
-                    Classrooms
+                    {t("navigation.classrooms")}
                   </Link>
                 </nav>
               </SheetContent>
@@ -238,7 +248,7 @@ function MobileNavbar(props: NavbarProps) {
         ) : (
           <Button variant="glow" size="sm" asChild>
             <Link to="/login" search={{ redirect: location.href }}>
-              Login
+              {t("navigation.login")}
             </Link>
           </Button>
         )}

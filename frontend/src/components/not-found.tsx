@@ -3,8 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Compass, Home, MapPinOff, Search } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 export function NotFound() {
+  const { t } = useTranslation("errors");
   const router = useRouter();
 
   // Generate floating particles for visual interest
@@ -84,10 +86,10 @@ export function NotFound() {
             {/* Title & Description */}
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold tracking-tight mb-2 font-mono">
-                Page Not Found
+                {t("notFound.title")}
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mx-auto">
-                The page you're looking for doesn't exist or has been moved to a different location.
+                {t("notFound.description")}
               </p>
             </div>
 
@@ -99,13 +101,13 @@ export function NotFound() {
                 className="gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Go Back
+                {t("actions.goBack")}
               </Button>
 
               <Button variant="glow" asChild className="gap-2">
                 <Link to="/dashboard">
                   <Home className="w-4 h-4" />
-                  Dashboard
+                  {t("actions.dashboard")}
                 </Link>
               </Button>
             </div>
@@ -114,7 +116,7 @@ export function NotFound() {
 
         {/* Helpful hint */}
         <p className="text-center text-xs text-muted-foreground mt-6">
-          Lost? Try using the navigation menu or search for what you need.
+          {t("notFound.hint")}
         </p>
       </div>
     </div>

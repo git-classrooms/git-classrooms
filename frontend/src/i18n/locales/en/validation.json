@@ -1,0 +1,35 @@
+{
+  "required": "This field is required",
+  "string": {
+    "min": "Must be at least {{min}} characters",
+    "max": "Must be at most {{max}} characters",
+    "email": "Please enter a valid email address",
+    "url": "Please enter a valid URL"
+  },
+  "number": {
+    "min": "Must be at least {{min}}",
+    "max": "Must be at most {{max}}",
+    "positive": "Must be a positive number",
+    "integer": "Must be a whole number"
+  },
+  "date": {
+    "invalid": "Please enter a valid date",
+    "future": "Date must be in the future",
+    "past": "Date must be in the past"
+  },
+  "classroom": {
+    "nameRequired": "Classroom name is required",
+    "nameMin": "Name must be at least 3 characters",
+    "nameMax": "Name must be at most 100 characters",
+    "maxTeamsMin": "Maximum teams must be 0 or greater",
+    "maxTeamSizeMin": "Team size must be at least 2"
+  },
+  "assignment": {
+    "nameRequired": "Assignment name is required",
+    "nameMin": "Name must be at least 3 characters"
+  },
+  "team": {
+    "nameRequired": "Team name is required",
+    "nameMin": "Name must be at least 2 characters"
+  }
+}

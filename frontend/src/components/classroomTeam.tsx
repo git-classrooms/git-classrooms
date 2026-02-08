@@ -12,6 +12,7 @@ import { Skeleton } from "./ui/skeleton";
 import { StatusBadge } from "./ui/status-badge";
 import { Card, CardContent } from "./ui/card";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface ClassroomTeamModalProps {
   userClassroom: UserClassroomResponse;
@@ -20,21 +21,25 @@ interface ClassroomTeamModalProps {
   reportUrl: string;
 }
 
-export const ClassroomTeamModal = (props: ClassroomTeamModalProps) => (
-  <Dialog>
-    <DialogTrigger asChild>
-      <Button variant="ghost" size="sm" className="h-7 px-2">
-        <ClipboardList className="w-3 h-3 mr-1" />
-        Details
-      </Button>
-    </DialogTrigger>
-    <DialogContent className="max-w-2xl">
-      <ClassroomModalContent {...props} />
-    </DialogContent>
-  </Dialog>
-);
+export const ClassroomTeamModal = (props: ClassroomTeamModalProps) => {
+  const { t } = useTranslation("team");
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-7 px-2">
+          <ClipboardList className="w-3 h-3 mr-1" />
+          {t("modal.details")}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <ClassroomModalContent {...props} />
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 function ClassroomModalContent({ classroomId, teamId, reportUrl, userClassroom }: ClassroomTeamModalProps) {
+  const { t } = useTranslation("team");
   const { data: team, isLoading: teamIsLoading, error: teamError } = useQuery(teamQueryOptions(classroomId, teamId));
   const {
     data: projects,
@@ -67,7 +72,7 @@ function ClassroomModalContent({ classroomId, teamId, reportUrl, userClassroom }
           <div>
             <span className="text-xl">{team!.name}</span>
             <p className="text-sm font-normal text-muted-foreground">
-              {team!.members.length} member{team!.members.length !== 1 ? "s" : ""}
+              {t("members.count", { count: team!.members.length })}
             </p>
           </div>
         </DialogTitle>
@@ -79,7 +84,7 @@ function ClassroomModalContent({ classroomId, teamId, reportUrl, userClassroom }
           <section>
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
               <Users className="w-3 h-3" />
-              Team Members
+              {t("members.title")}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {team!.members.map((member) => (
@@ -109,11 +114,11 @@ function ClassroomModalContent({ classroomId, teamId, reportUrl, userClassroom }
         <section>
           <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
             <ClipboardList className="w-3 h-3" />
-            Assignments ({projects!.length})
+            {t("modal.assignments", { count: projects!.length })}
           </h3>
           {projects!.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              No assignments yet
+              {t("modal.noAssignments")}
             </p>
           ) : (
             <div className="space-y-2">
@@ -130,7 +135,7 @@ function ClassroomModalContent({ classroomId, teamId, reportUrl, userClassroom }
             <Button variant="outline" className="w-full" asChild>
               <a href={reportUrl} target="_blank" rel="noopener noreferrer">
                 <Download className="w-4 h-4 mr-2" />
-                Download Grading Report
+                {t("modal.downloadReport")}
               </a>
             </Button>
           </div>
@@ -141,6 +146,7 @@ function ClassroomModalContent({ classroomId, teamId, reportUrl, userClassroom }
 }
 
 function ProjectRow({ project, classroomId }: { project: ProjectResponse; classroomId: string }) {
+  const { t } = useTranslation("team");
   const daysUntil = getDaysUntilDue(project.assignment.dueDate);
   const isOverdue = daysUntil !== null && daysUntil < 0;
   const isAccepted = project.projectStatus === "accepted";
@@ -167,10 +173,10 @@ function ProjectRow({ project, classroomId }: { project: ProjectResponse; classr
             <p className="text-xs text-muted-foreground">
               {project.assignment.dueDate ? (
                 <span className={cn(isOverdue && "text-destructive")}>
-                  Due {formatRelativeTime(project.assignment.dueDate)}
+                  {t("modal.due")} {formatRelativeTime(project.assignment.dueDate)}
                 </span>
               ) : (
-                "No due date"
+                t("modal.noDueDate")
               )}
             </p>
           </div>

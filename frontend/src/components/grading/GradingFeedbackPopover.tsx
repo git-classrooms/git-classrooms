@@ -4,6 +4,7 @@ import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import { MessageSquare, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface GradingFeedbackPopoverProps {
   feedback: string;
@@ -16,6 +17,8 @@ export function GradingFeedbackPopover({
   onFeedbackChange,
   disabled,
 }: GradingFeedbackPopoverProps) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const [localFeedback, setLocalFeedback] = useState(feedback);
   const hasFeedback = feedback.trim().length > 0;
@@ -50,7 +53,7 @@ export function GradingFeedbackPopover({
       <PopoverContent className="w-72 p-3" align="end">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Feedback</span>
+            <span className="text-sm font-medium">{t("grading.feedback")}</span>
             <Button
               variant="ghost"
               size="icon"
@@ -63,7 +66,7 @@ export function GradingFeedbackPopover({
           <AutosizeTextarea
             value={localFeedback}
             onChange={(e) => setLocalFeedback(e.target.value)}
-            placeholder="Add feedback..."
+            placeholder={t("grading.dashboard.feedbackPlaceholder")}
             minHeight={60}
             maxHeight={120}
             className="text-sm resize-none"
@@ -75,7 +78,7 @@ export function GradingFeedbackPopover({
               size="sm"
               onClick={() => setOpen(false)}
             >
-              Cancel
+              {tc("actions.cancel")}
             </Button>
             <Button
               variant="default"
@@ -83,7 +86,7 @@ export function GradingFeedbackPopover({
               onClick={handleSave}
               disabled={disabled}
             >
-              Save
+              {tc("actions.save")}
             </Button>
           </div>
         </div>

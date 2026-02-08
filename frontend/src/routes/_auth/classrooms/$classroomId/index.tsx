@@ -33,6 +33,7 @@ import { ProjectListSection } from "@/components/classroomProjects";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const tabs = ["assignments", "members", "teams"] as const;
 const tabSchema = z.enum(tabs);
@@ -81,6 +82,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/")({
 });
 
 function ClassroomDetail() {
+  const { t } = useTranslation("classroom");
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { tab } = Route.useSearch();
@@ -107,7 +109,7 @@ function ClassroomDetail() {
       search: { groupLink: true }
     });
     navigator.clipboard.writeText(`${location.origin}${path.href}`);
-    toast.success("Invite link copied to clipboard");
+    toast.success(t("detail.inviteCopied"));
   };
 
   return (
@@ -115,7 +117,7 @@ function ClassroomDetail() {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link to="/classrooms" className="hover:text-foreground transition-colors">
-          Classrooms
+          {t("title")}
         </Link>
         <ChevronRight className="w-4 h-4" />
         <span className="text-foreground font-medium">{userClassroom.classroom.name}</span>
@@ -136,7 +138,7 @@ function ClassroomDetail() {
                     variant={userClassroom.classroom.archived ? "neutral" : "success"}
                     showDot
                   >
-                    {userClassroom.classroom.archived ? "Archived" : "Active"}
+                    {userClassroom.classroom.archived ? t("status.archived") : t("status.active")}
                   </StatusBadge>
                 </div>
                 <a
@@ -145,7 +147,7 @@ function ClassroomDetail() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  View on GitLab
+                  {t("detail.viewOnGitlab")}
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -163,13 +165,13 @@ function ClassroomDetail() {
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={handleCopyInviteLink}>
                 <Clipboard className="w-4 h-4 mr-2" />
-                Copy Invite
+                {t("detail.copyInvite")}
               </Button>
               {isOwner(userClassroom) && (
                 <Button variant="outline" size="sm" asChild>
                   <a href={reportDownloadUrl} target="_blank" rel="noopener noreferrer">
                     <Download className="w-4 h-4 mr-2" />
-                    Report
+                    {t("detail.report")}
                   </a>
                 </Button>
               )}
@@ -177,7 +179,7 @@ function ClassroomDetail() {
                 <Button variant="outline" size="sm" asChild>
                   <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
                     <Settings className="w-4 h-4 mr-2" />
-                    Settings
+                    {t("settings.title")}
                   </Link>
                 </Button>
               )}
@@ -205,14 +207,14 @@ function ClassroomDetail() {
             <TabsTrigger asChild value="assignments">
               <Link search={{ tab: "assignments" }}>
                 <FileText className="w-4 h-4 mr-2" />
-                Assignments
+                {t("tabs.assignments")}
               </Link>
             </TabsTrigger>
             {canViewMembersAndTeams && (
               <TabsTrigger asChild value="members">
                 <Link search={{ tab: "members" }}>
                   <Users className="w-4 h-4 mr-2" />
-                  Members
+                  {t("tabs.members")}
                 </Link>
               </TabsTrigger>
             )}
@@ -220,7 +222,7 @@ function ClassroomDetail() {
               <TabsTrigger asChild value="teams">
                 <Link search={{ tab: "teams" }}>
                   <Users className="w-4 h-4 mr-2" />
-                  Teams
+                  {t("tabs.teams")}
                 </Link>
               </TabsTrigger>
             )}
@@ -320,6 +322,7 @@ function ModeratorStatsCards({
   classroomId: string;
   userClassroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("classroom");
   const { data: classroomMembers } = useSuspenseQuery(membersQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
 
@@ -327,22 +330,22 @@ function ModeratorStatsCards({
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard
         icon={<Users className="w-4 h-4" />}
-        label="Members"
+        label={t("stats.members")}
         value={classroomMembers.length}
       />
       <StatCard
         icon={<ClipboardList className="w-4 h-4" />}
-        label="Assignments"
+        label={t("stats.assignments")}
         value={userClassroom.assignmentsCount}
       />
       <StatCard
         icon={<Users className="w-4 h-4" />}
-        label="Teams"
+        label={t("stats.teams")}
         value={teams.length}
       />
       <StatCard
         icon={<CalendarClock className="w-4 h-4" />}
-        label="Created"
+        label={t("stats.created")}
         value={formatRelativeTime(userClassroom.classroom.createdAt)}
         isText
       />
@@ -408,6 +411,8 @@ function StudentStatsCards({
   classroomId: string;
   userClassroom: UserClassroomResponse;
 }) {
+  const { t } = useTranslation("classroom");
+  const { t: ta } = useTranslation("assignment");
   const { data: projects } = useSuspenseQuery(projectsQueryOptions(classroomId));
 
   const acceptedCount = projects.filter((p) => p.projectStatus === "accepted").length;
@@ -425,26 +430,26 @@ function StudentStatsCards({
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard
         icon={<CheckCircle2 className="w-4 h-4" />}
-        label="Completed"
+        label={t("stats.completed")}
         value={acceptedCount}
       />
       <StatCard
         icon={<Play className="w-4 h-4" />}
-        label="Pending"
+        label={t("stats.pending")}
         value={pendingCount}
       />
       {userClassroom.classroom.maxTeamSize > 1 && userClassroom.team && (
         <StatCard
           icon={<Users className="w-4 h-4" />}
-          label="My Team"
+          label={t("stats.myTeam")}
           value={userClassroom.team.name}
           isText
         />
       )}
       <StatCard
         icon={<Clock className="w-4 h-4" />}
-        label="Next Due"
-        value={daysUntilDue !== null ? (daysUntilDue <= 0 ? "Today!" : `${daysUntilDue}d`) : "-"}
+        label={t("stats.nextDue")}
+        value={daysUntilDue !== null ? (daysUntilDue <= 0 ? ta("dueDate.today") : `${daysUntilDue}d`) : "-"}
         isText
       />
     </div>

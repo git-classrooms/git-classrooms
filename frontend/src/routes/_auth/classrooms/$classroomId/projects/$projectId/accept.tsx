@@ -26,6 +26,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$projectId/accept")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -45,6 +46,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$p
 });
 
 function AcceptAssignment() {
+  const { t } = useTranslation(["assignment", "classroom"]);
   const navigate = useNavigate({
     from: "/_auth/classrooms/$classroomId/projects/$projectId/accept/",
   });
@@ -71,7 +73,7 @@ function AcceptAssignment() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/classrooms">Classrooms</Link>
+                <Link to="/classrooms">{t("classroom:title")}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -84,7 +86,7 @@ function AcceptAssignment() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Accept Assignment</BreadcrumbPage>
+              <BreadcrumbPage>{t("acceptPage.title")}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -112,9 +114,9 @@ function AcceptAssignment() {
 
             {/* Title */}
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold tracking-tight mb-2">Accept Assignment</h1>
+              <h1 className="text-2xl font-bold tracking-tight mb-2">{t("acceptPage.title")}</h1>
               <p className="text-muted-foreground">
-                Ready to start working on this assignment?
+                {t("acceptPage.subtitle")}
               </p>
             </div>
 
@@ -138,7 +140,7 @@ function AcceptAssignment() {
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5" />
-                      Created {formatDate(project.assignment.createdAt)}
+                      {t("acceptPage.created")} {formatDate(project.assignment.createdAt)}
                     </span>
                     {dueDate && (
                       <span
@@ -150,10 +152,10 @@ function AcceptAssignment() {
                       >
                         <Clock className="w-3.5 h-3.5" />
                         {isVeryUrgent
-                          ? "Due today!"
+                          ? t("dueDate.dueToday")
                           : daysUntil === 1
-                            ? "Due tomorrow"
-                            : `Due ${formatDateWithTime(dueDate)}`}
+                            ? t("dueDate.dueTomorrow")
+                            : `${t("acceptPage.due")} ${formatDateWithTime(dueDate)}`}
                       </span>
                     )}
                   </div>
@@ -165,9 +167,9 @@ function AcceptAssignment() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10 mb-6">
               <ExternalLink className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-foreground">What happens next?</p>
+                <p className="font-medium text-foreground">{t("acceptPage.whatHappensNext")}</p>
                 <p className="text-muted-foreground mt-1">
-                  A repository will be created for you on GitLab. You'll get full access to clone, push, and work on your code.
+                  {t("acceptPage.whatHappensNextDescription")}
                 </p>
               </div>
             </div>
@@ -176,9 +178,9 @@ function AcceptAssignment() {
             {isError && (
               <Alert variant="destructive" className="mb-6">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>{t("acceptPage.error")}</AlertTitle>
                 <AlertDescription>
-                  Failed to accept the assignment. Please try again.
+                  {t("acceptPage.errorDescription")}
                 </AlertDescription>
               </Alert>
             )}
@@ -188,7 +190,7 @@ function AcceptAssignment() {
               <Button variant="outline" className="w-full sm:w-auto" asChild>
                 <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Go Back
+                  {t("acceptPage.goBack")}
                 </Link>
               </Button>
               <Button
@@ -201,12 +203,12 @@ function AcceptAssignment() {
                 {isPending ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Setting up repository...
+                    {t("acceptPage.settingUp")}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    Accept & Start Working
+                    {t("acceptPage.acceptAndStart")}
                   </>
                 )}
               </Button>
@@ -216,7 +218,7 @@ function AcceptAssignment() {
 
         {/* Footer hint */}
         <p className="text-center text-xs text-muted-foreground mt-4">
-          You can always access your assignments from the classroom page
+          {t("acceptPage.classroomNote")}
         </p>
       </div>
     </div>
