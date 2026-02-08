@@ -168,7 +168,7 @@ function Index() {
                       />
                     </FormControl>
                     <FormDescription className="text-xs">
-                      {t("settings.edit.descriptionDescription")}
+                      {t("settings.edit.descriptionDescription")} · {tc("markdown.supported")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

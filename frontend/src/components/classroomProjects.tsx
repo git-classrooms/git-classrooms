@@ -19,6 +19,7 @@ import { Status } from "@/types/projects";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { classroomQueryOptions } from "@/api/classroom";
 import { StatusBadge } from "./ui/status-badge";
+import { Markdown } from "./ui/markdown";
 import { useTranslation } from "react-i18next";
 
 export function ProjectListSection({ classroomId }: { classroomId: string }): JSX.Element {
@@ -137,9 +138,9 @@ function ProjectCard({
                 </StatusBadge>
               </div>
               {project.assignment.description && (
-                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
-                  {project.assignment.description}
-                </p>
+                <div className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                  <Markdown inline>{project.assignment.description}</Markdown>
+                </div>
               )}
 
               {/* Meta Info */}

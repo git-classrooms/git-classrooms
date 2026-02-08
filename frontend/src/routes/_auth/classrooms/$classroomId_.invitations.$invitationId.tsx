@@ -9,6 +9,7 @@ import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classro
 import { AxiosError } from "axios";
 import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/markdown";
 import { useTranslation } from "react-i18next";
 
 const seachSchema = z.object({
@@ -81,7 +82,9 @@ function JoinClassroom() {
                 <div className="flex-1 min-w-0">
                   <h2 className="font-semibold text-lg">{invitation.classroom.name}</h2>
                   {invitation.classroom.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{invitation.classroom.description}</p>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      <Markdown compact>{invitation.classroom.description}</Markdown>
+                    </div>
                   )}
                   <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1.5">

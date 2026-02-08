@@ -28,6 +28,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 
@@ -347,6 +348,7 @@ function RubricCard({
   editing: boolean;
 }) {
   const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const rubricName = form.watch(`gradingManualRubrics.${index}.name`);
   const rubricScore = form.watch(`gradingManualRubrics.${index}.maxScore`);
 
@@ -402,7 +404,9 @@ function RubricCard({
                   name={`gradingManualRubrics.${index}.description`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-xs text-muted-foreground">{t("grading.manualSettings.rubricDescriptionLabel")}</FormLabel>
+                      <FormLabel className="text-xs text-muted-foreground">
+                        {t("grading.manualSettings.rubricDescriptionLabel")} · {tc("markdown.supported")}
+                      </FormLabel>
                       <FormControl>
                         <Input
                           placeholder={t("grading.manualSettings.rubricDescriptionPlaceholder")}
@@ -448,9 +452,13 @@ function RubricCard({
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-medium">{rubricName || t("grading.manualSettings.unnamedRubric")}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {form.watch(`gradingManualRubrics.${index}.description`) || t("grading.manualSettings.noDescription")}
-                  </p>
+                  <div className="text-sm text-muted-foreground">
+                    {form.watch(`gradingManualRubrics.${index}.description`) ? (
+                      <Markdown compact>{form.watch(`gradingManualRubrics.${index}.description`)}</Markdown>
+                    ) : (
+                      t("grading.manualSettings.noDescription")
+                    )}
+                  </div>
                 </div>
                 <div className="text-right">
                   <span className="font-mono text-lg font-semibold">{rubricScore}</span>

@@ -49,6 +49,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { toast } from "sonner";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
 import { ApiProjectCloneUrlResponse } from "@/swagger-client";
 import { useTranslation } from "react-i18next";
 
@@ -314,7 +315,9 @@ function AssignmentDetail() {
             <Card className="mt-4 border-border/50">
               <CardContent className="p-4">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">{t("form.description")}</p>
-                <p className="text-sm leading-relaxed">{assignment.description}</p>
+                <div className="text-sm leading-relaxed">
+                  <Markdown>{assignment.description}</Markdown>
+                </div>
               </CardContent>
             </Card>
           )}

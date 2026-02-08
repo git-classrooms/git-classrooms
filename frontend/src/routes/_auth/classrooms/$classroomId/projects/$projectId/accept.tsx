@@ -18,6 +18,7 @@ import { projectQueryOptions, useAcceptAssignment } from "@/api/project";
 import { classroomQueryOptions } from "@/api/classroom";
 import { cn, formatDate, formatDateWithTime, getDaysUntilDue, isStudent } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/markdown";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -131,9 +132,9 @@ function AcceptAssignment() {
                   <p className="text-sm text-muted-foreground">{classroom.classroom.name}</p>
 
                   {project.assignment.description && (
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                      {project.assignment.description}
-                    </p>
+                    <div className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                      <Markdown inline>{project.assignment.description}</Markdown>
+                    </div>
                   )}
 
                   {/* Meta info */}

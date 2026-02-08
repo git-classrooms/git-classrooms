@@ -8,6 +8,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { assignmentsQueryOptions } from "@/api/assignment";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -156,9 +157,9 @@ function AssignmentCard({
               </div>
 
               {assignment.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                  {assignment.description}
-                </p>
+                <div className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                  <Markdown inline>{assignment.description}</Markdown>
+                </div>
               )}
 
               <div className="flex items-center gap-4 text-xs text-muted-foreground">

@@ -52,6 +52,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
 import {
   Sheet,
   SheetClose,
@@ -735,7 +736,9 @@ function GradingSheet({
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm">{rubric.name}</h4>
                         {rubric.description && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{rubric.description}</p>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            <Markdown compact>{rubric.description}</Markdown>
+                          </div>
                         )}
                       </div>
                       <span className="text-xs font-mono text-muted-foreground shrink-0">
@@ -798,7 +801,9 @@ function GradingSheet({
                         name={`gradingManualRubrics.${index}.feedback`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-xs">{t("grading.dashboard.feedbackLabel")}</FormLabel>
+                            <FormLabel className="text-xs">
+                              {t("grading.dashboard.feedbackLabel")} · {tc("markdown.supported")}
+                            </FormLabel>
                             <FormControl>
                               <AutosizeTextarea
                                 minHeight={36}

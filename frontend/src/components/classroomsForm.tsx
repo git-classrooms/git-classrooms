@@ -145,7 +145,7 @@ export const ClassroomCreateForm = () => {
                       />
                     </FormControl>
                     <FormDescription>
-                      {t("form.descriptionHelp")}
+                      {t("form.descriptionHelp")} · {tc("markdown.supported")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -393,7 +393,7 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                       />
                     </FormControl>
                     <FormDescription className="text-xs">
-                      {t("form.descriptionPurpose")}
+                      {t("form.descriptionPurpose")} · {tc("markdown.supported")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

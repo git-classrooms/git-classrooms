@@ -32,6 +32,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/grading")({
@@ -447,9 +448,9 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
                                   </span>
                                 </div>
                                 {rubric.description && (
-                                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                                    {rubric.description}
-                                  </p>
+                                  <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                                    <Markdown compact inline>{rubric.description}</Markdown>
+                                  </div>
                                 )}
                               </label>
                             </FormItem>

@@ -93,5 +93,8 @@
   "theme": {
     "switchToLight": "Switch to light mode",
     "switchToDark": "Switch to dark mode"
+  },
+  "markdown": {
+    "supported": "Markdown is supported"
   }
 }

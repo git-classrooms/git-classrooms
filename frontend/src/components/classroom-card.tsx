@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, ClipboardList } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
+import { Markdown } from "@/components/ui/markdown";
 import { UserClassroomResponse } from "@/swagger-client";
 import { formatRelativeTime } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -67,9 +68,9 @@ export function ClassroomCard({ classroom, role }: ClassroomCardProps) {
               </StatusBadge>
             </div>
             {classroom.classroom.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                {classroom.classroom.description}
-              </p>
+              <div className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                <Markdown inline>{classroom.classroom.description}</Markdown>
+              </div>
             )}
           </div>
         </div>

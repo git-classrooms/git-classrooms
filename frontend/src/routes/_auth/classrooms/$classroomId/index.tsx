@@ -32,6 +32,7 @@ import { useMemo } from "react";
 import { ProjectListSection } from "@/components/classroomProjects";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -154,9 +155,9 @@ function ClassroomDetail() {
             </div>
 
             {userClassroom.classroom.description && (
-              <p className="text-muted-foreground max-w-2xl">
-                {userClassroom.classroom.description}
-              </p>
+              <div className="text-muted-foreground max-w-2xl">
+                <Markdown>{userClassroom.classroom.description}</Markdown>
+              </div>
             )}
           </div>
 

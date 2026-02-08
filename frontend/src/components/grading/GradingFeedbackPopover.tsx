@@ -72,6 +72,7 @@ export function GradingFeedbackPopover({
             className="text-sm resize-none"
             disabled={disabled}
           />
+          <p className="text-xs text-muted-foreground">{tc("markdown.supported")}</p>
           <div className="flex justify-end gap-2">
             <Button
               variant="ghost"

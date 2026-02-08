@@ -176,7 +176,7 @@ function CreateAssignment() {
                       />
                     </FormControl>
                     <FormDescription>
-                      {t("form.descriptionDescription")}
+                      {t("form.descriptionDescription")} · {tCommon("markdown.supported")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
