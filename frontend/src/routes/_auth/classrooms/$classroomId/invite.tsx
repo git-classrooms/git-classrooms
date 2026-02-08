@@ -92,7 +92,7 @@ function ClassroomInviteForm() {
   );
 
   return (
-    <div className="space-y-8 animate-stagger-1">
+    <div className="space-y-8">
       {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>

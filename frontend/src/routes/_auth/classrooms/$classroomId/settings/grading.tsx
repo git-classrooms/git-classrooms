@@ -102,7 +102,7 @@ function Grading() {
   return (
     <div className="space-y-8">
       {/* Test-Driven Grading Section */}
-      <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <section>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
@@ -186,7 +186,7 @@ function Grading() {
       </section>
 
       {/* Manual Grading Section */}
-      <section className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: "100ms" }}>
+      <section>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(38,92%,55%)]/20 to-[hsl(38,92%,55%)]/5 border border-[hsl(38,92%,55%)]/20 flex items-center justify-center">

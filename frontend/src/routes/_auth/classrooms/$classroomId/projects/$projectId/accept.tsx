@@ -65,7 +65,7 @@ function AcceptAssignment() {
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="w-full max-w-xl">
         {/* Breadcrumb */}
         <Breadcrumb className="mb-6">
           <BreadcrumbList>

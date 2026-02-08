@@ -131,7 +131,7 @@ function ClassroomDetail() {
   return (
     <div className="space-y-6 pb-8">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-muted-foreground animate-stagger-1">
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground">
         <Link to="/classrooms" className="hover:text-foreground transition-colors">
           Classrooms
         </Link>
@@ -140,7 +140,7 @@ function ClassroomDetail() {
       </nav>
 
       {/* Header Section */}
-      <header className="animate-stagger-1">
+      <header>
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -224,7 +224,7 @@ function ClassroomDetail() {
       </header>
 
       {/* Stats Cards - Different for Moderators and Students */}
-      <section className="animate-stagger-2">
+      <section>
         {isModerator(userClassroom) ? (
           <ModeratorStatsCards classroomId={classroomId} userClassroom={userClassroom} />
         ) : (
@@ -236,7 +236,7 @@ function ClassroomDetail() {
       </section>
 
       {/* Tabs Section */}
-      <section className="animate-stagger-3">
+      <section>
         <Tabs value={effectiveTab} className="w-full">
           <TabsList>
             <TabsTrigger asChild value="assignments">

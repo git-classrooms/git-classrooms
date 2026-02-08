@@ -101,7 +101,7 @@ function AssignmentDetail() {
   const isUrgent = daysUntil !== null && daysUntil >= 0 && daysUntil <= 3;
 
   return (
-    <div className="animate-in fade-in duration-300">
+    <div>
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
@@ -197,7 +197,7 @@ function AssignmentDetail() {
 
         {showStats && (
           <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Progress Card */}
             <Card className="border-border/50 bg-gradient-to-br from-primary/5 to-transparent">
               <CardContent className="p-4">
@@ -378,12 +378,11 @@ function AssignmentDetail() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {assignmentProjects.map((project, index) => (
+            {assignmentProjects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
                 classroom={classroom}
-                index={index}
               />
             ))}
           </div>
@@ -507,11 +506,9 @@ function CloneProjectsPopover({
 function ProjectCard({
   project,
   classroom,
-  index,
 }: {
   project: ProjectResponse;
   classroom: UserClassroomResponse;
-  index: number;
 }) {
   const { urls } = Route.useLoaderData();
   const reportUrl = urls.get(project.id)!;
@@ -531,11 +528,10 @@ function ProjectCard({
   return (
     <Card
       className={cn(
-        "group transition-all duration-200 hover:shadow-lg hover:shadow-background/50 animate-in fade-in slide-in-from-bottom-2",
+        "group transition-all duration-200 hover:shadow-lg hover:shadow-background/50",
         isAccepted && "hover:border-success/30",
         isPending && "hover:border-warning/30 opacity-80"
       )}
-      style={{ animationDelay: `${index * 30}ms` }}
     >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3 mb-3">

@@ -42,12 +42,11 @@ export function ProjectListSection({ classroomId }: { classroomId: string }): JS
           <EmptyState />
         ) : (
           <div className="space-y-3">
-            {projects.map((project, index) => (
+            {projects.map((project) => (
               <ProjectCard
                 key={project.id}
                 project={project}
                 userClassroom={userClassroom}
-                index={index}
               />
             ))}
           </div>
@@ -74,11 +73,9 @@ function EmptyState() {
 function ProjectCard({
   project,
   userClassroom,
-  index,
 }: {
   project: ProjectResponse;
   userClassroom: UserClassroomResponse;
-  index: number;
 }) {
   const isClosed = project.assignment.dueDate && new Date(project.assignment.dueDate) < new Date();
   const isPending = project.projectStatus === Status.Pending;
@@ -117,10 +114,8 @@ function ProjectCard({
         "hover:bg-muted/30 hover:border-border",
         isPending || isFailed
           ? "border-primary/30 bg-primary/5"
-          : "border-border/50 bg-card/50",
-        "animate-in fade-in slide-in-from-bottom-1"
+          : "border-border/50 bg-card/50"
       )}
-      style={{ animationDelay: `${index * 50}ms` }}
     >
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
         {/* Assignment Info */}

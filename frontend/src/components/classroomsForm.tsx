@@ -67,7 +67,7 @@ export const ClassroomCreateForm = () => {
   const teamsEnabled = form.watch("teamsEnabled");
 
   return (
-    <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div className="max-w-2xl mx-auto">
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>

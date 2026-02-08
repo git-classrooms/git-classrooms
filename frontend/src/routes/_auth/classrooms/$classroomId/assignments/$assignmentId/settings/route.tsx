@@ -48,7 +48,7 @@ function Settings() {
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
 
   return (
-    <div className="animate-in fade-in duration-300">
+    <div>
       {/* Breadcrumb */}
       <Breadcrumb className="mb-6">
         <BreadcrumbList>

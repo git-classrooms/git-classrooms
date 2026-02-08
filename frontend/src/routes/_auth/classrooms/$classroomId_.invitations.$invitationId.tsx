@@ -47,7 +47,7 @@ function JoinClassroom() {
   };
 
   return (
-    <div className="space-y-8 animate-stagger-1">
+    <div className="space-y-8">
       {/* Main Content */}
       <div className="flex justify-center">
         <Card className="w-full max-w-xl border-border/50">

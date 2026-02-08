@@ -29,10 +29,8 @@ export function GradingMatrixRow({
       className={cn(
         "flex border-b border-border/30 transition-colors",
         "hover:bg-muted/20",
-        "animate-in fade-in slide-in-from-left-1",
         rowIndex % 2 === 0 ? "bg-transparent" : "bg-muted/10"
       )}
-      style={{ animationDelay: `${rowIndex * 20}ms` }}
     >
       {/* Fixed team column */}
       <div className="sticky left-0 z-10 flex items-center gap-3 px-4 py-2.5 min-w-[220px] max-w-[220px] bg-card/95 backdrop-blur-sm border-r border-border/40">

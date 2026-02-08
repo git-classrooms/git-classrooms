@@ -114,7 +114,7 @@ function Members() {
   const showTeams = userClassroom.classroom.maxTeamSize > 1;
 
   return (
-    <div className="space-y-8 animate-stagger-1">
+    <div className="space-y-8">
       {/* Breadcrumb */}
       <Breadcrumb>
         <BreadcrumbList>

@@ -70,7 +70,7 @@ function Classrooms() {
   return (
     <div className="space-y-6 pb-8">
       {/* Header */}
-      <section className="animate-stagger-1">
+      <section>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Classrooms</h1>
@@ -88,7 +88,7 @@ function Classrooms() {
       </section>
 
       {/* Tabs */}
-      <section className="animate-stagger-2">
+      <section>
         <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
           <TabsList>
             <TabsTrigger value="managed">

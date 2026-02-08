@@ -26,7 +26,7 @@ function Index() {
   return (
     <div className="space-y-8">
       {/* Fixed Configuration Section */}
-      <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <section>
         <div className="flex items-center gap-2 mb-4">
           <Lock className="w-4 h-4 text-muted-foreground" />
           <h2 className="text-lg font-semibold font-mono">Fixed Configuration</h2>
@@ -47,7 +47,6 @@ function Index() {
             label="Creator"
             value={classroom.owner.name}
             description="Classroom owner"
-            index={0}
           />
 
           {/* Teams Configuration Card */}
@@ -74,7 +73,6 @@ function Index() {
               )
             }
             description="Team structure"
-            index={1}
           />
 
           {/* Student Team Creation - only show if teams enabled */}
@@ -88,7 +86,6 @@ function Index() {
                 </StatusBadge>
               }
               description="Can students create their own teams"
-              index={2}
             />
           )}
 
@@ -108,7 +105,6 @@ function Index() {
                     </StatusBadge>
                   }
                   description="Cross-team code visibility"
-                  index={teamsEnabled ? 3 : 2}
                   interactive
                 />
               </div>
@@ -137,7 +133,7 @@ function Index() {
       </div>
 
       {/* Editable Settings Section */}
-      <section className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: "100ms" }}>
+      <section>
         <ClassroomEditForm userClassroom={userClassroom} />
       </section>
     </div>
@@ -149,23 +145,20 @@ function ConfigCard({
   label,
   value,
   description,
-  index,
   interactive = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   description: string;
-  index: number;
   interactive?: boolean;
 }) {
   return (
     <Card
       className={cn(
-        "transition-all duration-200 animate-in fade-in slide-in-from-bottom-2",
+        "transition-all duration-200",
         interactive && "cursor-help hover:border-primary/30"
       )}
-      style={{ animationDelay: `${index * 50}ms` }}
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">

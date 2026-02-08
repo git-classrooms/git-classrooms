@@ -60,7 +60,7 @@ function Grading() {
 
 function TestsFormSkeleton() {
   return (
-    <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <section>
       <div className="flex items-center gap-3 mb-4">
         <Skeleton className="w-10 h-10 rounded-lg" />
         <div className="space-y-2">
@@ -140,7 +140,7 @@ const TestsForm = (props: { classroomId: string; assignmentId: string }) => {
   }, 0);
 
   return (
-    <section className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <section>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
@@ -369,7 +369,7 @@ const RubricForm = (props: { classroomId: string; assignmentId: string }) => {
     .reduce((sum, r) => sum + r.maxScore, 0);
 
   return (
-    <section className="animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: "100ms" }}>
+    <section>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">

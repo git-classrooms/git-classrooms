@@ -116,7 +116,7 @@ function GradingIndex() {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div>
       <Breadcrumb className="mb-6">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -408,13 +408,12 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
               </div>
             ) : (
               <div className="divide-y divide-border/50">
-                {filteredProjects.map((project, index) => (
+                {filteredProjects.map((project) => (
                   <ProjectRow
                     key={project.id}
                     project={project}
                     rubrics={rubrics}
                     assignment={assignment}
-                    index={index}
                   />
                 ))}
               </div>
@@ -452,12 +451,10 @@ function ProjectRow({
   project,
   rubrics,
   assignment,
-  index,
 }: {
   project: ZippedProject;
   rubrics: ManualGradingRubric[];
   assignment: Assignment;
-  index: number;
 }) {
   const maxManualScore = rubrics.reduce((acc, e) => acc + e.maxScore, 0);
   const manualScore = project.gradingManualResults?.reduce((acc, e) => acc + (e.score || 0), 0) ?? 0;
@@ -472,8 +469,7 @@ function ProjectRow({
 
   return (
     <div
-      className="p-4 hover:bg-muted/30 transition-colors animate-in fade-in slide-in-from-bottom-1"
-      style={{ animationDelay: `${index * 50}ms` }}
+      className="p-4 hover:bg-muted/30 transition-colors"
     >
       <div className="flex flex-col lg:flex-row lg:items-center gap-4">
         {/* Team Info */}

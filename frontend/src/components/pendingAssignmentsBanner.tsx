@@ -74,7 +74,6 @@ export function PendingAssignmentsBanner({
     <div
       className={cn(
         "relative overflow-hidden rounded-xl border-2 p-6 transition-all duration-300",
-        "animate-in fade-in slide-in-from-top-2",
         isFailed
           ? "border-destructive/50 bg-gradient-to-br from-destructive/10 via-destructive/5 to-background"
           : isVeryUrgent
