@@ -8,6 +8,7 @@ import { CsrfProvider } from "@/provider/csrfProvider";
 import { Navbar } from "@/components/navbar.tsx";
 import { GetMeResponse } from "@/swagger-client";
 import { NotFound } from "@/components/not-found";
+import { ErrorPage } from "@/components/error-page";
 import { CommandPalette } from "@/components/command-palette";
 
 export const Route = createRootRouteWithContext<{
@@ -16,6 +17,7 @@ export const Route = createRootRouteWithContext<{
 }>()({
   component: RootComponent,
   notFoundComponent: NotFound,
+  errorComponent: ({ error }) => <ErrorPage error={error as Error} />,
   loader: ({ context }) => context.queryClient.ensureQueryData(authCsrfQueryOptions),
   pendingComponent: Loader,
 });
