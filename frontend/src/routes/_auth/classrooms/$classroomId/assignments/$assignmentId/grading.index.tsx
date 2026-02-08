@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, isModerator } from "@/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
@@ -26,20 +27,20 @@ import {
   Clock,
   Download,
   ExternalLink,
+  Grid3X3,
+  LayoutList,
   Loader2,
   Target,
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Assignment,
   ManualGradingRubric,
-  ProjectResponse,
   ReportApiAxiosParamCreator,
-  UtilsReportDataItem,
 } from "@/swagger-client";
 import { Status } from "@/types/projects";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -59,6 +60,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  GradingMatrix,
+  GradingFilters,
+  GradingByRubric,
+  ViewMode,
+  StatusFilter,
+  ZippedProject,
+  isProjectGraded,
+  DEFAULT_GRADE_SCHEMA,
+  calculateGradeFromScore,
+  getGradeColor,
+  getGradeBgColor,
+} from "@/components/grading";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/grading/")({
   beforeLoad: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -223,6 +237,11 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
   const { data: projects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
   const { data: rubrics } = useSuspenseQuery(assignmentGradingRubricsQueryOptions(classroomId, assignmentId));
 
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [selectedRubricId, setSelectedRubricId] = useState<string | null>(rubrics[0]?.id ?? null);
+
   const zippedProjects = useMemo(
     () =>
       projects
@@ -234,13 +253,25 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
     [projects, gradingResults],
   );
 
+  const filteredProjects = useMemo(() => {
+    return zippedProjects.filter((project) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        project.team.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const isGraded = isProjectGraded(project, rubrics.length);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "graded" && isGraded) ||
+        (statusFilter === "pending" && !isGraded);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [zippedProjects, searchQuery, statusFilter, rubrics.length]);
+
   const stats = useMemo(() => {
     const totalProjects = zippedProjects.length;
-    const gradedProjects = zippedProjects.filter((p) => {
-      const rubricCount = Object.keys(p.gradingResult?.rubricResults ?? {}).length;
-      const hasAutoGrading = p.gradingResult?.autogradingMaxScore === 0 || p.gradingResult?.autogradingScore !== 0;
-      return rubricCount === rubrics.length && hasAutoGrading;
-    }).length;
+    const gradedProjects = zippedProjects.filter((p) => isProjectGraded(p, rubrics.length)).length;
 
     const totalScore = zippedProjects.reduce((acc, p) => acc + (p.gradingResult?.score ?? 0), 0);
     const maxTotalScore = zippedProjects.reduce((acc, p) => acc + (p.gradingResult?.maxScore ?? 0), 0);
@@ -317,48 +348,105 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
         </Card>
       </div>
 
-      {/* Projects List */}
-      <Card className="border-border/50">
-        <CardContent className="p-0">
-          <div className="p-4 border-b border-border/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold font-mono">Project Grades</h2>
-                  <p className="text-sm text-muted-foreground">Review and grade individual submissions</p>
+      {/* View Toggle & Filters */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+            <TabsList>
+              <TabsTrigger value="list" className="gap-2">
+                <LayoutList className="h-4 w-4" />
+                <span className="hidden sm:inline">By Student</span>
+              </TabsTrigger>
+              <TabsTrigger value="rubric" className="gap-2">
+                <Target className="h-4 w-4" />
+                <span className="hidden sm:inline">By Rubric</span>
+              </TabsTrigger>
+              <TabsTrigger value="matrix" className="gap-2">
+                <Grid3X3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Matrix</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <GradingFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            totalCount={zippedProjects.length}
+            filteredCount={filteredProjects.length}
+          />
+        </div>
+      </div>
+
+      {/* Content based on view mode */}
+      {viewMode === "list" && (
+        <Card className="border-border/50">
+          <CardContent className="p-0">
+            <div className="p-4 border-b border-border/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold font-mono">Project Grades</h2>
+                    <p className="text-sm text-muted-foreground">Review and grade individual submissions</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {zippedProjects.length === 0 ? (
-            <div className="p-12 text-center">
-              <Target className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">No accepted projects to grade yet.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-border/50">
-              {zippedProjects.map((project, index) => (
-                <ProjectRow
-                  key={project.id}
-                  project={project}
-                  rubrics={rubrics}
-                  assignment={assignment}
-                  index={index}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            {filteredProjects.length === 0 ? (
+              <div className="p-12 text-center">
+                <Target className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">
+                  {zippedProjects.length === 0
+                    ? "No accepted projects to grade yet."
+                    : "No projects match your filter criteria."}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border/50">
+                {filteredProjects.map((project, index) => (
+                  <ProjectRow
+                    key={project.id}
+                    project={project}
+                    rubrics={rubrics}
+                    assignment={assignment}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {viewMode === "matrix" && (
+        <GradingMatrix
+          projects={filteredProjects}
+          rubrics={rubrics}
+          assignment={assignment}
+          classroomId={classroomId}
+          assignmentId={assignmentId}
+          gradeSchema={DEFAULT_GRADE_SCHEMA}
+        />
+      )}
+
+      {viewMode === "rubric" && (
+        <GradingByRubric
+          projects={filteredProjects}
+          rubrics={rubrics}
+          selectedRubricId={selectedRubricId}
+          onRubricChange={setSelectedRubricId}
+          classroomId={classroomId}
+          assignmentId={assignmentId}
+        />
+      )}
     </div>
   );
 }
-
-type ZippedProject = ProjectResponse & { gradingResult?: UtilsReportDataItem };
 
 function ProjectRow({
   project,
@@ -377,10 +465,10 @@ function ProjectRow({
   const autoMaxScore = project.gradingResult?.autogradingMaxScore ?? 0;
   const totalScore = project.gradingResult?.score ?? 0;
   const totalMaxScore = project.gradingResult?.maxScore ?? 0;
+  const totalPercentage = totalMaxScore > 0 ? (totalScore / totalMaxScore) * 100 : 0;
 
-  const alreadyGraded =
-    Object.keys(project.gradingResult?.rubricResults ?? {}).length === rubrics.length &&
-    (project.gradingResult?.autogradingMaxScore === 0 || project.gradingResult?.autogradingScore !== 0);
+  const alreadyGraded = isProjectGraded(project, rubrics.length);
+  const gradeResult = calculateGradeFromScore(totalScore, totalMaxScore, DEFAULT_GRADE_SCHEMA);
 
   return (
     <div
@@ -437,6 +525,29 @@ function ProjectRow({
             </div>
           </div>
         </div>
+
+        {/* Grade */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className={cn(
+              "flex items-center justify-center px-4 py-2 rounded-lg min-w-[70px]",
+              getGradeBgColor(gradeResult.grade)
+            )}>
+              <span className={cn(
+                "font-mono text-xl font-bold",
+                getGradeColor(gradeResult.grade)
+              )}>
+                {gradeResult.grade}
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-medium capitalize">{gradeResult.label}</p>
+            <p className="text-xs text-muted-foreground">
+              {totalPercentage.toFixed(1)}% · min {gradeResult.minPercentage}%
+            </p>
+          </TooltipContent>
+        </Tooltip>
 
         {/* Actions */}
         <div className="flex items-center gap-2 lg:w-auto">
