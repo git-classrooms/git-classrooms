@@ -11,7 +11,6 @@ import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button";
 import {
-  Archive,
   CalendarClock,
   CheckCircle2,
   ChevronRight,
@@ -25,18 +24,6 @@ import {
   Settings,
   Users,
 } from "lucide-react";
-import { useArchiveClassroom } from "@/api/classroom";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogAction,
-  AlertDialogHeader,
-  AlertDialogFooter,
-} from "@/components/ui/alert-dialog";
 import { formatRelativeTime, isModerator, isStudent } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
@@ -98,7 +85,6 @@ function ClassroomDetail() {
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { tab } = Route.useSearch();
   const { reportDownloadUrl } = Route.useLoaderData();
-  const { mutate } = useArchiveClassroom(classroomId);
   const router = useRouter();
 
   // Students can only see members/teams if "Mutual Code View" is enabled
@@ -113,10 +99,6 @@ function ClassroomDetail() {
   }, [canViewMembersAndTeams, tab]);
 
   const { teamsReportUrls } = Route.useLoaderData();
-
-  const handleConfirmArchive = () => {
-    mutate();
-  };
 
   const handleCopyInviteLink = () => {
     const path = router.buildLocation({
@@ -189,29 +171,6 @@ function ClassroomDetail() {
                   Report
                 </a>
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Archive className="w-4 h-4 mr-2" />
-                    Archive
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Archive this classroom?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. The classroom will be marked as archived
-                      and no new assignments can be created.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleConfirmArchive} variant="destructive">
-                      Archive Classroom
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
               <Button variant="outline" size="sm" asChild>
                 <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
                   <Settings className="w-4 h-4 mr-2" />

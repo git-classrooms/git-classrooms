@@ -1,12 +1,24 @@
-import { classroomQueryOptions } from "@/api/classroom";
+import { classroomQueryOptions, useArchiveClassroom } from "@/api/classroom";
 import { ClassroomEditForm } from "@/components/classroomsForm";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Eye, EyeOff, Info, Lock, Users, Users2 } from "lucide-react";
+import { AlertTriangle, Archive, Eye, EyeOff, Info, Lock, Users, Users2 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings/")({
   loader: async ({ params: { classroomId }, context: { queryClient } }) => {
@@ -20,6 +32,7 @@ function Index() {
   const { classroomId } = Route.useParams();
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const classroom = userClassroom.classroom;
+  const { mutate: archiveClassroom } = useArchiveClassroom(classroomId);
 
   const teamsEnabled = classroom.maxTeamSize > 1;
 
@@ -136,6 +149,66 @@ function Index() {
       <section>
         <ClassroomEditForm userClassroom={userClassroom} />
       </section>
+
+      {/* Danger Zone */}
+      {!classroom.archived && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-destructive/30" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-card/30 px-3 text-xs text-destructive uppercase tracking-wider">
+                Danger Zone
+              </span>
+            </div>
+          </div>
+
+          <section>
+            <Card className="border-destructive/30">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                      <AlertTriangle className="w-5 h-5 text-destructive" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Archive Classroom</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Once archived, no new assignments can be created and students cannot join.
+                        This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Archive className="w-4 h-4 mr-2" />
+                        Archive
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Archive this classroom?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. The classroom will be marked as archived
+                          and no new assignments can be created.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => archiveClassroom()} variant="destructive">
+                          Archive Classroom
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        </>
+      )}
     </div>
   );
 }
