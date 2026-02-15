@@ -44,7 +44,7 @@ cd gitlab-classroom
     - Tools -> Terminal -> Starting directory like `\\wsl$\Ubuntu-22.04\home\<your-username>\gitlab-classroom`
     - Tools -> Terminal -> Shell path like `wsl.exe --distribution Ubuntu-22.04`
     - Languages & Frameworks -> Node.js -> Node interpreter like `\\wsl$\Ubuntu-22.04\...`
-    - Languages & Frameworks -> Node.js -> Package manager like `yarn \\wsl$\Ubuntu-22.04\...`
+    - Languages & Frameworks -> Node.js -> Package manager like `pnpm \\wsl$\Ubuntu-22.04\...`
     - Languages & Frameworks -> Typescript -> like `\\wsl$\Ubuntu-22.04\...`
 
 
@@ -117,7 +117,7 @@ Run the app directly on your machine and not within docker
 
 ##### Prerequisites
 - Node.js
-- Yarn
+- pnpm
 - Docker
 - Docker Compose
 - go

@@ -78,7 +78,7 @@ build:
 .PHONY: build/frontend
 build/frontend:
 	@echo "Building frontend..."
-	@cd frontend && yarn build
+	@cd frontend && pnpm build
 
 .PHONY: setup
 setup: setup/frontend
@@ -93,7 +93,7 @@ setup/ci:
 
 .PHONY: setup/frontend
 setup/frontend:
-	@cd frontend &&	yarn install
+	@cd frontend &&	pnpm install
 
 .PHONY: clean
 clean:
@@ -101,7 +101,7 @@ clean:
 	@rm -rf ./bin ./tmp
 	@rm -f docs/docs.go docs/swagger.json docs/swagger.yaml
 	@rm -rf $(shell yq '.packages | to_entries | map(.value.config.dir) | .[]' .mockery.yaml)
-	@cd frontend && yarn clean
+	@cd frontend && pnpm clean
 
 .PHONY: generate
 generate:
@@ -117,7 +117,7 @@ generate/client:
 	@if ! [ -f "docs/swagger.yaml" ]; then \
 		$(MAKE) generate; \
 	fi
-	@cd frontend && yarn generate
+	@cd frontend && pnpm generate
 
 .PHONY: build/docker
 build/docker:
@@ -181,12 +181,12 @@ lint:
 .PHONY: lint/frontend
 lint/frontend:
 	@echo "Linting frontend..."
-	cd frontend && yarn lint
+	cd frontend && pnpm lint
 
 .PHONY: test/frontend
 test/frontend:
 	@echo "Testing frontend..."
-	cd frontend && yarn test
+	cd frontend && pnpm test
 
 .PHONY: test
 test:

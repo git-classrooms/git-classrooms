@@ -27,3 +27,4 @@ CITATION.cff
 .env
 .env.example
 .golangci.yml
+.pre-commit-config.yaml

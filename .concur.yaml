@@ -18,12 +18,12 @@ commands:
     name: backend
     color: "#458588"
     bold: true
-  - command: yarn dev:tsr
+  - command: pnpm dev:tsr
     name: tsr
     cwd: ./frontend
     color: "#cc241d"
     bold: true
-  - command: yarn dev:vite
+  - command: pnpm dev:vite
     name: frontend
     cwd: ./frontend
     color: "#fe8019"

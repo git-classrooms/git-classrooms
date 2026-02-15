@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"yarn dev:tsr\" \"yarn dev:vite\"",
+    "dev": "concurrently \"pnpm dev:tsr\" \"pnpm dev:vite\"",
     "dev:tsr": "tsr watch",
     "dev:vite": "vite",
     "build": "tsc && vite build",
@@ -80,5 +80,10 @@
     "vite": "^5.4.1",
     "vitest": "^1.6.0"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "pnpm@10.29.3",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }
