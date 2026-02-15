@@ -179,7 +179,7 @@ function AssignmentDetail() {
           {isOwner(classroom) && (
             <Button variant="outline" size="sm" asChild>
               <Link
-                to="/classrooms/$classroomId/assignments/$assignmentId/settings/"
+                to="/classrooms/$classroomId/assignments/$assignmentId/settings"
                 params={{ classroomId, assignmentId }}
               >
                 <Settings className="w-4 h-4 mr-2" />

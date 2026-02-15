@@ -16,7 +16,7 @@ const seachSchema = z.object({
   groupLink: z.boolean().catch(false),
 });
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId_/invitations/$invitationId")({
   validateSearch: seachSchema,
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context: { queryClient }, params, deps: { search: { groupLink } } }) => {

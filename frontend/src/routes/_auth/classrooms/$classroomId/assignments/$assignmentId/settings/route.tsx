@@ -37,7 +37,7 @@ function Settings() {
 
   const navItems = [
     {
-      to: "/classrooms/$classroomId/assignments/$assignmentId/settings/" as const,
+      to: "/classrooms/$classroomId/assignments/$assignmentId/settings" as const,
       label: t("settings.general"),
       icon: Sliders,
       description: t("settings.generalDescription"),

@@ -178,7 +178,7 @@ function ClassroomDetail() {
               )}
               {isOwner(userClassroom) && (
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/classrooms/$classroomId/settings/" params={{ classroomId }}>
+                  <Link to="/classrooms/$classroomId/settings" params={{ classroomId }}>
                     <Settings className="w-4 h-4 mr-2" />
                     {t("settings.title")}
                   </Link>
@@ -206,14 +206,14 @@ function ClassroomDetail() {
         <Tabs value={effectiveTab} className="w-full">
           <TabsList>
             <TabsTrigger asChild value="assignments">
-              <Link search={{ tab: "assignments" }}>
+              <Link from="/classrooms/$classroomId" search={{ tab: "assignments" }}>
                 <FileText className="w-4 h-4 mr-2" />
                 {t("tabs.assignments")}
               </Link>
             </TabsTrigger>
             {canViewMembersAndTeams && (
               <TabsTrigger asChild value="members">
-                <Link search={{ tab: "members" }}>
+                <Link from="/classrooms/$classroomId" search={{ tab: "members" }}>
                   <Users className="w-4 h-4 mr-2" />
                   {t("tabs.members")}
                 </Link>
@@ -221,7 +221,7 @@ function ClassroomDetail() {
             )}
             {canViewMembersAndTeams && userClassroom.classroom.maxTeamSize > 1 && (
               <TabsTrigger asChild value="teams">
-                <Link search={{ tab: "teams" }}>
+                <Link from="/classrooms/$classroomId" search={{ tab: "teams" }}>
                   <Users className="w-4 h-4 mr-2" />
                   {t("tabs.teams")}
                 </Link>

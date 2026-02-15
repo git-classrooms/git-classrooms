@@ -22,7 +22,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId_/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
 
@@ -142,7 +142,7 @@ function JoinTeam() {
                 onSuccess={() => {
                   setDialogOpen(false);
                   navigate({
-                    to: "/classrooms/$classroomId/",
+                    to: "/classrooms/$classroomId",
                     search: { tab: "assignments" },
                     params: { classroomId },
                   });
@@ -203,7 +203,7 @@ function JoinTeam() {
                       onSuccess={() => {
                         setDialogOpen(false);
                         navigate({
-                          to: "/classrooms/$classroomId/",
+                          to: "/classrooms/$classroomId",
                           search: { tab: "assignments" },
                           params: { classroomId },
                         });

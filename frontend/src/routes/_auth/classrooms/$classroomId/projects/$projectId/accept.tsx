@@ -51,7 +51,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$p
 function AcceptAssignment() {
   const { t } = useTranslation(["assignment", "classroom"]);
   const navigate = useNavigate({
-    from: "/_auth/classrooms/$classroomId/projects/$projectId/accept/",
+    from: "/classrooms/$classroomId/projects/$projectId/accept",
   });
   const { classroomId, projectId } = Route.useParams();
   const queryClient = useQueryClient();
