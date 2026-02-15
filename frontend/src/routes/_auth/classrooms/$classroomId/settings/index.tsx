@@ -6,7 +6,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, Archive, Eye, EyeOff, Info, Lock, Users, Users2 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn, unwrapApiError } from "@/lib/utils";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -198,7 +199,15 @@ function Index() {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>{tc("actions.cancel")}</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => archiveClassroom()} variant="destructive">
+                        <AlertDialogAction
+                          onClick={() =>
+                            archiveClassroom(undefined, {
+                              onSuccess: () => toast.success(t("settings.archive.success")),
+                              onError: (error) => toast.error(unwrapApiError(error)?.message ?? t("settings.archive.error")),
+                            })
+                          }
+                          variant="destructive"
+                        >
                           {t("settings.archive.title")}
                         </AlertDialogAction>
                       </AlertDialogFooter>

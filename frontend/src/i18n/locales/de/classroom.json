@@ -187,7 +187,8 @@
       "button": "Archivieren",
       "confirm": "Diesen Kurs archivieren?",
       "confirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Der Kurs wird als archiviert markiert und es können keine neuen Aufgaben erstellt werden.",
-      "success": "Kurs archiviert"
+      "success": "Kurs archiviert",
+      "error": "Der Kurs konnte nicht archiviert werden"
     }
   },
   "detail": {

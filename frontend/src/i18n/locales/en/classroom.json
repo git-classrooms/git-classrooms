@@ -187,7 +187,8 @@
       "button": "Archive",
       "confirm": "Archive this classroom?",
       "confirmDescription": "This action cannot be undone. The classroom will be marked as archived and no new assignments can be created.",
-      "success": "Classroom archived"
+      "success": "Classroom archived",
+      "error": "Failed to archive the classroom"
     }
   },
   "detail": {

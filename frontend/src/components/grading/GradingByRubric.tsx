@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ExternalLink, Target, ChevronRight, ChevronLeft } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { GradingByRubricProps, getScoreColor, getScoreTextColor } from "./types";
 import { GradingFeedbackPopover } from "./GradingFeedbackPopover";
 import { useGradeProject } from "@/api/grading";
@@ -191,11 +191,16 @@ function RubricProjectCard({
   const [feedback, setFeedback] = useState(initialFeedback);
 
   const { mutateAsync, isPending } = useGradeProject(classroomId, assignmentId, project.id);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setScore(rubricResult?.score ?? 0);
     setFeedback(rubricResult?.feedback ?? "");
   }, [rubricResult]);
+
+  useEffect(() => {
+    return () => clearTimeout(saveTimeoutRef.current);
+  }, []);
 
   const saveGrade = async (newScore: number, newFeedback?: string) => {
     // Build grades for ALL rubrics, not just existing ones
@@ -252,7 +257,19 @@ function RubricProjectCard({
     saveGrade(newScore);
   };
 
+  const handleScoreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const num = e.target.value === "" ? 0 : Number(e.target.value);
+    const newScore = Math.min(Math.max(num, 0), rubric.maxScore);
+    setScore(newScore);
+
+    clearTimeout(saveTimeoutRef.current);
+    if (newScore !== initialScore) {
+      saveTimeoutRef.current = setTimeout(() => saveGrade(newScore), 300);
+    }
+  };
+
   const handleScoreBlur = () => {
+    clearTimeout(saveTimeoutRef.current);
     if (score !== initialScore) {
       saveGrade(score);
     }
@@ -323,10 +340,7 @@ function RubricProjectCard({
                 min={0}
                 max={rubric.maxScore}
                 value={score}
-                onChange={(e) => {
-                  const num = e.target.value === "" ? 0 : Number(e.target.value);
-                  setScore(Math.min(Math.max(num, 0), rubric.maxScore));
-                }}
+                onChange={handleScoreChange}
                 onBlur={handleScoreBlur}
                 onClick={(e) => e.stopPropagation()}
                 className="h-7 w-16 text-center font-mono text-sm border-0 bg-transparent p-0 focus-visible:ring-0"

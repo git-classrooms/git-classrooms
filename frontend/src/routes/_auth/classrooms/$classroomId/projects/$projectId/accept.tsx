@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { projectQueryOptions, useAcceptAssignment } from "@/api/project";
 import { classroomQueryOptions } from "@/api/classroom";
 import { cn, formatDate, formatDateWithTime, getDaysUntilDue, isStudent } from "@/lib/utils";
@@ -28,6 +29,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useTranslation } from "react-i18next";
+import { Status } from "@/types/projects";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/projects/$projectId/accept")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -52,9 +54,14 @@ function AcceptAssignment() {
     from: "/_auth/classrooms/$classroomId/projects/$projectId/accept/",
   });
   const { classroomId, projectId } = Route.useParams();
+  const queryClient = useQueryClient();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
-  const { data: project } = useSuspenseQuery(projectQueryOptions(classroomId, projectId, 10000));
+  const { data: project } = useSuspenseQuery(projectQueryOptions(classroomId, projectId));
   const { mutateAsync, isError, isPending } = useAcceptAssignment(classroomId, projectId);
+
+  const [accepted, setAccepted] = useState(false);
+  const isCreating = accepted && project.projectStatus !== Status.Accepted && project.projectStatus !== Status.Failed;
+  const isLoading = isPending || isCreating;
 
   const dueDate = project.assignment.dueDate;
   const daysUntil = getDaysUntilDue(dueDate);
@@ -63,7 +70,16 @@ function AcceptAssignment() {
 
   const onClick = async () => {
     await mutateAsync();
-    await navigate({ to: "/classrooms/$classroomId", params: { classroomId }, search: { tab: "assignments" } });
+    setAccepted(true);
+
+    const opts = projectQueryOptions(classroomId, projectId);
+    let status: string | undefined;
+    do {
+      await new Promise((r) => setTimeout(r, 100));
+      status = queryClient.getQueryData<typeof project>(opts.queryKey)?.projectStatus;
+    } while (status !== Status.Accepted && status !== Status.Failed);
+
+    navigate({ to: "/classrooms/$classroomId", params: { classroomId }, search: { tab: "assignments" } });
   };
 
   return (
@@ -199,9 +215,9 @@ function AcceptAssignment() {
                 size="lg"
                 className="w-full sm:flex-1 gap-2 font-semibold"
                 onClick={onClick}
-                disabled={isPending}
+                disabled={isLoading}
               >
-                {isPending ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     {t("acceptPage.settingUp")}

@@ -10,10 +10,8 @@ export function useUnsavedChanges({
   isDirty,
   message = "You have unsaved changes. Are you sure you want to leave?",
 }: UseUnsavedChangesOptions) {
-  // Block navigation when there are unsaved changes
   useBlocker(() => window.confirm(message), isDirty);
 
-  // Handle browser beforeunload event
   const handleBeforeUnload = useCallback(
     (e: BeforeUnloadEvent) => {
       if (isDirty) {
@@ -27,8 +25,31 @@ export function useUnsavedChanges({
 
   useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [handleBeforeUnload]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+
+    let skipNextPop = false;
+
+    window.history.pushState(window.history.state, "", window.location.href);
+
+    const handlePopState = () => {
+      if (skipNextPop) {
+        skipNextPop = false;
+        return;
+      }
+
+      if (window.confirm(message)) {
+        skipNextPop = true;
+        window.history.back();
+      } else {
+        window.history.pushState(window.history.state, "", window.location.href);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isDirty, message]);
 }
