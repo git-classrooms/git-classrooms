@@ -1,7 +1,9 @@
 import axios, { isAxiosError } from "axios";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format } from "date-fns";
+import { format, formatDistanceToNow, differenceInDays } from "date-fns";
+import { de, enUS } from "date-fns/locale";
+import i18n from "@/i18n";
 import {
   AssignmentApi,
   AuthApi,
@@ -25,11 +27,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const getDateLocale = () => {
+  const lang = i18n.language;
+  if (lang === "de") return de;
+  return enUS;
+};
+
 export const getUUIDFromLocation = (location: string) => location.split("/").pop()!;
 
-export const formatDate = (date: Parameters<typeof format>[0]) => format(date, "PPP");
+export const formatDate = (date: Parameters<typeof format>[0]) =>
+  format(date, "PPP", { locale: getDateLocale() });
 
-export const formatDateWithTime = (date: Parameters<typeof format>[0]) => format(date, "PPP HH:mm:ss");
+export const formatDateWithTime = (date: Parameters<typeof format>[0]) =>
+  format(date, "PPP HH:mm:ss", { locale: getDateLocale() });
+
+export const formatRelativeTime = (date: Parameters<typeof formatDistanceToNow>[0]) =>
+  formatDistanceToNow(date, { addSuffix: true, locale: getDateLocale() });
+
+export const getDaysUntilDue = (dueDate: string | null | undefined): number | null => {
+  if (!dueDate) return null;
+  return differenceInDays(new Date(dueDate), new Date());
+};
 
 const apiClient = axios.create({ withCredentials: true });
 

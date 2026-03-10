@@ -1,0 +1,35 @@
+{
+  "required": "Dieses Feld ist erforderlich",
+  "string": {
+    "min": "Muss mindestens {{min}} Zeichen haben",
+    "max": "Darf höchstens {{max}} Zeichen haben",
+    "email": "Bitte gib eine gültige E-Mail-Adresse ein",
+    "url": "Bitte gib eine gültige URL ein"
+  },
+  "number": {
+    "min": "Muss mindestens {{min}} sein",
+    "max": "Darf höchstens {{max}} sein",
+    "positive": "Muss eine positive Zahl sein",
+    "integer": "Muss eine ganze Zahl sein"
+  },
+  "date": {
+    "invalid": "Bitte gib ein gültiges Datum ein",
+    "future": "Datum muss in der Zukunft liegen",
+    "past": "Datum muss in der Vergangenheit liegen"
+  },
+  "classroom": {
+    "nameRequired": "Kursname ist erforderlich",
+    "nameMin": "Name muss mindestens 3 Zeichen haben",
+    "nameMax": "Name darf höchstens 100 Zeichen haben",
+    "maxTeamsMin": "Maximale Teams muss 0 oder größer sein",
+    "maxTeamSizeMin": "Teamgröße muss mindestens 2 sein"
+  },
+  "assignment": {
+    "nameRequired": "Aufgabenname ist erforderlich",
+    "nameMin": "Name muss mindestens 3 Zeichen haben"
+  },
+  "team": {
+    "nameRequired": "Teamname ist erforderlich",
+    "nameMin": "Name muss mindestens 2 Zeichen haben"
+  }
+}

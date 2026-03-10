@@ -1,0 +1,53 @@
+{
+  "http": {
+    "400": {
+      "title": "Ungültige Anfrage",
+      "description": "Der Server konnte deine Anfrage nicht verstehen. Bitte überprüfe deine Eingabe und versuche es erneut."
+    },
+    "401": {
+      "title": "Nicht autorisiert",
+      "description": "Du musst dich anmelden, um auf diese Ressource zuzugreifen. Bitte authentifiziere dich und versuche es erneut."
+    },
+    "403": {
+      "title": "Zugriff verweigert",
+      "description": "Du hast keine Berechtigung, auf diese Ressource zuzugreifen. Kontaktiere deinen Administrator, falls du glaubst, dass dies ein Fehler ist."
+    },
+    "404": {
+      "title": "Nicht gefunden",
+      "description": "Die gesuchte Seite existiert nicht oder wurde verschoben."
+    },
+    "408": {
+      "title": "Zeitüberschreitung",
+      "description": "Der Server hat zu lange gebraucht, um zu antworten. Bitte überprüfe deine Verbindung und versuche es erneut."
+    },
+    "500": {
+      "title": "Server-Fehler",
+      "description": "Auf unserer Seite ist etwas schiefgelaufen. Unser Team wurde benachrichtigt und arbeitet daran."
+    },
+    "502": {
+      "title": "Ungültiges Gateway",
+      "description": "Wir haben Probleme, eine Verbindung zu unseren Servern herzustellen. Bitte versuche es in einem Moment erneut."
+    },
+    "503": {
+      "title": "Dienst nicht verfügbar",
+      "description": "Der Dienst ist vorübergehend nicht verfügbar. Wir arbeiten daran, ihn so schnell wie möglich wiederherzustellen."
+    },
+    "default": {
+      "title": "Etwas ist schiefgelaufen",
+      "description": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut oder kontaktiere den Support, wenn das Problem weiterhin besteht."
+    }
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Die gesuchte Seite existiert nicht oder wurde an einen anderen Ort verschoben.",
+    "hint": "Verloren? Nutze das Navigationsmenü oder suche nach dem, was du brauchst."
+  },
+  "actions": {
+    "goBack": "Zurück",
+    "tryAgain": "Erneut versuchen",
+    "dashboard": "Dashboard"
+  },
+  "technical": {
+    "details": "Technische Details"
+  }
+}

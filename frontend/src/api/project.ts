@@ -34,14 +34,17 @@ export const projectsQueryOptions = (classroomId: string) =>
     },
   });
 
-export const projectQueryOptions = (classroomId: string, projectId: string, refetchInterval?: number) =>
+export const projectQueryOptions = (classroomId: string, projectId: string) =>
   queryOptions({
     queryKey: ["classrooms", classroomId, "projects", projectId],
     queryFn: async () => {
       const res = await apiClient.getClassroomProject(classroomId, projectId);
       return res.data;
     },
-    refetchInterval,
+    refetchInterval: (query) => {
+      if (query.state.data?.projectStatus === "creating") return 100;
+      return false;
+    },
   });
 
 export const teamProjectsQueryOptions = (classroomId: string, teamId: string) =>

@@ -26,8 +26,8 @@
       devShells.default = pkgs.mkShell {
         nativeBuildInputs = with pkgs; [
           # Frontend
-          nodejs_22
-          yarn
+          nodejs_24
+          pnpm
 
           # Backend and tools
           go_1_24
@@ -42,7 +42,7 @@
         ];
 
         shellHook = ''
-          cd ./frontend && yarn install
+          cd ./frontend && pnpm install
 
           cd ..
           go mod download

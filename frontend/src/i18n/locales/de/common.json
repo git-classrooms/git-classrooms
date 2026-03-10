@@ -1,0 +1,100 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "classrooms": "Kurse",
+    "login": "Anmelden",
+    "openMenu": "Menü öffnen",
+    "navigationMenu": "Navigationsmenü",
+    "viewAll": "Alle anzeigen"
+  },
+  "dashboard": {
+    "welcomeBack": "Willkommen zurück, {{name}}",
+    "allCaughtUp": "Du bist auf dem neuesten Stand!",
+    "activeAssignments": "Du hast {{count}} aktive Aufgaben",
+    "activeAssignments_one": "Du hast {{count}} aktive Aufgabe",
+    "yourClassrooms": "Deine Kurse",
+    "managedByYou": "Von dir verwaltet",
+    "moderating": "Moderierend",
+    "joined": "Beigetreten",
+    "activeAssignmentsTitle": "Aktive Aufgaben",
+    "activeAssignmentsSubtitle": "Aufgaben, die deine Aufmerksamkeit erfordern",
+    "noActiveAssignments": "Keine aktiven Aufgaben"
+  },
+  "user": {
+    "gitlabProfile": "GitLab-Profil",
+    "viewProfile": "Profil anzeigen",
+    "logout": "Abmelden",
+    "endSession": "Sitzung beenden"
+  },
+  "actions": {
+    "save": "Speichern",
+    "saveChanges": "Änderungen speichern",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirm": "Bestätigen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "goBack": "Zurück",
+    "next": "Weiter",
+    "submit": "Absenden",
+    "tryAgain": "Erneut versuchen",
+    "refresh": "Aktualisieren",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "loading": "Wird geladen..."
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "pending": "Ausstehend",
+    "completed": "Abgeschlossen",
+    "open": "Offen",
+    "closed": "Geschlossen",
+    "success": "Erfolgreich",
+    "error": "Fehler",
+    "warning": "Warnung"
+  },
+  "time": {
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "yesterday": "Gestern",
+    "daysAgo": "vor {{count}} Tagen",
+    "daysAgo_one": "vor {{count}} Tag",
+    "dueDate": "Fälligkeitsdatum",
+    "createdAt": "Erstellt",
+    "updatedAt": "Aktualisiert"
+  },
+  "empty": {
+    "noData": "Keine Daten verfügbar",
+    "noResults": "Keine Ergebnisse gefunden"
+  },
+  "total": "Gesamt",
+  "language": {
+    "label": "Sprache",
+    "english": "Englisch",
+    "german": "Deutsch"
+  },
+  "commandPalette": {
+    "placeholder": "Befehl eingeben oder suchen...",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "navigation": "Navigation",
+    "home": "Startseite",
+    "allClassrooms": "Alle Kurse",
+    "recentClassrooms": "Letzte Kurse",
+    "quickActions": "Schnellaktionen",
+    "createClassroom": "Neuen Kurs erstellen",
+    "membersOf": "Mitglieder von {{name}}",
+    "settingsOf": "Einstellungen von {{name}}"
+  },
+  "theme": {
+    "switchToLight": "Zum hellen Modus wechseln",
+    "switchToDark": "Zum dunklen Modus wechseln"
+  },
+  "markdown": {
+    "supported": "Markdown wird unterstützt"
+  }
+}

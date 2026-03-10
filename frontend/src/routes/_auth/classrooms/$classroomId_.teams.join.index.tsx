@@ -1,17 +1,28 @@
 import { classroomQueryOptions } from "@/api/classroom";
 import { teamsQueryOptions, useJoinTeam } from "@/api/team";
 import { CreateTeamForm } from "@/components/createTeamForm";
-import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Role } from "@/types/classroom.ts";
 import { TeamTable } from "@/components/classroomTeams";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card.tsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
 import { ReportApiAxiosParamCreator } from "@/swagger-client";
+import { AlertCircle, ArrowLeft, Plus, Users2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId_/teams/join/")({
   loader: async ({ context: { queryClient }, params }) => {
     const userClassroom = await queryClient.fetchQuery(classroomQueryOptions(params.classroomId));
 
@@ -31,7 +42,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
         teams.map(async (team) => ({
           teamId: team.id,
           url: (await ReportApiAxiosParamCreator().getClassroomTeamReport(params.classroomId, team.id)).url,
-        })),
+        }))
       )
     ).reduce((acc, { url, teamId }) => acc.set(teamId, url), new Map<string, string>());
 
@@ -50,11 +61,14 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/teams/join/
 });
 
 function JoinTeam() {
+  const { t } = useTranslation("team");
+  const { t: tc } = useTranslation("classroom");
   const navigate = Route.useNavigate();
   const { classroomId } = Route.useParams();
   const { data: joinedClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
   const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
   const { teamsReportUrls } = Route.useLoaderData();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { mutateAsync, isPending } = useJoinTeam(classroomId);
 
@@ -66,65 +80,154 @@ function JoinTeam() {
       params: { classroomId },
     });
   };
+
   const freeTeamSlot = (): boolean => {
     return teams.some((team) => team.members.length < joinedClassroom.classroom.maxTeamSize);
   };
 
+  const canCreateTeam =
+    joinedClassroom.classroom.createTeams &&
+    (joinedClassroom.classroom.maxTeams === 0 || teams.length < joinedClassroom.classroom.maxTeams);
+
+  const noTeamsAvailable = !joinedClassroom.classroom.createTeams && !freeTeamSlot();
+
   return (
-    <>
-      <Header
-        title={`Join a team of ${joinedClassroom.classroom.name}`}
-        subtitle={joinedClassroom.classroom.description}
-      />
-      <Card className="p-2">
+    <div className="space-y-8">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms">{tc("title")}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+                {joinedClassroom.classroom.name}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{t("join.title")}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t("join.pageTitle")}</h1>
+            <p className="text-muted-foreground mt-1">{joinedClassroom.classroom.name}</p>
+          </div>
+        </div>
+        {canCreateTeam && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="glow">
+                <Plus className="w-4 h-4 mr-2" />
+                {t("create.button")}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <CreateTeamForm
+                onSuccess={() => {
+                  setDialogOpen(false);
+                  navigate({
+                    to: "/classrooms/$classroomId",
+                    search: { tab: "assignments" },
+                    params: { classroomId },
+                  });
+                }}
+                classroomId={classroomId}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      {/* Warning if no teams available */}
+      {noTeamsAvailable && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t("join.noTeamsAvailable")}</AlertTitle>
+          <AlertDescription>
+            {t("join.noTeamsAvailableDescription")}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Teams Card */}
+      <Card>
         <CardHeader>
-          {joinedClassroom.classroom.createTeams
-            ? "Choose a team you want to join or create a new team."
-            : "Please select a team. "}
-          {!joinedClassroom.classroom.createTeams && !freeTeamSlot() && (
-            <div>
-              <p className="text-sm text-muted-foreground text-red-600">There currently are no teams you can join.</p>
-              <p className="text-sm text-muted-foreground text-red-600">
-                Please contact the owner of this classroom to add more teams or raise the team-size
-              </p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center">
+              <Users2 className="w-5 h-5 text-primary" />
             </div>
-          )}
+            <div>
+              <CardTitle>{t("join.availableTeams")}</CardTitle>
+              <CardDescription>
+                {joinedClassroom.classroom.createTeams
+                  ? t("join.availableTeamsSubtitle")
+                  : t("join.availableTeamsSubtitleNoCreate")}
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <TeamTable
-            teams={teams}
-            teamsReportUrls={teamsReportUrls}
-            isPending={isPending}
-            classroomId={classroomId}
-            userClassroom={joinedClassroom}
-            maxTeamSize={joinedClassroom.classroom.maxTeamSize}
-            onTeamSelect={joinTeam}
-            deactivateInteraction={false}
-          />
+          {teams.length === 0 ? (
+            <div className="border border-dashed border-border rounded-lg p-12 text-center">
+              <Users2 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <h3 className="font-medium text-foreground mb-1">{t("list.empty.title")}</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {canCreateTeam ? t("join.beFirst") : t("join.noneCreated")}
+              </p>
+              {canCreateTeam && (
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t("create.button")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <CreateTeamForm
+                      onSuccess={() => {
+                        setDialogOpen(false);
+                        navigate({
+                          to: "/classrooms/$classroomId",
+                          search: { tab: "assignments" },
+                          params: { classroomId },
+                        });
+                      }}
+                      classroomId={classroomId}
+                    />
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          ) : (
+            <TeamTable
+              teams={teams}
+              teamsReportUrls={teamsReportUrls}
+              isPending={isPending}
+              classroomId={classroomId}
+              userClassroom={joinedClassroom}
+              maxTeamSize={joinedClassroom.classroom.maxTeamSize}
+              onTeamSelect={joinTeam}
+              deactivateInteraction={false}
+            />
+          )}
         </CardContent>
-        <CardFooter className="flex justify-end">
-          {joinedClassroom.classroom.createTeams &&
-            (joinedClassroom.classroom.maxTeams === 0 || teams.length < joinedClassroom.classroom.maxTeams) && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="default">Create new Team</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <CreateTeamForm
-                    onSuccess={() =>
-                      navigate({
-                        to: "/classrooms/$classroomId/",
-                        search: { tab: "assignments" },
-                        params: { classroomId },
-                      })
-                    }
-                    classroomId={classroomId}
-                  />
-                </DialogContent>
-              </Dialog>
-            )}
-        </CardFooter>
       </Card>
-    </>
+    </div>
   );
 }

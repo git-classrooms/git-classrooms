@@ -34,15 +34,15 @@ RUN cd swagger-client && \
 #############################################
 #                Builder web                #
 #############################################
-FROM node:20-alpine AS builder-web
+FROM node:24-alpine AS builder-web
 
 WORKDIR /app/build
-COPY ./frontend/package.json ./frontend/yarn.lock ./
-RUN yarn --frozen-lockfile
+COPY ./frontend/package.json ./frontend/pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY ./frontend ./
 COPY --from=swagger-client-builder /app/build/swagger-client ./src/swagger-client
-RUN yarn build
+RUN pnpm build
 
 #############################################
 #                Builder go                 #

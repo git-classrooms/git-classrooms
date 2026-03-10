@@ -1,21 +1,25 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { Loader } from "@/components/loader.tsx";
-import { ArrowRight as ArrowRight, Plus, SearchCode } from "lucide-react";
-import { Header } from "@/components/header";
+import { Loader } from "@/components/loader";
+import { Plus } from "lucide-react";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
 import { useMemo } from "react";
-import { UserClassroomResponse } from "@/swagger-client";
-import List from "@/components/list.tsx";
-import ListItem from "@/components/listItem.tsx";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ClassroomCardGrid } from "@/components/classroom-card";
+import { useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
+  validateSearch: (search: Record<string, unknown>): { view?: "managed" | "joined" } => {
+    const view = search.view;
+    if (view === "managed" || view === "joined") {
+      return { view };
+    }
+    return {};
+  },
   loader: async ({ context: { queryClient } }) => {
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
@@ -31,6 +35,9 @@ export const Route = createFileRoute("/_auth/classrooms/")({
 });
 
 function Classrooms() {
+  const { t } = useTranslation("classroom");
+  const { view } = Route.useSearch();
+  const navigate = useNavigate();
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
@@ -40,120 +47,134 @@ function Classrooms() {
     [moderatorClassrooms, studentClassrooms],
   );
 
+  const totalManaged = ownedClassrooms.length;
+  const totalJoined = joinedClassrooms.length;
+
+  // Smart default: if view is specified use it, otherwise pick tab with content
+  const defaultTab = useMemo(() => {
+    if (view) return view;
+    // If managed has content, show managed (default for teachers)
+    if (totalManaged > 0) return "managed";
+    // If only joined has content, show joined
+    if (totalJoined > 0) return "joined";
+    // Fallback to managed
+    return "managed";
+  }, [view, totalManaged, totalJoined]);
+
+  const handleTabChange = (value: string) => {
+    navigate({
+      to: "/classrooms",
+      search: { view: value as "managed" | "joined" },
+      replace: true,
+    });
+  };
+
   return (
-    <div>
-      <Header title="Classrooms" />
-      <Tabs defaultValue="managed" className="w-[400]">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="managed">Managed</TabsTrigger>
-          <TabsTrigger value="joined">Joined</TabsTrigger>
-        </TabsList>
-        <TabsContent value="managed">
-          <OwnedClassroomTable classrooms={ownedClassrooms} />
-        </TabsContent>
-        <TabsContent value="joined">
-          <JoinedClassroomTable classrooms={joinedClassrooms} />
-        </TabsContent>
-      </Tabs>
+    <div className="space-y-6 pb-8">
+      {/* Header */}
+      <section>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+            <p className="text-muted-foreground mt-1">
+              {t("list.subtitle")}
+            </p>
+          </div>
+          <Button variant="glow" asChild>
+            <Link to="/classrooms/create">
+              <Plus className="w-4 h-4 mr-2" />
+              {t("create.button")}
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* Tabs */}
+      <section>
+        <Tabs value={defaultTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList>
+            <TabsTrigger value="managed">
+              {t("list.managed")}
+              {totalManaged > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-muted rounded-md font-mono">
+                  {totalManaged}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="joined">
+              {t("list.joined")}
+              {totalJoined > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-muted rounded-md font-mono">
+                  {totalJoined}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="managed">
+            {ownedClassrooms.length === 0 ? (
+              <EmptyState showCreate />
+            ) : (
+              <ClassroomCardGrid classrooms={ownedClassrooms} role="owner" />
+            )}
+          </TabsContent>
+
+          <TabsContent value="joined">
+            {joinedClassrooms.length === 0 ? (
+              <EmptyState isJoined />
+            ) : (
+              <div className="space-y-8">
+                {moderatorClassrooms.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                      {t("list.moderating")} ({moderatorClassrooms.length})
+                    </h3>
+                    <ClassroomCardGrid classrooms={moderatorClassrooms} role="moderator" />
+                  </div>
+                )}
+                {studentClassrooms.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-4 uppercase tracking-wide">
+                      {t("list.asStudent")} ({studentClassrooms.length})
+                    </h3>
+                    <ClassroomCardGrid classrooms={studentClassrooms} role="student" />
+                  </div>
+                )}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </section>
+
       <Outlet />
     </div>
   );
 }
 
-function OwnedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
-  return (
-    <Card>
-      <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
-        <div className="mb-4 md:mb-0">
-          <CardTitle className="mb-1">Managed Classrooms</CardTitle>
-          <CardDescription>Classrooms which are managed by you</CardDescription>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to="/classrooms/create">
-              <Plus className="h-4 w-4 mr-2" /> Create classroom
-            </Link>
-          </Button>
-        </div>
-      </CardHeader>
+function EmptyState({
+  showCreate = false,
+  isJoined = false,
+}: {
+  showCreate?: boolean;
+  isJoined?: boolean;
+}) {
+  const { t } = useTranslation("classroom");
 
-      <CardContent>
-        {classrooms.length === 0 ? (
-          <div className="text-center text-muted-foreground">No managed classrooms</div>
-        ) : (
-          <List
-            items={classrooms}
-            renderItem={(item) => (
-              <ListItem
-                leftContent={
-                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
-                }
-                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
-              />
-            )}
-          />)}
-      </CardContent>
-    </Card>
-  );
-}
+  const title = isJoined ? t("list.empty.joinedTitle") : t("list.empty.ownedTitle");
+  const description = isJoined ? t("list.empty.joinedDescription") : t("list.empty.ownedDescription");
 
-function JoinedClassroomTable({ classrooms }: { classrooms: UserClassroomResponse[] }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Joined Classrooms</CardTitle>
-        <CardDescription>Classroom of which you are a member</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {classrooms.length === 0 ? (
-          <div className="text-center text-muted-foreground">No joined classrooms</div>
-        ) : (
-          <List
-            items={classrooms}
-            renderItem={(item) => (
-              <ListItem
-                leftContent={
-                  <ListLeftContent classroomName={item.classroom.name} assignmentsCount={item.assignmentsCount} />
-                }
-                rightContent={<ListRightContent gitlabUrl={item.webUrl} classroomId={item.classroom.id} />}
-              />
-            )}
-          />)}
-      </CardContent>
-    </Card>
-  );
-}
-
-function ListLeftContent({ classroomName, assignmentsCount }: { classroomName: string; assignmentsCount: number }) {
-  const assignmentsText = assignmentsCount === 1 ? `${assignmentsCount} Assignment` : `${assignmentsCount} Assignments`;
-  return (
-    <div className="cursor-default flex">
-      <div className="pr-2">
-        <Avatar>
-          <AvatarFallback className="bg-gray-200 text-black text-lg">{classroomName.charAt(0)}</AvatarFallback>
-        </Avatar>
-      </div>
-      <div>
-        <div className="font-medium">{classroomName}</div>
-        <div className="text-sm text-muted-foreground md:inline">{assignmentsText}</div>
-      </div>
+    <div className="border border-dashed border-border rounded-lg p-12 text-center">
+      <h3 className="font-medium text-foreground mb-2">{title}</h3>
+      <p className="text-sm text-muted-foreground mb-4">{description}</p>
+      {showCreate && (
+        <Button variant="outline" asChild>
+          <Link to="/classrooms/create">
+            <Plus className="w-4 h-4 mr-2" />
+            {t("create.button")}
+          </Link>
+        </Button>
+      )}
     </div>
-  );
-}
-
-function ListRightContent({ gitlabUrl, classroomId }: { gitlabUrl: string; classroomId: string }) {
-  return (
-    <>
-      <Button variant="ghost" size="icon" asChild>
-        <a href={gitlabUrl} target="_blank" rel="noreferrer">
-          <SearchCode className="h-6 w-6 text-gray-600 dark:text-white" />
-        </a>
-      </Button>
-      <Button variant="ghost" size="icon" asChild>
-        <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId: classroomId }}>
-          <ArrowRight className="h-6 w-6 text-gray-600 dark:text-white" />
-        </Link>
-      </Button>
-    </>
   );
 }

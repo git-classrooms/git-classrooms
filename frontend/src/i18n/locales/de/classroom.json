@@ -1,0 +1,229 @@
+{
+  "title": "Kurse",
+  "classroom": "Kurs",
+  "create": {
+    "title": "Kurs erstellen",
+    "subtitle": "Richte einen neuen Kurs für deine Studenten ein",
+    "button": "Kurs erstellen",
+    "success": "Kurs erfolgreich erstellt!"
+  },
+  "edit": {
+    "title": "Kurs bearbeiten",
+    "subtitle": "Name und Beschreibung aktualisieren",
+    "success": "Kurs aktualisiert!",
+    "changesSaved": "Änderungen werden sofort gespeichert"
+  },
+  "form": {
+    "basicInfo": "Grundinformationen",
+    "name": "Kursname",
+    "namePlaceholder": "z.B. Einführung in die Programmierung WS24",
+    "nameDescription": "Wähle einen aussagekräftigen Namen für deinen Kurs",
+    "nameLabel": "Name",
+    "description": "Beschreibung",
+    "descriptionPlaceholder": "Kurze Beschreibung des Kurszwecks und -inhalts...",
+    "descriptionHelp": "Hilf Studenten zu verstehen, worum es in diesem Kurs geht",
+    "descriptionLabel": "Der Anzeigename dieses Kurses",
+    "descriptionPurpose": "Eine kurze Beschreibung des Kurszwecks"
+  },
+  "teams": {
+    "title": "Team-Konfiguration",
+    "enabled": "Teams aktivieren",
+    "enabledDescription": "Studenten können in Teams zusammenarbeiten",
+    "maxTeams": "Max. Teams",
+    "maxTeamsDescription": "0 = unbegrenzte Teams",
+    "maxTeamSize": "Max. Teamgröße",
+    "maxTeamSizeDescription": "Mitglieder pro Team (min. 2)",
+    "studentCreation": "Team-Erstellung durch Studenten",
+    "studentCreationDescription": "Studenten dürfen eigene Teams erstellen"
+  },
+  "privacy": {
+    "title": "Datenschutz-Einstellungen",
+    "mutualVisibility": "Gegenseitige Code-Sichtbarkeit",
+    "mutualVisibilityDescription": "Studenten können Repositories anderer Studenten einsehen"
+  },
+  "list": {
+    "subtitle": "Verwalte und greife auf alle deine Kurse zu",
+    "managed": "Verwaltet",
+    "joined": "Beigetreten",
+    "moderating": "Moderierend",
+    "asStudent": "Als Student",
+    "empty": {
+      "title": "Noch keine Kurse",
+      "description": "Erstelle deinen ersten Kurs, um loszulegen",
+      "ownedTitle": "Keine verwalteten Kurse",
+      "ownedDescription": "Erstelle deinen ersten Kurs, um mit dem Unterrichten zu beginnen",
+      "joinedTitle": "Keine beigetretenen Kurse",
+      "joinedDescription": "Tritt einem Kurs über einen Einladungslink bei"
+    },
+    "tabs": {
+      "owned": "Meine Kurse",
+      "joined": "Beigetreten"
+    }
+  },
+  "card": {
+    "owner": "Besitzer",
+    "moderator": "Moderator",
+    "member": "Mitglied",
+    "members": "{{count}} Mitglieder",
+    "members_one": "{{count}} Mitglied",
+    "assignments": "{{count}} Aufgaben",
+    "assignments_one": "{{count}} Aufgabe"
+  },
+  "tabs": {
+    "assignments": "Aufgaben",
+    "teams": "Teams",
+    "members": "Mitglieder",
+    "projects": "Projekte",
+    "settings": "Einstellungen"
+  },
+  "members": {
+    "title": "Mitglieder",
+    "subtitle": "{{count}} Mitglieder in diesem Kurs",
+    "subtitle_one": "{{count}} Mitglied in diesem Kurs",
+    "invite": "Mitglieder einladen",
+    "remove": "Entfernen",
+    "removeConfirm": "Bist du sicher, dass du dieses Mitglied entfernen möchtest?",
+    "removed": "Mitglied entfernt",
+    "role": {
+      "owner": "Besitzer",
+      "owners": "Besitzer",
+      "moderator": "Moderator",
+      "moderators": "Moderatoren",
+      "student": "Student",
+      "students": "Studenten"
+    },
+    "promote": "Zum Moderator befördern",
+    "demote": "Zum Studenten herabstufen",
+    "promoted": "Mitglied zum Moderator befördert",
+    "demoted": "Mitglied zum Studenten herabgestuft",
+    "manage": {
+      "title": "Mitglieder verwalten",
+      "subtitle": "Rollen und Teamzuweisungen aktualisieren",
+      "searchPlaceholder": "Nach Name, Benutzername oder Team suchen...",
+      "ofMembers": "{{filtered}} von {{total}} Mitgliedern",
+      "noMembersFound": "Keine Mitglieder gefunden",
+      "noMembersMatch": "Keine Mitglieder entsprechen \"{{query}}\"",
+      "you": "Du",
+      "creator": "Ersteller",
+      "selectRole": "Rolle auswählen",
+      "selectTeam": "Team auswählen...",
+      "removeFromTeam": "Aus Team entfernen",
+      "failedToUpdateRole": "Rolle konnte nicht aktualisiert werden",
+      "failedToUpdateTeam": "Team konnte nicht aktualisiert werden"
+    }
+  },
+  "invite": {
+    "title": "Einladungen",
+    "subtitle": "Lade neue Mitglieder zu deinem Kurs ein",
+    "description": "Teile diesen Link mit deinen Studenten",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Einladungslink in Zwischenablage kopiert",
+    "expires": "Dieser Link läuft nie ab",
+    "expiresAt": "Läuft ab am {{date}}",
+    "sendTitle": "Einladungen senden",
+    "sendSubtitle": "Mitglieder per E-Mail einladen",
+    "sentTitle": "Gesendete Einladungen",
+    "sentSubtitle": "{{count}} Einladungen insgesamt",
+    "emailLabel": "E-Mail-Adressen",
+    "emailPlaceholder": "student1@beispiel.de",
+    "emailDescription": "Eine E-Mail-Adresse pro Zeile",
+    "emailCount": "{{count}} E-Mails",
+    "emailCount_one": "{{count}} E-Mail",
+    "sendButton": "Einladungen senden",
+    "sending": "Wird gesendet...",
+    "success": "Einladungen erfolgreich gesendet!",
+    "error": "Einladungen konnten nicht gesendet werden. Bitte überprüfe die E-Mail-Adressen.",
+    "stats": {
+      "totalSent": "Gesendet",
+      "pending": "Ausstehend",
+      "accepted": "Angenommen",
+      "declined": "Abgelehnt"
+    },
+    "status": {
+      "pending": "Ausstehend",
+      "accepted": "Angenommen",
+      "rejected": "Abgelehnt",
+      "revoked": "Widerrufen",
+      "failed": "Fehlgeschlagen"
+    },
+    "sent": "Gesendet",
+    "empty": {
+      "title": "Noch keine Einladungen",
+      "description": "Nutze das Formular, um Mitglieder einzuladen"
+    },
+    "copyLinkTooltip": "Einladungslink kopieren"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Konfiguriere deine Kursumgebung",
+    "general": "Allgemein",
+    "generalDescription": "Grundkonfiguration",
+    "grading": "Bewertung",
+    "gradingDescription": "Bewertungseinstellungen",
+    "fixedConfig": "Feste Konfiguration",
+    "fixedConfigTooltip": "Diese Einstellungen wurden bei der Kurserstellung festgelegt und können nicht geändert werden.",
+    "editableSettings": "Bearbeitbare Einstellungen",
+    "infoNote": "Einige Einstellungen sind nach der Kurserstellung festgelegt und können nicht geändert werden.",
+    "creator": "Ersteller",
+    "creatorDescription": "Kursbesitzer",
+    "teams": "Teams",
+    "teamsDescription": "Teamstruktur",
+    "teamsEnabled": "Aktiviert",
+    "teamsDisabled": "Deaktiviert",
+    "teamsMax": "max. {{count}} Mitglieder",
+    "teamsLimited": "Begrenzt auf {{count}} Teams",
+    "studentTeamCreation": "Team-Erstellung durch Studenten",
+    "studentTeamCreationDescription": "Können Studenten eigene Teams erstellen",
+    "allowed": "Erlaubt",
+    "notAllowed": "Nicht erlaubt",
+    "mutualCodeView": "Gegenseitige Code-Ansicht",
+    "mutualCodeViewDescription": "Teamübergreifende Code-Sichtbarkeit",
+    "mutualCodeViewEnabled": "Studenten können Code anderer Teams einsehen",
+    "mutualCodeViewDisabled": "Studenten können nur den Code ihres eigenen Teams einsehen",
+    "danger": "Gefahrenzone",
+    "archive": {
+      "title": "Kurs archivieren",
+      "description": "Nach der Archivierung können keine neuen Aufgaben erstellt werden und Studenten können nicht beitreten. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "button": "Archivieren",
+      "confirm": "Diesen Kurs archivieren?",
+      "confirmDescription": "Diese Aktion kann nicht rückgängig gemacht werden. Der Kurs wird als archiviert markiert und es können keine neuen Aufgaben erstellt werden.",
+      "success": "Kurs archiviert",
+      "error": "Der Kurs konnte nicht archiviert werden"
+    }
+  },
+  "detail": {
+    "viewOnGitlab": "Auf GitLab anzeigen",
+    "copyInvite": "Einladung kopieren",
+    "inviteCopied": "Einladungslink in Zwischenablage kopiert",
+    "report": "Bericht"
+  },
+  "stats": {
+    "members": "Mitglieder",
+    "assignments": "Aufgaben",
+    "teams": "Teams",
+    "created": "Erstellt",
+    "completed": "Abgeschlossen",
+    "pending": "Ausstehend",
+    "myTeam": "Mein Team",
+    "nextDue": "Nächste Fälligkeit"
+  },
+  "status": {
+    "active": "Aktiv",
+    "archived": "Archiviert"
+  },
+  "errors": {
+    "notFound": "Kurs nicht gefunden",
+    "updateFailed": "Der Kurs konnte nicht aktualisiert werden!"
+  },
+  "join": {
+    "title": "Kurs beitreten",
+    "subtitle": "Bereit, diesem Kurs beizutreten?",
+    "whatHappensNext": "Was passiert als Nächstes?",
+    "whatHappensNextDescription": "Du wirst Mitglied dieses Kurses und erhältst Zugang zu allen Aufgaben und Ressourcen.",
+    "decline": "Ablehnen",
+    "acceptAndJoin": "Annehmen & Beitreten",
+    "unableToJoin": "Beitritt nicht möglich",
+    "cantJoin": "Dem Kurs kann nicht beigetreten werden!",
+    "dashboardNote": "Du kannst jederzeit über das Dashboard auf deine Kurse zugreifen"
+  }
+}

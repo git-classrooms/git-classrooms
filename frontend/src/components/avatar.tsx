@@ -6,20 +6,21 @@ export interface AvatarProps {
   avatarUrl: string | undefined;
   fallbackUrl: string | undefined;
   name: string;
+  className?: string;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({ avatarUrl, fallbackUrl, name }) => {
+export const Avatar: React.FC<AvatarProps> = ({ avatarUrl, fallbackUrl, name, className }) => {
   const fallbackInitials = useMemo(() => {
     const parts = name.split(" ");
     if (parts.length === 1) {
-      return parts[0][0] + parts[0][1];
+      return parts[0][0] + (parts[0][1] ?? "");
     } else {
       return parts[0][0] + parts.pop()![0];
     }
   }, [name]);
 
   return (
-    <AvatarShad>
+    <AvatarShad className={className}>
       <AvatarImage src={avatarUrl ?? ""} />
       <AvatarFallback>
         <AvatarRadix>

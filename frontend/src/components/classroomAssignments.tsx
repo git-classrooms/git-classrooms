@@ -1,118 +1,210 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card.tsx";
-import { Button } from "@/components/ui/button.tsx";
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx";
-import { ArrowRight, Loader2 } from "lucide-react";
-import { formatDate, formatDateWithTime } from "@/lib/utils.ts";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Calendar, ClipboardList, Loader2, Plus } from "lucide-react";
+import { formatDate, formatRelativeTime, getDaysUntilDue } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { Assignment } from "@/swagger-client";
 import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { assignmentsQueryOptions } from "@/api/assignment";
+import { Card, CardContent } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
-/**
- * AssignmentListSection is a React component that displays a list of assignments in a classroom.
- * It includes a table of assignments and a button to show more assignments.
- *
- * @param {Object} props - The properties passed to the component.
- * @param {Array} props.assignments - An array of Assignment objects representing the assignments in the classroom.
- * @param {string} props.classroomId - The ID of the classroom.
- * @param {string} props.classroomName - The name of the classroom.
- * @param {boolean} props.deactivateInteraction - A boolean indicating whether the user can interact with the assignments.
- * @returns {JSX.Element} A React component that displays a card with the list of assignments in a classroom.
- * @constructor
- */
 export function AssignmentListSection({
   classroomId,
   deactivateInteraction,
 }: {
   classroomId: string;
   deactivateInteraction: boolean;
-}): JSX.Element {
+}) {
+  const { t } = useTranslation("assignment");
   const { data: assignments } = useSuspenseQuery(assignmentsQueryOptions(classroomId));
   const [isLoading, setIsLoading] = useState(false);
+
+  const sortedAssignments = [...assignments].sort((a, b) => {
+    if (!a.dueDate && !b.dueDate) return 0;
+    if (!a.dueDate) return 1;
+    if (!b.dueDate) return -1;
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+  });
+
   return (
-    <>
-      <Card className="p-2">
-        <CardHeader className="md:flex md:flex-row md:items-center justify-between space-y-0 pb-2 mb-4">
-          <div className="mb-4 md:mb-0">
-            <CardTitle className="mb-1">Assignments</CardTitle>
-            <CardDescription>Assignments managed by this classroom</CardDescription>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <ClipboardList className="w-5 h-5 text-primary" />
           </div>
-          {!deactivateInteraction && (
-            <Button variant="outline" asChild>
-              <Link
-                to="/classrooms/$classroomId/assignments/create"
-                onClick={() => setIsLoading(true)}
-                params={{ classroomId }}
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create assignment"}
-              </Link>
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent>
-          <AssignmentTable
-            assignments={assignments}
-            classroomId={classroomId}
-            deactivateInteraction={deactivateInteraction}
-          />
-        </CardContent>
-      </Card>
-    </>
+          <div>
+            <h3 className="font-semibold">{t("title")}</h3>
+            <p className="text-sm text-muted-foreground">
+              {t("list.count", { count: assignments.length })}
+            </p>
+          </div>
+        </div>
+
+        {!deactivateInteraction && (
+          <Button variant="glow" size="sm" asChild>
+            <Link
+              to="/classrooms/$classroomId/assignments/create"
+              onClick={() => setIsLoading(true)}
+              params={{ classroomId }}
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4 mr-2" />
+              )}
+              {t("create.button")}
+            </Link>
+          </Button>
+        )}
+      </div>
+
+      {/* Assignment Grid */}
+      {assignments.length === 0 ? (
+        <EmptyAssignmentsState canCreate={!deactivateInteraction} classroomId={classroomId} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {sortedAssignments.map((assignment) => (
+            <AssignmentCard
+              key={assignment.id}
+              assignment={assignment}
+              classroomId={classroomId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
-function AssignmentTable({
-  assignments,
+function EmptyAssignmentsState({
+  canCreate,
   classroomId,
-  deactivateInteraction,
 }: {
-  assignments: Assignment[];
+  canCreate: boolean;
   classroomId: string;
-  deactivateInteraction: boolean;
 }) {
+  const { t } = useTranslation("assignment");
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead className="hidden md:table-cell">Creation date</TableHead>
-          <TableHead className="hidden md:table-cell">Due date</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {assignments.map((a) => (
-          <TableRow key={a.id}>
-            <TableCell>
-              <div className="cursor-default flex justify-between">
-                <Link
-                  to="/classrooms/$classroomId/assignments/$assignmentId"
-                  params={{ classroomId, assignmentId: a.id }}
-                >
-                  <div className="font-medium">{a.name}</div>
-                  <div className="text-sm text-muted-foreground md:inline">{a.description}</div>
-                </Link>
+    <div className="border border-dashed border-border rounded-lg p-8 text-center">
+      <ClipboardList className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+      <h3 className="font-medium text-foreground mb-1">{t("list.empty.title")}</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        {canCreate ? t("list.empty.canCreate") : t("list.empty.cannotCreate")}
+      </p>
+      {canCreate && (
+        <Button variant="outline" asChild>
+          <Link to="/classrooms/$classroomId/assignments/create" params={{ classroomId }}>
+            <Plus className="w-4 h-4 mr-2" />
+            {t("create.button")}
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+}
+
+function AssignmentCard({
+  assignment,
+  classroomId,
+}: {
+  assignment: Assignment;
+  classroomId: string;
+}) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
+  const daysUntil = getDaysUntilDue(assignment.dueDate);
+  const isOverdue = daysUntil !== null && daysUntil < 0;
+  const isUrgent = daysUntil !== null && daysUntil >= 0 && daysUntil <= 3;
+
+  const getStatusVariant = () => {
+    if (assignment.closed) return "neutral";
+    if (isOverdue) return "destructive";
+    if (isUrgent) return "warning";
+    return "success";
+  };
+
+  const getStatusLabel = () => {
+    if (assignment.closed) return t("status.closed");
+    if (isOverdue) return t("status.overdue");
+    if (isUrgent) return t("status.dueSoon");
+    return t("status.open");
+  };
+
+  return (
+    <Link
+      to="/classrooms/$classroomId/assignments/$assignmentId"
+      params={{ classroomId, assignmentId: assignment.id }}
+      className="group block"
+    >
+      <Card className="h-full transition-all duration-200 hover:border-primary/30 hover:shadow-lg hover:shadow-background/50">
+        <CardContent className="p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold truncate group-hover:text-primary transition-colors">
+                  {assignment.name}
+                </h4>
+                <StatusBadge variant={getStatusVariant()} size="sm" showDot>
+                  {getStatusLabel()}
+                </StatusBadge>
               </div>
-            </TableCell>
-            <TableCell className="hidden md:table-cell min-w-[30%]">{formatDate(a.createdAt)}</TableCell>
-            <TableCell className="hidden md:table-cell">{a.dueDate ? formatDateWithTime(a.dueDate) : "-"}</TableCell>
-            <TableCell className="flex flex-wrap flex-row-reverse gap-2">
-              {!deactivateInteraction && (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to="/classrooms/$classroomId/assignments/$assignmentId"
-                    params={{ classroomId, assignmentId: a.id }}
-                  >
-                    <ArrowRight className="text-gray-600 dark:text-white h-6 w-6" />
-                  </Link>
-                </Button>
+
+              {assignment.description && (
+                <div className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                  <Markdown inline>{assignment.description}</Markdown>
+                </div>
               )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {tc("time.createdAt")} {formatRelativeTime(assignment.createdAt)}
+                </span>
+              </div>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              asChild
+            >
+              <span>
+                <ArrowRight className="w-4 h-4" />
+              </span>
+            </Button>
+          </div>
+
+          {/* Due Date Section */}
+          {assignment.dueDate && (
+            <div
+              className={cn(
+                "mt-4 pt-3 border-t border-border flex items-center justify-between",
+                isOverdue && "text-destructive",
+                isUrgent && !isOverdue && "text-warning"
+              )}
+            >
+              <span className="text-xs uppercase tracking-wide font-medium">{t("dueDate.label")}</span>
+              <span className="text-sm font-mono">
+                {daysUntil === 0
+                  ? t("dueDate.today")
+                  : daysUntil === 1
+                    ? t("dueDate.tomorrow")
+                    : isOverdue
+                      ? t("dueDate.daysAgo", { count: Math.abs(daysUntil) })
+                      : formatDate(assignment.dueDate)}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

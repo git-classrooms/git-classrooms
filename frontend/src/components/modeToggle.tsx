@@ -1,27 +1,40 @@
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useTheme } from "@/provider/themeProvider";
-import { Switch } from "@/components/ui/switch.tsx";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function ModeToggle() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
-  const [isDarkMode, setIsDarkMode] = useState(theme === "dark");
-
-  useEffect(() => {
-    setIsDarkMode(theme === "dark");
-  }, [theme]);
+  const isDark = theme === "dark";
 
   const toggleTheme = () => {
-    const newTheme = isDarkMode ? "light" : "dark";
-    setTheme(newTheme);
+    setTheme(isDark ? "light" : "dark");
   };
 
   return (
-    <div className="flex items-center">
-      <Sun className="h-[1.2rem] w-[1.2rem] mr-2 dark:text-white text-black" />
-      <Switch checked={isDarkMode} onCheckedChange={toggleTheme} />
-      <Moon className="h-[1.2rem] w-[1.2rem] ml-2  dark:text-white text-black" />
-      <span className="sr-only">Toggle theme</span>
-    </div>
+    <button
+      onClick={toggleTheme}
+      className={cn(
+        "relative w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer",
+        "bg-muted/50 hover:bg-muted border border-border/50 hover:border-border",
+        "transition-all duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      )}
+      aria-label={isDark ? t("theme.switchToLight") : t("theme.switchToDark")}
+    >
+      <Sun
+        className={cn(
+          "h-4 w-4 transition-all duration-300",
+          isDark ? "scale-0 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"
+        )}
+      />
+      <Moon
+        className={cn(
+          "absolute h-4 w-4 transition-all duration-300",
+          isDark ? "scale-100 rotate-0 opacity-100" : "scale-0 -rotate-90 opacity-0"
+        )}
+      />
+    </button>
   );
 }

@@ -1,26 +1,27 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button.tsx";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, GraduationCap, Loader2, Sparkles, User } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
 import { getUUIDFromLocation } from "@/lib/utils";
 import { Action } from "@/swagger-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { classroomInvitationQueryOptions, useJoinClassroom } from "@/api/classroom";
-import GitlabLogo from "@/assets/gitlab_logo.svg";
 import { AxiosError } from "axios";
 import { z } from "zod";
+import { Card, CardContent } from "@/components/ui/card";
+import { Markdown } from "@/components/ui/markdown";
+import { useTranslation } from "react-i18next";
 
 const seachSchema = z.object({
-  groupLink: z.boolean().catch(false)
-})
+  groupLink: z.boolean().catch(false),
+});
 
-export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations/$invitationId")({
+export const Route = createFileRoute("/_auth/classrooms/$classroomId_/invitations/$invitationId")({
   validateSearch: seachSchema,
   loaderDeps: ({ search }) => ({ search }),
   loader: async ({ context: { queryClient }, params, deps: { search: { groupLink } } }) => {
     const invitationInfo = await queryClient.ensureQueryData(
-      classroomInvitationQueryOptions(params.classroomId, params.invitationId, groupLink),
+      classroomInvitationQueryOptions(params.classroomId, params.invitationId, groupLink)
     );
     return { invitationInfo };
   },
@@ -28,10 +29,13 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invitations
 });
 
 function JoinClassroom() {
+  const { t } = useTranslation("classroom");
   const navigate = useNavigate();
   const { classroomId, invitationId } = Route.useParams();
   const { groupLink } = Route.useSearch();
-  const { data: invitation } = useSuspenseQuery(classroomInvitationQueryOptions(classroomId, invitationId, groupLink));
+  const { data: invitation } = useSuspenseQuery(
+    classroomInvitationQueryOptions(classroomId, invitationId, groupLink)
+  );
   const { mutateAsync, isError, isPending, error } = useJoinClassroom(classroomId, invitationId, groupLink);
 
   const onAccept = async () => {
@@ -46,48 +50,119 @@ function JoinClassroom() {
   };
 
   return (
-    <div className="m-auto max-w-lg ">
+    <div className="space-y-8">
+      {/* Main Content */}
       <div className="flex justify-center">
-        <img src={GitlabLogo} className="max-w-xs" alt={"Logo"} />
+        <Card className="w-full max-w-xl border-border/50">
+          <CardContent className="p-8">
+            {/* Header Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+                  <GraduationCap className="w-10 h-10 text-primary" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary flex items-center justify-center border-4 border-card">
+                  <Check className="w-3.5 h-3.5 text-primary-foreground" />
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold tracking-tight mb-2">{t("join.title")}</h1>
+              <p className="text-muted-foreground">{t("join.subtitle")}</p>
+            </div>
+
+            {/* Classroom Info Card */}
+            <div className="p-4 rounded-lg bg-muted/30 border border-border/50 mb-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-semibold text-lg">{invitation.classroom.name}</h2>
+                  {invitation.classroom.description && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      <Markdown compact>{invitation.classroom.description}</Markdown>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <User className="w-3.5 h-3.5" />
+                      <span>{invitation.classroom.owner.name}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* What happens next */}
+            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 mb-8">
+              <div className="flex gap-3">
+                <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-medium text-sm mb-1">{t("join.whatHappensNext")}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {t("join.whatHappensNextDescription")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                onClick={onReject}
+                variant="outline"
+                className="flex-1"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    {t("join.decline")}
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={onAccept}
+                variant="glow"
+                className="flex-[2]"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    {t("join.acceptAndJoin")}
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Error State */}
+            {isError && (
+              <Alert variant="destructive" className="mt-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>{t("join.unableToJoin")}</AlertTitle>
+                <AlertDescription>
+                  {error instanceof AxiosError
+                    ? error.response?.data.error || t("join.cantJoin")
+                    : t("join.cantJoin")}
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="p-6 rounded-lg border flex flex-col gap-5">
-        <h1 className="text-5xl font-bold text-center mb-5">Join Classroom</h1>
-        <p className="text-slate-500 text-lg">
-          You have been invited to join the classroom <span className="font-bold">{invitation.classroom.name}</span> by{" "}
-          <span className="font-bold">{invitation.classroom.owner.name}</span>
-        </p>
-        <Separator />
-        <p className="text-slate-500">
-          <p className="text-slate-500 ">Classroom Description:</p>
-          <p className="text-slate-500 italic ml-5">{invitation.classroom.description}</p>
-        </p>
-        <Separator />
-        <div className="flex justify-between">
-          <Button onClick={onReject} variant="destructive" disabled={isPending}>
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Reject"}
-          </Button>
-          <Button onClick={onAccept} disabled={isPending}>
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Accept"}
-          </Button>
-        </div>
-        {isError && (
-          <>
-            <Separator />
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>
-                {error instanceof AxiosError
-                  ? error.response?.data.error
-                    ? error.response.data.error
-                    : "Can't join classroom!"
-                  : "Can't join classroom!"}
-              </AlertDescription>
-            </Alert>
-          </>
-        )}
-      </div>
+      {/* Helper text */}
+      <p className="text-center text-sm text-muted-foreground">
+        {t("join.dashboardNote")}
+      </p>
     </div>
   );
 }

@@ -1,0 +1,100 @@
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "classrooms": "Classrooms",
+    "login": "Login",
+    "openMenu": "Open menu",
+    "navigationMenu": "Navigation menu",
+    "viewAll": "View all"
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back, {{name}}",
+    "allCaughtUp": "You're all caught up!",
+    "activeAssignments": "You have {{count}} active assignments",
+    "activeAssignments_one": "You have {{count}} active assignment",
+    "yourClassrooms": "Your Classrooms",
+    "managedByYou": "Managed by you",
+    "moderating": "Moderating",
+    "joined": "Joined",
+    "activeAssignmentsTitle": "Active Assignments",
+    "activeAssignmentsSubtitle": "Assignments that need your attention",
+    "noActiveAssignments": "No active assignments"
+  },
+  "user": {
+    "gitlabProfile": "GitLab Profile",
+    "viewProfile": "View your profile",
+    "logout": "Log out",
+    "endSession": "End your session"
+  },
+  "actions": {
+    "save": "Save",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "goBack": "Go Back",
+    "next": "Next",
+    "submit": "Submit",
+    "tryAgain": "Try Again",
+    "refresh": "Refresh",
+    "search": "Search",
+    "filter": "Filter",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "loading": "Loading..."
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "open": "Open",
+    "closed": "Closed",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning"
+  },
+  "time": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "daysAgo_one": "{{count}} day ago",
+    "dueDate": "Due Date",
+    "createdAt": "Created",
+    "updatedAt": "Updated"
+  },
+  "empty": {
+    "noData": "No data available",
+    "noResults": "No results found"
+  },
+  "total": "Total",
+  "language": {
+    "label": "Language",
+    "english": "English",
+    "german": "German"
+  },
+  "commandPalette": {
+    "placeholder": "Type a command or search...",
+    "noResults": "No results found.",
+    "navigation": "Navigation",
+    "home": "Home",
+    "allClassrooms": "All Classrooms",
+    "recentClassrooms": "Recent Classrooms",
+    "quickActions": "Quick Actions",
+    "createClassroom": "Create New Classroom",
+    "membersOf": "Members of {{name}}",
+    "settingsOf": "Settings of {{name}}"
+  },
+  "theme": {
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  },
+  "markdown": {
+    "supported": "Markdown is supported"
+  }
+}

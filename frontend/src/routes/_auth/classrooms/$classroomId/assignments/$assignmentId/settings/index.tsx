@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { cn, formatDateWithTime } from "@/lib/utils.ts";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { AlertTriangle, Calendar as CalendarIcon, Lock, Loader2, Pencil, X } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar.tsx";
 import { assignmentQueryOptions, assignmentsQueryOptions, useUpdateAssignment } from "@/api/assignment.ts";
 import { UpdateAssignmentForm, updateAssignmentFormSchema } from "@/types/assignments.ts";
@@ -26,6 +26,9 @@ import { Assignment, DatabaseStatus, ProjectResponse } from "@/swagger-client";
 import { toast } from "sonner";
 import { TimePicker } from "@/components/ui/timer-picker";
 import { addSeconds } from "date-fns";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/settings/")({
   component: Index,
@@ -51,6 +54,8 @@ function checkNewAssignmentNameValid(assignment: Assignment, assignments: Assign
 }
 
 function Index() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId, assignmentId } = Route.useParams();
 
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
@@ -76,127 +81,189 @@ function Index() {
       description: values.description ? values.description : "",
       dueDate: values.dueDate?.toISOString(),
     });
-    toast.success("Assignment updated successfully");
+    toast.success(t("settings.edit.success"));
   }
 
   return (
-    <div className="p-2 w-full">
-      <div className="flex flex-row justify-between">
-        <h1 className="text-xl font-bold">Edit assignment</h1>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[hsl(142,71%,45%)]/20 to-[hsl(142,71%,45%)]/5 border border-[hsl(142,71%,45%)]/20 flex items-center justify-center">
+          <Pencil className="w-5 h-5 text-[hsl(142,71%,45%)]" />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold font-mono">{t("settings.edit.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("settings.edit.subtitle")}</p>
+        </div>
       </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            disabled={isAccepted}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Programming Assignment"
-                    {...field}
-                    onBlur={async (e) => {
-                      field.onBlur();
-                      if (checkNewAssignmentNameValid(assignment, assignments, e.target.value)) {
-                        form.clearErrors("name");
-                      } else {
-                        form.setError("name", {
-                          type: "manual",
-                          message: "This name is already taken.",
-                        });
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>This is your Assignment name.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          <FormField
-            control={form.control}
-            name="description"
-            disabled={isAccepted}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="This is my awesome ..." className="resize-none" {...field} />
-                </FormControl>
-                <FormDescription>The description of your classroom</FormDescription>
-                <FormMessage />
-                {isAccepted && (
-                  <FormMessage>
-                    Name and description cannot be changed once the Assignment has been accepted at least one team
-                  </FormMessage>
-                )}
-              </FormItem>
-            )}
-          />
+      {/* Locked Fields Warning */}
+      {isAccepted && (
+        <Alert className="border-warning/50 bg-warning/5">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <AlertDescription className="text-warning">
+            {t("settings.lockedWarning")}
+          </AlertDescription>
+        </Alert>
+      )}
 
-          <FormField
-            control={form.control}
-            name={"dueDate"}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Due Date</FormLabel>
-                <FormControl>
-                  <div className="flex gap-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[280px] justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? formatDateWithTime(field.value) : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          ISOWeek
-                          fromDate={new Date()}
-                          mode="single"
-                          selected={field.value}
-                          onSelect={(value) =>
-                            field.onChange(value ? addSeconds(value, 23 * 60 * 60 + 59 * 60 + 59) : undefined)
+      {/* Form Card */}
+      <Card className="border-border/50">
+        <CardContent className="p-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Name Field */}
+              <FormField
+                control={form.control}
+                name="name"
+                disabled={isAccepted}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                      {t("settings.edit.nameLabel")}
+                      {isAccepted && <Lock className="w-3 h-3" />}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t("settings.edit.namePlaceholder")}
+                        {...field}
+                        onBlur={async (e) => {
+                          field.onBlur();
+                          if (checkNewAssignmentNameValid(assignment, assignments, e.target.value)) {
+                            form.clearErrors("name");
+                          } else {
+                            form.setError("name", {
+                              type: "manual",
+                              message: t("settings.edit.nameTaken"),
+                            });
                           }
-                          initialFocus
-                          defaultMonth={field.value}
-                        />
-                        <div className="p-3 border-t border-border">
-                          <TimePicker setDate={field.onChange} date={field.value} />
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <Button
-                      type="button"
-                      onClick={() => field.onChange(null, { shouldValidate: false })}
-                      variant="outline"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormDescription>This is the due date of your assignment.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                        }}
+                        className={cn("bg-background", isAccepted && "opacity-60")}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      {t("settings.edit.nameDescription")}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Button type="submit" disabled={isPending}>
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save"}
-          </Button>
+              {/* Description Field */}
+              <FormField
+                control={form.control}
+                name="description"
+                disabled={isAccepted}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                      {t("settings.edit.descriptionLabel")}
+                      {isAccepted && <Lock className="w-3 h-3" />}
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder={t("settings.edit.descriptionPlaceholder")}
+                        className={cn("resize-none bg-background min-h-[100px]", isAccepted && "opacity-60")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      {t("settings.edit.descriptionDescription")} · {tc("markdown.supported")}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          {isError && <div className="text-red-500">An error occurred. Please try again. </div>}
-        </form>
-      </Form>
+              {/* Due Date Field */}
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs text-muted-foreground uppercase tracking-wide">
+                      {t("settings.edit.dueDateLabel")}
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full sm:w-[280px] justify-start text-left font-normal bg-background",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? formatDateWithTime(field.value) : <span>{t("settings.edit.pickDate")}</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              ISOWeek
+                              fromDate={new Date()}
+                              mode="single"
+                              selected={field.value}
+                              onSelect={(value) =>
+                                field.onChange(value ? addSeconds(value, 23 * 60 * 60 + 59 * 60 + 59) : undefined)
+                              }
+                              initialFocus
+                              defaultMonth={field.value}
+                            />
+                            <div className="p-3 border-t border-border">
+                              <TimePicker setDate={field.onChange} date={field.value} />
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                        {field.value && (
+                          <Button
+                            type="button"
+                            onClick={() => field.onChange(undefined)}
+                            variant="ghost"
+                            size="icon"
+                            className="shrink-0 text-muted-foreground hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      {t("settings.edit.dueDateDescription")}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Submit Button */}
+              <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                <p className="text-xs text-muted-foreground">
+                  {t("settings.edit.saveNote")}
+                </p>
+                <Button
+                  type="submit"
+                  variant="glow"
+                  size="sm"
+                  disabled={isPending || !form.formState.isDirty}
+                >
+                  {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {tc("actions.save")}
+                </Button>
+              </div>
+
+              {isError && (
+                <Alert variant="destructive">
+                  <AlertDescription>
+                    {t("settings.edit.saveError")}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

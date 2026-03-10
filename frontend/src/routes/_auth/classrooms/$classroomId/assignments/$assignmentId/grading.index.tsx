@@ -13,38 +13,68 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, isModerator } from "@/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { AlertCircle, Bot, Download, Loader2, SearchCheck, SearchCode } from "lucide-react";
-import { useMemo, useRef } from "react";
+import {
+  AlertCircle,
+  Award,
+  Bot,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Download,
+  ExternalLink,
+  Grid3X3,
+  LayoutList,
+  Loader2,
+  Target,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 import {
   Assignment,
   ManualGradingRubric,
-  ProjectResponse,
   ReportApiAxiosParamCreator,
-  UtilsReportDataItem,
 } from "@/swagger-client";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Status } from "@/types/projects";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Markdown } from "@/components/ui/markdown";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  GradingMatrix,
+  GradingFilters,
+  GradingByRubric,
+  ViewMode,
+  StatusFilter,
+  ZippedProject,
+  isProjectGraded,
+  DEFAULT_GRADE_SCHEMA,
+  calculateGradeFromScore,
+  getGradeColor,
+  getGradeBgColor,
+} from "@/components/grading";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments/$assignmentId/grading/")({
   beforeLoad: async ({ context: { queryClient }, params: { classroomId, assignmentId } }) => {
@@ -72,6 +102,8 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
 });
 
 function GradingIndex() {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("classroom");
   const { classroomId, assignmentId } = Route.useParams();
   const { reportDownloadUrl } = Route.useLoaderData();
   const { data: classroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
@@ -88,9 +120,15 @@ function GradingIndex() {
   };
 
   return (
-    <>
-      <Breadcrumb className="mb-5">
+    <div>
+      <Breadcrumb className="mb-6">
         <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/classrooms">{tc("title")}</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
               <Link to="/classrooms/$classroomId" search={{ tab: "assignments" }} params={{ classroomId }}>
@@ -108,59 +146,106 @@ function GradingIndex() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Grading</BreadcrumbPage>
+            <BreadcrumbPage>{t("grading.title")}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="md:flex justify-between gap-1 mb-4">
-        <Header className="grow" title="Grading" subtitle={`Overview of the current grading of ${assignment.name}`} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Button variant="secondary" asChild size="sm" title="Download report">
-                <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
-                  <Download className="mr-2 h-4 w-4" /> Download report
-                </a>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Download a grading report as CSV-File for this assignment.</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="secondary"
-                onClick={onClick}
-                size="sm"
-                title="Test-driven grading"
-                disabled={!assignment.gradingJUnitAutoGradingActive || isPending}
-              >
-                {isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    <Bot className="mr-2 h-4 w-4" /> Refresh test-driven grading
-                  </>
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Triggers the start of a call for the results of test-driven grading.</p>
-            </TooltipContent>
-          </Tooltip>
+
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-8">
+        <Header className="grow mb-0" title={t("grading.dashboard.title")} subtitle={assignment.name} />
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" asChild size="sm">
+            <a href={reportDownloadUrl} target="_blank" referrerPolicy="no-referrer">
+              <Download className="mr-2 h-4 w-4" />
+              {t("grading.dashboard.exportCsv")}
+            </a>
+          </Button>
+          {assignment.gradingJUnitAutoGradingActive && (
+            <Button variant="glow" onClick={onClick} size="sm" disabled={isPending}>
+              {isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Bot className="mr-2 h-4 w-4" />
+              )}
+              {t("grading.dashboard.refreshAutoGrading")}
+            </Button>
+          )}
         </div>
       </div>
+
       <GradingOverview classroomId={classroomId} assignmentId={assignmentId} />
-    </>
+    </div>
+  );
+}
+
+function CircularProgress({ value, max, size = 56, strokeWidth = 4 }: { value: number; max: number; size?: number; strokeWidth?: number }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const percentage = max > 0 ? (value / max) * 100 : 0;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-muted/30"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="text-primary transition-all duration-500 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-sm font-mono font-bold">{Math.round(percentage)}%</span>
+      </div>
+    </div>
+  );
+}
+
+function ScoreBar({ value, max, variant = "default" }: { value: number; max: number; variant?: "default" | "success" | "warning" }) {
+  const percentage = max > 0 ? (value / max) * 100 : 0;
+  const colorClass = variant === "success" ? "bg-success" : variant === "warning" ? "bg-warning" : "bg-primary";
+
+  return (
+    <div className="flex items-center gap-3 w-full">
+      <div className="flex-1 h-2 bg-muted/50 rounded-full overflow-hidden">
+        <div
+          className={cn("h-full rounded-full transition-all duration-500 ease-out", colorClass)}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+      <span className="text-sm font-mono text-muted-foreground w-16 text-right">
+        {value}/{max}
+      </span>
+    </div>
   );
 }
 
 function GradingOverview({ assignmentId, classroomId }: { classroomId: string; assignmentId: string }) {
+  const { t } = useTranslation("assignment");
   const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
   const { data: gradingResults } = useSuspenseQuery(assignmentReportQueryOptions(classroomId, assignmentId));
   const { data: projects } = useSuspenseQuery(assignmentProjectsQueryOptions(classroomId, assignmentId));
   const { data: rubrics } = useSuspenseQuery(assignmentGradingRubricsQueryOptions(classroomId, assignmentId));
+
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [selectedRubricId, setSelectedRubricId] = useState<string | null>(rubrics[0]?.id ?? null);
 
   const zippedProjects = useMemo(
     () =>
@@ -173,106 +258,317 @@ function GradingOverview({ assignmentId, classroomId }: { classroomId: string; a
     [projects, gradingResults],
   );
 
+  const filteredProjects = useMemo(() => {
+    return zippedProjects.filter((project) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        project.team.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const isGraded = isProjectGraded(project, rubrics.length);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "graded" && isGraded) ||
+        (statusFilter === "pending" && !isGraded);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [zippedProjects, searchQuery, statusFilter, rubrics.length]);
+
+  const stats = useMemo(() => {
+    const totalProjects = zippedProjects.length;
+    const gradedProjects = zippedProjects.filter((p) => isProjectGraded(p, rubrics.length)).length;
+
+    const totalScore = zippedProjects.reduce((acc, p) => acc + (p.gradingResult?.score ?? 0), 0);
+    const maxTotalScore = zippedProjects.reduce((acc, p) => acc + (p.gradingResult?.maxScore ?? 0), 0);
+    const avgPercentage = maxTotalScore > 0 ? (totalScore / maxTotalScore) * 100 : 0;
+
+    return {
+      totalProjects,
+      gradedProjects,
+      pendingProjects: totalProjects - gradedProjects,
+      avgPercentage,
+      totalScore,
+      maxTotalScore,
+    };
+  }, [zippedProjects, rubrics.length]);
+
   return (
-    <div>
-      <AssignmentProjectTable assignment={assignment} zippedProjects={zippedProjects} rubrics={rubrics} />
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.totalProjects")}</p>
+                <p className="text-3xl font-mono font-bold">{stats.totalProjects}</p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.gradingProgress")}</p>
+                <p className="text-3xl font-mono font-bold">
+                  {stats.gradedProjects}<span className="text-lg text-muted-foreground">/{stats.totalProjects}</span>
+                </p>
+              </div>
+              <CircularProgress value={stats.gradedProjects} max={stats.totalProjects} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.pendingReview")}</p>
+                <p className="text-3xl font-mono font-bold">{stats.pendingProjects}</p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center">
+                <Clock className="w-6 h-6 text-warning" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-card to-card/50">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{t("grading.dashboard.classAverage")}</p>
+                <p className="text-3xl font-mono font-bold">{stats.avgPercentage.toFixed(1)}%</p>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-success" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* View Toggle & Filters */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+            <TabsList>
+              <TabsTrigger value="list" className="gap-2">
+                <LayoutList className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("grading.dashboard.byStudent")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="rubric" className="gap-2">
+                <Target className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("grading.dashboard.byRubric")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="matrix" className="gap-2">
+                <Grid3X3 className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("grading.matrix.title")}</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <GradingFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            totalCount={zippedProjects.length}
+            filteredCount={filteredProjects.length}
+          />
+        </div>
+      </div>
+
+      {/* Content based on view mode */}
+      {viewMode === "list" && (
+        <Card className="border-border/50">
+          <CardContent className="p-0">
+            <div className="p-4 border-b border-border/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold font-mono">{t("grading.dashboard.projectGrades")}</h2>
+                    <p className="text-sm text-muted-foreground">{t("grading.dashboard.projectGradesSubtitle")}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {filteredProjects.length === 0 ? (
+              <div className="p-12 text-center">
+                <Target className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">
+                  {zippedProjects.length === 0
+                    ? t("grading.dashboard.noProjectsToGrade")
+                    : t("grading.dashboard.noProjectsMatch")}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border/50">
+                {filteredProjects.map((project) => (
+                  <ProjectRow
+                    key={project.id}
+                    project={project}
+                    rubrics={rubrics}
+                    assignment={assignment}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {viewMode === "matrix" && (
+        <GradingMatrix
+          projects={filteredProjects}
+          rubrics={rubrics}
+          assignment={assignment}
+          classroomId={classroomId}
+          assignmentId={assignmentId}
+          gradeSchema={DEFAULT_GRADE_SCHEMA}
+        />
+      )}
+
+      {viewMode === "rubric" && (
+        <GradingByRubric
+          projects={filteredProjects}
+          rubrics={rubrics}
+          selectedRubricId={selectedRubricId}
+          onRubricChange={setSelectedRubricId}
+          classroomId={classroomId}
+          assignmentId={assignmentId}
+        />
+      )}
     </div>
   );
 }
 
-function AssignmentProjectTable({
-  assignment,
-  zippedProjects,
+function ProjectRow({
+  project,
   rubrics,
+  assignment,
 }: {
-  assignment: Assignment;
-  zippedProjects: (ProjectResponse & { gradingResult?: UtilsReportDataItem })[];
+  project: ZippedProject;
   rubrics: ManualGradingRubric[];
+  assignment: Assignment;
 }) {
-  // TODO: benötigt?
-  // const { classroomId, assignmentId } = Route.useParams();
-  // const { data: tests } = useSuspenseQuery(assignmentTestsQueryOptions(classroomId, assignmentId));
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
+  const maxManualScore = rubrics.reduce((acc, e) => acc + e.maxScore, 0);
+  const manualScore = project.gradingManualResults?.reduce((acc, e) => acc + (e.score || 0), 0) ?? 0;
+  const autoScore = project.gradingResult?.autogradingScore ?? 0;
+  const autoMaxScore = project.gradingResult?.autogradingMaxScore ?? 0;
+  const totalScore = project.gradingResult?.score ?? 0;
+  const totalMaxScore = project.gradingResult?.maxScore ?? 0;
+  const totalPercentage = totalMaxScore > 0 ? (totalScore / totalMaxScore) * 100 : 0;
+
+  const alreadyGraded = isProjectGraded(project, rubrics.length);
+  const gradeResult = calculateGradeFromScore(totalScore, totalMaxScore, DEFAULT_GRADE_SCHEMA);
 
   return (
-    <>
-      <Table>
-        <TableCaption>Projects</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Manual grading</TableHead>
-            {assignment.gradingJUnitAutoGradingActive ? <TableHead>Test-driven grading</TableHead> : ""}
-            <TableHead>Score</TableHead>
-            <TableHead></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {zippedProjects.map((a) => {
-            const alreadyGraded =
-              Object.keys(a.gradingResult?.rubricResults ?? {}).length === rubrics.length &&
-              (a.gradingResult?.autogradingMaxScore === 0 || a.gradingResult?.autogradingScore !== 0);
-            return (
-              <TableRow key={`${a.assignment.id}-${a.team.id}`}>
-                <TableCell className="font-medium">{a.team.name}</TableCell>
-                <TableCell>
-                  <div className="flex pl-1 gap-3 items-center">
-                    <span className="relative flex h-3 w-3">
-                      <span
-                        className={cn(
-                          "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
-                          alreadyGraded ? "bg-emerald-400" : "bg-gray-400",
-                        )}
-                      ></span>
-                      <span
-                        className={cn(
-                          "relative inline-flex rounded-full h-3 w-3",
-                          alreadyGraded ? "bg-emerald-500" : "bg-gray-500",
-                        )}
-                      ></span>
-                    </span>
-                    {alreadyGraded ? "Graded" : "Not graded"}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {a.gradingManualResults?.reduce((acc, e) => acc + (e.score || 0), 0)}/
-                  {rubrics.reduce((acc, e) => acc + e.maxScore, 0)}
-                </TableCell>
-                {assignment.gradingJUnitAutoGradingActive ? (
-                  <TableCell>
-                    <Tooltip delayDuration={0}>
-                      <TooltipTrigger>
-                        <a
-                          className="flex items-center"
-                          href={a.reportWebUrl}
-                          target="_blank"
-                          referrerPolicy="no-referrer"
-                        >
-                          {a.gradingResult?.autogradingScore ?? 0}/{a.gradingResult?.autogradingMaxScore ?? 0}{" "}
-                          <SearchCheck className="ml-1 h-3.5 w-3.5" />
-                        </a>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Open details for test-driven grading</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TableCell>
-                ) : (
-                  ""
-                )}
-                <TableCell>
-                  {a.gradingResult?.score ?? 0}/{a.gradingResult?.maxScore}
-                </TableCell>
+    <div
+      className="p-4 hover:bg-muted/30 transition-colors"
+    >
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        {/* Team Info */}
+        <div className="flex items-center gap-3 lg:w-1/4 min-w-0">
+          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+            <span className="text-sm font-mono font-bold text-muted-foreground">
+              {project.team.name.substring(0, 2).toUpperCase()}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <p className="font-medium truncate">{project.team.name}</p>
+            <div className="flex items-center gap-2">
+              <StatusBadge variant={alreadyGraded ? "success" : "warning"} size="sm" showDot>
+                {alreadyGraded ? t("grading.dashboard.graded") : t("grading.dashboard.pending")}
+              </StatusBadge>
+            </div>
+          </div>
+        </div>
 
-                <TableCell className="text-right float-right">
-                  <DrawerForm zippedProject={a} rubrics={rubrics} />
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </>
+        {/* Scores */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Manual Score */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">{t("grading.dashboard.manual")}</p>
+            <ScoreBar value={manualScore} max={maxManualScore} />
+          </div>
+
+          {/* Auto Score */}
+          {assignment.gradingJUnitAutoGradingActive && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-1.5">{t("grading.dashboard.autoGrading")}</p>
+              <ScoreBar value={autoScore} max={autoMaxScore} variant="success" />
+            </div>
+          )}
+
+          {/* Total Score */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">{tc("total")}</p>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-2 bg-muted/50 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
+                  style={{ width: `${totalMaxScore > 0 ? (totalScore / totalMaxScore) * 100 : 0}%` }}
+                />
+              </div>
+              <span className="text-sm font-mono font-bold w-16 text-right">
+                {totalScore}/{totalMaxScore}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Grade */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className={cn(
+              "flex items-center justify-center px-4 py-2 rounded-lg min-w-[70px]",
+              getGradeBgColor(gradeResult.grade)
+            )}>
+              <span className={cn(
+                "font-mono text-xl font-bold",
+                getGradeColor(gradeResult.grade)
+              )}>
+                {gradeResult.grade}
+              </span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-medium capitalize">{gradeResult.label}</p>
+            <p className="text-xs text-muted-foreground">
+              {totalPercentage.toFixed(1)}% · min {gradeResult.minPercentage}%
+            </p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 lg:w-auto">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" asChild className="h-9 w-9">
+                <a href={project.webUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t("grading.dashboard.viewCodeTooltip")}</TooltipContent>
+          </Tooltip>
+
+          <GradingSheet project={project} rubrics={rubrics} assignment={assignment} />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -291,28 +587,31 @@ const formSchema = z.object({
   gradingManualRubrics: z.array(rowSchema),
 });
 
-const DrawerForm = ({
-  zippedProject,
+function GradingSheet({
+  project,
   rubrics,
+  assignment,
 }: {
-  zippedProject: ProjectResponse & { gradingResult?: UtilsReportDataItem };
+  project: ZippedProject;
   rubrics: ManualGradingRubric[];
-}) => {
+  assignment: Assignment;
+}) {
+  const { t } = useTranslation("assignment");
+  const { t: tc } = useTranslation("common");
   const { classroomId, assignmentId } = Route.useParams();
 
-  const { data: assignment } = useSuspenseQuery(assignmentQueryOptions(classroomId, assignmentId));
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       gradingManualRubrics: rubrics.map((rubric) => ({
         rubricId: rubric.id,
-        score: zippedProject.gradingResult?.rubricResults?.[rubric.name]?.score ?? 0,
-        feedback: zippedProject.gradingResult?.rubricResults?.[rubric.name]?.feedback ?? "",
+        score: project.gradingResult?.rubricResults?.[rubric.name]?.score ?? 0,
+        feedback: project.gradingResult?.rubricResults?.[rubric.name]?.feedback ?? "",
       })),
     },
   });
 
-  const { mutateAsync, isPending, error } = useGradeProject(classroomId, assignmentId, zippedProject.id);
+  const { mutateAsync, isPending, error } = useGradeProject(classroomId, assignmentId, project.id);
 
   const { fields } = useFieldArray({
     control: form.control,
@@ -323,72 +622,145 @@ const DrawerForm = ({
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     await mutateAsync(data);
+    toast.success(t("grading.dashboard.gradesSaved"));
     closeModalButtonRef.current?.click();
   };
 
+  const totalManualScore = fields.reduce((sum, _, index) => {
+    return sum + (form.watch(`gradingManualRubrics.${index}.score`) || 0);
+  }, 0);
+
+  const maxManualScore = rubrics.reduce((acc, e) => acc + e.maxScore, 0);
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>Grade</Button>
-      </DialogTrigger>
-      <DialogContent className="lg:min-w-[600px] overflow-y-auto max-h-screen">
-        <DialogHeader>
-          <DialogTitle>Grade project</DialogTitle>
-          <DialogDescription>Overview for grading of {zippedProject.team.name}.</DialogDescription>
-        </DialogHeader>
-        <Button className="mb-8" variant="default" asChild size="sm" title="Grading">
-          <a href={zippedProject.webUrl} target="_blank" referrerPolicy="no-referrer">
-            <SearchCode className="mr-2 h-4 w-4" />
-            Go to code
-          </a>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="default" size="sm" className="gap-2">
+          {t("grading.dashboard.gradeButton")}
+          <ChevronRight className="h-4 w-4" />
         </Button>
-        {assignment.gradingJUnitAutoGradingActive && (
-          <div className="md:flex justify-between gap-1 mb-2">
-            <div className="grow mb-2">
-              <h3 className="text-l font-bold">Test-based grading</h3>
-              <span className="text-s font-light text-muted-foreground">The current result of test-based grading</span>
-              <p className="mt-2 mb-2">
-                {zippedProject.gradingResult?.autogradingScore ?? 0}/
-                {zippedProject.gradingResult?.autogradingMaxScore ?? 0} points.
-              </p>
+      </SheetTrigger>
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetHeader className="mb-6">
+          <SheetTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Award className="w-5 h-5 text-primary" />
             </div>
-            <div className="flex-none">
-              <Button className="w-full" variant="secondary" asChild size="sm" title="Details of test-based grading">
-                <Link
-                  to="/classrooms/$classroomId/assignments/$assignmentId/grading"
-                  params={{ classroomId, assignmentId }}
-                >
-                  <Bot className="mr-2 h-4 w-4" />
-                  Details
-                </Link>
-              </Button>
+            <div>
+              <span className="block">{project.team.name}</span>
+              <span className="text-sm font-normal text-muted-foreground">{t("grading.dashboard.gradingPanel")}</span>
+            </div>
+          </SheetTitle>
+          <SheetDescription>
+            {t("grading.dashboard.gradingPanelDescription")}
+          </SheetDescription>
+        </SheetHeader>
+
+        {/* Quick Actions */}
+        <div className="flex gap-2 mb-6">
+          <Button variant="outline" size="sm" asChild className="flex-1">
+            <a href={project.webUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              {t("grading.dashboard.viewCode")}
+            </a>
+          </Button>
+          {assignment.gradingJUnitAutoGradingActive && project.reportWebUrl && (
+            <Button variant="outline" size="sm" asChild className="flex-1">
+              <a href={project.reportWebUrl} target="_blank" rel="noopener noreferrer">
+                <Bot className="mr-2 h-4 w-4" />
+                {t("grading.dashboard.testResults")}
+              </a>
+            </Button>
+          )}
+        </div>
+
+        {/* Auto-Grading Section */}
+        {assignment.gradingJUnitAutoGradingActive && (
+          <div className="mb-6 p-4 rounded-lg bg-muted/30 border border-border/50">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Bot className="w-4 h-4 text-success" />
+                <span className="font-medium text-sm">{t("grading.dashboard.automatedTestResults")}</span>
+              </div>
+              <span className="font-mono text-sm font-bold">
+                {project.gradingResult?.autogradingScore ?? 0}/{project.gradingResult?.autogradingMaxScore ?? 0}
+              </span>
+            </div>
+            <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-success transition-all duration-500"
+                style={{
+                  width: `${
+                    (project.gradingResult?.autogradingMaxScore ?? 0) > 0
+                      ? ((project.gradingResult?.autogradingScore ?? 0) / (project.gradingResult?.autogradingMaxScore ?? 1)) * 100
+                      : 0
+                  }%`,
+                }}
+              />
             </div>
           </div>
         )}
-        <div className="gap-1">
-          <h3 className="text-l font-bold">Manual grading</h3>
-          <span className="text-s font-light text-muted-foreground">
-            View and adjust the manual grades for this project
-          </span>
+
+        {/* Manual Grading Form */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Target className="w-4 h-4 text-primary" />
+              {t("grading.dashboard.manualGrading")}
+            </h3>
+            <span className="text-sm font-mono text-muted-foreground">
+              {totalManualScore}/{maxManualScore} pts
+            </span>
+          </div>
         </div>
+
         {fields.length === 0 ? (
-          <div className="text-center text-muted-foreground">No manual grading rubrics available.</div>
+          <div className="text-center py-8 text-muted-foreground">
+            <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p>{t("grading.dashboard.noRubricsConfigured")}</p>
+          </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full flex-col">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               {fields.map((field, index) => {
                 const rubric = rubrics.find((e) => e.id === field.rubricId)!;
+                const currentScore = form.watch(`gradingManualRubrics.${index}.score`) || 0;
+                const scorePercentage = rubric.maxScore > 0 ? (currentScore / rubric.maxScore) * 100 : 0;
+
                 return (
                   <div
                     key={field.id}
-                    className="w-full grid grid-cols-1 md:grid-cols-[1fr_4fr] gap-2 rounded-md border p-4 mb-4"
+                    className="p-4 rounded-lg border border-border/50 bg-card/50 space-y-3"
                   >
-                    <div className="gap-1 md:col-span-2">
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-sm font-bold">{rubric.name}</h4>
-                        <span className="text-sm text-foreground">Max Score: {rubric.maxScore}</span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm">{rubric.name}</h4>
+                        {rubric.description && (
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            <Markdown compact>{rubric.description}</Markdown>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-sm font-light text-muted-foreground">{rubric.description}</span>
+                      <span className="text-xs font-mono text-muted-foreground shrink-0">
+                        {t("grading.dashboard.maxPts", { count: rubric.maxScore })}
+                      </span>
+                    </div>
+
+                    {/* Score Progress */}
+                    <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all duration-300",
+                          scorePercentage >= 80
+                            ? "bg-success"
+                            : scorePercentage >= 50
+                              ? "bg-warning"
+                              : scorePercentage > 0
+                                ? "bg-destructive"
+                                : "bg-muted"
+                        )}
+                        style={{ width: `${scorePercentage}%` }}
+                      />
                     </div>
 
                     <FormField
@@ -397,52 +769,59 @@ const DrawerForm = ({
                       render={({ field }) => <input value={field.value} readOnly hidden />}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name={`gradingManualRubrics.${index}.score`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Points</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min={0}
-                              step={1}
-                              disabled={isPending}
-                              {...field}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                const numberValue = value ? Number(value) : "";
-                                field.onChange(numberValue);
-                              }}
-                              className="text-base rounded-r"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`gradingManualRubrics.${index}.feedback`}
-                      render={({ field }) => (
-                        <FormItem className="grow">
-                          <FormLabel>Feedback</FormLabel>
-                          <FormControl>
-                            <AutosizeTextarea
-                              minHeight={1}
-                              disabled={isPending}
-                              {...field}
-                              className={"rounded-r mt-5"}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    <div className="grid grid-cols-[100px_1fr] gap-3">
+                      <FormField
+                        control={form.control}
+                        name={`gradingManualRubrics.${index}.score`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">{t("grading.dashboard.score")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={rubric.maxScore}
+                                step={1}
+                                disabled={isPending}
+                                {...field}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  const num = value ? Number(value) : 0;
+                                  field.onChange(Math.min(num, rubric.maxScore));
+                                }}
+                                className="h-9 text-center font-mono"
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`gradingManualRubrics.${index}.feedback`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs">
+                              {t("grading.dashboard.feedbackLabel")} · {tc("markdown.supported")}
+                            </FormLabel>
+                            <FormControl>
+                              <AutosizeTextarea
+                                minHeight={36}
+                                maxHeight={120}
+                                disabled={isPending}
+                                placeholder={t("grading.dashboard.feedbackPlaceholder")}
+                                {...field}
+                                className="text-sm resize-none"
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
                 );
               })}
 
-              <Button>Save</Button>
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
@@ -450,13 +829,46 @@ const DrawerForm = ({
                   <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
               )}
+
+              {/* Summary & Submit */}
+              <div className="pt-4 border-t border-border/50 space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                  <span className="text-sm font-medium">{t("grading.dashboard.totalScore")}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-mono font-bold">
+                      {totalManualScore + (project.gradingResult?.autogradingScore ?? 0)}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      / {maxManualScore + (project.gradingResult?.autogradingMaxScore ?? 0)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <SheetClose ref={closeModalButtonRef} asChild>
+                    <Button type="button" variant="outline" className="flex-1">
+                      {tc("actions.cancel")}
+                    </Button>
+                  </SheetClose>
+                  <Button type="submit" variant="glow" className="flex-1" disabled={isPending}>
+                    {isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t("grading.dashboard.saving")}
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        {t("grading.dashboard.saveGrades")}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
             </form>
           </Form>
         )}
-        <DialogClose ref={closeModalButtonRef} className="hidden">
-          Close
-        </DialogClose>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
-};
+}
