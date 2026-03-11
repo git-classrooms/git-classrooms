@@ -40,12 +40,16 @@ func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 			continue
 		}
 
-		err = w.syncClassroom(ctx, *classroom, repo)
+		err = w.syncClassroom(ctx, classroom, repo)
 		if err != nil {
 			continue
 		}
 
 		w.syncClassroomMember(ctx, classroom.GroupID, classroom.Member, repo)
+
+		if classroom.TeachingGroupID != nil {
+			w.syncTeachingGroupMember(ctx, *classroom.TeachingGroupID, classroom.Member, repo)
+		}
 
 		for _, team := range classroom.Teams {
 			err = w.syncTeam(ctx, classroom, *team, repo)
@@ -87,7 +91,7 @@ func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*datab
 }
 
 // syncClassroom synchronizes the data of a classroom from GitLab with the local database.
-func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom database.Classroom, repo gitlab.Repository) error {
+func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom *database.Classroom, repo gitlab.Repository) error {
 	log.Default().Printf("Syncing classroom %s (ID=%d)", dbClassroom.Name, dbClassroom.GroupID)
 	gitlabClassroom, err := repo.GetGroupById(dbClassroom.GroupID)
 	if err != nil {
@@ -97,20 +101,20 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 			// -> classroom deleted -> 403 Forbidden -> after 1 min -> 401 Unauthorized
 			// -> access token revoked -> 401 error invalid_token -> after 1 min -> 401 Unauthorized
 			if gitLabError.Response.StatusCode == 403 {
-				_, err := query.Classroom.WithContext(ctx).Delete(&dbClassroom)
+				_, err := query.Classroom.WithContext(ctx).Delete(dbClassroom)
 				if err == nil {
 					log.Default().Printf("Classroom %s (ID=%d) deleted due to group deletion or member classroom_bot removal via GitLab.", dbClassroom.Name, dbClassroom.GroupID)
 				}
 			} else if gitLabError.Response.StatusCode == 401 {
 				if strings.Contains(gitLabError.Message, "error: invalid_token") {
 					dbClassroom.Archived = true
-					err := query.Classroom.WithContext(ctx).Save(&dbClassroom)
+					err := query.Classroom.WithContext(ctx).Save(dbClassroom)
 					if err == nil {
 						log.Default().Printf("Classroom %s (ID=%d) archived due to revoked access token", dbClassroom.Name, dbClassroom.GroupID)
 					}
 				} else if strings.Contains(gitLabError.Message, "message: 401 Unauthorized") {
 					dbClassroom.PotentiallyDeleted = true
-					err := query.Classroom.WithContext(ctx).Save(&dbClassroom)
+					err := query.Classroom.WithContext(ctx).Save(dbClassroom)
 					if err == nil {
 						log.Default().Printf("Classroom %s (ID=%d) marked as potentially deleted due to 401 Unauthorized. Group access token could be revoked or group could be deleted via GitLab. Clarify on next user access of classroom.", dbClassroom.Name, dbClassroom.GroupID) // Clarify in classroom middleware
 					}
@@ -128,7 +132,7 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 		}
 	}
 
-	shouldDescription := utils.CreateClassroomGitlabDescription(&dbClassroom, w.publicURL)
+	shouldDescription := utils.CreateClassroomGitlabDescription(dbClassroom, w.publicURL)
 
 	if shouldDescription != gitlabClassroom.Description {
 		if _, err := repo.ChangeGroupDescription(dbClassroom.GroupID, shouldDescription); err != nil {
@@ -136,7 +140,60 @@ func (w *SyncGitlabDbWork) syncClassroom(ctx context.Context, dbClassroom databa
 		}
 	}
 
+	if dbClassroom.TeachingGroupID == nil {
+		return nil
+	}
+
+	groupID := *dbClassroom.TeachingGroupID
+	gitlabTeachingGroup, err := repo.GetGroupById(groupID)
+	if err != nil {
+		if strings.Contains(err.Error(), "404 {message: 404 Group Not Found}") {
+			dbClassroom.TeachingGroupID = nil
+			if err := query.Classroom.WithContext(ctx).Save(dbClassroom); err == nil {
+				log.Default().Printf("Teaching group removed from classroom.")
+			}
+		} else {
+			log.Default().Printf("Error while fetching group with id %d. ErrorMsg: %s", groupID, err.Error())
+		}
+
+		return err
+	}
+
+	shouldDescription = utils.CreateTeachingGroupGitlabDescription(dbClassroom, w.publicURL)
+
+	if shouldDescription != gitlabTeachingGroup.Description {
+		if _, err := repo.ChangeGroupDescription(groupID, shouldDescription); err != nil {
+			log.Default().Printf("Error could not update group name for classroom %d: %s", dbClassroom.GroupID, err.Error())
+		}
+	}
+
 	return nil
+}
+
+// syncTeachingGroup synchronizes the members of a classroom between GitLab Teaching Group and the local database.
+func (w *SyncGitlabDbWork) syncTeachingGroupMember(ctx context.Context, groupId int, dbMember []*database.UserClassrooms, repo gitlab.Repository) {
+	handleLeftMembers := func(context context.Context, member *database.UserClassrooms, groupId int, repo gitlab.Repository) {
+		if member.Role == database.Owner {
+			return
+		}
+		err := repo.AddUserToGroup(groupId, member.UserID, model.ReporterPermissions)
+		if err != nil {
+			log.Default().Printf("Error could not add member [%d] to gitlab group %d: %s", member.UserID, groupId, err.Error())
+		} else {
+			log.Default().Printf("Added member %d to gitlab group %d", member.UserID, groupId)
+		}
+	}
+
+	handleAddedMembers := func(context context.Context, member *model.User, groupId int, repo gitlab.Repository) {
+		err := repo.RemoveUserFromGroup(groupId, member.ID)
+		if err != nil {
+			log.Default().Printf("Error could not remove member [%d] from gitlab group %d: %s", member.ID, groupId, err.Error())
+		} else {
+			log.Default().Printf("Removed member %d from gitlab group %d", member.ID, groupId)
+		}
+	}
+
+	w.syncMember(ctx, groupId, dbMember, repo, handleLeftMembers, handleAddedMembers)
 }
 
 // syncClassroomMember synchronizes the members of a classroom between GitLab and the local database.

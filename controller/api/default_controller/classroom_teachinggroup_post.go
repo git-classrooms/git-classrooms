@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,6 +9,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -93,7 +93,7 @@ func (ctrl *DefaultController) createTeachingGroup(ctx context.Context, repo git
 		name,
 		classroom.GroupID,
 		model.Private,
-		fmt.Sprintf("Teaching Material of classroom %s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s)__", classroom.Name, ctrl.config.PublicURL, classroom.ID.String()),
+		utils.CreateTeachingGroupGitlabDescription(classroom, ctrl.config.PublicURL),
 	)
 	if err != nil {
 		return -1, nil, err
