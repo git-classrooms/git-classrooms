@@ -13,6 +13,7 @@ export * from './classroom-invitation-status';
 export * from './classroom-runner-response';
 export * from './create-assignment-request';
 export * from './create-classroom-request';
+export * from './create-teaching-group-request';
 export * from './create-team-request';
 export * from './database-junit-test-result';
 export * from './database-status';

@@ -24,6 +24,12 @@ export interface CreateClassroomRequest {
      * @type {boolean}
      * @memberof CreateClassroomRequest
      */
+    createTeachingGroup: boolean;
+
+    /**
+     * @type {boolean}
+     * @memberof CreateClassroomRequest
+     */
     createTeams: boolean;
 
     /**

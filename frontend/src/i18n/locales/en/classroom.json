@@ -39,7 +39,9 @@
   "privacy": {
     "title": "Privacy Settings",
     "mutualVisibility": "Mutual Code Visibility",
-    "mutualVisibilityDescription": "Students can view other students' repositories"
+    "mutualVisibilityDescription": "Students can view other students' repositories",
+    "teachingMaterial": "Create Teaching Material Group",
+    "teachingMaterialDescription": "Create a group in GitLab where students can always view your teaching material"
   },
   "list": {
     "subtitle": "Manage and access all your classrooms",

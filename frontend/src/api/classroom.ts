@@ -67,6 +67,7 @@ export const useCreateClassroom = () => {
         createTeams: values.teamsEnabled ? values.createTeams : false,
         maxTeamSize: values.teamsEnabled ? values.maxTeamSize : 1,
         maxTeams: values.teamsEnabled ? values.maxTeams : 0,
+        createTeachingGroup: values.createTeachingMaterialGroup,
       };
       const res = await apiClient.createClassroom(body, csrfToken);
       return res.headers.location as string;
