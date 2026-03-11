@@ -61,4 +61,10 @@ export interface CreateClassroomRequest {
      * @memberof CreateClassroomRequest
      */
     studentsViewAllProjects: boolean;
+
+    /**
+     * @type {string}
+     * @memberof CreateClassroomRequest
+     */
+    teachingGroupName?: string;
 }

@@ -19,4 +19,10 @@
  * @interface CreateTeachingGroupRequest
  */
 export interface CreateTeachingGroupRequest {
+
+    /**
+     * @type {string}
+     * @memberof CreateTeachingGroupRequest
+     */
+    name: string;
 }

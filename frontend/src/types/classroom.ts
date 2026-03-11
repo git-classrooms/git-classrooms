@@ -25,6 +25,7 @@ const createFormBase = {
   description: z.string().min(3),
   studentsViewAllProjects: z.boolean(),
   createTeachingMaterialGroup: z.boolean(),
+  teachingMaterialGroupName: z.string().optional(),
 } as const;
 
 export const createFormSchema = z

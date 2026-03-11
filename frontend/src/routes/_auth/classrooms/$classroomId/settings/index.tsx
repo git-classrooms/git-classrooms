@@ -3,7 +3,7 @@ import { ClassroomEditForm } from "@/components/classroomsForm";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, Archive, Eye, EyeOff, Info, Lock, Users, Users2 } from "lucide-react";
+import { AlertTriangle, Archive, Eye, EyeOff, Info, Library, Lock, Users, Users2 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn, unwrapApiError } from "@/lib/utils";
@@ -134,6 +134,21 @@ function Index() {
               </p>
             </TooltipContent>
           </Tooltip>
+
+          {/* Teaching Material Card */}
+          <ConfigCard
+            icon={<Library className="w-4 h-4" />}
+            label={t("settings.teachingMaterial")}
+            value={
+              <StatusBadge
+                variant={classroom.teachingGroupId > 0 ? "success" : "neutral"}
+                size="sm"
+              >
+                {classroom.teachingGroupId > 0 ? t("settings.teamsEnabled") : t("settings.teamsDisabled")}
+              </StatusBadge>
+            }
+            description={t("settings.teachingMaterialDescription")}
+          />
         </div>
       </section>
 

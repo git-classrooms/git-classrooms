@@ -36,12 +36,18 @@
     "studentCreation": "Student Team Creation",
     "studentCreationDescription": "Allow students to create their own teams"
   },
+  "teachingMaterial": {
+    "title": "Teaching Material",
+    "enable": "Create Teaching Material Group",
+    "enableDescription": "Create a group in GitLab where students can always access your teaching material",
+    "groupName": "Group Name",
+    "groupNamePlaceholder": "e.g., Teaching Material",
+    "groupNameDescription": "The name of the GitLab group for your teaching material"
+  },
   "privacy": {
     "title": "Privacy Settings",
     "mutualVisibility": "Mutual Code Visibility",
-    "mutualVisibilityDescription": "Students can view other students' repositories",
-    "teachingMaterial": "Create Teaching Material Group",
-    "teachingMaterialDescription": "Create a group in GitLab where students can always view your teaching material"
+    "mutualVisibilityDescription": "Students can view other students' repositories"
   },
   "list": {
     "subtitle": "Manage and access all your classrooms",
@@ -182,6 +188,8 @@
     "mutualCodeViewDescription": "Cross-team code visibility",
     "mutualCodeViewEnabled": "Students can view code from other teams",
     "mutualCodeViewDisabled": "Students can only view their own team's code",
+    "teachingMaterial": "Teaching Material",
+    "teachingMaterialDescription": "GitLab group for teaching material",
     "danger": "Danger Zone",
     "archive": {
       "title": "Archive Classroom",
@@ -197,7 +205,8 @@
     "viewOnGitlab": "View on GitLab",
     "copyInvite": "Copy Invite",
     "inviteCopied": "Invite link copied to clipboard",
-    "report": "Report"
+    "report": "Report",
+    "teachingMaterial": "Teaching Material"
   },
   "stats": {
     "members": "Members",

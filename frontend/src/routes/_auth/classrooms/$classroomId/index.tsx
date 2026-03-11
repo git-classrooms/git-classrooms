@@ -11,6 +11,7 @@ import { teamsQueryOptions } from "@/api/team";
 import { ReportApiAxiosParamCreator, TeamResponse, UserClassroomResponse } from "@/swagger-client";
 import { Button } from "@/components/ui/button";
 import {
+  BookOpen,
   CalendarClock,
   CheckCircle2,
   ChevronRight,
@@ -162,30 +163,44 @@ function ClassroomDetail() {
           </div>
 
           {/* Action Buttons */}
-          {!userClassroom.classroom.archived && isModerator(userClassroom) && (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={handleCopyInviteLink}>
-                <Clipboard className="w-4 h-4 mr-2" />
-                {t("detail.copyInvite")}
+          <div className="flex flex-wrap gap-2">
+            {userClassroom.classroom.teachingGroupId > 0 && (
+              <Button variant="outline" size="sm" asChild>
+                <a
+                  href={`/api/v1/classrooms/${classroomId}/teachinggroup/gitlab`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  {t("detail.teachingMaterial")}
+                </a>
               </Button>
-              {isOwner(userClassroom) && (
-                <Button variant="outline" size="sm" asChild>
-                  <a href={reportDownloadUrl} target="_blank" rel="noopener noreferrer">
-                    <Download className="w-4 h-4 mr-2" />
-                    {t("detail.report")}
-                  </a>
+            )}
+            {!userClassroom.classroom.archived && isModerator(userClassroom) && (
+              <>
+                <Button variant="outline" size="sm" onClick={handleCopyInviteLink}>
+                  <Clipboard className="w-4 h-4 mr-2" />
+                  {t("detail.copyInvite")}
                 </Button>
-              )}
-              {isOwner(userClassroom) && (
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/classrooms/$classroomId/settings" params={{ classroomId }}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    {t("settings.title")}
-                  </Link>
-                </Button>
-              )}
-            </div>
-          )}
+                {isOwner(userClassroom) && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={reportDownloadUrl} target="_blank" rel="noopener noreferrer">
+                      <Download className="w-4 h-4 mr-2" />
+                      {t("detail.report")}
+                    </a>
+                  </Button>
+                )}
+                {isOwner(userClassroom) && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/classrooms/$classroomId/settings" params={{ classroomId }}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      {t("settings.title")}
+                    </Link>
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </header>
 

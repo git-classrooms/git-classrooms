@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema, updateFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, BookOpen, ChevronRight, FolderGit2, Loader2, Pencil, Settings2, Users } from "lucide-react";
+import { AlertCircle, BookOpen, ChevronRight, FolderGit2, Library, Loader2, Pencil, Settings2, Users } from "lucide-react";
 import { cn, getUUIDFromLocation, unwrapApiError } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -48,6 +48,7 @@ export const ClassroomCreateForm = () => {
       studentsViewAllProjects: false,
       teamsEnabled: true,
       createTeachingMaterialGroup: true,
+      teachingMaterialGroupName: "Teaching Material",
     },
   });
 
@@ -60,6 +61,7 @@ export const ClassroomCreateForm = () => {
   }
 
   const teamsEnabled = form.watch("teamsEnabled");
+  const teachingMaterialEnabled = form.watch("createTeachingMaterialGroup");
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -222,6 +224,55 @@ export const ClassroomCreateForm = () => {
             </CardContent>
           </Card>
 
+          {/* Teaching Material Section */}
+          <Card className="border-border/50 overflow-hidden">
+            <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Library className="w-4 h-4 text-muted-foreground" />
+                <h2 className="font-semibold text-sm">{t("teachingMaterial.title")}</h2>
+              </div>
+            </div>
+            <CardContent className="p-5 space-y-5">
+              <FormField
+                control={form.control}
+                name="createTeachingMaterialGroup"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-muted/20">
+                    <div className="space-y-0.5">
+                      <FormLabel className="font-medium">{t("teachingMaterial.enable")}</FormLabel>
+                      <FormDescription className="text-xs">{t("teachingMaterial.enableDescription")}</FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div
+                className={cn(
+                  "space-y-4 overflow-hidden transition-all duration-300",
+                  teachingMaterialEnabled ? "opacity-100 max-h-[200px]" : "opacity-0 max-h-0 pointer-events-none",
+                )}
+              >
+                <FormField
+                  control={form.control}
+                  name="teachingMaterialGroupName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("teachingMaterial.groupName")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t("teachingMaterial.groupNamePlaceholder")} className="bg-background" {...field} />
+                      </FormControl>
+                      <FormDescription className="text-xs">{t("teachingMaterial.groupNameDescription")}</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Privacy Settings Section */}
           <Card className="border-border/50 overflow-hidden">
             <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
@@ -239,22 +290,6 @@ export const ClassroomCreateForm = () => {
                     <div className="space-y-0.5">
                       <FormLabel className="font-medium">{t("privacy.mutualVisibility")}</FormLabel>
                       <FormDescription className="text-xs">{t("privacy.mutualVisibilityDescription")}</FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="createTeachingMaterialGroup"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50">
-                    <div className="space-y-0.5">
-                      <FormLabel className="font-medium">{t("privacy.teachingMaterial")}</FormLabel>
-                      <FormDescription className="text-xs">{t("privacy.teachingMaterialDescription")}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />

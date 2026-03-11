@@ -36,12 +36,18 @@
     "studentCreation": "Team-Erstellung durch Studenten",
     "studentCreationDescription": "Studenten dürfen eigene Teams erstellen"
   },
+  "teachingMaterial": {
+    "title": "Lehrmaterial",
+    "enable": "Lehrmaterial-Gruppe erstellen",
+    "enableDescription": "Erstelle eine Gruppe in GitLab, in der Studenten jederzeit auf dein Lehrmaterial zugreifen können",
+    "groupName": "Gruppenname",
+    "groupNamePlaceholder": "z.B. Lehrmaterial",
+    "groupNameDescription": "Der Name der GitLab-Gruppe für dein Lehrmaterial"
+  },
   "privacy": {
     "title": "Datenschutz-Einstellungen",
     "mutualVisibility": "Gegenseitige Code-Sichtbarkeit",
-    "mutualVisibilityDescription": "Studenten können Repositories anderer Studenten einsehen",
-    "teachingMaterial": "Lehrmaterial-Gruppe erstellen",
-    "teachingMaterialDescription": "Erstelle eine Gruppe in GitLab, in der Studenten jederzeit auf dein Lehrmaterial zugreifen können"
+    "mutualVisibilityDescription": "Studenten können Repositories anderer Studenten einsehen"
   },
   "list": {
     "subtitle": "Verwalte und greife auf alle deine Kurse zu",
@@ -182,6 +188,8 @@
     "mutualCodeViewDescription": "Teamübergreifende Code-Sichtbarkeit",
     "mutualCodeViewEnabled": "Studenten können Code anderer Teams einsehen",
     "mutualCodeViewDisabled": "Studenten können nur den Code ihres eigenen Teams einsehen",
+    "teachingMaterial": "Lehrmaterial",
+    "teachingMaterialDescription": "GitLab-Gruppe für Lehrmaterial",
     "danger": "Gefahrenzone",
     "archive": {
       "title": "Kurs archivieren",
@@ -197,7 +205,8 @@
     "viewOnGitlab": "Auf GitLab anzeigen",
     "copyInvite": "Einladung kopieren",
     "inviteCopied": "Einladungslink in Zwischenablage kopiert",
-    "report": "Bericht"
+    "report": "Bericht",
+    "teachingMaterial": "Lehrmaterial"
   },
   "stats": {
     "members": "Mitglieder",
