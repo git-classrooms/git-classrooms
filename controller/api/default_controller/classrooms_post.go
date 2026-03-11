@@ -24,6 +24,7 @@ type createClassroomRequest struct {
 	MaxTeamSize             int    `json:"maxTeamSize"`
 	StudentsViewAllProjects *bool  `json:"studentsViewAllProjects"`
 	CreateTeachingGroup     *bool  `json:"createTeachingGroup"`
+	TeachingGroupName       string `json:"teachingGroupName,omitempty"`
 } //@Name CreateClassroomRequest
 
 func (r createClassroomRequest) isValid() bool {
@@ -34,7 +35,8 @@ func (r createClassroomRequest) isValid() bool {
 		r.MaxTeams != nil &&
 		*r.MaxTeams >= 0 &&
 		r.StudentsViewAllProjects != nil &&
-		r.CreateTeachingGroup != nil
+		r.CreateTeachingGroup != nil &&
+		(!*r.CreateTeachingGroup || (*r.CreateTeachingGroup && r.TeachingGroupName != ""))
 }
 
 // @Summary		Create a new classroom
@@ -124,8 +126,8 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 			return err
 		}
 
-		if requestBody.CreateTeachingGroup != nil && *requestBody.CreateTeachingGroup {
-			groupID, _, err := ctrl.createTeachingGroup(c.Context(), repo, classroom)
+		if *requestBody.CreateTeachingGroup {
+			groupID, _, err := ctrl.createTeachingGroup(c.Context(), repo, requestBody.TeachingGroupName, classroom)
 			if err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}

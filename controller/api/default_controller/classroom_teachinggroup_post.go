@@ -14,10 +14,11 @@ import (
 )
 
 type createTeachingGroupRequest struct {
+	Name string `json:"name"`
 } //@Name CreateTeachingGroupRequest
 
 func (r createTeachingGroupRequest) isValid() bool {
-	return true
+	return r.Name != ""
 }
 
 // @Summary		CreateClassroomTeachingGroup
@@ -69,7 +70,7 @@ func (ctrl *DefaultController) CreateClassroomTeachingGroup(c *fiber.Ctx) (err e
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	groupID, cleanup, err := ctrl.createTeachingGroup(c.Context(), repo, classroom)
+	groupID, cleanup, err := ctrl.createTeachingGroup(c.Context(), repo, requestBody.Name, classroom)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -86,10 +87,10 @@ func (ctrl *DefaultController) CreateClassroomTeachingGroup(c *fiber.Ctx) (err e
 	return c.SendStatus(fiber.StatusCreated)
 }
 
-func (ctrl *DefaultController) createTeachingGroup(ctx context.Context, repo gitlab.Repository, classroom *database.Classroom) (groupID int, cleanupOnError func(error), err error) {
+func (ctrl *DefaultController) createTeachingGroup(ctx context.Context, repo gitlab.Repository, name string, classroom *database.Classroom) (groupID int, cleanupOnError func(error), err error) {
 	group, err := repo.CreateSubGroup(
-		"Teaching Material",
-		"teaching-material",
+		name,
+		name,
 		classroom.GroupID,
 		model.Private,
 		fmt.Sprintf("Teaching Material of classroom %s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s)__", classroom.Name, ctrl.config.PublicURL, classroom.ID.String()),
