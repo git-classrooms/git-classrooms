@@ -40,7 +40,6 @@ func (r createTeamRequest) isValid() bool {
 // @Router			/api/v1/classrooms/{classroomId}/teams [post]
 func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
-	userID := ctx.GetUserID()
 	classroom := ctx.GetUserClassroom()
 	team := classroom.Team
 	repo := ctx.GetGitlabRepository()
@@ -103,23 +102,13 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 		}
 	}()
 
-	queryUserClassrooms := query.UserClassrooms
-	user, err := queryUserClassrooms.
-		WithContext(c.Context()).
-		Where(queryUserClassrooms.UserID.Eq(userID)).
-		Where(queryUserClassrooms.ClassroomID.Eq(classroom.ClassroomID)).
-		First()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
 	member := make([]*database.UserClassrooms, 0)
 
 	if classroom.Role == database.Student {
-		if err := repo.AddUserToGroup(group.ID, userID, model.ReporterPermissions); err != nil {
+		if err := repo.AddUserToGroup(group.ID, classroom.UserID, model.ReporterPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
-		member = append(member, user)
+		member = append(member, classroom)
 	}
 
 	newTeam := &database.Team{

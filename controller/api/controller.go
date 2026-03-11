@@ -36,6 +36,9 @@ type Controller interface {
 	UpdateClassroom(*fiber.Ctx) error
 	ArchiveClassroom(*fiber.Ctx) error
 
+	TeachingGroupGitlabGroupMiddleware(*fiber.Ctx) error
+	CreateClassroomTeachingGroup(*fiber.Ctx) error
+
 	GetClassroomTemplates(*fiber.Ctx) error
 
 	GetClassroomAssignments(*fiber.Ctx) error
