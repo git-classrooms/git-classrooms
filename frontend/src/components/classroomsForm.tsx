@@ -59,7 +59,7 @@ export const ClassroomCreateForm = () => {
     },
   });
 
-  useUnsavedChanges({ isDirty: form.formState.isDirty });
+  useUnsavedChanges({ blocking: form.formState.isDirty && !form.formState.isSubmitting });
 
   async function onSubmit(values: z.infer<typeof createFormSchema>) {
     const location = await mutateAsync(values);
@@ -331,7 +331,7 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
     },
   });
 
-  useUnsavedChanges({ isDirty: form.formState.isDirty });
+  useUnsavedChanges({ blocking: form.formState.isDirty && !form.formState.isSubmitting });
 
   async function onSubmit(values: z.infer<typeof updateFormSchema>) {
     await mutateAsync(values);
