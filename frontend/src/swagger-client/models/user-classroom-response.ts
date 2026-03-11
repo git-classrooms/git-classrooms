@@ -55,6 +55,12 @@ export interface UserClassroomResponse {
     role: Role;
 
     /**
+     * @type {string}
+     * @memberof UserClassroomResponse
+     */
+    teachingMaterialWebUrl?: string;
+
+    /**
      * @type {Team}
      * @memberof UserClassroomResponse
      */

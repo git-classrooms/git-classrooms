@@ -24,7 +24,7 @@ export interface UpdateAssignmentRequest {
      * @type {string}
      * @memberof UpdateAssignmentRequest
      */
-    description: string;
+    description?: string;
 
     /**
      * @type {string}
@@ -36,5 +36,5 @@ export interface UpdateAssignmentRequest {
      * @type {string}
      * @memberof UpdateAssignmentRequest
      */
-    name: string;
+    name?: string;
 }

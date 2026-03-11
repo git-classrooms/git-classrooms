@@ -42,7 +42,7 @@ export interface ModelTestReportTestCase {
      * @type {string}
      * @memberof ModelTestReportTestCase
      */
-    stackTrace: string;
+    stackTrace?: string;
 
     /**
      * @type {string}
@@ -54,5 +54,5 @@ export interface ModelTestReportTestCase {
      * @type {any}
      * @memberof ModelTestReportTestCase
      */
-    systemOutput: any;
+    systemOutput?: any;
 }

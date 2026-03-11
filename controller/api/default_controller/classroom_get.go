@@ -37,5 +37,9 @@ func (ctrl *DefaultController) GetClassroom(c *fiber.Ctx) (err error) {
 		InviteCode:       inviteCode,
 	}
 
+	if classroom.Classroom.TeachingGroupID != nil {
+		response.TeachingMaterialWebURL = fmt.Sprintf("/api/v1/classrooms/%s/teachinggroup/gitlab", classroom.ClassroomID.String())
+	}
+
 	return c.JSON(response)
 }
