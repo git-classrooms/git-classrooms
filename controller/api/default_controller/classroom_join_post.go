@@ -113,6 +113,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			Classroom:   *classroom,
 			Email:       user.GitlabEmail,
 			ExpiryDate:  time.Now().AddDate(0, 0, 14),
+			Role:        database.Student,
 		}
 
 		if err := queryClassroomInvitation.
@@ -187,7 +188,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		member := &database.UserClassrooms{
 			UserID:    userID,
 			Classroom: invitation.Classroom,
-			Role:      database.Student,
+			Role:      invitation.Role,
 		}
 		if err = tx.UserClassrooms.WithContext(c.Context()).Create(member); err != nil {
 			return err
@@ -200,7 +201,11 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		}
 
 		groupRole := gitlabModel.GuestPermissions
-		if invitation.Classroom.StudentsViewAllProjects {
+		if invitation.Role == database.Owner {
+			groupRole = gitlabModel.OwnerPermissions
+		} else if invitation.Role == database.Moderator {
+			groupRole = gitlabModel.ReporterPermissions
+		} else if invitation.Classroom.StudentsViewAllProjects {
 			groupRole = gitlabModel.ReporterPermissions
 		}
 
@@ -213,7 +218,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			}
 		}()
 
-		if invitation.Classroom.TeachingGroupID != nil {
+		if invitation.Classroom.TeachingGroupID != nil && invitation.Role != database.Owner {
 			if err = repo.AddUserToGroup(*invitation.Classroom.TeachingGroupID, userID, gitlabModel.ReporterPermissions); err != nil {
 				return err
 			}
@@ -224,7 +229,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			}()
 		}
 
-		if invitation.Classroom.MaxTeamSize == 1 {
+		if invitation.Classroom.MaxTeamSize == 1 && invitation.Role == database.Student {
 			var subgroup *gitlabModel.Group
 			subgroup, err = repo.CreateSubGroup(
 				user.Name,

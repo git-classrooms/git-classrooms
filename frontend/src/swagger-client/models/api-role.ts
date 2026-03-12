@@ -12,24 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { Role } from './role';
- /**
+/**
  * 
- *
  * @export
- * @interface InviteToClassroomRequest
+ * @enum {string}
  */
-export interface InviteToClassroomRequest {
-
-    /**
-     * @type {Array<string>}
-     * @memberof InviteToClassroomRequest
-     */
-    memberEmails: Array<string>;
-
-    /**
-     * @type {Role}
-     * @memberof InviteToClassroomRequest
-     */
-    role: Role;
+export enum ApiRole {
+    Student = 'student',
+    Moderator = 'moderator',
+    Owner = 'owner'
 }
+
