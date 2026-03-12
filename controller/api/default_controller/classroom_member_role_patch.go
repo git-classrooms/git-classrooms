@@ -219,6 +219,12 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			}
 		}
 
+		if oldRole == database.Owner && classroom.Classroom.TeachingGroupID != nil {
+			if err = repo.AddUserToGroup(*classroom.Classroom.TeachingGroupID, member.UserID, model.ReporterPermissions); err != nil {
+				return err
+			}
+		}
+
 		return tx.UserClassrooms.
 			WithContext(c.Context()).
 			Save(member)
