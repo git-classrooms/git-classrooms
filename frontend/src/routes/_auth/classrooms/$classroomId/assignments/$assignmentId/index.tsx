@@ -27,6 +27,7 @@ import { assignmentCloneUrlsQueryOptions, assignmentQueryOptions } from "@/api/a
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
 import { Assignment, ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { classroomQueryOptions } from "@/api/classroom";
+import { teamsQueryOptions } from "@/api/team";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -66,6 +67,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       assignmentId,
     );
     const cloneUrls = await queryClient.ensureQueryData(assignmentCloneUrlsQueryOptions(classroomId, assignmentId));
+    const teams = await queryClient.ensureQueryData(teamsQueryOptions(classroomId));
 
     const urls = (
       await Promise.all(
@@ -76,7 +78,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       )
     ).reduce((acc, { url, projectId }) => acc.set(projectId, url), new Map<string, string>());
 
-    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls, cloneUrls };
+    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls, cloneUrls, teams };
   },
   component: AssignmentDetail,
   pendingComponent: Loader,
@@ -95,10 +97,12 @@ function AssignmentDetail() {
   const { data: cloneUrls } = useSuspenseQuery(assignmentCloneUrlsQueryOptions(classroomId, assignmentId));
 
   const { mutateAsync, isError, isPending } = useInviteToAssignment(classroomId, assignmentId);
+  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
 
   const acceptedCount = assignmentProjects.filter((p) => p.projectStatus === "accepted").length;
   const pendingCount = assignmentProjects.filter((p) => p.projectStatus === "pending").length;
   const totalCount = assignmentProjects.length;
+  const hasUninvitedTeams = assignmentProjects.length < teams.length;
   const progressPercent = totalCount > 0 ? Math.round((acceptedCount / totalCount) * 100) : 0;
 
   const daysUntil = getDaysUntilDue(assignment.dueDate);
@@ -349,7 +353,7 @@ function AssignmentDetail() {
                   variant="outline"
                   size="sm"
                   onClick={() => mutateAsync()}
-                  disabled={isPending || pendingCount === 0}
+                  disabled={isPending || (!hasUninvitedTeams && pendingCount === 0)}
                 >
                   {isPending ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -357,16 +361,16 @@ function AssignmentDetail() {
                     <Send className="w-4 h-4 mr-2" />
                   )}
                   {t("detail.sendInvites")}
-                  {pendingCount > 0 && (
+                  {(hasUninvitedTeams || pendingCount > 0) && (
                     <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning/20 text-warning rounded">
-                      {pendingCount}
+                      {teams.length - assignmentProjects.length + pendingCount}
                     </span>
                   )}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {pendingCount > 0
-                  ? t("detail.sendInvitesTooltip", { count: pendingCount })
+                {hasUninvitedTeams || pendingCount > 0
+                  ? t("detail.sendInvitesTooltip", { count: teams.length - assignmentProjects.length + pendingCount })
                   : t("detail.allTeamsAccepted")}
               </TooltipContent>
             </Tooltip>
