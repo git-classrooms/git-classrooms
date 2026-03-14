@@ -3,7 +3,7 @@ import { ClassroomCreateForm, Filter, InviteForm, ClassroomUpdateForm } from "@/
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { authCsrfQueryOptions } from "@/api/auth.ts";
 import { useCsrf } from "@/provider/csrfProvider";
-import { Action, CreateClassroomRequest } from "@/swagger-client";
+import { Action, CreateClassroomRequest, CreateTeachingGroupRequest } from "@/swagger-client";
 
 const apiClient = createClassroomApi();
 
@@ -89,6 +89,25 @@ export const useUpdateClassroom = (classroomId: string) => {
   return useMutation({
     mutationFn: async (values: ClassroomUpdateForm) => {
       const res = await apiClient.updateClassroom(values, csrfToken, classroomId);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(classroomsQueryOptions());
+      queryClient.invalidateQueries(classroomsQueryOptions(Filter.Owned));
+      queryClient.invalidateQueries(classroomQueryOptions(classroomId));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(authCsrfQueryOptions);
+    },
+  });
+};
+
+export const useCreateTeachingGroup = (classroomId: string) => {
+  const queryClient = useQueryClient();
+  const { csrfToken } = useCsrf();
+  return useMutation({
+    mutationFn: async (values: CreateTeachingGroupRequest) => {
+      const res = await apiClient.createClassroomTeachingGroup(values, csrfToken, classroomId);
       return res.data;
     },
     onSuccess: () => {

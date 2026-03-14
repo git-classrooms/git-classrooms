@@ -190,6 +190,13 @@
     "mutualCodeViewDisabled": "Studenten können nur den Code ihres eigenen Teams einsehen",
     "teachingMaterial": "Lehrmaterial",
     "teachingMaterialDescription": "GitLab-Gruppe für Lehrmaterial",
+    "teachingMaterialActivateSection": "Lehrmaterial",
+    "teachingMaterialActivateDescription": "Lehrmaterial wurde beim Erstellen nicht aktiviert. Du kannst es hier einmalig aktivieren.",
+    "teachingMaterialActivate": "Aktivieren",
+    "teachingMaterialActivateConfirm": "Lehrmaterial aktivieren?",
+    "teachingMaterialActivateConfirmDescription": "Es wird eine GitLab-Gruppe für Lehrmaterial erstellt. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "teachingMaterialActivateSuccess": "Lehrmaterial wurde erfolgreich aktiviert",
+    "teachingMaterialActivateError": "Fehler beim Aktivieren des Lehrmaterials",
     "danger": "Gefahrenzone",
     "archive": {
       "title": "Kurs archivieren",

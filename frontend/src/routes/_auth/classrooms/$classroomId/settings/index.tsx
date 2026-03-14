@@ -1,14 +1,15 @@
-import { classroomQueryOptions, useArchiveClassroom } from "@/api/classroom";
+import { classroomQueryOptions, useArchiveClassroom, useCreateTeachingGroup } from "@/api/classroom";
 import { ClassroomEditForm } from "@/components/classroomsForm";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, Archive, Eye, EyeOff, Info, Library, Lock, Users, Users2 } from "lucide-react";
+import { AlertTriangle, Archive, Eye, EyeOff, Info, Library, Loader2, Lock, Users, Users2 } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn, unwrapApiError } from "@/lib/utils";
+import { cn, isOwner, unwrapApiError } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/settings/")({
   loader: async ({ params: { classroomId }, context: { queryClient } }) => {
@@ -141,16 +143,36 @@ function Index() {
             label={t("settings.teachingMaterial")}
             value={
               <StatusBadge
-                variant={classroom.teachingGroupId > 0 ? "success" : "neutral"}
+                variant={!!classroom.teachingGroupId ? "success" : "neutral"}
                 size="sm"
               >
-                {classroom.teachingGroupId > 0 ? t("settings.teamsEnabled") : t("settings.teamsDisabled")}
+                {!!classroom.teachingGroupId ? t("settings.teamsEnabled") : t("settings.teamsDisabled")}
               </StatusBadge>
             }
             description={t("settings.teachingMaterialDescription")}
           />
         </div>
       </section>
+
+      {/* Activate Teaching Material Section */}
+      {!classroom.teachingGroupId && isOwner(userClassroom) && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-primary/30" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-card/30 px-3 text-xs text-primary uppercase tracking-wider">
+                {t("settings.teachingMaterialActivateSection")}
+              </span>
+            </div>
+          </div>
+
+          <section>
+            <ActivateTeachingMaterialCard classroomId={classroomId} />
+          </section>
+        </>
+      )}
 
       {/* Divider */}
       <div className="relative">
@@ -272,6 +294,79 @@ function ConfigCard({
             <div className="font-medium">{value}</div>
             <p className="text-xs text-muted-foreground mt-1">{description}</p>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ActivateTeachingMaterialCard({ classroomId }: { classroomId: string }) {
+  const { t } = useTranslation("classroom");
+  const { t: tc } = useTranslation("common");
+  const [name, setName] = useState("Teaching Material");
+  const { mutate, isPending } = useCreateTeachingGroup(classroomId);
+
+  return (
+    <Card className="border-primary/30">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Library className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold">{t("settings.teachingMaterial")}</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("settings.teachingMaterialActivateDescription")}
+              </p>
+            </div>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button size="sm" disabled={isPending}>
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Library className="w-4 h-4 mr-2" />}
+                {t("settings.teachingMaterialActivate")}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t("settings.teachingMaterialActivateConfirm")}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t("settings.teachingMaterialActivateConfirmDescription")}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="py-2">
+                <label className="text-sm font-medium mb-1.5 block">
+                  {t("teachingMaterial.groupName")}
+                </label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("teachingMaterial.groupNamePlaceholder")}
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  {t("teachingMaterial.groupNameDescription")}
+                </p>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{tc("actions.cancel")}</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={!name.trim()}
+                  onClick={() =>
+                    mutate(
+                      { name: name.trim() },
+                      {
+                        onSuccess: () => toast.success(t("settings.teachingMaterialActivateSuccess")),
+                        onError: (error) => toast.error(unwrapApiError(error)?.message ?? t("settings.teachingMaterialActivateError")),
+                      },
+                    )
+                  }
+                >
+                  {t("settings.teachingMaterialActivate")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>

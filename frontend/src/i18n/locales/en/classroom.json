@@ -190,6 +190,13 @@
     "mutualCodeViewDisabled": "Students can only view their own team's code",
     "teachingMaterial": "Teaching Material",
     "teachingMaterialDescription": "GitLab group for teaching material",
+    "teachingMaterialActivateSection": "Teaching Material",
+    "teachingMaterialActivateDescription": "Teaching material was not enabled during creation. You can activate it here once.",
+    "teachingMaterialActivate": "Activate",
+    "teachingMaterialActivateConfirm": "Activate teaching material?",
+    "teachingMaterialActivateConfirmDescription": "A GitLab group for teaching material will be created. This action cannot be undone.",
+    "teachingMaterialActivateSuccess": "Teaching material activated successfully",
+    "teachingMaterialActivateError": "Failed to activate teaching material",
     "danger": "Danger Zone",
     "archive": {
       "title": "Archive Classroom",
