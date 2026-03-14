@@ -2,20 +2,21 @@ import { Button } from "@/components/ui/button";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { Loader } from "@/components/loader";
-import { Plus } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 import { classroomsQueryOptions } from "@/api/classroom";
 import { Filter } from "@/types/classroom";
+import { Role as SwaggerRole } from "@/swagger-client";
 import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClassroomCardGrid } from "@/components/classroom-card";
+import { ClassroomCard, ClassroomCardGrid } from "@/components/classroom-card";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_auth/classrooms/")({
   component: Classrooms,
-  validateSearch: (search: Record<string, unknown>): { view?: "managed" | "joined" } => {
+  validateSearch: (search: Record<string, unknown>): { view?: "managed" | "joined" | "archived" } => {
     const view = search.view;
-    if (view === "managed" || view === "joined") {
+    if (view === "managed" || view === "joined" || view === "archived") {
       return { view };
     }
     return {};
@@ -24,15 +25,27 @@ export const Route = createFileRoute("/_auth/classrooms/")({
     const ownedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Owned));
     const moderatorClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Moderator));
     const studentClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(Filter.Student));
+    const archivedClassrooms = await queryClient.ensureQueryData(classroomsQueryOptions(undefined, true));
 
     return {
       ownedClassrooms,
       moderatorClassrooms,
       studentClassrooms,
+      archivedClassrooms,
     };
   },
   pendingComponent: Loader,
 });
+
+const roleMap: Record<SwaggerRole, "owner" | "moderator" | "student"> = {
+  [SwaggerRole.NUMBER_0]: "owner",
+  [SwaggerRole.NUMBER_1]: "moderator",
+  [SwaggerRole.NUMBER_2]: "student",
+};
+
+function swaggerRoleToCardRole(role: SwaggerRole): "owner" | "moderator" | "student" {
+  return roleMap[role] ?? "student";
+}
 
 function Classrooms() {
   const { t } = useTranslation("classroom");
@@ -41,6 +54,7 @@ function Classrooms() {
   const { data: ownedClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Owned));
   const { data: moderatorClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Moderator));
   const { data: studentClassrooms } = useSuspenseQuery(classroomsQueryOptions(Filter.Student));
+  const { data: archivedClassrooms } = useSuspenseQuery(classroomsQueryOptions(undefined, true));
 
   const joinedClassrooms = useMemo(
     () => [...moderatorClassrooms, ...studentClassrooms],
@@ -49,6 +63,7 @@ function Classrooms() {
 
   const totalManaged = ownedClassrooms.length;
   const totalJoined = joinedClassrooms.length;
+  const totalArchived = archivedClassrooms.length;
 
   // Smart default: if view is specified use it, otherwise pick tab with content
   const defaultTab = useMemo(() => {
@@ -64,7 +79,7 @@ function Classrooms() {
   const handleTabChange = (value: string) => {
     navigate({
       to: "/classrooms",
-      search: { view: value as "managed" | "joined" },
+      search: { view: value as "managed" | "joined" | "archived" },
       replace: true,
     });
   };
@@ -109,6 +124,15 @@ function Classrooms() {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="archived">
+              <Archive className="w-3.5 h-3.5 mr-1.5" />
+              {t("list.archived")}
+              {totalArchived > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-muted rounded-md font-mono">
+                  {totalArchived}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="managed">
@@ -143,6 +167,22 @@ function Classrooms() {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value="archived">
+            {archivedClassrooms.length === 0 ? (
+              <EmptyState isArchived />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {archivedClassrooms.map((c) => (
+                  <ClassroomCard
+                    key={c.classroom.id}
+                    classroom={c}
+                    role={swaggerRoleToCardRole(c.role)}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </section>
 
@@ -154,14 +194,24 @@ function Classrooms() {
 function EmptyState({
   showCreate = false,
   isJoined = false,
+  isArchived = false,
 }: {
   showCreate?: boolean;
   isJoined?: boolean;
+  isArchived?: boolean;
 }) {
   const { t } = useTranslation("classroom");
 
-  const title = isJoined ? t("list.empty.joinedTitle") : t("list.empty.ownedTitle");
-  const description = isJoined ? t("list.empty.joinedDescription") : t("list.empty.ownedDescription");
+  const title = isArchived
+    ? t("list.empty.archivedTitle")
+    : isJoined
+      ? t("list.empty.joinedTitle")
+      : t("list.empty.ownedTitle");
+  const description = isArchived
+    ? t("list.empty.archivedDescription")
+    : isJoined
+      ? t("list.empty.joinedDescription")
+      : t("list.empty.ownedDescription");
 
   return (
     <div className="border border-dashed border-border rounded-lg p-12 text-center">

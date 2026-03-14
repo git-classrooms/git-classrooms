@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ClipboardList } from "lucide-react";
+import { Archive, ArrowRight, ClipboardList } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/ui/markdown";
@@ -35,6 +35,7 @@ export function ClassroomCard({ classroom, role }: ClassroomCardProps) {
   const { t } = useTranslation("classroom");
   const variant = roleVariant[role];
   const gradient = getGradientForName(classroom.classroom.name);
+  const isArchived = classroom.classroom.archived;
 
   const roleLabel = {
     owner: t("card.owner"),
@@ -66,6 +67,12 @@ export function ClassroomCard({ classroom, role }: ClassroomCardProps) {
               <StatusBadge variant={variant} size="sm">
                 {roleLabel}
               </StatusBadge>
+              {isArchived && (
+                <StatusBadge variant="warning" size="sm">
+                  <Archive className="w-3 h-3 mr-1" />
+                  {t("status.archived")}
+                </StatusBadge>
+              )}
             </div>
             {classroom.classroom.description && (
               <div className="text-sm text-muted-foreground line-clamp-2 mb-3">

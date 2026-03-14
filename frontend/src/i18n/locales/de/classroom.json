@@ -47,13 +47,16 @@
     "joined": "Beigetreten",
     "moderating": "Moderierend",
     "asStudent": "Als Student",
+    "archived": "Archiviert",
     "empty": {
       "title": "Noch keine Kurse",
       "description": "Erstelle deinen ersten Kurs, um loszulegen",
       "ownedTitle": "Keine verwalteten Kurse",
       "ownedDescription": "Erstelle deinen ersten Kurs, um mit dem Unterrichten zu beginnen",
       "joinedTitle": "Keine beigetretenen Kurse",
-      "joinedDescription": "Tritt einem Kurs über einen Einladungslink bei"
+      "joinedDescription": "Tritt einem Kurs über einen Einladungslink bei",
+      "archivedTitle": "Keine archivierten Kurse",
+      "archivedDescription": "Archivierte Kurse werden hier angezeigt"
     },
     "tabs": {
       "owned": "Meine Kurse",

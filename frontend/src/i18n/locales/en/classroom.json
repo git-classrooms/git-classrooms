@@ -47,13 +47,16 @@
     "joined": "Joined",
     "moderating": "Moderating",
     "asStudent": "As Student",
+    "archived": "Archived",
     "empty": {
       "title": "No classrooms yet",
       "description": "Create your first classroom to get started",
       "ownedTitle": "No managed classrooms",
       "ownedDescription": "Create your first classroom to get started teaching",
       "joinedTitle": "No joined classrooms",
-      "joinedDescription": "Join a classroom using an invite link from your instructor"
+      "joinedDescription": "Join a classroom using an invite link from your instructor",
+      "archivedTitle": "No archived classrooms",
+      "archivedDescription": "Archived classrooms will appear here"
     },
     "tabs": {
       "owned": "My Classrooms",
