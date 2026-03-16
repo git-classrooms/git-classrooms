@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { DatabaseAssignmentDate } from './database-assignment-date';
  /**
  * 
  *
@@ -27,16 +28,16 @@ export interface Assignment {
     acceptableSince?: string;
 
     /**
+     * @type {Array<DatabaseAssignmentDate>}
+     * @memberof Assignment
+     */
+    assignmentDates: Array<DatabaseAssignmentDate>;
+
+    /**
      * @type {string}
      * @memberof Assignment
      */
     classroomId: string;
-
-    /**
-     * @type {boolean}
-     * @memberof Assignment
-     */
-    closed: boolean;
 
     /**
      * @type {string}
@@ -49,12 +50,6 @@ export interface Assignment {
      * @memberof Assignment
      */
     description: string;
-
-    /**
-     * @type {string}
-     * @memberof Assignment
-     */
-    dueDate?: string;
 
     /**
      * @type {boolean}

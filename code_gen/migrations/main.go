@@ -145,9 +145,11 @@ func MigrateDatabase(db *gorm.DB) error {
 		&database.Team{},
 		&database.UserClassrooms{},
 		&database.Assignment{},
+		&database.AssignmentDate{},
 		&database.AssignmentProjects{},
 		&database.ClassroomInvitation{},
 		&database.ManualGradingRubric{},
+		&database.AssignmentProjectGradingDate{},
 		&database.ManualGradingResult{},
 		&database.AssignmentJunitTest{},
 	)

@@ -13,6 +13,7 @@
  */
 
 import { Classroom } from './classroom';
+import { DatabaseAssignmentDate } from './database-assignment-date';
  /**
  * 
  *
@@ -28,6 +29,12 @@ export interface ActiveAssignmentResponse {
     acceptableSince?: string;
 
     /**
+     * @type {Array<DatabaseAssignmentDate>}
+     * @memberof ActiveAssignmentResponse
+     */
+    assignmentDates: Array<DatabaseAssignmentDate>;
+
+    /**
      * @type {Classroom}
      * @memberof ActiveAssignmentResponse
      */
@@ -40,12 +47,6 @@ export interface ActiveAssignmentResponse {
     classroomId: string;
 
     /**
-     * @type {boolean}
-     * @memberof ActiveAssignmentResponse
-     */
-    closed: boolean;
-
-    /**
      * @type {string}
      * @memberof ActiveAssignmentResponse
      */
@@ -56,12 +57,6 @@ export interface ActiveAssignmentResponse {
      * @memberof ActiveAssignmentResponse
      */
     description: string;
-
-    /**
-     * @type {string}
-     * @memberof ActiveAssignmentResponse
-     */
-    dueDate?: string;
 
     /**
      * @type {boolean}

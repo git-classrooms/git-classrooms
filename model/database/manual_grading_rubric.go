@@ -19,6 +19,6 @@ type ManualGradingRubric struct {
 
 	MaxScore int `gorm:"not null" json:"maxScore"`
 
-	Assignments []*Assignment          `gorm:"many2many:assignment_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
-	Results     []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnDelete:CASCADE;" json:"-"`
+	AssignmentDates []*AssignmentDate      `gorm:"many2many:assignment_dates_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
+	Results         []*ManualGradingResult `gorm:"foreignKey:RubricID;constraint:OnDelete:CASCADE;" json:"-"`
 } //@Name ManualGradingRubric

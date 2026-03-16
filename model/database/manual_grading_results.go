@@ -7,8 +7,8 @@ type ManualGradingResult struct {
 	RubricID uuid.UUID           `gorm:"type:uuid;not null" json:"-"`
 	Rubric   ManualGradingRubric `json:"rubric"`
 
-	AssignmentProjectID uuid.UUID          `gorm:"type:uuid;not null" json:"-"`
-	AssignmentProject   AssignmentProjects `json:"-"`
+	AssignmentProjectGradingDateID uuid.UUID                    `gorm:"<-:create;type:uuid;not null" json:"-"`
+	AssignmentProjectGradingDate   AssignmentProjectGradingDate `json:"-"`
 
 	Score    int     `gorm:"not null" json:"score"`
 	Feedback *string `json:"feedback" validate:"optional"`

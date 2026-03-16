@@ -1,13 +1,9 @@
 package database
 
 import (
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 )
 
 type status string
@@ -37,22 +33,5 @@ type AssignmentProjects struct {
 	SSHURLToRepo  string `json:"sshUrlToRepo"`
 	HTTPURLToRepo string `json:"httpUrlToRepo"`
 
-	GradingJUnitTestResult *JUnitTestResult       `gorm:"type:jsonb;" json:"gradingJUnitTestResult" validate:"optional"`
-	GradingManualResults   []*ManualGradingResult `gorm:"foreignKey:AssignmentProjectID;constraint:OnDelete:CASCADE;" json:"gradingManualResults"`
+	Gradings []*AssignmentProjectGradingDate `gorm:"foreignKey:AssignmentProjectID;constraint:OnDelete:CASCADE;" json:"gradings"`
 } //@Name AssignmentProjects
-
-type JUnitTestResult struct {
-	model.TestReport
-}
-
-func (a JUnitTestResult) Value() (driver.Value, error) {
-	return json.Marshal(a)
-}
-
-func (a *JUnitTestResult) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
-	}
-	return json.Unmarshal(b, &a)
-}
