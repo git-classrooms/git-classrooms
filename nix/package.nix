@@ -1,9 +1,8 @@
 {
   stdenv,
-  fetchYarnDeps,
-  yarnConfigHook,
-  yarnBuildHook,
-  yarnInstallHook,
+  fetchPnpmDeps,
+  pnpmConfigHook,
+  pnpm,
   nodejs,
   buildGoModule,
 }: let
@@ -13,17 +12,23 @@
     pname = "git-classrooms-frontend";
     src = ../frontend;
 
-    yarnOfflineCache = fetchYarnDeps {
-      yarnLock = finalAttrs.src + "/yarn.lock";
-      hash = "sha256-XwU1/w3vOmRq6rV42pHmX+6LX7mUyof5hJYPw4XMv6I=";
+    pnpmDeps = fetchPnpmDeps {
+      inherit (finalAttrs) pname version src;
+      hash = "sha256-o2KyNl1y4MTG18k+Wv+ksUzRQ7HS+aUfsZ3P63Aq9a0=";
+      fetcherVersion = 3;
     };
 
     nativeBuildInputs = [
-      yarnConfigHook
-      yarnBuildHook
-      yarnInstallHook
+      pnpmConfigHook
+      pnpm
       nodejs
     ];
+
+    buildPhase = ''
+      runHook preBuild
+      pnpm build
+      runHook postBuild
+    '';
 
     installPhase = ''
       mkdir -p $out
@@ -39,7 +44,7 @@ in
     ldflags = ["-s" "-w" "-X main.version=${finalAttrs.version}"];
 
     preBuild = ''
-      go generate
+      go generate ./...
       cp -r ${frontend} frontend/dist
     '';
 
@@ -47,6 +52,7 @@ in
       mv $out/bin/gitlab-classroom $out/bin/git-classrooms
     '';
 
+    proxyVendor = true;
     doCheck = false;
-    vendorHash = "sha256-whn96Ywj45tL6GU7x5mGBFr4bOlXGdwRCYqJ+eo4mbQ=";
+    vendorHash = "sha256-sy21GRmgKG2gEhXjoysyhPvwVnCz6/6oTvdl5Mxtte8=";
   })

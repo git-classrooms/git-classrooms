@@ -55,9 +55,9 @@
           ];
 
           shellHook = ''
-            cd ./frontend && pnpm install
+            echo "Welcome to the Git Classrooms dev shell"
 
-            cd ..
+            (cd ./frontend && pnpm install)
             go mod download
             ${pre-commit-check.shellHook}
           '';
