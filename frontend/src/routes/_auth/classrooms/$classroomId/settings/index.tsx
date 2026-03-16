@@ -304,7 +304,7 @@ function ActivateTeachingMaterialCard({ classroomId }: { classroomId: string }) 
   const { t } = useTranslation("classroom");
   const { t: tc } = useTranslation("common");
   const [name, setName] = useState("Teaching Material");
-  const { mutate, isPending } = useCreateTeachingGroup(classroomId);
+  const { mutateAsync, isPending } = useCreateTeachingGroup(classroomId);
 
   return (
     <Card className="border-primary/30">
@@ -353,7 +353,7 @@ function ActivateTeachingMaterialCard({ classroomId }: { classroomId: string }) 
                 <AlertDialogAction
                   disabled={!name.trim()}
                   onClick={() =>
-                    mutate(
+                    mutateAsync(
                       { name: name.trim() },
                       {
                         onSuccess: () => toast.success(t("settings.teachingMaterialActivateSuccess")),
