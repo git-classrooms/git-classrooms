@@ -213,6 +213,17 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			}
 		}()
 
+		if invitation.Classroom.TeachingGroupID != nil {
+			if err = repo.AddUserToGroup(*invitation.Classroom.TeachingGroupID, userID, gitlabModel.ReporterPermissions); err != nil {
+				return err
+			}
+			defer func() {
+				if recover() != nil || err != nil {
+					repo.RemoveUserFromGroup(*invitation.Classroom.TeachingGroupID, userID)
+				}
+			}()
+		}
+
 		if invitation.Classroom.MaxTeamSize == 1 {
 			var subgroup *gitlabModel.Group
 			subgroup, err = repo.CreateSubGroup(

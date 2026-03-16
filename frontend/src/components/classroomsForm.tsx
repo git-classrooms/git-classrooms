@@ -9,16 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createFormSchema, updateFormSchema } from "@/types/classroom";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertCircle,
-  BookOpen,
-  ChevronRight,
-  FolderGit2,
-  Loader2,
-  Pencil,
-  Settings2,
-  Users,
-} from "lucide-react";
+import { AlertCircle, BookOpen, ChevronRight, FolderGit2, Library, Loader2, Pencil, Settings2, Users } from "lucide-react";
 import { cn, getUUIDFromLocation, unwrapApiError } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -56,6 +47,8 @@ export const ClassroomCreateForm = () => {
       createTeams: true,
       studentsViewAllProjects: false,
       teamsEnabled: true,
+      createTeachingMaterialGroup: true,
+      teachingMaterialGroupName: "Teaching Material",
     },
   });
 
@@ -68,6 +61,7 @@ export const ClassroomCreateForm = () => {
   }
 
   const teamsEnabled = form.watch("teamsEnabled");
+  const teachingMaterialEnabled = form.watch("createTeachingMaterialGroup");
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -117,15 +111,9 @@ export const ClassroomCreateForm = () => {
                   <FormItem>
                     <FormLabel>{t("form.name")}</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder={t("form.namePlaceholder")}
-                        className="bg-background"
-                        {...field}
-                      />
+                      <Input placeholder={t("form.namePlaceholder")} className="bg-background" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      {t("form.nameDescription")}
-                    </FormDescription>
+                    <FormDescription>{t("form.nameDescription")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -170,9 +158,7 @@ export const ClassroomCreateForm = () => {
                   <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-muted/20">
                     <div className="space-y-0.5">
                       <FormLabel className="font-medium">{t("teams.enabled")}</FormLabel>
-                      <FormDescription className="text-xs">
-                        {t("teams.enabledDescription")}
-                      </FormDescription>
+                      <FormDescription className="text-xs">{t("teams.enabledDescription")}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -184,7 +170,7 @@ export const ClassroomCreateForm = () => {
               <div
                 className={cn(
                   "space-y-4 overflow-hidden transition-all duration-300",
-                  teamsEnabled ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0 pointer-events-none"
+                  teamsEnabled ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0 pointer-events-none",
                 )}
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -195,17 +181,9 @@ export const ClassroomCreateForm = () => {
                       <FormItem>
                         <FormLabel>{t("teams.maxTeams")}</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            min={0}
-                            step={1}
-                            className="bg-background"
-                            {...field}
-                          />
+                          <Input type="number" min={0} step={1} className="bg-background" {...field} />
                         </FormControl>
-                        <FormDescription className="text-xs">
-                          {t("teams.maxTeamsDescription")}
-                        </FormDescription>
+                        <FormDescription className="text-xs">{t("teams.maxTeamsDescription")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -218,17 +196,9 @@ export const ClassroomCreateForm = () => {
                       <FormItem>
                         <FormLabel>{t("teams.maxTeamSize")}</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            min={2}
-                            step={1}
-                            className="bg-background"
-                            {...field}
-                          />
+                          <Input type="number" min={2} step={1} className="bg-background" {...field} />
                         </FormControl>
-                        <FormDescription className="text-xs">
-                          {t("teams.maxTeamSizeDescription")}
-                        </FormDescription>
+                        <FormDescription className="text-xs">{t("teams.maxTeamSizeDescription")}</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -242,13 +212,60 @@ export const ClassroomCreateForm = () => {
                     <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50">
                       <div className="space-y-0.5">
                         <FormLabel className="font-medium">{t("teams.studentCreation")}</FormLabel>
-                        <FormDescription className="text-xs">
-                          {t("teams.studentCreationDescription")}
-                        </FormDescription>
+                        <FormDescription className="text-xs">{t("teams.studentCreationDescription")}</FormDescription>
                       </div>
                       <FormControl>
                         <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Teaching Material Section */}
+          <Card className="border-border/50 overflow-hidden">
+            <div className="px-5 py-4 border-b border-border/50 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Library className="w-4 h-4 text-muted-foreground" />
+                <h2 className="font-semibold text-sm">{t("teachingMaterial.title")}</h2>
+              </div>
+            </div>
+            <CardContent className="p-5 space-y-5">
+              <FormField
+                control={form.control}
+                name="createTeachingMaterialGroup"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50 bg-muted/20">
+                    <div className="space-y-0.5">
+                      <FormLabel className="font-medium">{t("teachingMaterial.enable")}</FormLabel>
+                      <FormDescription className="text-xs">{t("teachingMaterial.enableDescription")}</FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div
+                className={cn(
+                  "space-y-4 overflow-hidden transition-all duration-300",
+                  teachingMaterialEnabled ? "opacity-100 max-h-[200px]" : "opacity-0 max-h-0 pointer-events-none",
+                )}
+              >
+                <FormField
+                  control={form.control}
+                  name="teachingMaterialGroupName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("teachingMaterial.groupName")}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t("teachingMaterial.groupNamePlaceholder")} className="bg-background" {...field} />
+                      </FormControl>
+                      <FormDescription className="text-xs">{t("teachingMaterial.groupNameDescription")}</FormDescription>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -264,7 +281,7 @@ export const ClassroomCreateForm = () => {
                 <h2 className="font-semibold text-sm">{t("privacy.title")}</h2>
               </div>
             </div>
-            <CardContent className="p-5">
+            <CardContent className="p-5 space-y-5">
               <FormField
                 control={form.control}
                 name="studentsViewAllProjects"
@@ -272,9 +289,7 @@ export const ClassroomCreateForm = () => {
                   <FormItem className="flex items-center justify-between p-4 rounded-lg border border-border/50">
                     <div className="space-y-0.5">
                       <FormLabel className="font-medium">{t("privacy.mutualVisibility")}</FormLabel>
-                      <FormDescription className="text-xs">
-                        {t("privacy.mutualVisibilityDescription")}
-                      </FormDescription>
+                      <FormDescription className="text-xs">{t("privacy.mutualVisibilityDescription")}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -363,15 +378,9 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
                       {t("form.nameLabel")}
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder={t("form.namePlaceholder")}
-                        {...field}
-                        className="bg-background"
-                      />
+                      <Input placeholder={t("form.namePlaceholder")} {...field} className="bg-background" />
                     </FormControl>
-                    <FormDescription className="text-xs">
-                      {t("form.descriptionLabel")}
-                    </FormDescription>
+                    <FormDescription className="text-xs">{t("form.descriptionLabel")}</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -401,18 +410,9 @@ export const ClassroomEditForm = ({ userClassroom }: { userClassroom: UserClassr
               />
 
               <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                <p className="text-xs text-muted-foreground">
-                  {t("edit.changesSaved")}
-                </p>
-                <Button
-                  type="submit"
-                  variant="glow"
-                  size="sm"
-                  disabled={isPending || !form.formState.isDirty}
-                >
-                  {isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
+                <p className="text-xs text-muted-foreground">{t("edit.changesSaved")}</p>
+                <Button type="submit" variant="glow" size="sm" disabled={isPending || !form.formState.isDirty}>
+                  {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   {tc("actions.saveChanges")}
                 </Button>
               </div>

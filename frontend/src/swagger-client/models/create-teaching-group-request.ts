@@ -16,25 +16,13 @@
  * 
  *
  * @export
- * @interface UpdateAssignmentRequest
+ * @interface CreateTeachingGroupRequest
  */
-export interface UpdateAssignmentRequest {
+export interface CreateTeachingGroupRequest {
 
     /**
      * @type {string}
-     * @memberof UpdateAssignmentRequest
+     * @memberof CreateTeachingGroupRequest
      */
-    description?: string;
-
-    /**
-     * @type {string}
-     * @memberof UpdateAssignmentRequest
-     */
-    dueDate?: string;
-
-    /**
-     * @type {string}
-     * @memberof UpdateAssignmentRequest
-     */
-    name?: string;
+    name: string;
 }

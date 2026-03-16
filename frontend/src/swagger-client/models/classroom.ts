@@ -98,4 +98,10 @@ export interface Classroom {
      * @memberof Classroom
      */
     studentsViewAllProjects: boolean;
+
+    /**
+     * @type {number}
+     * @memberof Classroom
+     */
+    teachingGroupId: number;
 }

@@ -90,6 +90,9 @@ func setupApiRoutes(config authConfig.Config, authController authController.Cont
 	app.Patch("/classrooms/:classroomId/archive", apiController.CreatorMiddleware(), apiController.ArchiveClassroom)
 	app.Get("/classrooms/:classroomId/gitlab", apiController.RedirectGroupGitlab)
 
+	app.Post("/classrooms/:classroomId/teachinggroup", apiController.RoleMiddleware(database.Owner), apiController.CreateClassroomTeachingGroup)
+	app.Get("/classrooms/:classroomId/teachinggroup/gitlab", apiController.TeachingGroupGitlabGroupMiddleware, apiController.RedirectGroupGitlab)
+
 	app.Get("/classrooms/:classroomId/grading", apiController.RoleMiddleware(database.Owner), apiController.GetGradingRubrics)
 	app.Put("/classrooms/:classroomId/grading", apiController.RoleMiddleware(database.Owner), apiController.UpdateGradingRubrics)
 	app.Get("/classrooms/:classroomId/grading/report", apiController.RoleMiddleware(database.Owner), apiController.GetClassroomReport)

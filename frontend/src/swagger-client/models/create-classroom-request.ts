@@ -24,6 +24,12 @@ export interface CreateClassroomRequest {
      * @type {boolean}
      * @memberof CreateClassroomRequest
      */
+    createTeachingGroup: boolean;
+
+    /**
+     * @type {boolean}
+     * @memberof CreateClassroomRequest
+     */
     createTeams: boolean;
 
     /**
@@ -55,4 +61,10 @@ export interface CreateClassroomRequest {
      * @memberof CreateClassroomRequest
      */
     studentsViewAllProjects: boolean;
+
+    /**
+     * @type {string}
+     * @memberof CreateClassroomRequest
+     */
+    teachingGroupName?: string;
 }

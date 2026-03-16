@@ -15,14 +15,14 @@ type assignmentTestReport struct {
 	Name      string `json:"name"`
 	TestName  string `json:"testName"`
 	TestSuite string `json:"testSuite"`
-} // @Name AssignmentTestReport
+} //@Name	AssignmentTestReport
 
 type assignmentTestResponse struct {
 	Activatible   bool                            `json:"activatible"`
 	Example       examples.LanguageCIExample      `json:"example"`
 	Report        []*assignmentTestReport         `json:"report"`
 	SelectedTests []*database.AssignmentJunitTest `json:"selectedTests"`
-} // @Name AssignmentTestResponse
+} //@Name	AssignmentTestResponse
 
 // @Summary		GetClassroomAssignmentTests
 // @Description	GetClassroomAssignmentTests

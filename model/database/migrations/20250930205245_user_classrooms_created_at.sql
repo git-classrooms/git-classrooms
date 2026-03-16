@@ -7,6 +7,6 @@ UPDATE "public"."user_classrooms"
 SET "created_at" = NOW(), "updated_at" = NOW();
 
 -- +goose Down
-ALTER TABLE "public"."assignment_projects"
-ADD COLUMN "created_at" TEXT,
-ADD COLUMN "updated_at" TEXT;
+ALTER TABLE "public"."user_classrooms"
+DROP COLUMN "created_at",
+DROP COLUMN "updated_at";

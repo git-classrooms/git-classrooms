@@ -8,6 +8,11 @@ import (
 )
 
 // CreateClassroomGitlabDescription creates a GitLab description for a classroom.
+func CreateTeachingGroupGitlabDescription(classroom *database.Classroom, publicURL *url.URL) string {
+	return fmt.Sprintf("Teaching Material of classroom %s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s)__", classroom.Name, publicURL, classroom.ID.String())
+}
+
+// CreateClassroomGitlabDescription creates a GitLab description for a classroom.
 func CreateClassroomGitlabDescription(classroom *database.Classroom, publicURL *url.URL) string {
 	return fmt.Sprintf("%s\n\n\n__Managed by [GitClassrooms](%s/classrooms/%s)__", classroom.Description, publicURL, classroom.ID.String())
 }

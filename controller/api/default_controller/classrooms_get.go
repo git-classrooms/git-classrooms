@@ -67,11 +67,17 @@ func (ctrl *DefaultController) GetClassrooms(c *fiber.Ctx) (err error) {
 	}
 
 	response := utils.Map(classrooms, func(classroom *database.UserClassrooms) *UserClassroomResponse {
-		return &UserClassroomResponse{
-			UserClassrooms:   classroom,
-			WebURL:           fmt.Sprintf("/api/v1/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+		response := &UserClassroomResponse{
+			UserClassrooms: classroom,
+			WebURL:         fmt.Sprintf("/api/v1/classrooms/%s/gitlab", classroom.ClassroomID.String()),
+
 			AssignmentsCount: len(classroom.Classroom.Assignments),
 		}
+
+		if classroom.Classroom.TeachingGroupID != nil {
+			response.TeachingMaterialWebURL = fmt.Sprintf("/api/v1/classrooms/%s/teachinggroup/gitlab", classroom.ClassroomID.String())
+		}
+		return response
 	})
 
 	return c.JSON(response)

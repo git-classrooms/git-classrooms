@@ -27,6 +27,8 @@ type Classroom struct {
 	GroupAccessToken          string    `gorm:"not null" json:"-"`
 	GroupAccessTokenCreatedAt time.Time `gorm:"not null" json:"-"`
 
+	TeachingGroupID *int `gorm:";" json:"teachingGroupId"`
+
 	Member                  []*UserClassrooms      `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
 	Teams                   []*Team                `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
 	Assignments             []*Assignment          `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
