@@ -8,6 +8,30 @@
   nonEmptyStr = lib.types.strMatching ".+";
   urlStr = lib.types.strMatching "^https?://.+";
   durationStr = lib.types.strMatching "^[0-9]+(s|m|h|d)$";
+
+  secretFileOption = description:
+    lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = ''
+        File containing the ${description}.
+        The file should contain exactly one line with the secret value.
+        Takes precedence over the corresponding plain-text option.
+        Works with sops-nix, agenix, or any secret manager that provides file-based secrets.
+      '';
+      example = "/run/secrets/git-classrooms/${description}";
+    };
+
+  secretFiles = lib.filterAttrs (_: v: v != null) {
+    AUTH_CLIENT_ID = cfg.settings.auth.clientIdFile;
+    AUTH_CLIENT_SECRET = cfg.settings.auth.clientSecretFile;
+    POSTGRES_PASSWORD = cfg.settings.database.postgres.passwordFile;
+    SMTP_USER = cfg.settings.smtp.userFile;
+    SMTP_PASSWORD = cfg.settings.smtp.passwordFile;
+  };
+
+  hasSecretFiles = secretFiles != {};
+  secretsEnvFile = "/run/git-classrooms/secrets.env";
 in {
   options.services.git-classrooms = {
     enable = lib.mkEnableOption "Starts the Git Classrooms service as a systemd unit.";
@@ -68,15 +92,25 @@ in {
             type = lib.types.submodule {
               options = {
                 clientId = lib.mkOption {
-                  type = nonEmptyStr;
-                  description = "OAuth/OIDC client ID registered at the identity provider.";
+                  type = lib.types.str;
+                  default = "";
+                  description = ''
+                    OAuth/OIDC client ID. Prefer clientIdFile for secret management.
+                  '';
                   example = "git-classrooms-web";
                 };
 
+                clientIdFile = secretFileOption "OAuth client ID";
+
                 clientSecret = lib.mkOption {
-                  type = nonEmptyStr;
-                  description = "OAuth/OIDC client secret registered at the identity provider.";
+                  type = lib.types.str;
+                  default = "";
+                  description = ''
+                    OAuth/OIDC client secret. Prefer clientSecretFile for secret management.
+                  '';
                 };
+
+                clientSecretFile = secretFileOption "OAuth client secret";
 
                 redirectEndpoint = lib.mkOption {
                   type = lib.types.str;
@@ -157,14 +191,16 @@ in {
                 user = lib.mkOption {
                   type = lib.types.str;
                   default = "";
-                  description = "SMTP username for authentication (empty if not required).";
+                  description = "SMTP username. Prefer userFile for secret management.";
                   example = "mailer@classrooms.example.edu";
                 };
+                userFile = secretFileOption "SMTP username";
                 password = lib.mkOption {
                   type = lib.types.str;
                   default = "";
-                  description = "SMTP password for authentication (empty if not required).";
+                  description = "SMTP password. Prefer passwordFile for secret management.";
                 };
+                passwordFile = secretFileOption "SMTP password";
               };
             };
             description = "SMTP configuration for sending emails.";
@@ -194,8 +230,9 @@ in {
                       password = lib.mkOption {
                         type = lib.types.str;
                         default = "";
-                        description = "PostgreSQL password. Can be empty for trust authentication.";
+                        description = "PostgreSQL password. Prefer passwordFile for secret management.";
                       };
+                      passwordFile = secretFileOption "PostgreSQL password";
                       db = lib.mkOption {
                         type = nonEmptyStr;
                         default = "git-classrooms";
@@ -219,9 +256,8 @@ in {
       default = null;
       description = ''
         File path to be sourced via systemd `EnvironmentFile=`.
-        If set, secret environment variables (e.g. passwords, client secrets)
-        should be provided via this file instead of the Nix configuration.
-        Variables from this file will override settings from the Nix config.
+        Use this as an alternative to individual `*File` options to provide
+        all secrets in a single env file.
       '';
       example = "/run/secrets/git-classrooms.env";
     };
@@ -243,29 +279,50 @@ in {
       after = ["network-online.target" "postgresql.service"];
       wants = ["network-online.target"];
 
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = "${cfg.package}/bin/git-classrooms";
-        User = "git-classrooms";
-        Group = "git-classrooms";
-        WorkingDirectory = cfg.dataDir;
-        Restart = "always";
-        RestartSec = 5;
+      preStart = lib.mkIf hasSecretFiles ''
+        install -d -m 0700 -o git-classrooms -g git-classrooms /run/git-classrooms
+        (
+          umask 0077
+          : > "${secretsEnvFile}"
+          ${lib.concatStringsSep "\n" (lib.mapAttrsToList (envVar: filePath: ''
+            echo "${envVar}=$(cat "${filePath}")" >> "${secretsEnvFile}"
+          '') secretFiles)}
+        )
+      '';
 
-        # Security hardening
-        NoNewPrivileges = true;
-        PrivateTmp = true;
-        ProtectSystem = "strict";
-        ProtectHome = true;
-        ReadWritePaths = [cfg.dataDir];
+      serviceConfig =
+        {
+          Type = "simple";
+          ExecStart = "${cfg.package}/bin/git-classrooms";
+          User = "git-classrooms";
+          Group = "git-classrooms";
+          WorkingDirectory = cfg.dataDir;
+          Restart = "always";
+          RestartSec = 5;
+          RuntimeDirectory = lib.mkIf hasSecretFiles "git-classrooms";
+          RuntimeDirectoryMode = lib.mkIf hasSecretFiles "0700";
 
-        # Load secrets from file if provided
-      } // lib.optionalAttrs (cfg.environmentFile != null) {
-        EnvironmentFile = cfg.environmentFile;
-      };
+          NoNewPrivileges = true;
+          PrivateTmp = true;
+          ProtectSystem = "strict";
+          ProtectHome = true;
+          ReadWritePaths = [cfg.dataDir] ++ lib.optional hasSecretFiles "/run/git-classrooms";
+          ProtectKernelTunables = true;
+          ProtectKernelModules = true;
+          ProtectControlGroups = true;
+          RestrictNamespaces = true;
+          RestrictSUIDSGID = true;
+          MemoryDenyWriteExecute = true;
+          LockPersonality = true;
+          SystemCallArchitectures = "native";
+        }
+        // lib.optionalAttrs (cfg.environmentFile != null || hasSecretFiles) {
+          EnvironmentFile =
+            lib.optional hasSecretFiles secretsEnvFile
+            ++ lib.optional (cfg.environmentFile != null) cfg.environmentFile;
+        };
 
       environment = lib.mkMerge [
-        # Always set these base configuration values
         {
           PUBLIC_URL = cfg.settings.publicUrl;
           PORT = toString cfg.settings.port;
@@ -286,8 +343,7 @@ in {
           AUTH_SCOPES = lib.concatStringsSep "," cfg.settings.auth.scopes;
         }
 
-        # Only set sensitive values if environmentFile is not used
-        (lib.mkIf (cfg.environmentFile == null) {
+        (lib.mkIf (cfg.environmentFile == null && !hasSecretFiles) {
           POSTGRES_PASSWORD = cfg.settings.database.postgres.password;
           SMTP_USER = cfg.settings.smtp.user;
           SMTP_PASSWORD = cfg.settings.smtp.password;
@@ -295,7 +351,26 @@ in {
           AUTH_CLIENT_SECRET = cfg.settings.auth.clientSecret;
         })
 
-        # Set optional values if provided
+        (lib.mkIf (hasSecretFiles && cfg.environmentFile == null) (
+          lib.filterAttrs (_: v: v != "") (
+            lib.optionalAttrs (cfg.settings.auth.clientIdFile == null) {
+              AUTH_CLIENT_ID = cfg.settings.auth.clientId;
+            }
+            // lib.optionalAttrs (cfg.settings.auth.clientSecretFile == null) {
+              AUTH_CLIENT_SECRET = cfg.settings.auth.clientSecret;
+            }
+            // lib.optionalAttrs (cfg.settings.database.postgres.passwordFile == null) {
+              POSTGRES_PASSWORD = cfg.settings.database.postgres.password;
+            }
+            // lib.optionalAttrs (cfg.settings.smtp.userFile == null) {
+              SMTP_USER = cfg.settings.smtp.user;
+            }
+            // lib.optionalAttrs (cfg.settings.smtp.passwordFile == null) {
+              SMTP_PASSWORD = cfg.settings.smtp.password;
+            }
+          )
+        ))
+
         (lib.mkIf (cfg.settings.trustedProxies != []) {
           TRUSTED_PROXIES = lib.concatStringsSep "," cfg.settings.trustedProxies;
         })
