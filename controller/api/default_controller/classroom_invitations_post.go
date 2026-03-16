@@ -143,6 +143,7 @@ func (ctrl *DefaultController) sendMailsWorker(classroom *database.Classroom, in
 				ClassroomName:      classroom.Name,
 				ClassroomOwnerName: classroom.Owner.Name,
 				RecipientEmail:     invitation.Email,
+				Role:               invitation.Role.String(),
 				InvitationPath:     fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ID.String(), invitation.ID.String()),
 				ExpireDate:         invitation.ExpiryDate,
 			}
