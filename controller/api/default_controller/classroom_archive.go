@@ -1,12 +1,15 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
+	"gorm.io/gen/field"
 )
 
 // @Summary		ArchiveClassroom
@@ -39,10 +42,19 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 		WithContext(c.Context()).
 		Preload(query.Team.Member).
 		Preload(query.Team.AssignmentProjects).
+		Preload(field.NewRelation("AssignmentProjects.Assignment", "")).
 		Where(query.Team.ClassroomID.Eq(classroom.ID)).
 		Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	for _, team := range teams {
+		for _, project := range team.AssignmentProjects {
+			if project.ProjectStatus == database.Creating {
+				return fiber.NewError(fiber.StatusConflict, fmt.Sprintf("project %q in team %q is still being created, please try again in a few minutes", project.Assignment.Name, team.Name))
+			}
+		}
 	}
 
 	caches := []utils.ProjectAccessLevelCache{}
@@ -55,6 +67,9 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 	}()
 	for _, team := range teams {
 		for _, project := range team.AssignmentProjects {
+			if project.ProjectStatus != database.Accepted {
+				continue
+			}
 			for _, member := range team.Member {
 				if member.Role != database.Student {
 					continue
