@@ -191,7 +191,7 @@ function RubricProjectCard({
   const [feedback, setFeedback] = useState(initialFeedback);
 
   const { mutateAsync, isPending } = useGradeProject(classroomId, assignmentId, project.id);
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     setScore(rubricResult?.score ?? 0);

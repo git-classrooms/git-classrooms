@@ -22,7 +22,7 @@ import { StatusBadge } from "./ui/status-badge";
 import { Markdown } from "./ui/markdown";
 import { useTranslation } from "react-i18next";
 
-export function ProjectListSection({ classroomId }: { classroomId: string }): JSX.Element {
+export function ProjectListSection({ classroomId }: { classroomId: string }) {
   const { t } = useTranslation("assignment");
   const { data: projects } = useSuspenseQuery(projectsQueryOptions(classroomId));
   const { data: userClassroom } = useSuspenseQuery(classroomQueryOptions(classroomId));
