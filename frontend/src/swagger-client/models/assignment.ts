@@ -24,7 +24,7 @@ export interface Assignment {
      * @type {string}
      * @memberof Assignment
      */
-    acceptableSince: string;
+    acceptableSince?: string;
 
     /**
      * @type {string}

@@ -14,11 +14,13 @@ import {
   ExternalLink,
   FolderGit2,
   GitFork,
+  Info,
   Loader2,
   MoreHorizontal,
+  Rocket,
   Scale,
-  Send,
   Settings,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert.tsx";
@@ -27,6 +29,7 @@ import { assignmentCloneUrlsQueryOptions, assignmentQueryOptions } from "@/api/a
 import { assignmentProjectsQueryOptions, useInviteToAssignment } from "@/api/project";
 import { Assignment, ProjectResponse, ReportApiAxiosParamCreator, UserClassroomResponse } from "@/swagger-client";
 import { classroomQueryOptions } from "@/api/classroom";
+import { teamsQueryOptions } from "@/api/team";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -66,6 +69,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       assignmentId,
     );
     const cloneUrls = await queryClient.ensureQueryData(assignmentCloneUrlsQueryOptions(classroomId, assignmentId));
+    const teams = await queryClient.ensureQueryData(teamsQueryOptions(classroomId));
 
     const urls = (
       await Promise.all(
@@ -76,7 +80,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/assignments
       )
     ).reduce((acc, { url, projectId }) => acc.set(projectId, url), new Map<string, string>());
 
-    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls, cloneUrls };
+    return { classroom, assignment, assignmentProjects, reportDownloadUrl, urls, cloneUrls, teams };
   },
   component: AssignmentDetail,
   pendingComponent: Loader,
@@ -95,11 +99,16 @@ function AssignmentDetail() {
   const { data: cloneUrls } = useSuspenseQuery(assignmentCloneUrlsQueryOptions(classroomId, assignmentId));
 
   const { mutateAsync, isError, isPending } = useInviteToAssignment(classroomId, assignmentId);
+  const { data: teams } = useSuspenseQuery(teamsQueryOptions(classroomId));
 
   const acceptedCount = assignmentProjects.filter((p) => p.projectStatus === "accepted").length;
   const pendingCount = assignmentProjects.filter((p) => p.projectStatus === "pending").length;
   const totalCount = assignmentProjects.length;
   const progressPercent = totalCount > 0 ? Math.round((acceptedCount / totalCount) * 100) : 0;
+
+  const isIndividual = classroom.classroom.maxTeamSize === 1;
+  const isReleased = !!assignment.acceptableSince;
+  const needsRelease = !isReleased && isOwner(classroom);
 
   const daysUntil = getDaysUntilDue(assignment.dueDate);
   const isOverdue = daysUntil !== null && daysUntil < 0;
@@ -189,6 +198,68 @@ function AssignmentDetail() {
           )}
         </div>
       </div>
+
+      {/* Release Banner */}
+      {isError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{tco("status.error")}</AlertTitle>
+          <AlertDescription>{t("detail.releaseError")}</AlertDescription>
+        </Alert>
+      )}
+      {needsRelease && (
+        <div className="relative overflow-hidden rounded-xl border-2 border-primary/50 bg-gradient-to-br from-primary/10 via-primary/5 to-background p-6 mb-6 transition-all duration-300">
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 opacity-[0.03] pointer-events-none">
+            <div className="absolute inset-0 rounded-full blur-3xl bg-primary" />
+          </div>
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 opacity-[0.02] pointer-events-none">
+            <Sparkles className="w-full h-full" />
+          </div>
+
+          <div className="relative flex flex-col lg:flex-row lg:items-center gap-6">
+            {/* Icon */}
+            <div className="shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg bg-gradient-to-br from-primary to-primary/80 shadow-primary/25">
+              <Rocket className="w-8 h-8 text-primary-foreground" />
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0 space-y-2">
+              <h2 className="text-lg font-bold tracking-tight text-primary">
+                {t("detail.release.title")}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {teams.length > 0
+                  ? t(isIndividual ? "detail.release.descriptionIndividual" : "detail.release.descriptionTeam", { count: teams.length })
+                  : t(isIndividual ? "detail.release.noMembersDescription" : "detail.release.noTeamsDescription")}
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div className="flex items-center gap-3 shrink-0">
+              <Button
+                variant="glow"
+                size="lg"
+                className="group gap-2 font-semibold shadow-lg"
+                onClick={() => mutateAsync().catch(() => {})}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Rocket className="w-4 h-4" />
+                )}
+                {isPending ? t("detail.release.releasing") : t("detail.release.button")}
+                {teams.length > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-white/20 rounded">
+                    {teams.length}
+                  </span>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Collapsible Stats Section */}
       <div className="mb-6">
@@ -342,47 +413,30 @@ function AssignmentDetail() {
             </div>
           </div>
 
-          {isOwner(classroom) && (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => mutateAsync()}
-                  disabled={isPending || pendingCount === 0}
-                >
-                  {isPending ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4 mr-2" />
-                  )}
-                  {t("detail.sendInvites")}
-                  {pendingCount > 0 && (
-                    <span className="ml-2 px-1.5 py-0.5 text-xs bg-warning/20 text-warning rounded">
-                      {pendingCount}
-                    </span>
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {pendingCount > 0
-                  ? t("detail.sendInvitesTooltip", { count: pendingCount })
-                  : t("detail.allTeamsAccepted")}
-              </TooltipContent>
-            </Tooltip>
-          )}
         </div>
 
         {assignmentProjects.length === 0 ? (
-          <Card className="border-dashed border-border/50">
-            <CardContent className="p-8 text-center">
-              <GitFork className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-medium mb-1">{t("detail.noProjects")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("detail.noProjectsDescription")}
-              </p>
-            </CardContent>
-          </Card>
+          needsRelease ? null : !isReleased && !isOwner(classroom) ? (
+            <Card className="border-dashed border-border/50">
+              <CardContent className="p-8 text-center">
+                <Info className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+                <h3 className="font-medium mb-1">{t("detail.release.notReleasedInfo")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("detail.release.notReleasedInfoDescription")}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-dashed border-border/50">
+              <CardContent className="p-8 text-center">
+                <GitFork className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+                <h3 className="font-medium mb-1">{t("detail.noProjects")}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("detail.noProjectsDescription")}
+                </p>
+              </CardContent>
+            </Card>
+          )
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {assignmentProjects.map((project) => (
@@ -396,13 +450,6 @@ function AssignmentDetail() {
         )}
       </section>
 
-      {isError && (
-        <Alert variant="destructive" className="mt-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{tco("status.error")}</AlertTitle>
-          <AlertDescription>{t("detail.inviteError")}</AlertDescription>
-        </Alert>
-      )}
     </div>
   );
 }

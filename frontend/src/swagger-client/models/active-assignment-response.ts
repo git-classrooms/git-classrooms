@@ -25,7 +25,7 @@ export interface ActiveAssignmentResponse {
      * @type {string}
      * @memberof ActiveAssignmentResponse
      */
-    acceptableSince: string;
+    acceptableSince?: string;
 
     /**
      * @type {Classroom}

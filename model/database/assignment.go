@@ -22,7 +22,7 @@ type Assignment struct {
 	DueDate           *time.Time `json:"dueDate" validate:"optional"`
 	Closed            bool       `gorm:"default:false" json:"closed"`
 
-	AcceptableSince *time.Time `json:"acceptableSince"`
+	AcceptableSince *time.Time `json:"acceptableSince" validate:"optional"`
 
 	Projects                      []*AssignmentProjects  `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 	GradingJUnitAutoGradingActive bool                   `json:"gradingJUnitAutoGradingActive"`
