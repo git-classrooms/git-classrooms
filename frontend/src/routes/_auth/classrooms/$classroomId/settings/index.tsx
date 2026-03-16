@@ -143,10 +143,10 @@ function Index() {
             label={t("settings.teachingMaterial")}
             value={
               <StatusBadge
-                variant={!!classroom.teachingGroupId ? "success" : "neutral"}
+                variant={classroom.teachingGroupId ? "success" : "neutral"}
                 size="sm"
               >
-                {!!classroom.teachingGroupId ? t("settings.teamsEnabled") : t("settings.teamsDisabled")}
+                {classroom.teachingGroupId ? t("settings.teamsEnabled") : t("settings.teamsDisabled")}
               </StatusBadge>
             }
             description={t("settings.teachingMaterialDescription")}
