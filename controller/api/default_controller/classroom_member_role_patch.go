@@ -173,7 +173,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 
 	err = query.Q.Transaction(func(tx *query.Query) error {
 		queryTeam := tx.Team
-		if member.Role != database.Student {
+		if oldRole == database.Student {
 			if classroom.Classroom.MaxTeamSize == 1 {
 				if _, err := queryTeam.WithContext(c.Context()).Delete(member.Team); err != nil {
 					return err
@@ -185,7 +185,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			}
 			member.Team = nil
 			member.TeamID = nil
-		} else if classroom.Classroom.MaxTeamSize == 1 {
+		} else if member.Role == database.Student && classroom.Classroom.MaxTeamSize == 1 {
 			subgroup, err := repo.CreateSubGroup(
 				member.User.Name,
 				member.User.GitlabUsername,
