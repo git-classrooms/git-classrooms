@@ -162,7 +162,9 @@
       "title": "Noch keine Einladungen",
       "description": "Nutze das Formular, um Mitglieder einzuladen"
     },
-    "copyLinkTooltip": "Einladungslink kopieren"
+    "copyLinkTooltip": "Einladungslink kopieren",
+    "roleLabel": "Rolle",
+    "roleDescription": "Rolle für eingeladene Mitglieder"
   },
   "settings": {
     "title": "Einstellungen",
@@ -245,6 +247,7 @@
     "acceptAndJoin": "Annehmen & Beitreten",
     "unableToJoin": "Beitritt nicht möglich",
     "cantJoin": "Dem Kurs kann nicht beigetreten werden!",
+    "joiningAs": "Beitritt als",
     "dashboardNote": "Du kannst jederzeit über das Dashboard auf deine Kurse zugreifen"
   }
 }

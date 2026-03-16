@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +14,22 @@ const (
 	Moderator
 	Student
 )
+
+// String implements [fmt.Stringer].
+func (r *Role) String() string {
+	switch *r {
+	case Owner:
+		return "Owner"
+	case Moderator:
+		return "Moderator"
+	case Student:
+		return "Student"
+	default:
+		return "Invalid Role"
+	}
+}
+
+var _ fmt.Stringer = (*Role)(nil)
 
 // UserClassrooms is a struct that represents the relationship between a user and a classroom
 type UserClassrooms struct {

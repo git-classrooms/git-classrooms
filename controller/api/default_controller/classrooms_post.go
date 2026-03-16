@@ -148,6 +148,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 			ClassroomID: classroom.ID,
 			Email:       user.GitlabEmail,
 			ExpiryDate:  time.Now().AddDate(0, 0, 14),
+			Role:        database.Owner,
 		}
 		if err = tx.ClassroomInvitation.WithContext(c.Context()).Create(invitation); err != nil {
 			return err

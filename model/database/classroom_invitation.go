@@ -25,6 +25,8 @@ type ClassroomInvitation struct {
 	ClassroomID uuid.UUID `gorm:"not null" json:"-"`
 	Classroom   Classroom `json:"classroom"`
 
+	Role Role `gorm:"not null" json:"role"`
+
 	Email      string    `gorm:"not null" json:"email"`
 	ExpiryDate time.Time `gorm:"not null" json:"expiryDate"`
 } //@Name ClassroomInvitation

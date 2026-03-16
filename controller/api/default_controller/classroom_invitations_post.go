@@ -16,11 +16,12 @@ import (
 )
 
 type inviteToClassroomRequest struct {
-	MemberEmails []string `json:"memberEmails"`
+	MemberEmails []string       `json:"memberEmails"`
+	Role         *database.Role `json:"role"`
 } //@Name InviteToClassroomRequest
 
 func (r inviteToClassroomRequest) isValid() bool {
-	return len(r.MemberEmails) != 0
+	return len(r.MemberEmails) != 0 && r.Role != nil && *r.Role <= database.Student && *r.Role >= database.Owner
 }
 
 // @Summary		InviteToClassroom
@@ -89,6 +90,7 @@ func (ctrl *DefaultController) InviteToClassroom(c *fiber.Ctx) (err error) {
 				ClassroomID: classroom.ClassroomID,
 				Email:       email.Address,
 				ExpiryDate:  time.Now().AddDate(0, 0, 14),
+				Role:        *requestBody.Role,
 			}
 			if err = tx.ClassroomInvitation.WithContext(c.Context()).Create(newInvitation); err != nil {
 				return err
@@ -141,6 +143,7 @@ func (ctrl *DefaultController) sendMailsWorker(classroom *database.Classroom, in
 				ClassroomName:      classroom.Name,
 				ClassroomOwnerName: classroom.Owner.Name,
 				RecipientEmail:     invitation.Email,
+				Role:               invitation.Role.String(),
 				InvitationPath:     fmt.Sprintf("/classrooms/%s/invitations/%s", classroom.ID.String(), invitation.ID.String()),
 				ExpireDate:         invitation.ExpiryDate,
 			}

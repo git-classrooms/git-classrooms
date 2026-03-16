@@ -14,6 +14,7 @@
 
 import { Classroom } from './classroom';
 import { ClassroomInvitationStatus } from './classroom-invitation-status';
+import { Role } from './role';
  /**
  * 
  *
@@ -51,6 +52,12 @@ export interface ClassroomInvitation {
      * @memberof ClassroomInvitation
      */
     id: string;
+
+    /**
+     * @type {Role}
+     * @memberof ClassroomInvitation
+     */
+    role: Role;
 
     /**
      * @type {ClassroomInvitationStatus}

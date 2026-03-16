@@ -162,7 +162,9 @@
       "title": "No invitations yet",
       "description": "Use the form to invite members to your classroom"
     },
-    "copyLinkTooltip": "Copy invitation link"
+    "copyLinkTooltip": "Copy invitation link",
+    "roleLabel": "Role",
+    "roleDescription": "Role assigned to invited members"
   },
   "settings": {
     "title": "Settings",
@@ -245,6 +247,7 @@
     "acceptAndJoin": "Accept & Join",
     "unableToJoin": "Unable to join",
     "cantJoin": "Can't join classroom!",
+    "joiningAs": "Joining as",
     "dashboardNote": "You can always access your classrooms from the dashboard"
   }
 }

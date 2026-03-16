@@ -8,6 +8,7 @@ import "time"
 type ClassroomInvitationData struct {
 	ClassroomName      string
 	ClassroomOwnerName string
+	Role               string
 	RecipientEmail     string
 	InvitationPath     string
 	ExpireDate         time.Time

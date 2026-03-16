@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button.tsx";
-import { AlertCircle, ArrowLeft, Check, GraduationCap, Loader2, Sparkles, User } from "lucide-react";
+import { AlertCircle, ArrowLeft, Check, GraduationCap, Loader2, Shield, Sparkles, User } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getUUIDFromLocation } from "@/lib/utils";
 import { Action } from "@/swagger-client";
@@ -11,6 +11,9 @@ import { z } from "zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { Markdown } from "@/components/ui/markdown";
 import { useTranslation } from "react-i18next";
+import { useRoleLabels } from "@/hooks/useClassroomLabels";
+import { Role } from "@/types/classroom";
+
 
 const seachSchema = z.object({
   groupLink: z.boolean().catch(false),
@@ -30,6 +33,7 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId_/invitation
 
 function JoinClassroom() {
   const { t } = useTranslation("classroom");
+  const roleLabels = useRoleLabels();
   const navigate = useNavigate();
   const { classroomId, invitationId } = Route.useParams();
   const { groupLink } = Route.useSearch();
@@ -90,6 +94,10 @@ function JoinClassroom() {
                     <div className="flex items-center gap-1.5">
                       <User className="w-3.5 h-3.5" />
                       <span>{invitation.classroom.owner.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5" />
+                      <span>{t("join.joiningAs")} {roleLabels[invitation.role as Role]}</span>
                     </div>
                   </div>
                 </div>

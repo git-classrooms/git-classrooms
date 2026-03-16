@@ -80,6 +80,7 @@ func (ctrl *DefaultController) GetClassroomInvitation(c *fiber.Ctx) (err error) 
 			Status:      status,
 			Email:       user.GitlabEmail,
 			ExpiryDate:  time.Now().AddDate(0, 0, 14),
+			Role:        database.Student,
 		}
 	} else {
 		queryInvitation := query.ClassroomInvitation

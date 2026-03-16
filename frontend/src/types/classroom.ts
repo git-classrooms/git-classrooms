@@ -68,6 +68,7 @@ export const inviteFormSchema = z.object({
           { message: "One or more Emails are not valid" },
         ),
     ),
+  role: z.coerce.number().int().min(0).max(2).default(2),
 });
 export type InviteForm = z.infer<typeof inviteFormSchema>;
 

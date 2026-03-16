@@ -145,7 +145,7 @@ export const useInviteClassroomMembers = (classroomId: string) => {
   const { csrfToken } = useCsrf();
   return useMutation({
     mutationFn: async (values: InviteForm) => {
-      const data = { memberEmails: values.memberEmails.split("\n").filter(Boolean) };
+      const data = { memberEmails: values.memberEmails.split("\n").filter(Boolean), role: values.role };
       const res = await apiClient.inviteToClassroom(data, csrfToken, classroomId);
       return res.data;
     },
