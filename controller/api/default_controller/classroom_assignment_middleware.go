@@ -18,6 +18,10 @@ func classroomAssignmentQuery(c *fiber.Ctx, classroomID uuid.UUID) query.IAssign
 }
 
 func (*DefaultController) ClassroomAssignmentMiddleware(c *fiber.Ctx) (err error) {
+	ctx := context.Get(c)
+	cleanLogger := ctx.GetLogger()
+	log := ctx.GetLoggerForHandler("ClassroomAssignmentMiddleware")
+
 	var params Params
 	if err = c.ParamsParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -27,6 +31,8 @@ func (*DefaultController) ClassroomAssignmentMiddleware(c *fiber.Ctx) (err error
 		return fiber.ErrBadRequest
 	}
 
+	log.Debug("retrieving assignment from db", "assignmentID", *params.AssignmentID)
+
 	assignment, err := classroomAssignmentQuery(c, *params.ClassroomID).
 		Where(query.Assignment.ID.Eq(*params.AssignmentID)).
 		First()
@@ -34,7 +40,8 @@ func (*DefaultController) ClassroomAssignmentMiddleware(c *fiber.Ctx) (err error
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	ctx := context.Get(c)
+	ctx.SetLogger(cleanLogger.With("assignment", assignment))
+
 	ctx.SetAssignment(assignment)
 	return ctx.Next()
 }

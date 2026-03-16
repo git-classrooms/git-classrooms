@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"log/slog"
 	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -9,8 +10,8 @@ import (
 // Repository defines the operations for interacting with VCS resources.
 type Repository interface {
 	// Access
-	Login(token string) error
-	GroupAccessLogin(token string) error
+	Login(token string, logger *slog.Logger) error
+	GroupAccessLogin(token string, logger *slog.Logger) error
 	CreateGroupAccessToken(groupID int, name string, accessLevel model.AccessLevelValue, expiresAt time.Time, scopes ...string) (*model.GroupAccessToken, error)
 	GetGroupAccessToken(groupID int, tokenID int) (*model.GroupAccessToken, error)
 	RotateGroupAccessToken(groupID int, tokenID int, expiresAt time.Time) (*model.GroupAccessToken, error)

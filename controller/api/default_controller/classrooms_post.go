@@ -3,7 +3,6 @@ package api
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -50,6 +49,7 @@ func (r createClassroomRequest) isValid() bool {
 // @Router			/api/v1/classrooms [post]
 func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("CreateClassroom")
 	repo := ctx.GetGitlabRepository()
 
 	userID := ctx.GetUserID()
@@ -87,7 +87,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	defer func() {
 		if recover() != nil || err != nil {
 			if err := repo.DeleteGroup(group.ID); err != nil {
-				log.Println(err.Error())
+				log.Error("error while deleting group", "groupID", group.ID, "error", err)
 			}
 		}
 	}()

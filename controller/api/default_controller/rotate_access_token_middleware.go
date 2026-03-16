@@ -2,10 +2,10 @@ package api
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"gitlab.hs-flensburg.de/gitlab-classroom/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
@@ -14,14 +14,17 @@ import (
 
 func (ctrl *DefaultController) RotateAccessTokenMiddleware(c *fiber.Ctx) error {
 	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("RotateAccessTokenMiddleware")
 	repo := ctx.GetGitlabRepository()
 	classroom := ctx.GetUserClassroom()
 
+	logCtx := logging.SetLogger(c.Context(), log)
+
 	if classroom.Role == database.Owner && !classroom.Classroom.Archived {
 		if _, err, _ := ctrl.g.Do(classroom.ClassroomID.String(), func() (interface{}, error) {
-			return nil, rotateGroupAccessToken(c.Context(), repo, &classroom.Classroom)
+			return nil, rotateGroupAccessToken(logCtx, repo, &classroom.Classroom)
 		}); err != nil {
-			log.Println(err)
+			log.Error("error while rotating group access token", "error", err)
 		}
 	}
 
@@ -29,6 +32,7 @@ func (ctrl *DefaultController) RotateAccessTokenMiddleware(c *fiber.Ctx) error {
 }
 
 func rotateGroupAccessToken(ctx context.Context, repo gitlab.Repository, classroom *database.Classroom) error {
+	log := logging.GetLogger(ctx)
 	if classroom.GroupAccessTokenCreatedAt.Add(24 * time.Hour).After(time.Now()) {
 		return nil
 	}
@@ -39,7 +43,7 @@ func rotateGroupAccessToken(ctx context.Context, repo gitlab.Repository, classro
 		return err
 	}
 
-	log.Println("Rotating access token for classroom", classroom.ID)
+	log.Info("Rotating access token for classroom", "classroomID", classroom.ID)
 
 	classroom.GroupAccessTokenID = accessToken.ID
 	classroom.GroupAccessToken = accessToken.Token

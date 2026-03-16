@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -55,4 +56,16 @@ func (a *JUnitTestResult) Scan(value interface{}) error {
 		return errors.New("type assertion to []byte failed")
 	}
 	return json.Unmarshal(b, &a)
+}
+
+var _ (slog.LogValuer) = (*AssignmentProjects)(nil)
+
+// LogValue implements slog.LogValuer.
+func (a *AssignmentProjects) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("id", a.ID.String()),
+		slog.String("teamID", a.TeamID.String()),
+		slog.String("assignmentID", a.AssignmentID.String()),
+		slog.String("status", string(a.ProjectStatus)),
+	)
 }

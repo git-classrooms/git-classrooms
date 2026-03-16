@@ -31,9 +31,10 @@ import (
 // @Router			/api/v1/classrooms/{classroomId}/assignments/{assignmentId}/projects/{projectId}/grading/auto [post]
 func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err error) {
 	ctx := fiberContext.Get(c)
+	log := ctx.GetLoggerForHandler("StartAutoGradingForProject")
 	classroom := ctx.GetUserClassroom()
 	repo := ctx.GetGitlabRepository()
-	if err := repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err := repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

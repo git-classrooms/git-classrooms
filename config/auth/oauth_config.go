@@ -1,7 +1,9 @@
 package auth
 
 import (
+	"log/slog"
 	"net/url"
+	"strings"
 
 	"golang.org/x/oauth2"
 )
@@ -13,6 +15,19 @@ type OAuthConfig struct {
 	AuthURL          *url.URL `env:"AUTH_URL,expand" envDefault:"$GITLAB_URL/oauth/authorize"`
 	TokenURL         *url.URL `env:"TOKEN_URL,expand" envDefault:"$GITLAB_URL/oauth/token"`
 	Scopes           []string `env:"SCOPES" envSeparator:"," envDefault:"api"`
+}
+
+var _ slog.LogValuer = (*OAuthConfig)(nil)
+
+func (c *OAuthConfig) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("clientID", strings.Repeat("*", 6)),
+		slog.String("clientSecret", strings.Repeat("*", 6)),
+		slog.String("redirectEndpoint", c.RedirectEndpoint),
+		slog.String("authURL", c.AuthURL.String()),
+		slog.String("tokenURL", c.TokenURL.String()),
+		slog.String("scopes", strings.Join(c.Scopes, ", ")),
+	)
 }
 
 func (c *OAuthConfig) GetRedirectEndpoint() string {

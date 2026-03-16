@@ -32,8 +32,10 @@ func (ctrl *DefaultController) ArchiveClassroom(c *fiber.Ctx) (err error) {
 	userClassroom := ctx.GetUserClassroom()
 	classroom := userClassroom.Classroom
 	repo := ctx.GetGitlabRepository()
+	log := ctx.GetLoggerForHandler("ArchiveClassroom")
 
 	if classroom.Archived {
+		log.Info("classroom is already archived")
 		return c.SendStatus(fiber.StatusNoContent)
 	}
 	classroom.Archived = true

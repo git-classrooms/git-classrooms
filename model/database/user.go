@@ -2,6 +2,7 @@
 package database
 
 import (
+	"log/slog"
 	"time"
 )
 
@@ -21,3 +22,12 @@ type User struct {
 	OwnedClassrooms []*Classroom      `gorm:"foreignKey:OwnerID;constraint:OnDelete:CASCADE;" json:"-"`
 	Classrooms      []*UserClassrooms `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;" json:"-"`
 } //@Name User
+
+var _ (slog.LogValuer) = (*User)(nil)
+
+// LogValue implements slog.LogValuer.
+func (u *User) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Int("id", u.ID),
+	)
+}

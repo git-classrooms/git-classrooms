@@ -16,6 +16,10 @@ func teamProjectQuery(c *fiber.Ctx, teamID uuid.UUID) query.IAssignmentProjectsD
 }
 
 func (ctrl *DefaultController) ClassroomTeamProjectMiddleware(c *fiber.Ctx) (err error) {
+	ctx := context.Get(c)
+	cleanLogger := ctx.GetLogger()
+	log := ctx.GetLoggerForHandler("ClassroomTeamProjectMiddleware")
+
 	var params Params
 	if err = c.ParamsParser(&params); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -25,6 +29,8 @@ func (ctrl *DefaultController) ClassroomTeamProjectMiddleware(c *fiber.Ctx) (err
 		return fiber.ErrBadRequest
 	}
 
+	log.Debug("retrieving classroomProject from db", "assignmentProjectID", *params.AssignmentProjectID)
+
 	assignmentProject, err := teamProjectQuery(c, *params.TeamID).
 		Where(query.AssignmentProjects.ID.Eq(*params.AssignmentProjectID)).
 		First()
@@ -32,7 +38,8 @@ func (ctrl *DefaultController) ClassroomTeamProjectMiddleware(c *fiber.Ctx) (err
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	ctx := context.Get(c)
+	ctx.SetLogger(cleanLogger.With("project", assignmentProject))
+
 	ctx.SetAssignmentProject(assignmentProject)
 	ctx.SetGitlabProjectID(assignmentProject.ProjectID)
 

@@ -2,7 +2,6 @@ package gitlab
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
@@ -33,8 +32,6 @@ func ProjectFromGoGitlab(gitlabProject goGitlab.Project) *model.Project {
 	if gitlabProject.Owner != nil {
 		owner = UserFromGoGitlab(*gitlabProject.Owner)
 	}
-
-	log.Printf("%s defaultBranch: %s", gitlabProject.Name, gitlabProject.DefaultBranch)
 
 	return &model.Project{
 		Name:          gitlabProject.Name,

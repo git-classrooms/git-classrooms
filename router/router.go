@@ -1,9 +1,13 @@
 package router
 
 import (
+	"io"
 	"io/fs"
+	"log/slog"
 	"net/http"
 	"strings"
+
+	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 
 	authConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/auth"
 	apiController "gitlab.hs-flensburg.de/gitlab-classroom/controller/api"
@@ -16,6 +20,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/swagger"
+	"github.com/google/uuid"
 
 	_ "gitlab.hs-flensburg.de/gitlab-classroom/docs"
 )
@@ -25,6 +30,7 @@ func Routes(
 	apiController apiController.Controller,
 	frontendFS fs.FS,
 	config authConfig.Config,
+	log *slog.Logger,
 ) *fiber.App {
 	app := fiber.New()
 
@@ -42,9 +48,21 @@ func Routes(
 		}
 		return c.Next()
 	})
+	app.Use(func(c *fiber.Ctx) error {
+		ctx := fiberContext.Get(c)
+		log := log.With(slog.String("requestId", uuid.NewString()))
+		log.DebugContext(c.Context(), "request started")
+		ctx.SetLogger(log)
+		return c.Next()
+	})
+
+	api := app.Group("/api", logger.New(logger.Config{DisableColors: true, Output: io.Discard, Done: func(c *fiber.Ctx, logString []byte) {
+		ctx := fiberContext.Get(c)
+		log := ctx.GetLogger()
+		log.InfoContext(c.Context(), string(logString[:len(logString)-1]))
+	}}))
 	app.Use(csrf.New(session.CsrfConfig))
 
-	api := app.Group("/api", logger.New())
 	api.Mount("/v1", setupApiRoutes(config, authController, apiController))
 	api.Get("/swagger/*", swagger.HandlerDefault) // default
 	api.Get("/*", func(c *fiber.Ctx) error { return c.SendStatus(fiber.StatusNotFound) })

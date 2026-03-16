@@ -9,7 +9,10 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"log"
+	"io"
+	stdLog "log"
+	"log/slog"
+	"os"
 	"os/signal"
 	"strings"
 	"sync"
@@ -21,6 +24,7 @@ import (
 	api "gitlab.hs-flensburg.de/gitlab-classroom/controller/api/default_controller"
 	authController "gitlab.hs-flensburg.de/gitlab-classroom/controller/auth"
 	"gitlab.hs-flensburg.de/gitlab-classroom/docs"
+	"gitlab.hs-flensburg.de/gitlab-classroom/logging"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/httputil"
@@ -31,6 +35,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/session"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 //go:embed all:frontend/dist
@@ -51,36 +56,59 @@ var version string = "develop"
 //	@license.url	https://raw.githubusercontent.com/git-classrooms/git-classrooms/refs/heads/develop/LICENSE
 
 func main() {
+	log := logging.GetDefaultLogger()
+	log.Info("Loading application config")
+
 	appConfig, err := config.LoadApplicationConfig()
 	if err != nil {
-		log.Fatal("failed to get application configuration", err)
+		log.Error("failed to get application configuration", "error", err)
+		os.Exit(1)
 	}
+
+	var output io.Writer
+	if appConfig.Log.FilePath != "" {
+		f, err := os.OpenFile(appConfig.Log.FilePath, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+		if err != nil {
+			log.Error("could not open log file", "error", err)
+			os.Exit(1)
+		}
+		defer f.Close()
+		output = io.MultiWriter(os.Stdout, f)
+	} else {
+		output = os.Stdout
+	}
+
+	log = appConfig.Log.GetLogger(output)
+	slog.SetDefault(log)
 
 	setSwaggerInfo(appConfig.PublicURL.String())
 
-	log.Printf("Starting GitClassrooms %s", version)
+	log.Info("Starting GitClassrooms", "version", version, "config", appConfig)
 
 	mailRepo, err := mail.NewMailRepository(appConfig.PublicURL, appConfig.Mail)
 	if err != nil {
-		log.Fatal("failed to create mail repository", err)
+		log.Error("failed to create mail repository", "error", err)
+		os.Exit(1)
 	}
 
-	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(appConfig.Database.Dsn()), &gorm.Config{Logger: logger.New(stdLog.Default(), logger.Config{})})
 	if err != nil {
-		log.Fatal("failed to connect database", err)
+		log.Error("failed to connect database", "error", err)
+		os.Exit(1)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatal("failed to get database connection", err)
+		log.Error("failed to get database connection", "error", err)
+		os.Exit(1)
 	}
 
 	session.InitSessionStore(utils.Ptr(appConfig.Database.Dsn()), appConfig.PublicURL)
 
 	if err = database.MigrateDatabase(sqlDB); err != nil {
-		log.Fatal("failed to migrate database", err)
+		log.Error("failed to migrate database", "error", err)
 	}
-	log.Println("DB has been initialized")
+	log.Info("DB has been initialized")
 
 	// Set db for gorm-gen
 	query.SetDefault(db)
@@ -97,16 +125,18 @@ func main() {
 	authCtrl := authController.NewOAuthController(appConfig.Auth, appConfig.GitLab)
 	apiController := api.NewApiV1Controller(mailRepo, *appConfig)
 
-	app.Mount("/", router.Routes(authCtrl, apiController, frontendFS, appConfig.Auth))
+	app.Mount("/", router.Routes(authCtrl, apiController, frontendFS, appConfig.Auth, log))
 
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx := context.Background()
+	ctx = logging.SetLogger(ctx, log)
+	ctx, cancel := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
 	go func() {
 		<-ctx.Done()
-		log.Println("Shutting down server...")
+		log.Info("Shutting down server...")
 		if err := app.Shutdown(); err != nil {
-			log.Println(err)
+			log.Error("error while shutting down", "error", err)
 		}
 	}()
 
@@ -116,7 +146,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		if err := app.Listen(fmt.Sprintf(":%d", appConfig.Port)); err != nil {
-			log.Println(err)
+			log.Error("error while starting application", "error", err)
 		}
 	}()
 
@@ -125,7 +155,7 @@ func main() {
 		defer wg.Done()
 
 		dueAssignmentWork := worker.NewDueAssignmentWork(appConfig.GitLab)
-		dueAssignmentWorker := worker.NewWorker(dueAssignmentWork)
+		dueAssignmentWorker := worker.NewWorker(dueAssignmentWork, "dueAssignment")
 		dueAssignmentWorker.Start(ctx, 1*time.Minute)
 	}()
 
@@ -134,7 +164,7 @@ func main() {
 		defer wg.Done()
 
 		syncGitlabDbWork := worker.NewSyncGitlabDbWork(appConfig.GitLab, appConfig.PublicURL)
-		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork)
+		syncGitlabDbWorker := worker.NewWorker(syncGitlabDbWork, "syncGitlab")
 		syncGitlabDbWorker.Start(ctx, appConfig.GitLab.SyncInterval)
 	}()
 

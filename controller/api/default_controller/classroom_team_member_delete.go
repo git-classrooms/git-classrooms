@@ -23,6 +23,7 @@ import (
 // @Router			/api/v1/classrooms/{classroomId}/teams/{teamId}/members/{memberId} [delete]
 func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) (err error) {
 	ctx := context.Get(c)
+	log := ctx.GetLoggerForHandler("RemoveMemberFromTeam")
 	member := ctx.GetClassroomMember()
 	classroom := ctx.GetUserClassroom()
 	team := ctx.GetTeam()
@@ -32,7 +33,7 @@ func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusForbidden, "Teams are disabled for this classroom.")
 	}
 
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken, log); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

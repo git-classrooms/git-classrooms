@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"regexp"
 	"strings"
 	"time"
@@ -29,10 +30,10 @@ func NewGitlabRepo(config gitlabConfig.Config) *GitlabRepo {
 }
 
 // Login authenticates with GitLab using an OAuth token.
-func (repo *GitlabRepo) Login(token string) error {
+func (repo *GitlabRepo) Login(token string, logger *slog.Logger) error {
 	// With oauth tokens we need the OAuthClient to make requests
 	// TODO: But all tests act with a personal token, we just use the normal client for a while
-	cli, err := goGitlab.NewOAuthClient(token, goGitlab.WithBaseURL(repo.config.GetURL()))
+	cli, err := goGitlab.NewOAuthClient(token, goGitlab.WithBaseURL(repo.config.GetURL()), goGitlab.WithCustomLeveledLogger(logger))
 	if err != nil {
 		return err
 	}
@@ -41,8 +42,8 @@ func (repo *GitlabRepo) Login(token string) error {
 }
 
 // GroupAccessLogin logs in using a group access token.
-func (repo *GitlabRepo) GroupAccessLogin(token string) error {
-	cli, err := goGitlab.NewClient(token, goGitlab.WithBaseURL(repo.config.GetURL()))
+func (repo *GitlabRepo) GroupAccessLogin(token string, logger *slog.Logger) error {
+	cli, err := goGitlab.NewClient(token, goGitlab.WithBaseURL(repo.config.GetURL()), goGitlab.WithCustomLeveledLogger(logger))
 	if err != nil {
 		return err
 	}

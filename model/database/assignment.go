@@ -2,6 +2,7 @@
 package database
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -30,3 +31,16 @@ type Assignment struct {
 
 	GradingManualRubrics []*ManualGradingRubric `gorm:"many2many:assignment_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
 } //@Name Assignment
+
+var _ (slog.LogValuer) = (*Assignment)(nil)
+
+// LogValue implements slog.LogValuer.
+func (a *Assignment) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("id", a.ID.String()),
+		slog.String("name", a.Name),
+		slog.Any("dueDate", a.DueDate),
+		slog.Any("acceptableSince", a.AcceptableSince),
+		slog.Bool("closed", a.Closed),
+	)
+}
