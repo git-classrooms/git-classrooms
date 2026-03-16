@@ -9,11 +9,11 @@ const apiClient = createClassroomApi();
 
 // Queries
 
-export const classroomsQueryOptions = (filter: Filter | undefined = undefined) =>
+export const classroomsQueryOptions = (filter: Filter | undefined = undefined, archived: boolean = false) =>
   queryOptions({
-    queryKey: ["classrooms", filter],
+    queryKey: ["classrooms", filter, archived],
     queryFn: async () => {
-      const res = await apiClient.getClassrooms(filter);
+      const res = await apiClient.getClassrooms(filter, archived);
       return res.data;
     },
   });
