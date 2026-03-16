@@ -9,13 +9,20 @@ import { ClassroomTeamModal } from "./classroomTeam";
 import { isModerator, isStudent } from "@/lib/utils";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useTranslation } from "react-i18next";
+import { useRoleLabels } from "@/hooks/useClassroomLabels";
+
+const roleVariants: Record<Role, "success" | "info" | "neutral"> = {
+  [Role.Owner]: "success",
+  [Role.Moderator]: "info",
+  [Role.Student]: "neutral",
+};
 
 function useRoleConfig(): Record<Role, { variant: "success" | "info" | "neutral"; label: string }> {
-  const { t } = useTranslation("classroom");
+  const labels = useRoleLabels();
   return {
-    [Role.Owner]: { variant: "success", label: t("members.role.owner") },
-    [Role.Moderator]: { variant: "info", label: t("members.role.moderator") },
-    [Role.Student]: { variant: "neutral", label: t("members.role.student") },
+    [Role.Owner]: { variant: roleVariants[Role.Owner], label: labels[Role.Owner] },
+    [Role.Moderator]: { variant: roleVariants[Role.Moderator], label: labels[Role.Moderator] },
+    [Role.Student]: { variant: roleVariants[Role.Student], label: labels[Role.Student] },
   };
 }
 

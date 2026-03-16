@@ -6,7 +6,8 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { InviteForm, inviteFormSchema, Status } from "@/types/classroom";
+import { InviteForm, inviteFormSchema, Role, Status } from "@/types/classroom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertCircle,
@@ -41,6 +42,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
+import { useRoleLabels, useInvitationStatusLabels } from "@/hooks/useClassroomLabels";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
   loader: async ({ context: { queryClient }, params }) => {
@@ -60,13 +62,13 @@ export const Route = createFileRoute("/_auth/classrooms/$classroomId/invite")({
 
 const statusConfigBase: Record<
   Status,
-  { variant: "success" | "warning" | "destructive" | "neutral" | "info"; icon: typeof Check; labelKey: string }
+  { variant: "success" | "warning" | "destructive" | "neutral" | "info"; icon: typeof Check }
 > = {
-  [Status.Pending]: { variant: "warning", icon: Clock, labelKey: "pending" },
-  [Status.Accepted]: { variant: "success", icon: Check, labelKey: "accepted" },
-  [Status.Rejected]: { variant: "destructive", icon: X, labelKey: "rejected" },
-  [Status.Revoked]: { variant: "neutral", icon: XCircle, labelKey: "revoked" },
-  [Status.Failed]: { variant: "destructive", icon: AlertCircle, labelKey: "failed" },
+  [Status.Pending]: { variant: "warning", icon: Clock },
+  [Status.Accepted]: { variant: "success", icon: Check },
+  [Status.Rejected]: { variant: "destructive", icon: X },
+  [Status.Revoked]: { variant: "neutral", icon: XCircle },
+  [Status.Failed]: { variant: "destructive", icon: AlertCircle },
 };
 
 function ClassroomInviteForm() {
@@ -236,6 +238,7 @@ function StatCard({
 function InviteFormSection({ classroomId }: { classroomId: string }) {
   const { t } = useTranslation("classroom");
   const { t: tc } = useTranslation("common");
+  const roleLabels = useRoleLabels();
   const { mutateAsync, isError, isPending } = useInviteClassroomMembers(classroomId);
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
@@ -244,6 +247,7 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
     reValidateMode: "onChange",
     defaultValues: {
       memberEmails: "",
+      role: Role.Student,
     },
   });
 
@@ -283,6 +287,33 @@ function InviteFormSection({ classroomId }: { classroomId: string }) {
                   </span>
                 )}
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="role"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("invite.roleLabel")}</FormLabel>
+              <FormControl>
+                <Select
+                  value={String(field.value)}
+                  onValueChange={(val) => field.onChange(Number(val))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={String(Role.Owner)}>{roleLabels[Role.Owner]}</SelectItem>
+                    <SelectItem value={String(Role.Moderator)}>{roleLabels[Role.Moderator]}</SelectItem>
+                    <SelectItem value={String(Role.Student)}>{roleLabels[Role.Student]}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormDescription>{t("invite.roleDescription")}</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -341,8 +372,10 @@ function InvitationRow({
   const router = useRouter();
   const config = statusConfigBase[invitation.status as Status];
   const StatusIcon = config.icon;
-  // @ts-expect-error - dynamic key lookup
-  const statusLabel = t(`invite.status.${config.labelKey}`) as string;
+  const statusLabels = useInvitationStatusLabels();
+  const statusLabel = statusLabels[invitation.status as Status];
+  const roleLabels = useRoleLabels();
+  const roleLabel = roleLabels[invitation.role as Role];
   const isPending = invitation.status === Status.Pending;
   const canCopyLink = invitation.status !== Status.Accepted && invitation.status !== Status.Revoked;
 
@@ -382,6 +415,11 @@ function InvitationRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-medium truncate">{invitation.email}</span>
+          {invitation.status !== Status.Accepted && (
+            <StatusBadge variant="info" size="sm">
+              {roleLabel}
+            </StatusBadge>
+          )}
           <StatusBadge variant={config.variant} size="sm">
             {statusLabel}
           </StatusBadge>

@@ -42,6 +42,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useTranslation } from "react-i18next";
+import { useRoleLabels } from "@/hooks/useClassroomLabels";
 
 export const Route = createFileRoute("/_auth/classrooms/$classroomId/members/")({
   component: Members,
@@ -292,6 +293,7 @@ function MemberRow({
   showTeams: boolean;
 }) {
   const { t } = useTranslation("classroom");
+  const roleLabels = useRoleLabels();
   const config = roleConfig[member.role as Role];
   const Icon = config.icon;
   const isCurrentUser = member.user.id === userClassroom.user.id;
@@ -381,7 +383,7 @@ function MemberRow({
                       : "neutral"
                 }
               >
-                {getRole(member.role)}
+                {roleLabels[member.role as Role]}
               </StatusBadge>
             )}
           </div>
@@ -420,6 +422,7 @@ function RoleDropdown({
 }) {
   const { t } = useTranslation("classroom");
   const { t: tCommon } = useTranslation("common");
+  const roleLabels = useRoleLabels();
   const { mutateAsync, isError, isPending } = useUpdateMemberRole(classroomID, memberID);
 
   const form = useForm<z.infer<typeof createFormSchema>>({
@@ -460,20 +463,20 @@ function RoleDropdown({
                   <SelectItem value={getRole(Role.Student)}>
                     <div className="flex items-center gap-2">
                       <GraduationCap className="w-4 h-4" />
-                      {t("members.role.student")}
+                      {roleLabels[Role.Student]}
                     </div>
                   </SelectItem>
                   <SelectItem value={getRole(Role.Moderator)}>
                     <div className="flex items-center gap-2">
                       <Shield className="w-4 h-4" />
-                      {t("members.role.moderator")}
+                      {roleLabels[Role.Moderator]}
                     </div>
                   </SelectItem>
                   {userClassroom.classroom.ownerId === userClassroom.user.id && (
                     <SelectItem value={getRole(Role.Owner)}>
                       <div className="flex items-center gap-2">
                         <Crown className="w-4 h-4" />
-                        {t("members.role.owner")}
+                        {roleLabels[Role.Owner]}
                       </div>
                     </SelectItem>
                   )}
