@@ -70,7 +70,7 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer func() {
-		if recover() != nil || err != nil {
+		if err != nil {
 			if _, err := repo.ChangeGroupName(team.GroupID, oldTeamName); err != nil {
 				log.Printf("Failed to revert group name: %v", err)
 			}

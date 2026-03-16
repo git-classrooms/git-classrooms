@@ -122,7 +122,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		}
 
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if queryClassroomInvitation.
 					WithContext(c.Context()).
 					Delete(invitation); err != nil {
@@ -208,7 +208,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 			return err
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				repo.RemoveUserFromGroup(invitation.Classroom.GroupID, userID)
 			}
 		}()
@@ -218,7 +218,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 				return err
 			}
 			defer func() {
-				if recover() != nil || err != nil {
+				if err != nil {
 					repo.RemoveUserFromGroup(*invitation.Classroom.TeachingGroupID, userID)
 				}
 			}()
@@ -237,7 +237,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 				return err
 			}
 			defer func() {
-				if recover() != nil || err != nil {
+				if err != nil {
 					repo.DeleteGroup(subgroup.ID)
 				}
 			}()

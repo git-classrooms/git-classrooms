@@ -54,7 +54,7 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 		}
 
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				repo.ChangeGroupName(classroom.GroupID, oldclassroom.Name)
 			}
 		}()
@@ -68,7 +68,7 @@ func (ctrl *DefaultController) UpdateClassroom(c *fiber.Ctx) (err error) {
 		}
 
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				repo.ChangeGroupDescription(classroom.GroupID, oldclassroom.Description)
 			}
 		}()

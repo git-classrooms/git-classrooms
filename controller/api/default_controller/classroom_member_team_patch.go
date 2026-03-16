@@ -81,7 +81,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.AddUserToGroup(member.Team.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
@@ -106,7 +106,7 @@ func (ctrl *DefaultController) UpdateMemberTeam(c *fiber.Ctx) (err error) {
 			}
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				for _, project := range projects {
 					accessLevel := model.DeveloperPermissions
 					if project.Assignment.Closed {

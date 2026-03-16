@@ -89,7 +89,7 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	defer func() {
-		if recover() != nil || err != nil {
+		if err != nil {
 			if err := repo.DeleteGroup(group.ID); err != nil {
 				log.Println(err.Error())
 			}

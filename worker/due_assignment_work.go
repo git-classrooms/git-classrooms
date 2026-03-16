@@ -79,7 +79,7 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignment *dat
 
 	caches := []utils.ProjectAccessLevelCache{}
 	defer func() {
-		if recover() != nil || err != nil {
+		if err != nil {
 			log.Default().Printf("DueAssignmentWorker: Error occurred while closing assignment %s: %s", assignment.Name, err.Error())
 			for _, cache := range caches {
 				err := repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)

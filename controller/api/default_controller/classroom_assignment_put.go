@@ -127,7 +127,7 @@ func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
 
 	caches := []utils.ProjectAccessLevelCache{}
 	defer func() {
-		if recover() != nil || err != nil {
+		if err != nil {
 			for _, cache := range caches {
 				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
 			}

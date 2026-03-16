@@ -110,7 +110,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 
 	var err error
 	defer func() {
-		if recover() != nil || err != nil {
+		if err != nil {
 			assignmentProject.ProjectStatus = database.Failed
 			if err := queryAssignmentProjects.WithContext(ctx).
 				Save(assignmentProject); err != nil {
@@ -125,7 +125,7 @@ func (ctrl *DefaultController) acceptAssignment(repo gitlab.Repository, userID i
 		return
 	}
 	defer func() {
-		if recover() != nil || err != nil {
+		if err != nil {
 			if err := repo.DeleteProject(project.ID); err != nil {
 				log.Println(err.Error())
 			}

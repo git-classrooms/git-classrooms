@@ -83,7 +83,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 					log.Println(err)
 				}
@@ -95,7 +95,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 					log.Println(err)
 				}
@@ -107,7 +107,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
@@ -123,7 +123,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
@@ -135,7 +135,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
 					log.Println(err)
 				}
@@ -144,13 +144,14 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 
 	case oldRole == database.Student && *requestBody.Role == database.Moderator && viewOtherProjects:
 		// The Permission donẗ change
+		break
 
 	case oldRole == database.Student && *requestBody.Role == database.Owner && !viewOtherProjects:
 		if err = repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.OwnerPermissions); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.GuestPermissions); err != nil {
 					log.Println(err)
 				}
@@ -162,7 +163,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 		defer func() {
-			if recover() != nil || err != nil {
+			if err != nil {
 				if err := repo.ChangeUserAccessLevelInGroup(classroom.Classroom.GroupID, member.UserID, model.ReporterPermissions); err != nil {
 					log.Println(err)
 				}
@@ -196,7 +197,7 @@ func (ctrl *DefaultController) UpdateMemberRole(c *fiber.Ctx) (err error) {
 				return err
 			}
 			defer func() {
-				if recover() != nil || err != nil {
+				if err != nil {
 					repo.DeleteGroup(subgroup.ID)
 				}
 			}()
