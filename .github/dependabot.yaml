@@ -1,0 +1,81 @@
+version: 2
+
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      go-fiber:
+        patterns:
+          - "github.com/gofiber/*"
+      go-gorm:
+        patterns:
+          - "gorm.io/*"
+      go-testing:
+        patterns:
+          - "github.com/stretchr/testify"
+          - "github.com/testcontainers/*"
+          - "github.com/brianvoe/gofakeit/*"
+          - "github.com/vektra/mockery/*"
+      go-gitlab:
+        patterns:
+          - "github.com/xanzy/go-gitlab"
+      go-golang-x:
+        patterns:
+          - "golang.org/x/*"
+      go-docker:
+        patterns:
+          - "github.com/docker/*"
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    groups:
+      radix-ui:
+        patterns:
+          - "@radix-ui/*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      i18n:
+        patterns:
+          - "i18next"
+          - "i18next-*"
+          - "react-i18next"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@typescript-eslint/*"
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "vitest"
+          - "@vitest/*"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "tw-animate-css"
+      vite:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
