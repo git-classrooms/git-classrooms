@@ -232,7 +232,7 @@
       "button": "Aufgabe freigeben",
       "releasing": "Wird freigegeben...",
       "noTeams": "Keine Teams vorhanden",
-      "noTeamsDescription": "Erstelle zuerst Teams in diesem Kurs, bevor du die Aufgabe freigeben kannst.",
+      "noTeamsDescription": "Es sind noch keine Teams in diesem Kurs vorhanden. Du kannst die Aufgabe trotzdem freigeben, Teams werden sie automatisch sehen.",
       "notReleasedInfo": "Noch nicht freigegeben",
       "notReleasedInfoDescription": "Diese Aufgabe wurde vom Dozenten noch nicht freigegeben. Schau später noch einmal vorbei."
     },

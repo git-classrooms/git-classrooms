@@ -106,7 +106,7 @@ function AssignmentDetail() {
   const totalCount = assignmentProjects.length;
   const progressPercent = totalCount > 0 ? Math.round((acceptedCount / totalCount) * 100) : 0;
 
-  const isReleased = totalCount > 0;
+  const isReleased = !!assignment.acceptableSince;
   const needsRelease = !isReleased && isOwner(classroom);
 
   const daysUntil = getDaysUntilDue(assignment.dueDate);
@@ -225,37 +225,37 @@ function AssignmentDetail() {
             {/* Content */}
             <div className="flex-1 min-w-0 space-y-2">
               <h2 className="text-lg font-bold tracking-tight text-primary">
-                {teams.length === 0 ? t("detail.release.noTeams") : t("detail.release.title")}
+                {t("detail.release.title")}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {teams.length === 0
-                  ? t("detail.release.noTeamsDescription")
-                  : t("detail.release.description", { count: teams.length })}
+                {teams.length > 0
+                  ? t("detail.release.description", { count: teams.length })
+                  : t("detail.release.noTeamsDescription")}
               </p>
             </div>
 
             {/* CTA */}
-            {teams.length > 0 && (
-              <div className="flex items-center gap-3 shrink-0">
-                <Button
-                  variant="glow"
-                  size="lg"
-                  className="group gap-2 font-semibold shadow-lg"
-                  onClick={() => mutateAsync().catch(() => {})}
-                  disabled={isPending}
-                >
-                  {isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Rocket className="w-4 h-4" />
-                  )}
-                  {isPending ? t("detail.release.releasing") : t("detail.release.button")}
+            <div className="flex items-center gap-3 shrink-0">
+              <Button
+                variant="glow"
+                size="lg"
+                className="group gap-2 font-semibold shadow-lg"
+                onClick={() => mutateAsync().catch(() => {})}
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Rocket className="w-4 h-4" />
+                )}
+                {isPending ? t("detail.release.releasing") : t("detail.release.button")}
+                {teams.length > 0 && (
                   <span className="ml-1 px-1.5 py-0.5 text-xs bg-white/20 rounded">
                     {teams.length}
                   </span>
-                </Button>
-              </div>
-            )}
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       )}

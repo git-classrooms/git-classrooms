@@ -232,7 +232,7 @@
       "button": "Release Assignment",
       "releasing": "Releasing...",
       "noTeams": "No Teams Available",
-      "noTeamsDescription": "Create teams in this classroom before releasing the assignment.",
+      "noTeamsDescription": "There are no teams in this classroom yet. You can still release the assignment, teams will see it automatically.",
       "notReleasedInfo": "Not Released Yet",
       "notReleasedInfoDescription": "This assignment hasn't been released by the instructor yet. Check back later."
     },
