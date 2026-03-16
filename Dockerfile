@@ -2,7 +2,7 @@
 #############################################
 #                Preparer go                #
 #############################################
-FROM golang:1.24-alpine3.21 AS preparer-go
+FROM golang:1.25-alpine3.23 AS preparer-go
 
 RUN apk add --no-cache make git
 
@@ -67,7 +67,7 @@ RUN make CI=true build \
 #############################################
 #               Runtime image               #
 #############################################
-FROM alpine:3.21 AS release
+FROM alpine:3.23 AS release
 
 RUN apk add --no-cache tzdata
 
