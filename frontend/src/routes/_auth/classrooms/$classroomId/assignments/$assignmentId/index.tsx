@@ -106,6 +106,7 @@ function AssignmentDetail() {
   const totalCount = assignmentProjects.length;
   const progressPercent = totalCount > 0 ? Math.round((acceptedCount / totalCount) * 100) : 0;
 
+  const isIndividual = classroom.classroom.maxTeamSize === 1;
   const isReleased = !!assignment.acceptableSince;
   const needsRelease = !isReleased && isOwner(classroom);
 
@@ -229,8 +230,8 @@ function AssignmentDetail() {
               </h2>
               <p className="text-sm text-muted-foreground">
                 {teams.length > 0
-                  ? t("detail.release.description", { count: teams.length })
-                  : t("detail.release.noTeamsDescription")}
+                  ? t(isIndividual ? "detail.release.descriptionIndividual" : "detail.release.descriptionTeam", { count: teams.length })
+                  : t(isIndividual ? "detail.release.noMembersDescription" : "detail.release.noTeamsDescription")}
               </p>
             </div>
 

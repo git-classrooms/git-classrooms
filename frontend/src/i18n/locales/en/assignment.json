@@ -227,12 +227,15 @@
     "releaseError": "The assignment could not be released. Please try again.",
     "release": {
       "title": "Ready to Release",
-      "description": "This assignment hasn't been released yet. {{count}} team will be notified via email. Teams added later will see the assignment automatically in the classroom.",
-      "description_other": "This assignment hasn't been released yet. {{count}} teams will be notified via email. Teams added later will see the assignment automatically in the classroom.",
+      "descriptionTeam": "This assignment hasn't been released yet. {{count}} team will be notified via email. Teams added later will see the assignment automatically in the classroom.",
+      "descriptionTeam_other": "This assignment hasn't been released yet. {{count}} teams will be notified via email. Teams added later will see the assignment automatically in the classroom.",
+      "descriptionIndividual": "This assignment hasn't been released yet. {{count}} student will be notified via email. Students added later will see the assignment automatically in the classroom.",
+      "descriptionIndividual_other": "This assignment hasn't been released yet. {{count}} students will be notified via email. Students added later will see the assignment automatically in the classroom.",
       "button": "Release Assignment",
       "releasing": "Releasing...",
       "noTeams": "No Teams Available",
       "noTeamsDescription": "There are no teams in this classroom yet. You can still release the assignment, teams will see it automatically.",
+      "noMembersDescription": "There are no students in this classroom yet. You can still release the assignment, students will see it automatically.",
       "notReleasedInfo": "Not Released Yet",
       "notReleasedInfoDescription": "This assignment hasn't been released by the instructor yet. Check back later."
     },
