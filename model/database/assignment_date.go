@@ -14,10 +14,12 @@ type AssignmentDate struct {
 	AssignmentID uuid.UUID  `gorm:"not null;" json:"assignmentID"`
 	Assignment   Assignment `json:"-"`
 
-	DueDate *time.Time `json:"dueDate" validate:"optional"`
-	Closed  bool       `gorm:"default:false" json:"closed"`
+	DueDate time.Time `gorm:"not null" json:"dueDate"`
+	Closed  bool      `gorm:"default:false" json:"closed"`
 
 	GradingManualRubrics []*ManualGradingRubric `gorm:"many2many:assignment_dates_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
+
+	AssignmentProjectGradingDate []*AssignmentProjectGradingDate `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 
 	JUnitTests []*AssignmentJunitTest `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 }

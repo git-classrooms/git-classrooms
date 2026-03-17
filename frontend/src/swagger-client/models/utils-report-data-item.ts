@@ -25,6 +25,12 @@ export interface UtilsReportDataItem {
      * @type {string}
      * @memberof UtilsReportDataItem
      */
+    assignmentDueDate: string;
+
+    /**
+     * @type {string}
+     * @memberof UtilsReportDataItem
+     */
     assignmentName: string;
 
     /**

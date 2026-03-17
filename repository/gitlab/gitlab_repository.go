@@ -150,6 +150,17 @@ func (repo *GitlabRepo) CreateBranch(projectId int, branchName string, fromBranc
 	return BranchFromGoGitlab(branch), nil
 }
 
+// DeleteBranch deletes a branch.
+func (repo *GitlabRepo) DeleteBranch(projectId int, branchName string) error {
+	repo.assertIsConnected()
+
+	_, err := repo.client.Branches.DeleteBranch(projectId, branchName)
+	if err != nil {
+		return ErrorFromGoGitlab(err)
+	}
+	return nil
+}
+
 // ProtectBranch protects a branch with the specified access level.
 func (repo *GitlabRepo) ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error {
 	repo.assertIsConnected()

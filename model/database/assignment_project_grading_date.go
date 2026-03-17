@@ -12,6 +12,8 @@ import (
 type AssignmentProjectGradingDate struct {
 	ID uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
 
+	Branchname string `json:"-"`
+
 	AssignmentProject   AssignmentProjects `json:"-"`
 	AssignmentProjectID uuid.UUID          `gorm:"type:uuid;uniqueIndex:idx_project_date;not null" json:"assignmentProjectId"`
 

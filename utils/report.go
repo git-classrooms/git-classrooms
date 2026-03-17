@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -25,6 +26,7 @@ type ManualResult struct {
 type ReportDataItem struct {
 	ProjectID           uuid.UUID               `json:"projectId"`
 	AssignmentName      string                  `json:"assignmentName"`
+	AssignmentDueDate   time.Time               `json:"assignmentDueDate"`
 	TeamName            string                  `json:"teamName"`
 	Name                string                  `json:"name"`
 	Username            string                  `json:"username"`
@@ -133,37 +135,48 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 			continue
 		}
 
-		manualRubricResults := createManualRubricResults(project, assignment.GradingManualRubrics)
+		for _, projectGradingDate := range project.Gradings {
+			assignmentDateIdx := slices.IndexFunc(assignment.AssignmentDates, func(a *database.AssignmentDate) bool { return projectGradingDate.AssignmentDateID == a.ID })
+			if assignmentDateIdx < 0 {
+				continue
+			}
 
-		autogradingScore := calculateAutogradingScore(project, assignment.JUnitTests)
-		autogradingMaxScore := calculateAutogradingMaxScore(project, assignment.JUnitTests)
-		maxScore := calculateMaxScore(project, assignment.JUnitTests, assignment.GradingManualRubrics)
+			assignmentDate := assignment.AssignmentDates[assignmentDateIdx]
 
-		score := calculateScore(project, assignment.JUnitTests)
-		var percentage float64
+			manualRubricResults := createManualRubricResults(projectGradingDate)
+			autogradingScore := calculateAutogradingScore(projectGradingDate, assignmentDate.JUnitTests)
+			autogradingMaxScore := calculateAutogradingMaxScore(projectGradingDate, assignmentDate.JUnitTests)
 
-		if maxScore == 0.0 {
-			percentage = 0.0
-		} else {
-			percentage = float64(score) / float64(maxScore) * 100
+			maxScore := calculateMaxScore(projectGradingDate, assignmentDate.JUnitTests, assignmentDate.GradingManualRubrics)
+			score := calculateScore(projectGradingDate, assignmentDate.JUnitTests)
+
+			var percentage float64
+
+			if maxScore == 0.0 {
+				percentage = 0.0
+			} else {
+				percentage = float64(score) / float64(maxScore) * 100
+			}
+
+			for _, member := range project.Team.Member {
+				reportData = append(reportData, &ReportDataItem{
+					ProjectID:           project.ID,
+					AssignmentName:      assignment.Name,
+					AssignmentDueDate:   assignmentDate.DueDate,
+					TeamName:            project.Team.Name,
+					Name:                member.User.Name,
+					Username:            member.User.GitlabUsername,
+					Email:               member.User.GitlabEmail,
+					RubricResults:       manualRubricResults,
+					AutogradingScore:    autogradingScore,
+					AutogradingMaxScore: autogradingMaxScore,
+					MaxScore:            maxScore,
+					Score:               score,
+					Percentage:          percentage,
+				})
+			}
 		}
 
-		for _, member := range project.Team.Member {
-			reportData = append(reportData, &ReportDataItem{
-				ProjectID:           project.ID,
-				AssignmentName:      assignment.Name,
-				TeamName:            project.Team.Name,
-				Name:                member.User.Name,
-				Username:            member.User.GitlabUsername,
-				Email:               member.User.GitlabEmail,
-				RubricResults:       manualRubricResults,
-				AutogradingScore:    autogradingScore,
-				AutogradingMaxScore: autogradingMaxScore,
-				MaxScore:            maxScore,
-				Score:               score,
-				Percentage:          percentage,
-			})
-		}
 	}
 
 	slices.SortFunc(reportData, func(a, b *ReportDataItem) int {
@@ -173,14 +186,19 @@ func createReportDataItems(assignment *database.Assignment, teamID *uuid.UUID) [
 		}
 
 		// Sort by assignment Member Name
-		return strings.Compare(a.Name, b.Name)
+		if a.Name != b.Name {
+			return strings.Compare(a.Name, b.Name)
+		}
+
+		// Sort by assignment AssignmentDueDate
+		return a.AssignmentDueDate.Compare(b.AssignmentDueDate)
 	})
 
 	return reportData
 }
 
 // createManualRubricResults creates a map of manual rubric results for a project.
-func createManualRubricResults(project *database.AssignmentProjects, _ []*database.ManualGradingRubric) map[string]ManualResult {
+func createManualRubricResults(project *database.AssignmentProjectGradingDate) map[string]ManualResult {
 	results := make(map[string]ManualResult)
 	for _, result := range project.GradingManualResults {
 		feedback := ""
@@ -196,23 +214,11 @@ func createManualRubricResults(project *database.AssignmentProjects, _ []*databa
 		}
 	}
 
-	// for _, rubric := range rubrics {
-	// 	if _, ok := results[rubric.Name]; !ok {
-	// 		results[rubric.Name] = ManualResult{
-	// 			RubricID:   rubric.ID,
-	// 			RubricName: rubric.Name,
-	// 			Score:      0,
-	// 			Feedback:   "",
-	// 			MaxScore:   rubric.MaxScore,
-	// 		}
-	// 	}
-	// }
-
 	return results
 }
 
 // calculateMaxScore calculates the maximum score for a project.
-func calculateMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest, rubrics []*database.ManualGradingRubric) int {
+func calculateMaxScore(project *database.AssignmentProjectGradingDate, tests []*database.AssignmentJunitTest, rubrics []*database.ManualGradingRubric) int {
 	maxScore := 0
 	for _, rubric := range rubrics {
 		maxScore += rubric.MaxScore
@@ -221,7 +227,7 @@ func calculateMaxScore(project *database.AssignmentProjects, tests []*database.A
 }
 
 // calculateAutogradingMaxScore calculates the maximum score for the autograding tests.
-func calculateAutogradingMaxScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
+func calculateAutogradingMaxScore(project *database.AssignmentProjectGradingDate, tests []*database.AssignmentJunitTest) int {
 	if len(tests) == 0 {
 		if project.GradingJUnitTestResult != nil {
 			return project.GradingJUnitTestResult.TotalCount
@@ -236,7 +242,7 @@ func calculateAutogradingMaxScore(project *database.AssignmentProjects, tests []
 }
 
 // calculateAutogradingScore calculates the score for the autograding tests.
-func calculateAutogradingScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
+func calculateAutogradingScore(project *database.AssignmentProjectGradingDate, tests []*database.AssignmentJunitTest) int {
 	score := 0
 	if project.GradingJUnitTestResult != nil {
 		if len(tests) == 0 {
@@ -262,7 +268,7 @@ func calculateAutogradingScore(project *database.AssignmentProjects, tests []*da
 }
 
 // calculateScore calculates the score for a project.
-func calculateScore(project *database.AssignmentProjects, tests []*database.AssignmentJunitTest) int {
+func calculateScore(project *database.AssignmentProjectGradingDate, tests []*database.AssignmentJunitTest) int {
 	score := 0
 	for _, result := range project.GradingManualResults {
 		score += result.Score

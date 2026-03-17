@@ -42,7 +42,7 @@ export interface DatabaseAssignmentDate {
      * @type {string}
      * @memberof DatabaseAssignmentDate
      */
-    dueDate?: string;
+    dueDate: string;
 
     /**
      * @type {string}

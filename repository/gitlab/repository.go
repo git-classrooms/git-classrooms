@@ -69,6 +69,7 @@ type Repository interface {
 
 	// Branches
 	CreateBranch(projectId int, branchName string, fromBranch string) (*model.Branch, error)
+	DeleteBranch(projectId int, branchName string) error
 	ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error
 	UnprotectBranch(projectId int, branchName string) error
 	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
