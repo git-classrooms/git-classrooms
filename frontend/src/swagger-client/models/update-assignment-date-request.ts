@@ -12,23 +12,18 @@
  * Do not edit the class manually.
  */
 
+import { ApiUpdateAssignmentDate } from './api-update-assignment-date';
  /**
  * 
  *
  * @export
- * @interface UpdateAssignmentRequest
+ * @interface UpdateAssignmentDateRequest
  */
-export interface UpdateAssignmentRequest {
+export interface UpdateAssignmentDateRequest {
 
     /**
-     * @type {string}
-     * @memberof UpdateAssignmentRequest
+     * @type {Array<ApiUpdateAssignmentDate>}
+     * @memberof UpdateAssignmentDateRequest
      */
-    description?: string;
-
-    /**
-     * @type {string}
-     * @memberof UpdateAssignmentRequest
-     */
-    name?: string;
+    dates: Array<ApiUpdateAssignmentDate>;
 }

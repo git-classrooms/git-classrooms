@@ -12,6 +12,7 @@ func classroomAssignmentQuery(c *fiber.Ctx, classroomID uuid.UUID) query.IAssign
 
 	return queryAssignment.
 		WithContext(c.Context()).
+		Preload(queryAssignment.Projects).
 		Preload(queryAssignment.AssignmentDates).
 		Preload(queryAssignment.AssignmentDates.GradingManualRubrics).
 		Preload(queryAssignment.AssignmentDates.JUnitTests).

@@ -1,6 +1,7 @@
 export * from './action';
 export * from './active-assignment-response';
 export * from './api-project-clone-url-response';
+export * from './api-update-assignment-date';
 export * from './api-update-assignment-date-rubric-request';
 export * from './assignment';
 export * from './assignment-junit-test';
@@ -39,6 +40,7 @@ export * from './start-auto-grading-request';
 export * from './team';
 export * from './team-response';
 export * from './template-response';
+export * from './update-assignment-date-request';
 export * from './update-assignment-grading-request';
 export * from './update-assignment-request';
 export * from './update-assignment-rubrics-request';

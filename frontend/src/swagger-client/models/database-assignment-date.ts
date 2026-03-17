@@ -42,6 +42,12 @@ export interface DatabaseAssignmentDate {
      * @type {string}
      * @memberof DatabaseAssignmentDate
      */
+    description: string;
+
+    /**
+     * @type {string}
+     * @memberof DatabaseAssignmentDate
+     */
     dueDate: string;
 
     /**

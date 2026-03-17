@@ -1,29 +1,19 @@
 package api
 
 import (
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
-	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
-	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
 type updateAssignmentRequest struct {
-	Name        string     `json:"name,omitempty"`
-	Description string     `json:"description,omitempty"`
-	DueDate     *time.Time `json:"dueDate,omitempty" validate:"optional"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 } //@Name UpdateAssignmentRequest
 
-func (r updateAssignmentRequest) isValid() (bool, string) {
-	if r.DueDate != nil {
-		if r.DueDate.Before(time.Now()) {
-			return false, "DueDate must be in the future"
-		}
-	}
-	return true, ""
+func (r updateAssignmentRequest) isValid() bool {
+	return r.Name != "" && r.Description != ""
 }
 
 // @Summary		UpdateAssignment
@@ -53,9 +43,8 @@ func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	isValid, reason := requestBody.isValid()
-	if !isValid {
-		return fiber.NewError(fiber.StatusBadRequest, reason)
+	if !requestBody.isValid() {
+		return fiber.ErrBadRequest
 	}
 
 	projectLinks, err :=
@@ -89,78 +78,10 @@ func (ctrl *DefaultController) UpdateAssignment(c *fiber.Ctx) error {
 		}
 	}
 
-	assignment.DueDate = requestBody.DueDate
-
-	if requestBody.DueDate != nil {
-		if assignment.DueDate.After(time.Now()) && assignment.Closed {
-			assignment.Closed = false
-
-			err := ctrl.reopenAssignment(c)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	if err = query.Assignment.WithContext(c.Context()).Save(assignment); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	c.SendStatus(fiber.StatusAccepted)
 	return c.JSON(assignment)
-}
-
-func (ctrl *DefaultController) reopenAssignment(c *fiber.Ctx) (err error) {
-	ctx := context.Get(c)
-	assignment := ctx.GetAssignment()
-	repo := ctx.GetGitlabRepository()
-
-	projects, err := query.AssignmentProjects.
-		WithContext(c.Context()).
-		Preload(query.AssignmentProjects.Team).
-		Where(query.AssignmentProjects.AssignmentID.Eq(assignment.ID)).
-		Where(query.AssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
-		Find()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
-
-	caches := []utils.ProjectAccessLevelCache{}
-	defer func() {
-		if err != nil {
-			for _, cache := range caches {
-				repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
-			}
-		}
-	}()
-
-	for _, project := range projects {
-		userClassrooms, err := query.UserClassrooms.
-			WithContext(c.Context()).
-			Preload(query.UserClassrooms.Classroom).
-			Where(query.UserClassrooms.TeamID.Eq(project.TeamID)).
-			Find()
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-
-		for _, userClassroom := range userClassrooms {
-			oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, userClassroom.UserID)
-			if err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-			}
-			if oldAccessLevel == model.OwnerPermissions {
-				continue
-			}
-
-			err = repo.ChangeUserAccessLevelInProject(project.ProjectID, userClassroom.UserID, model.DeveloperPermissions)
-			if err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-			}
-
-			caches = append(caches, utils.ProjectAccessLevelCache{UserID: userClassroom.UserID, ProjectID: project.ProjectID, AccessLevel: oldAccessLevel})
-		}
-	}
-
-	return nil
 }

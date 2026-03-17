@@ -14,6 +14,8 @@ type AssignmentDate struct {
 	AssignmentID uuid.UUID  `gorm:"not null;" json:"assignmentID"`
 	Assignment   Assignment `json:"-"`
 
+	Description string `gorm:"not null" json:"description"`
+
 	DueDate time.Time `gorm:"not null" json:"dueDate"`
 	Closed  bool      `gorm:"default:false" json:"closed"`
 

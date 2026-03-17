@@ -16,19 +16,25 @@
  * 
  *
  * @export
- * @interface UpdateAssignmentRequest
+ * @interface ApiUpdateAssignmentDate
  */
-export interface UpdateAssignmentRequest {
+export interface ApiUpdateAssignmentDate {
 
     /**
      * @type {string}
-     * @memberof UpdateAssignmentRequest
+     * @memberof ApiUpdateAssignmentDate
      */
-    description?: string;
+    description: string;
 
     /**
      * @type {string}
-     * @memberof UpdateAssignmentRequest
+     * @memberof ApiUpdateAssignmentDate
      */
-    name?: string;
+    duedate: string;
+
+    /**
+     * @type {string}
+     * @memberof ApiUpdateAssignmentDate
+     */
+    id?: string;
 }

@@ -105,6 +105,7 @@ func setupApiRoutes(config authConfig.Config, authController authController.Cont
 	app.Use("/classrooms/:classroomId/assignments/:assignmentId", apiController.ClassroomAssignmentMiddleware)
 	app.Get("/classrooms/:classroomId/assignments/:assignmentId", apiController.GetClassroomAssignment)
 	app.Put("/classrooms/:classroomId/assignments/:assignmentId", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignment)
+	app.Put("/classrooms/:classroomId/assignments/:assignmentId/dates", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentDates)
 
 	app.Get("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner, database.Moderator), apiController.GetClassroomAssignmentTests)
 	app.Put("/classrooms/:classroomId/assignments/:assignmentId/tests", apiController.RoleMiddleware(database.Owner), apiController.UpdateAssignmentTests)

@@ -4,13 +4,14 @@ create table "public"."assignment_dates" (
     "created_at" TIMESTAMP WITH TIME ZONE,
     "updated_at" TIMESTAMP WITH TIME ZONE,
     "assignment_id" UUID NOT NULL,
+    "description" TEXT NOT NULL,
     "due_date" TIMESTAMP WITH TIME ZONE,
     "closed" BOOLEAN DEFAULT FALSE,
     CONSTRAINT "fk_assignments_assignment_dates" FOREIGN KEY ("assignment_id") REFERENCES "public"."assignments"("id") ON DELETE CASCADE
 );
 
-INSERT INTO "assignment_dates" (assignment_id, due_date, closed, created_at, updated_at)
-  SELECT a.id, a.due_date, a.closed, NOW(), NOW() FROM assignments AS a;
+INSERT INTO "assignment_dates" (assignment_id, due_date, closed, created_at, updated_at, description)
+  SELECT a.id, a.due_date, a.closed, NOW(), NOW(), 'final assignment' FROM assignments AS a;
 
 UPDATE "assignment_dates" SET due_date = NOW() + '14 days' WHERE due_date IS NULL;
 
