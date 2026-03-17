@@ -16,7 +16,8 @@ endef
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitCommit=$(APP_GIT_COMMIT) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitBranch=$(APP_GIT_BRANCH) \
 #   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.gitRepository=$(APP_GIT_REPOSITORY) \
-#   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.buildTime=$(APP_BUILD_TIME) \
+#   -X github.com/git-classrooms/git-classrooms/internal/storage/local/info.buildTime=$(APP_BUILD_TIME)
+
 POSTGRES_USER ?= postgres
 POSTGRES_PASSWORD ?= postgres
 POSTGRES_DB ?= postgres
