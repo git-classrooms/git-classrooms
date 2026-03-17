@@ -1,6 +1,6 @@
 services:
   gitlab:
-    image: gitlab/gitlab-ce:18.4.1-ce.0
+    image: gitlab/gitlab-ce:18.9.2-ce.0
     hostname: "gitlab.localhost"
     environment:
       GITLAB_OMNIBUS_CONFIG: |
@@ -57,7 +57,7 @@ services:
       - "traefik.http.services.gitlab.loadbalancer.server.port=6969"
 
   gitlab-runner:
-    image: gitlab/gitlab-runner:v18.4.0
+    image: gitlab/gitlab-runner:v18.9.0
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "gitlab-runner-config:/etc/gitlab-runner"
@@ -129,7 +129,7 @@ services:
       - "traefik.http.routers.pgadmin.entrypoints=web"
 
   traefik:
-    image: traefik:v3.5
+    image: traefik:v3.6
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
