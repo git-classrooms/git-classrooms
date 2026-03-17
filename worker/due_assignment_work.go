@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"slices"
+	"strings"
 	"time"
 
 	gitlabConfig "gitlab.hs-flensburg.de/gitlab-classroom/config/gitlab"
@@ -12,6 +13,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	"gorm.io/gen/field"
 )
 
@@ -37,7 +39,7 @@ func (w *DueAssignmentWork) Do(ctx context.Context) {
 			continue
 		}
 
-		err = w.closeAssignment(ctx, assignmentDate, repo)
+		err = w.closeAssignmentDate(ctx, assignmentDate, repo)
 		if err != nil {
 			log.Default().Printf("Error occurred while closing assignment date %s of %s: %s", assignmentDate.DueDate.String(), assignmentDate.Assignment.Name, err.Error())
 			continue
@@ -52,6 +54,7 @@ func (w *DueAssignmentWork) getAssignmentDates2Close(ctx context.Context) []*dat
 		Preload(query.AssignmentDate.AssignmentProjectGradingDate).
 		Preload(query.AssignmentDate.AssignmentProjectGradingDate.AssignmentProject.Team).
 		Preload(query.AssignmentDate.AssignmentProjectGradingDate.AssignmentProject.Team.Member).
+		Preload(field.NewRelation("AssignmentProjectGradingDate.AssignmentProject.Team.Member.User", "")).
 		Preload(query.AssignmentDate.Assignment).
 		Preload(field.NewRelation("Assignment.Classroom", "")).
 		Preload(field.NewRelation("Assignment.AssignmentDate", "")).
@@ -77,9 +80,12 @@ func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gi
 	return repo, nil
 }
 
-// closeAssignment marks the assignment as closed and performs necessary updates in the repository.
-func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignmentDate *database.AssignmentDate, repo gitlab.Repository) (err error) {
+// closeAssignmentDate marks the assignment as closed and performs necessary updates in the repository.
+func (w *DueAssignmentWork) closeAssignmentDate(ctx context.Context, assignmentDate *database.AssignmentDate, repo gitlab.Repository) (err error) {
 	log.Printf("DueAssignmentWorker: Closing assignmentDate %s of %s", assignmentDate.DueDate.String(), assignmentDate.Assignment.Name)
+
+	tx := query.Q.Begin()
+	defer tx.Rollback()
 
 	otherDates := assignmentDate.Assignment.AssignmentDates
 	otherDatesSorted := slices.SortedFunc(slices.Values(otherDates), func(a, b *database.AssignmentDate) int {
@@ -103,7 +109,7 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignmentDate 
 	for _, projectGradings := range assignmentDate.AssignmentProjectGradingDate {
 		project := projectGradings.AssignmentProject
 
-		branch, err := repo.CreateBranch(project.ProjectID, branchName, "main")
+		_, err := repo.CreateBranch(project.ProjectID, branchName, "main")
 		if err != nil {
 			return err
 		}
@@ -126,26 +132,104 @@ func (w *DueAssignmentWork) closeAssignment(ctx context.Context, assignmentDate 
 			}
 		}()
 
-		repo.CreateMergeRequest(project.ProjectID, branchName)
-	}
+		mentions := utils.Map(project.Team.Member, func(member *database.UserClassrooms) string {
+			return fmt.Sprintf("/cc @%s", member.User.GitlabUsername)
+		})
+		description := fmt.Sprintf(mergeRequestDescription, branchName, strings.Join(mentions, "\n"))
 
-	// TODO: create branch, protect it, create MR
+		var userID *int
+		if len(project.Team.Member) > 0 {
+			userID = &project.Team.Member[0].UserID
+		}
+
+		if err = repo.CreateMergeRequest(project.ProjectID, branchName, previousBranchName, fmt.Sprintf("Feedback (%s)", branchName), description, userID, assignmentDate.Assignment.Classroom.OwnerID); err != nil {
+			return err
+		}
+		defer func() {
+			if err != nil {
+				if otherErr := repo.DeleteMergeRequest(project.ProjectID, branchName, previousBranchName); otherErr != nil {
+					fmt.Println(otherErr)
+				}
+			}
+		}()
+
+		projectGradings.Branchname = branchName
+		if err = tx.AssignmentProjectGradingDate.WithContext(ctx).Save(projectGradings); err != nil {
+			return err
+		}
+	}
 
 	if idx == len(otherDatesSorted)-1 {
-		// TODO: remove access
-		panic("TODO: last assignmentDate")
+
+		caches := []utils.ProjectAccessLevelCache{}
+		defer func() {
+			if err != nil {
+				log.Default().Printf("DueAssignmentWorker: Error occurred while closing assignment %s of %s: %s", assignmentDate.DueDate.String(), assignmentDate.Assignment.Name, err.Error())
+				for _, cache := range caches {
+					err := repo.ChangeUserAccessLevelInProject(cache.ProjectID, cache.UserID, cache.AccessLevel)
+					if err != nil {
+						log.Default().Printf("DueAssignmentWorker: Error occurred while changing access level for %d in assignment %s of %s: %s", cache.UserID, assignmentDate.DueDate, assignmentDate.Assignment.Name, err.Error())
+					}
+					// TODO: when this fails, we lose the sync between our database and the gitlab. We should handle this in the future
+				}
+			}
+		}()
+
+		for _, projectGrading := range assignmentDate.AssignmentProjectGradingDate {
+			project := projectGrading.AssignmentProject
+			if project.ProjectStatus != database.Accepted {
+				continue
+			}
+
+			for _, member := range project.Team.Member {
+				oldAccessLevel, err := repo.GetAccessLevelOfUserInProject(project.ProjectID, member.UserID)
+				if err != nil {
+					return err
+				}
+				if oldAccessLevel == model.OwnerPermissions {
+					continue
+				}
+
+				if err := repo.ChangeUserAccessLevelInProject(project.ProjectID, member.UserID, model.ReporterPermissions); err != nil {
+					return err
+				}
+
+				caches = append(caches, utils.ProjectAccessLevelCache{UserID: member.UserID, ProjectID: project.ProjectID, AccessLevel: oldAccessLevel})
+			}
+		}
+
 	}
 
-	// TODO: this needs to be reworked completely
-	//       if it is not the last assignmentDate we need to create protected branches with MR to the one before
-	//       when its the last, only then we will change the permissions of the user and create a last branch and MR
-
 	assignmentDate.Closed = true
-	_, err = query.Assignment.WithContext(ctx).Updates(assignmentDate)
+	_, err = tx.Assignment.WithContext(ctx).Updates(assignmentDate)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("DueAssignmentWorker: Assignment %s of %s has been closed", assignmentDate.DueDate, assignmentDate.Assignment.Name)
-	return nil
+	err = tx.Commit()
+	return err
 }
+
+const (
+	mergeRequestDescription string = `
+👋! GitLab Classroom created this merge request as a place for your teacher to leave feedback on your work. It will update automatically. **Don't close or merge this merge request**, unless you're instructed to do so by your teacher.
+In this merge request, your teacher can leave comments and feedback on your code.
+Click the **Changes** or **Commits** tab to see all of the changes pushed until the duedate ` + "`%s`" + ` for this assignmentDate was reached. Your teacher can see this too.
+
+<details>
+<summary>
+<strong>Notes for teachers</strong>
+</summary>
+
+Use this MR to leave feedback. Here are some tips:
+  - Click the **Changes** tab to see all of the changes pushed to ` + "`main`" + `since the assignment started. To leave comments on specific lines of code, put your cursor over a line of code and click the blue **comment sign**. To learn more about comments, read "[Add a comment to a merge request diff](https://docs.gitlab.com/ee/user/discussions/#add-a-comment-to-a-merge-request-diff)".
+  - Click the **Commits** tab to see the commits pushed to ` + "`main`" + `. Click a commit to see specific changes.
+  - ?? If you turned on autograding, then click the **Checks** tab to see the results. ??
+  - This page is an overview. It shows commits, line comments, and general comments. You can leave a general comment below.
+
+</details>
+
+%s
+`
+)

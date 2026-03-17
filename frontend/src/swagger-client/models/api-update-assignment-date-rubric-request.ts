@@ -12,18 +12,23 @@
  * Do not edit the class manually.
  */
 
-import { ApiUpdateAssignmentDateRubricRequest } from './api-update-assignment-date-rubric-request';
  /**
  * 
  *
  * @export
- * @interface UpdateAssignmentRubricsRequest
+ * @interface ApiUpdateAssignmentDateRubricRequest
  */
-export interface UpdateAssignmentRubricsRequest {
+export interface ApiUpdateAssignmentDateRubricRequest {
 
     /**
-     * @type {Array<ApiUpdateAssignmentDateRubricRequest>}
-     * @memberof UpdateAssignmentRubricsRequest
+     * @type {string}
+     * @memberof ApiUpdateAssignmentDateRubricRequest
      */
-    dateRubricIds: Array<ApiUpdateAssignmentDateRubricRequest>;
+    assignmentDateId: string;
+
+    /**
+     * @type {Array<string>}
+     * @memberof ApiUpdateAssignmentDateRubricRequest
+     */
+    rubricIds: Array<string>;
 }

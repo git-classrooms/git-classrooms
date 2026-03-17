@@ -72,7 +72,8 @@ type Repository interface {
 	DeleteBranch(projectId int, branchName string) error
 	ProtectBranch(projectId int, branchName string, accessLevel model.AccessLevelValue) error
 	UnprotectBranch(projectId int, branchName string) error
-	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, recviewerId int) error
+	CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId *int, recviewerId int) error
+	DeleteMergeRequest(projectId int, sourceBranch string, targetBranch string) error
 	ProtectedBranchExists(projectId int, branchName string) (bool, error)
 	BranchExists(projectId int, branchName string) (bool, error)
 

@@ -391,7 +391,7 @@ func (w *SyncGitlabDbWork) syncProject(ctx context.Context, dbProject database.A
 	}
 
 	targetPermission := model.DeveloperPermissions
-	if dbProject.Assignment.Closed {
+	if utils.All(dbProject.Assignment.AssignmentDates, func(ad *database.AssignmentDate) bool { return ad.Closed }) {
 		targetPermission = model.ReporterPermissions
 	}
 

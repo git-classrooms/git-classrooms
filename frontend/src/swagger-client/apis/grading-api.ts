@@ -19,6 +19,7 @@ import { Configuration } from '../configuration';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
 import { AssignmentTestResponse } from '../models';
+import { GetAssignmentGradingRubricsResponse } from '../models';
 import { HTTPError } from '../models';
 import { ManualGradingResult } from '../models';
 import { ManualGradingRubric } from '../models';
@@ -701,7 +702,7 @@ export const GradingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAssignmentGradingRubrics(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<ManualGradingRubric>>>> {
+        async getAssignmentGradingRubrics(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<GetAssignmentGradingRubricsResponse>>>> {
             const localVarAxiosArgs = await GradingApiAxiosParamCreator(configuration).getAssignmentGradingRubrics(classroomId, assignmentId, options);
             return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
                 const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
@@ -880,7 +881,7 @@ export const GradingApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAssignmentGradingRubrics(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<ManualGradingRubric>>> {
+        async getAssignmentGradingRubrics(classroomId: string, assignmentId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<GetAssignmentGradingRubricsResponse>>> {
             return GradingApiFp(configuration).getAssignmentGradingRubrics(classroomId, assignmentId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -1027,7 +1028,7 @@ export class GradingApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof GradingApi
      */
-    public async getAssignmentGradingRubrics(classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<ManualGradingRubric>>> {
+    public async getAssignmentGradingRubrics(classroomId: string, assignmentId: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<Array<GetAssignmentGradingRubricsResponse>>> {
         return GradingApiFp(this.configuration).getAssignmentGradingRubrics(classroomId, assignmentId, options).then((request) => request(this.axios, this.basePath));
     }
     /**

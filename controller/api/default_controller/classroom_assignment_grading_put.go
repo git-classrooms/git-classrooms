@@ -11,12 +11,17 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
+type updateAssignmentDateRubricRequest struct {
+	AssignmentDateID uuid.UUID   `json:"assignmentDateId"`
+	RubricIDs        []uuid.UUID `json:"rubricIds"`
+}
+
 type updateAssignmentRubricsRequest struct {
-	RubricIDs []uuid.UUID `json:"rubricIds"`
+	DateRubricIds []updateAssignmentDateRubricRequest `json:"dateRubricIds"`
 } //@Name UpdateAssignmentRubricsRequest
 
 func (r updateAssignmentRubricsRequest) isValid() bool {
-	return r.RubricIDs != nil
+	return r.DateRubricIds != nil
 }
 
 // @Summary		UpdateAssignmentGradingRubrics
@@ -48,40 +53,51 @@ func (ctrl *DefaultController) UpdateAssignmentGradingRubrics(c *fiber.Ctx) (err
 		return fiber.NewError(fiber.StatusBadRequest, "Request Body is not valid")
 	}
 
-	ids := utils.Map(requestBody.RubricIDs, func(e uuid.UUID) driver.Valuer { return e })
+	for _, updates := range requestBody.DateRubricIds {
+		queryAssignmentDate := query.AssignmentDate
+		assignmentDate, err := queryAssignmentDate.
+			WithContext(c.Context()).
+			Where(queryAssignmentDate.ID.Eq(updates.AssignmentDateID)).
+			First()
+		if err != nil {
+			return err
+		}
 
-	queryManualGradingRubric := query.ManualGradingRubric
-	rubrics, err := queryManualGradingRubric.
-		WithContext(c.Context()).
-		Where(queryManualGradingRubric.ClassroomID.Eq(assignment.ClassroomID)).
-		Where(queryManualGradingRubric.ID.In(ids...)).Find()
-	if err != nil {
-		return err
-	}
+		ids := utils.Map(updates.RubricIDs, func(e uuid.UUID) driver.Valuer { return e })
 
-	if len(rubrics) != len(ids) {
-		return fiber.NewError(fiber.StatusBadRequest, "Body includes invalid IDs")
-	}
+		queryManualGradingRubric := query.ManualGradingRubric
+		rubrics, err := queryManualGradingRubric.
+			WithContext(c.Context()).
+			Where(queryManualGradingRubric.ClassroomID.Eq(assignment.ClassroomID)).
+			Where(queryManualGradingRubric.ID.In(ids...)).Find()
+		if err != nil {
+			return err
+		}
 
-	if err := query.Assignment.GradingManualRubrics.Model(assignment).Replace(rubrics...); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
+		if len(rubrics) != len(ids) {
+			return fiber.NewError(fiber.StatusBadRequest, "Body includes invalid IDs")
+		}
 
-	queryManualGradingResult := query.ManualGradingResult
-	toDeleteResults, err := queryManualGradingResult.
-		WithContext(c.Context()).
-		Join(queryManualGradingRubric, queryManualGradingResult.RubricID.EqCol(queryManualGradingRubric.ID)).
-		Where(queryManualGradingRubric.ClassroomID.Eq(assignment.ClassroomID)).
-		Not(queryManualGradingResult.RubricID.In(ids...)).
-		Find()
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	}
+		if err := query.AssignmentDate.GradingManualRubrics.Model(assignmentDate).Replace(rubrics...); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
 
-	ids = utils.Map(toDeleteResults, func(e *database.ManualGradingResult) driver.Valuer { return e.ID })
+		queryManualGradingResult := query.ManualGradingResult
+		toDeleteResults, err := queryManualGradingResult.
+			WithContext(c.Context()).
+			Join(queryManualGradingRubric, queryManualGradingResult.RubricID.EqCol(queryManualGradingRubric.ID)).
+			Where(queryManualGradingRubric.ClassroomID.Eq(assignment.ClassroomID)).
+			Not(queryManualGradingResult.RubricID.In(ids...)).
+			Find()
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
 
-	if _, err := queryManualGradingResult.WithContext(c.Context()).Where(queryManualGradingResult.ID.In(ids...)).Delete(); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		ids = utils.Map(toDeleteResults, func(e *database.ManualGradingResult) driver.Valuer { return e.ID })
+
+		if _, err := queryManualGradingResult.WithContext(c.Context()).Where(queryManualGradingResult.ID.In(ids...)).Delete(); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
 	}
 
 	return c.SendStatus(fiber.StatusAccepted)

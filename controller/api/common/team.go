@@ -10,6 +10,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 )
 
 func AddToTeam(
@@ -53,7 +54,7 @@ func AddToTeam(
 
 	for _, project := range projects {
 		accessLevel := model.DeveloperPermissions
-		if project.Assignment.Closed {
+		if utils.All(project.Assignment.AssignmentDates, func(ad *database.AssignmentDate) bool { return ad.Closed }) {
 			accessLevel = model.ReporterPermissions
 		}
 		if err = repo.AddProjectMember(project.ProjectID, member.UserID, accessLevel); err != nil {

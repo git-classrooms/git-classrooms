@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"net/http"
+	"slices"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
@@ -39,6 +40,20 @@ func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err err
 
 	project := ctx.GetAssignmentProject()
 
+	sortedGradings := slices.SortedFunc(slices.Values(project.Gradings), func(a, b *database.AssignmentProjectGradingDate) int {
+		return a.AssignmentDate.DueDate.Compare(b.AssignmentDate.DueDate)
+	})
+
+	firstNotClosedDateIdx := slices.IndexFunc(sortedGradings, func(ad *database.AssignmentProjectGradingDate) bool {
+		return !ad.AssignmentDate.Closed
+	})
+
+	if firstNotClosedDateIdx < 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "No unclosed AssignmentDate")
+	}
+
+	firstNotClosedDate := sortedGradings[firstNotClosedDateIdx]
+
 	var requestBody startAutoGradingRequest
 	if err = c.BodyParser(&requestBody); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -64,9 +79,9 @@ func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err err
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		project.GradingJUnitTestResult = &database.JUnitTestResult{TestReport: *report}
+		firstNotClosedDate.GradingJUnitTestResult = &database.JUnitTestResult{TestReport: *report}
 
-		if err := query.AssignmentProjects.WithContext(c.Context()).Save(project); err != nil {
+		if err := query.AssignmentProjectGradingDate.WithContext(c.Context()).Save(firstNotClosedDate); err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 	}

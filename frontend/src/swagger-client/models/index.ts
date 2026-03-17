@@ -1,6 +1,7 @@
 export * from './action';
 export * from './active-assignment-response';
 export * from './api-project-clone-url-response';
+export * from './api-update-assignment-date-rubric-request';
 export * from './assignment';
 export * from './assignment-junit-test';
 export * from './assignment-project-grading-date';
@@ -20,6 +21,7 @@ export * from './database-assignment-date';
 export * from './database-junit-test-result';
 export * from './database-status';
 export * from './examples-language-ciexample';
+export * from './get-assignment-grading-rubrics-response';
 export * from './get-info-gitlab-response';
 export * from './get-me-response';
 export * from './grading-manual-result-request';

@@ -3,11 +3,13 @@ package api
 import (
 	"errors"
 	"net/http"
+	"slices"
 
 	"github.com/gofiber/fiber/v2"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database"
 	"gitlab.hs-flensburg.de/gitlab-classroom/model/database/query"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
+	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
 	fiberContext "gitlab.hs-flensburg.de/gitlab-classroom/wrapper/context"
 )
 
@@ -49,23 +51,41 @@ func (ctrl *DefaultController) StartAutoGrading(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusBadRequest, "Request Body is not valid")
 	}
 
-	queryAssignmentProjects := query.AssignmentProjects
-	projects, err := queryAssignmentProjects.
+	sortedAssignmentDates := slices.SortedFunc(slices.Values(assignment.AssignmentDates), func(a, b *database.AssignmentDate) int {
+		return a.DueDate.Compare(b.DueDate)
+	})
+	firstNotClosedDateIdx := slices.IndexFunc(sortedAssignmentDates, func(ad *database.AssignmentDate) bool {
+		return !ad.Closed
+	})
+
+	if firstNotClosedDateIdx < 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "No unclosed AssignmentDate")
+	}
+
+	firstNotClosedDate := sortedAssignmentDates[firstNotClosedDateIdx]
+
+	queryAssignmentProjectGradingDate := query.AssignmentProjectGradingDate
+	projectGradings, err := queryAssignmentProjectGradingDate.
 		WithContext(c.Context()).
-		Where(queryAssignmentProjects.AssignmentID.Eq(assignment.ID)).
-		Where(queryAssignmentProjects.ProjectStatus.Eq(string(database.Accepted))).
+		Preload(queryAssignmentProjectGradingDate.AssignmentProject).
+		Preload(queryAssignmentProjectGradingDate.AssignmentDate).
+		Where(queryAssignmentProjectGradingDate.AssignmentDateID.Eq(firstNotClosedDate.ID)).
 		Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+
+	projectGradings = utils.Filter(projectGradings, func(pg *database.AssignmentProjectGradingDate) bool {
+		return pg.AssignmentProject.ProjectStatus == database.Accepted
+	})
 
 	if *requestBody.JUnitAutoGrading {
 		if !assignment.GradingJUnitAutoGradingActive {
 			return fiber.NewError(fiber.StatusBadRequest, "JUnit Auto Grading is not active")
 		}
 
-		for _, project := range projects {
-			report, err := repo.GetProjectLatestPipelineTestReportSummary(project.ProjectID, nil)
+		for _, projectGrading := range projectGradings {
+			report, err := repo.GetProjectLatestPipelineTestReportSummary(projectGrading.AssignmentProject.ProjectID, nil)
 			if err != nil {
 				var gitlabError *model.GitLabError
 				if errors.As(err, &gitlabError) {
@@ -76,9 +96,9 @@ func (ctrl *DefaultController) StartAutoGrading(c *fiber.Ctx) (err error) {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 
-			project.GradingJUnitTestResult = &database.JUnitTestResult{TestReport: *report}
+			projectGrading.GradingJUnitTestResult = &database.JUnitTestResult{TestReport: *report}
 
-			if err := query.AssignmentProjects.WithContext(c.Context()).Save(project); err != nil {
+			if err := query.AssignmentProjectGradingDate.WithContext(c.Context()).Save(projectGrading); err != nil {
 				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 			}
 		}

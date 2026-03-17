@@ -185,7 +185,7 @@ func (repo *GitlabRepo) UnprotectBranch(projectId int, branchName string) error 
 }
 
 // CreateMergeRequest creates a merge request between branches.
-func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId int, reviewerId int) error {
+func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, targetBranch string, title string, description string, assigneeId *int, reviewerId int) error {
 	repo.assertIsConnected()
 
 	reviewers := []int{reviewerId}
@@ -195,11 +195,29 @@ func (repo *GitlabRepo) CreateMergeRequest(projectId int, sourceBranch string, t
 		SourceBranch: goGitlab.String(sourceBranch),
 		TargetBranch: goGitlab.String(targetBranch),
 		Description:  goGitlab.String(description),
-		AssigneeID:   goGitlab.Int(assigneeId),
+		AssigneeID:   assigneeId,
 		ReviewerIDs:  &reviewers,
 	}
 
 	_, _, err := repo.client.MergeRequests.CreateMergeRequest(projectId, opts)
+	return ErrorFromGoGitlab(err)
+}
+
+// DeleteMergeRequest deletes a merge request.
+func (repo *GitlabRepo) DeleteMergeRequest(projectId int, sourceBranch string, targetBranch string) error {
+	repo.assertIsConnected()
+
+	mrs, _, err := repo.client.MergeRequests.ListMergeRequests(&goGitlab.ListMergeRequestsOptions{
+		TargetBranch: &targetBranch,
+		SourceBranch: &sourceBranch,
+	})
+	if err != nil {
+		return ErrorFromGoGitlab(err)
+	} else if len(mrs) == 0 {
+		return fmt.Errorf("no matching mrs found")
+	}
+
+	_, err = repo.client.MergeRequests.DeleteMergeRequest(projectId, mrs[0].ID)
 	return ErrorFromGoGitlab(err)
 }
 

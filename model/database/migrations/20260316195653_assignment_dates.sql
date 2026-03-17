@@ -40,6 +40,7 @@ create table "public"."assignment_project_grading_dates" (
     "id" uuid PRIMARY KEY not null default uuid_generate_v4(),
     "assignment_project_id" uuid not null,
     "assignment_date_id" uuid not null,
+    "branchname" text,
     "grading_j_unit_test_result" jsonb,
     constraint "fk_assignment_dates_assignment_project_grading_date" FOREIGN KEY (assignment_date_id) REFERENCES assignment_dates(id) ON DELETE CASCADE,
     constraint "fk_assignment_projects_gradings" FOREIGN KEY (assignment_project_id) REFERENCES assignment_projects(id) ON DELETE CASCADE
