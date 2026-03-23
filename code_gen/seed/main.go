@@ -226,10 +226,23 @@ func run() error {
 			return err
 		}
 
+		groupToken2, err := ownerRepo.CreateGroupAccessToken(ctx, gitlabClassroom.ID)
+		if err != nil {
+			return err
+		}
+
 		classroom.GroupID = gitlabClassroom.ID
-		classroom.GroupAccessTokenID = groupToken.ID
-		classroom.GroupAccessToken = groupToken.Token
-		classroom.GroupAccessTokenCreatedAt = *groupToken.CreatedAt
+		classroom.Tokens = []*database.ClassroomToken{
+			{
+				GroupAccessTokenID:        groupToken.ID,
+				GroupAccessToken:          groupToken.Token,
+				GroupAccessTokenCreatedAt: *groupToken.CreatedAt,
+			}, {
+				GroupAccessTokenID:        groupToken2.ID,
+				GroupAccessToken:          groupToken2.Token,
+				GroupAccessTokenCreatedAt: *groupToken2.CreatedAt,
+			},
+		}
 		if err := SaveClassroom(ctx, classroom); err != nil {
 			return err
 		}

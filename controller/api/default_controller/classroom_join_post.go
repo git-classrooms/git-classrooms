@@ -88,6 +88,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 
 		queryClassroom := query.Classroom
 		classroom, err := queryClassroom.WithContext(c.Context()).
+			Preload(queryClassroom.Tokens).
 			Where(queryClassroom.ID.Eq(*params.ClassroomID)).
 			First()
 		if err != nil {
@@ -135,6 +136,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 		invitation, err = queryClassroomInvitation.
 			WithContext(c.Context()).
 			Preload(queryClassroomInvitation.Classroom).
+			Preload(queryClassroomInvitation.Classroom.Tokens).
 			Where(queryClassroomInvitation.ClassroomID.Eq(*params.ClassroomID)).
 			Where(queryClassroomInvitation.ID.Eq(requestBody.InvitationID)).
 			First()
@@ -180,7 +182,7 @@ func (ctrl *DefaultController) JoinClassroom(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	if err = repo.GroupAccessLogin(invitation.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(invitation.Classroom.Token()); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

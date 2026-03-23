@@ -102,21 +102,34 @@ func (ctrl *DefaultController) CreateClassroom(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
+
+	// We don't need to delete the accessToken because it will be deleted when the group is deleted
+	accessToken2, err := repo.CreateGroupAccessToken(group.ID, "GitClassrooms", model.OwnerPermissions, expiresAt, "api")
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
 	// We don't need to delete the accessToken because it will be deleted when the group is deleted
 
 	var classroom *database.Classroom
 	err = query.Q.Transaction(func(tx *query.Query) error {
 		classroomQuery := tx.Classroom
 		classroom = &database.Classroom{
-			Name:                    requestBody.Name,
-			Description:             requestBody.Description,
-			OwnerID:                 userID,
-			CreateTeams:             *requestBody.CreateTeams,
-			MaxTeamSize:             requestBody.MaxTeamSize,
-			MaxTeams:                *requestBody.MaxTeams,
-			GroupID:                 group.ID,
-			GroupAccessTokenID:      accessToken.ID,
-			GroupAccessToken:        accessToken.Token,
+			Name:        requestBody.Name,
+			Description: requestBody.Description,
+			OwnerID:     userID,
+			CreateTeams: *requestBody.CreateTeams,
+			MaxTeamSize: requestBody.MaxTeamSize,
+			MaxTeams:    *requestBody.MaxTeams,
+			GroupID:     group.ID,
+			Tokens: []*database.ClassroomToken{{
+				GroupAccessTokenID:        accessToken.ID,
+				GroupAccessToken:          accessToken.Token,
+				GroupAccessTokenCreatedAt: accessToken.CreatedAt,
+			}, {
+				GroupAccessTokenID:        accessToken2.ID,
+				GroupAccessToken:          accessToken2.Token,
+				GroupAccessTokenCreatedAt: accessToken2.CreatedAt,
+			}},
 			StudentsViewAllProjects: *requestBody.StudentsViewAllProjects,
 			Member:                  []*database.UserClassrooms{{UserID: userID, Role: database.Owner}},
 			InviteCode:              uuid.New(),

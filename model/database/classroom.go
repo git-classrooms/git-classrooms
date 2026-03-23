@@ -22,10 +22,8 @@ type Classroom struct {
 	MaxTeamSize int  `gorm:"not null;default:1" json:"maxTeamSize"`
 	MaxTeams    int  `gorm:"not null;default:0" json:"maxTeams"`
 
-	GroupID                   int       `gorm:"<-:create;not null" json:"groupId"`
-	GroupAccessTokenID        int       `gorm:"not null" json:"-"`
-	GroupAccessToken          string    `gorm:"not null" json:"-"`
-	GroupAccessTokenCreatedAt time.Time `gorm:"not null" json:"-"`
+	GroupID int               `gorm:"<-:create;not null" json:"groupId"`
+	Tokens  []*ClassroomToken `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 
 	TeachingGroupID *int `gorm:";" json:"teachingGroupId"`
 
@@ -41,3 +39,15 @@ type Classroom struct {
 	Archived           bool `gorm:"not null;default:false" json:"archived"`
 	PotentiallyDeleted bool `gorm:"not null;default:false" json:"potentiallyDeleted"`
 } //@Name Classroom
+
+func (c *Classroom) Token() string {
+	return c.Tokens[0].GroupAccessToken
+}
+
+type ClassroomToken struct {
+	ID                        uuid.UUID `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	GroupAccessTokenID        int       `gorm:"not null"`
+	GroupAccessToken          string    `gorm:"not null"`
+	GroupAccessTokenCreatedAt time.Time `gorm:"not null"`
+	ClassroomID               uuid.UUID `gorm:"not null"`
+}

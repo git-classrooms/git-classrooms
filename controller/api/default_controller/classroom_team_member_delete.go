@@ -32,7 +32,7 @@ func (ctrl *DefaultController) RemoveMemberFromTeam(c *fiber.Ctx) (err error) {
 		return fiber.NewError(fiber.StatusForbidden, "Teams are disabled for this classroom.")
 	}
 
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.Token()); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

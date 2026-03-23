@@ -58,7 +58,7 @@ func (ctrl *DefaultController) UpdateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken)
+	err = repo.GroupAccessLogin(classroom.Classroom.Token())
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}

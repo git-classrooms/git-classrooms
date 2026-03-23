@@ -34,7 +34,7 @@ func NewSyncGitlabDbWork(config gitlabConfig.Config, publicUrl *url.URL) *SyncGi
 func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 	classrooms := w.getUnarchivedClassrooms(ctx)
 	for _, classroom := range classrooms {
-		repo, err := GetWorkerRepo(w.gitlabConfig, classroom.GroupAccessToken)
+		repo, err := GetWorkerRepo(w.gitlabConfig, classroom.Token())
 		if err != nil {
 			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
 			continue
@@ -73,6 +73,7 @@ func (w *SyncGitlabDbWork) Do(ctx context.Context) {
 func (w *SyncGitlabDbWork) getUnarchivedClassrooms(ctx context.Context) []*database.Classroom {
 	classrooms, err := query.Classroom.
 		WithContext(ctx).
+		Preload(query.Classroom.Tokens).
 		Preload(query.Classroom.Member).
 		Preload(query.Classroom.Member.User).
 		Preload(query.Classroom.Teams).

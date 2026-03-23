@@ -56,7 +56,7 @@ func (ctrl *DefaultController) CreateClassroomTeachingGroup(c *fiber.Ctx) (err e
 	}
 
 	// reauthenticate the repo with the group access token
-	if err = repo.GroupAccessLogin(userClassroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(userClassroom.Classroom.Token()); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
