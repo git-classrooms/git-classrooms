@@ -49,6 +49,7 @@ func main() {
 	g.ApplyBasic(
 		&dbModel.User{},
 		&dbModel.Classroom{},
+		&dbModel.ClassroomToken{},
 		&dbModel.Team{},
 		&dbModel.UserClassrooms{},
 		&dbModel.Assignment{},

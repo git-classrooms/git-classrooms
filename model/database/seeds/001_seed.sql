@@ -51,17 +51,25 @@ INSERT INTO "public"."classrooms" (
   "max_team_size",
   "max_teams",
   "group_id",
-  "group_access_token_id",
-  "group_access_token",
-  "group_access_token_created_at",
   "students_view_all_projects",
   "invite_code",
   "created_at",
   "updated_at"
 ) VALUES
-( 'a8566e13-f696-494a-87f9-98d40b178291', 'Classroom with Teams', 'Classroom with Teams!', 2, true, 2, 0, -1, -1, '', '1970-01-01 00:00:00.000000+00', false, '253cdd84-9414-42a6-ada2-2acb74f75cdd', NOW(), NOW() ),
-( '827469b8-0dd1-431c-8b00-031b00547dc7', 'Classroom without Teams', 'Classroom without Teams!', 2, false, 1, 0, -1, -1, '', '1970-01-01 00:00:00.000000+00', false, '90913851-cd98-4c63-a767-bba7eb63d47e', NOW(), NOW() );
+( 'a8566e13-f696-494a-87f9-98d40b178291', 'Classroom with Teams', 'Classroom with Teams!', 2, true, 2, 0, -1, false, '253cdd84-9414-42a6-ada2-2acb74f75cdd', NOW(), NOW() ),
+( '827469b8-0dd1-431c-8b00-031b00547dc7', 'Classroom without Teams', 'Classroom without Teams!', 2, false, 1, 0, -1, false, '90913851-cd98-4c63-a767-bba7eb63d47e', NOW(), NOW() );
 
+INSERT INTO "public"."classroom_tokens" (
+  "id",
+  "group_access_token_id",
+  "group_access_token",
+  "group_access_token_created_at",
+  "classroom_id"
+) VALUES
+('19b693f2-209f-4c48-94a0-431d33c2cf8b', -1, '', '1970-01-01 00:00:00.000000+00', 'a8566e13-f696-494a-87f9-98d40b178291'),
+('2404dda4-6730-4c8a-b0b9-0b0268e78152', -1, '', '1970-01-01 00:00:00.000000+00', 'a8566e13-f696-494a-87f9-98d40b178291'),
+('44ac04e7-65b9-4397-91bc-62c835d863ae', -1, '', '1970-01-01 00:00:00.000000+00', '827469b8-0dd1-431c-8b00-031b00547dc7'),
+('0f7f7424-fa0b-4320-8587-fecb10941252', -1, '', '1970-01-01 00:00:00.000000+00', '827469b8-0dd1-431c-8b00-031b00547dc7');
 
 INSERT INTO "public"."teams" (
   "id", "name", "group_id", "classroom_id", "created_at", "updated_at"

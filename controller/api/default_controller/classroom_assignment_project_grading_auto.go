@@ -33,7 +33,7 @@ func (ctrl *DefaultController) StartAutoGradingForProject(c *fiber.Ctx) (err err
 	ctx := fiberContext.Get(c)
 	classroom := ctx.GetUserClassroom()
 	repo := ctx.GetGitlabRepository()
-	if err := repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err := repo.GroupAccessLogin(classroom.Classroom.Token()); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

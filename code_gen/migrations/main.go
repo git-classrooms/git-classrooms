@@ -142,6 +142,7 @@ func MigrateDatabase(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&database.User{},
 		&database.Classroom{},
+		&database.ClassroomToken{},
 		&database.Team{},
 		&database.UserClassrooms{},
 		&database.Assignment{},

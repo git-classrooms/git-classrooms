@@ -80,7 +80,7 @@ func (ctrl *DefaultController) CreateTeam(c *fiber.Ctx) (err error) {
 	}
 
 	// reauthenticate the repo with the group access token
-	if err = repo.GroupAccessLogin(classroom.Classroom.GroupAccessToken); err != nil {
+	if err = repo.GroupAccessLogin(classroom.Classroom.Token()); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 

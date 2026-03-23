@@ -11,6 +11,7 @@ import (
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab"
 	"gitlab.hs-flensburg.de/gitlab-classroom/repository/gitlab/model"
 	"gitlab.hs-flensburg.de/gitlab-classroom/utils"
+	"gorm.io/gen/field"
 )
 
 // DueAssignmentWork handles the processing of assignments that are due.
@@ -29,7 +30,7 @@ func NewDueAssignmentWork(config gitlabConfig.Config) *DueAssignmentWork {
 func (w *DueAssignmentWork) Do(ctx context.Context) {
 	assignments := w.getAssignments2Close(ctx)
 	for _, assignment := range assignments {
-		repo, err := GetWorkerRepo(w.gitlabConfig, assignment.Classroom.GroupAccessToken)
+		repo, err := GetWorkerRepo(w.gitlabConfig, assignment.Classroom.Token())
 		if err != nil {
 			log.Default().Printf("Error occurred while login into gitlab: %s", err.Error())
 			continue
@@ -51,6 +52,7 @@ func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*databas
 		Preload(query.Assignment.Projects.Team).
 		Preload(query.Assignment.Projects.Team.Member).
 		Preload(query.Assignment.Classroom).
+		Preload(field.NewRelation("Classroom.Tokens", "")).
 		Where(query.Assignment.DueDate.Lt(time.Now())).
 		Where(query.Assignment.Closed.Is(false)).
 		Find()
@@ -65,7 +67,7 @@ func (w *DueAssignmentWork) getAssignments2Close(ctx context.Context) []*databas
 // getLoggedInRepo logs into the GitLab repository associated with the assignment and returns the repository object.
 func (w *DueAssignmentWork) getLoggedInRepo(assignment *database.Assignment) (gitlab.Repository, error) {
 	repo := gitlab.NewGitlabRepo(w.gitlabConfig)
-	err := repo.GroupAccessLogin(assignment.Classroom.GroupAccessToken)
+	err := repo.GroupAccessLogin(assignment.Classroom.Token())
 	if err != nil {
 		return nil, err
 	}
