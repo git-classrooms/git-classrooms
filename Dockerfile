@@ -2,7 +2,7 @@
 #############################################
 #                Preparer go                #
 #############################################
-FROM golang:1.25-alpine3.23 AS preparer-go
+FROM golang:1.26-alpine3.23 AS preparer-go
 
 RUN apk add --no-cache make git
 
