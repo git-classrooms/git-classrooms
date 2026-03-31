@@ -33,7 +33,6 @@ type Classroom struct {
 	Teams                   []*Team                `gorm:"foreignKey:ClassroomID;constraint:OnDelete:CASCADE;" json:"-"`
 	Assignments             []*Assignment          `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 	Invitations             []*ClassroomInvitation `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
-	ManualGradingRubrics    []*ManualGradingRubric `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 	StudentsViewAllProjects bool                   `gorm:"not null" json:"studentsViewAllProjects"`
 
 	InviteCode uuid.UUID `gorm:"type:uuid;not null;default:uuid_generate_v4()" json:"-"`

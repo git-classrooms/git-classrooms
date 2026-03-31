@@ -19,7 +19,7 @@ type AssignmentDate struct {
 	DueDate time.Time `gorm:"not null" json:"dueDate"`
 	Closed  bool      `gorm:"default:false" json:"closed"`
 
-	GradingManualRubrics []*ManualGradingRubric `gorm:"many2many:assignment_dates_manual_grading_rubrics;constraint:OnDelete:CASCADE;" json:"-"`
+	GradingManualRubrics []*ManualGradingRubric `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 
 	AssignmentProjectGradingDate []*AssignmentProjectGradingDate `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 

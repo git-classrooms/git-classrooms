@@ -34,7 +34,8 @@ func (ctrl *DefaultController) GetGradingResults(c *fiber.Ctx) (err error) {
 	results, err := queryManualGradingResult.
 		WithContext(c.Context()).
 		Preload(queryManualGradingResult.Rubric).
-		Where(queryManualGradingResult.AssignmentProjectID.Eq(project.ID)).
+		Preload(queryManualGradingResult.AssignmentProjectGradingDate).
+		Where(queryManualGradingResult.AssignmentProjectGradingDate.Eq(project.ID)).
 		Find()
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
