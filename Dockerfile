@@ -34,7 +34,7 @@ RUN cd swagger-client && \
 #############################################
 #                Builder web                #
 #############################################
-FROM node:24-alpine AS builder-web
+FROM node:26-alpine AS builder-web
 
 WORKDIR /app/build
 COPY ./frontend/package.json ./frontend/pnpm-lock.yaml ./
