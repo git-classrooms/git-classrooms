@@ -67,7 +67,7 @@ RUN make CI=true build \
 #############################################
 #               Runtime image               #
 #############################################
-FROM alpine:3.23 AS release
+FROM alpine:3.24 AS release
 
 RUN apk add --no-cache tzdata
 
